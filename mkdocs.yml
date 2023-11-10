@@ -1,0 +1,121 @@
+# Project information
+site_name: "htrflow"
+site_url: https://Riksarkivet.github.io/htrflow
+site_author: "Riksarkivet"
+site_description: >-
+  Work in progress ...
+repo_name: Riksarkivet/htrflow
+repo_url: https://Riksarkivet/htrflow
+
+# Copyright
+copyright: Copyright &copy; 2023 Riksarkivet
+
+# Configuration
+theme:
+  name: material
+  custom_dir: docs/overrides/
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.tracking
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.annotation
+    - content.code.copy
+    - content.action.edit
+    - content.action.view
+    - content.code.annotate
+    - announce.dismiss
+    - toc.follow
+
+  language: en
+  palette:
+    primary: indigo
+    accent: indigo
+  font:
+    text: Roboto
+    code: Roboto Mono
+  favicon: https://raw.githubusercontent.com/Borg93/riks_ds_utils/main/docs/images/riks.png
+  logo: https://raw.githubusercontent.com/Borg93/riks_ds_utils/main/docs/images/riks.png
+  icon:
+    logo: logo
+
+plugins:
+  - tags
+  - search
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          rendering:
+            show_root_toc_entry: False
+            show_root_heading: True
+            show_source: True
+            show_category_heading: False
+            show_bases: False
+          selection:
+            filters:
+              - "!^_" # exclude all members starting with _
+
+  # - mkdocs-jupyter:
+  #     include_source: True
+
+extra:
+  social:
+    - icon: fontawesome/brands/github-alt
+      link: https://github.com/Riksarkivet
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/Riksarkivet
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/in/Riksarkivet
+  generator: false
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+      emoji_index: !!python/name:materialx.emoji.twemoji
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.magiclink:
+      repo_url_shorthand: true
+      user: squidfunk
+      repo: mkdocs-material
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+# Page tree
+nav:
+  - Getting started: README.md
+  - Refrence API: api.md
+  - Changelog: changelog.md

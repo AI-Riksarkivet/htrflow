@@ -1,0 +1,7 @@
+name: htrflow
+channels:
+  - defaults
+dependencies:
+  - python=3.9
+  - pip
+    - -r file:requirements.txt
