@@ -32,6 +32,7 @@ dependencies = [
     "requests",
     "accelerate",
 ]
+# dynamic = ["version"]
 
 
 [project.urls]
@@ -78,9 +79,10 @@ Z increments -> Backwards compatible and focuses on bug fixes (i.e Defects that 
 """
 
 
+[tool.hatch]
 [build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.pytest.ini_options]
 addopts = "-v --cov=htrflow"
