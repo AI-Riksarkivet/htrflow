@@ -1,4 +1,3 @@
-import cv2
 import numpy as np
 import torch
 
@@ -54,16 +53,14 @@ class PostProcessSegmentation:
             cropped_imgs.append(masked_region_on_white_np)
 
         return cropped_imgs
-    
+
     def combine_region_line_res(result_full, result_regions):
         ind = 0
 
-        for res in result_full: 
-            res.nested_results = list()   
+        for res in result_full:
+            res.nested_results = []
             for i in range(ind, ind + len(res.segmentation.masks)):
-                #result_lines.parent_result = res
+                # result_lines.parent_result = res
                 res.nested_results.append(result_regions[i])
-            
+
             ind += len(res.segmentation.masks)
-            
-        

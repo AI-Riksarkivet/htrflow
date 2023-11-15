@@ -1,21 +1,16 @@
 import torch
 from torch import Tensor
-import pandas as pd
 
 from htrflow.utils.helper import timing_decorator
 
 # import cv2
 # import numpy as np
 
-class SegResult():
 
-    def __init__(self,
-                 labels: Tensor,
-                 scores: Tensor,
-                 bboxes: Tensor = None,
-                 masks: Tensor = None,
-                 polygons: list = None):
-
+class SegResult:
+    def __init__(
+        self, labels: Tensor, scores: Tensor, bboxes: Tensor = None, masks: Tensor = None, polygons: list = None
+    ):
         self.labels = labels
         self.scores = scores
         self.bboxes = bboxes
@@ -36,10 +31,10 @@ class SegResult():
         # Calculate containments in batches
         batch_size = 100  # adjust this value based on your GPU memory
         for i in range(0, len(self.masks), batch_size):
-            batch_masks = all_masks[i:i+batch_size]
+            batch_masks = all_masks[i : i + batch_size]
             for j in range(len(self.masks)):
                 if method == "mask":
-                    containments[i:i+batch_size, j] = self._calculate_containment_mask(batch_masks, self.masks[j])
+                    containments[i : i + batch_size, j] = self._calculate_containment_mask(batch_masks, self.masks[j])
 
         # Keep only the biggest masks for overlapping pairs
         keep_mask = torch.ones(len(self.masks), dtype=torch.bool)
@@ -47,7 +42,9 @@ class SegResult():
             if not keep_mask[i]:
                 continue
             # Get indices of masks that contain mask i
-            containing_indices = torch.where((containments[:, i] > containments_threshold) & (torch.arange(len(self.masks)) != i))[0]
+            containing_indices = torch.where(
+                (containments[:, i] > containments_threshold) & (torch.arange(len(self.masks)) != i)
+            )[0]
             # Mark mask i for removal if it's contained in any other mask
             if len(containing_indices) > 0:
                 keep_mask[i] = False
@@ -57,9 +54,8 @@ class SegResult():
         self.bboxes = self.bboxes[keep_mask]
         self.scores = self.scores[keep_mask]
 
-
     def _calculate_containment_mask(self, masks_a, mask_b):
-        intersections = torch.logical_and(masks_a, mask_b).sum(dim=(1,2)).float()
+        intersections = torch.logical_and(masks_a, mask_b).sum(dim=(1, 2)).float()
         containments = intersections / mask_b.sum().float() if mask_b.sum() > 0 else 0
         return containments
 
@@ -80,7 +76,9 @@ class SegResult():
             mask_float = mask.float()
 
             # Resize the mask
-            mask_resized = torch.nn.functional.interpolate(mask_float[None, None, ...], size=img_size, mode='nearest')[0, 0]
+            mask_resized = torch.nn.functional.interpolate(mask_float[None, None, ...], size=img_size, mode="nearest")[
+                0, 0
+            ]
 
             # Convert the mask back to bool
             mask = mask_resized.bool()
@@ -94,32 +92,3 @@ class SegResult():
 
         # Stack all masks into a single tensor
         self.masks = torch.stack(masks)
-
-    
-    
-    
-
-    """
-    def align_masks_with_image(self, img):
-        masks = list()
-
-        img = img[..., ::-1].copy()
-
-        for j, mask in enumerate(self.masks):
-            numpy_mask = mask.cpu().numpy()
-            mask = cv2.resize(
-                numpy_mask.astype(np.uint8),
-                (img.shape[1], img.shape[0]),
-                interpolation=cv2.INTER_NEAREST,
-            )
-
-            # Pad the mask to match the size of the image
-            padded_mask = np.zeros((img.shape[0], img.shape[1]), dtype=np.uint8)
-            padded_mask[: mask.shape[0], : mask.shape[1]] = mask
-            mask = padded_mask
-            mask = torch.from_numpy(mask)
-            masks.append(mask)
-
-        stacked_masks = torch.stack(masks)
-        self.masks = stacked_masks
-    """

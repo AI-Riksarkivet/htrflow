@@ -4,36 +4,35 @@ from glob import glob
 import mmcv
 
 from htrflow.inferencer.mmdet_inferencer import MMDetInferencer
+from htrflow.inferencer.mmocr_inferencer import MMOCRInferencer
 from htrflow.models.openmmlab_models import OpenmmlabModel
 from htrflow.postprocess.postprocess_segmentation import PostProcessSegmentation
 from htrflow.postprocess.postprocess_transcription import PostProcessTranscription
 from htrflow.utils.helper import timing_decorator
-from htrflow.inferencer.mmocr_inferencer import MMOCRInferencer
 
 
-def post_process_seg(result, imgs, lines = False, regions = False):
+def post_process_seg(result, imgs, lines=False, regions=False):
+    imgs_cropped = []
 
-    imgs_cropped = list()
-    
     for res, img in zip(result, imgs):
         res.segmentation.remove_overlapping_masks()
         res.segmentation.align_masks_with_image(img)
-        
-        indices = False
+
         if regions:
             res.order_regions_marginalia(img)
         elif lines:
             res.order_lines()
-        
+
         imgs_cropped.append(PostProcessSegmentation.crop_imgs_from_result_optim(res, img))
 
     return result, imgs_cropped
+
 
 @timing_decorator
 def predict_batch(inferencer_regions, inferencer_lines, inferencer_htr, imgs_numpy):
     result_full = inferencer_regions.predict(imgs_numpy, batch_size=8)
 
-    imgs_region_numpy = list()
+    imgs_region_numpy = []
 
     result_full, imgs_region_numpy = post_process_seg(result_full, imgs_numpy, regions=True)
     flat_imgs_region_numpy = [item for sublist in imgs_region_numpy for item in sublist]
@@ -41,7 +40,6 @@ def predict_batch(inferencer_regions, inferencer_lines, inferencer_htr, imgs_num
     result_regions, imgs_lines_numpy = post_process_seg(result_regions, flat_imgs_region_numpy, lines=True)
 
     PostProcessSegmentation.combine_region_line_res(result_full, result_regions)
-    
 
     flat_imgs_lines_numpy = [item for sublist in imgs_lines_numpy for item in sublist]
 
@@ -56,8 +54,7 @@ def predict_batch(inferencer_regions, inferencer_lines, inferencer_htr, imgs_num
             for text in nested_res.texts:
                 print(text.text)
 
-            print('\n\n')
-
+            print("\n\n")
 
 
 if __name__ == "__main__":
@@ -84,18 +81,14 @@ if __name__ == "__main__":
 
     for img in imgs[0:8]:
         imgs_numpy.append(mmcv.imread(img))
-    
+
     predict_batch(inferencer_regions, inferencer_lines, inferencer_htr, imgs_numpy)
 
-    
-    
-    #print(result[-1].img_shape)
-    #print(result['predictions'][0].pred_instances.metadata_fields)
-    #print(result['predictions'][0]._metainfo_fields)
-    #print(result.keys())
-    #print(result)    
-
-    from PIL import Image
+    # print(result[-1].img_shape)
+    # print(result['predictions'][0].pred_instances.metadata_fields)
+    # print(result['predictions'][0]._metainfo_fields)
+    # print(result.keys())
+    # print(result)
 
     # load image from the IAM database
     # image = Image.open("./image_0.png").convert("RGB")

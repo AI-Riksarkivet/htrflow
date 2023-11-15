@@ -1,6 +1,10 @@
 # from torch import Tensor
 from typing import List
 
+import numpy as np
+import pandas as pd
+import torch
+
 from htrflow.structures.seg_result import SegResult
 
 # import numpy as np
@@ -8,9 +12,6 @@ from htrflow.structures.seg_result import SegResult
 # import torch
 # from htrflow.utils.helper import timing_decorator
 from htrflow.structures.text_rec_result import TextRecResult
-import pandas as pd
-import numpy as np
-import torch
 
 
 class Result():
@@ -53,16 +54,16 @@ class Result():
 
         # Order text lines
         self._rearrange_instance(indices)
-    
+
     def _calculate_threshold_distance(self, bounding_boxes, line_spacing_factor=0.5):
-    
+
         # Calculate the average height of the text lines
         total_height = sum(box[3] - box[1] for box in bounding_boxes)
         average_height = total_height / len(bounding_boxes)
-        
+
         # Calculate the threshold distance, Set a factor for the threshold distance (adjust as needed)
         threshold_distance = average_height * line_spacing_factor
-        
+
         # Return the threshold distance
         return threshold_distance
 
@@ -102,12 +103,8 @@ class Result():
             )
 
         # Define a custom sorting function
-        sort_regions = lambda row: (
-            row["page"],
-            row["is_margin"],
-            row["centroid_y"],
-            row["centroid_x"],
-        )
+        def sort_regions(row):
+            return row['page'], row['is_margin'], row['centroid_y'], row['centroid_x']
 
         # Sort the DataFrame using the custom function
         df["sort_key"] = df.apply(sort_regions, axis=1)
@@ -251,4 +248,5 @@ class FilterSegMask:
 
         new_filtered_result.pred_instances = new_pred_instances
         return new_filtered_result
+"""
 """
