@@ -3,12 +3,12 @@ from glob import glob
 
 import mmcv
 
+from htrflow.helper.timing_decorator import timing_decorator
 from htrflow.inferencer.mmdet_inferencer import MMDetInferencer
 from htrflow.inferencer.mmocr_inferencer import MMOCRInferencer
 from htrflow.models.openmmlab_models import OpenmmlabModel
 from htrflow.postprocess.postprocess_segmentation import PostProcessSegmentation
 from htrflow.postprocess.postprocess_transcription import PostProcessTranscription
-from htrflow.utils.helper import timing_decorator
 
 
 def post_process_seg(result, imgs, lines=False, regions=False):

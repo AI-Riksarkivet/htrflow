@@ -1,8 +1,8 @@
 import numpy as np
 
+from htrflow.helper.profile_decorator import timing_decorator
 from htrflow.inferencer.base_inferencer import BaseInferencer
 from htrflow.structures.result import Result, SegResult
-from htrflow.utils.helper import timing_decorator
 
 
 class MMDetInferencer(BaseInferencer):

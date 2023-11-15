@@ -1,8 +1,8 @@
 import numpy as np
 import torch
 
+from htrflow.helper.timing_decorator import timing_decorator
 from htrflow.structures.result import Result
-from htrflow.utils.helper import timing_decorator
 
 
 class PostProcessSegmentation:
