@@ -2,13 +2,12 @@ import torch
 
 from htrflow.helper.timing_decorator import timing_decorator
 
-
 # TODO: Heavy rewrite here.. Should take the intermediate step from an TextSegmentation model.
 # TODO: Gabriel wil provide an intermediate DataStrucutres object (dataframe ) to test on here.
 # TODO: Decide on the structure and if the model should output. Leaning more towards creating the polygons only here.
 # and have a seperate class that takes those polygons and creates a new temporary folder
 # I guess we need to create a need pointer based on those "new images", basically cropped images based on the polygons,
-# were their tempoary folder path becoems the new pointer.
+# were their tempoary folder path becoems the new pointer
 
 
 class PostProcessSegmentation:
