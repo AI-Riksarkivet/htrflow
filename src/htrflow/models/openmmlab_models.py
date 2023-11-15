@@ -11,6 +11,9 @@ from mmocr.apis import TextRecInferencer
 
 from htrflow.models.utils import check_device_to_use
 
+# TODO combine models here and add a serialized file to the models on huggingfacey
+# Add code to handle a readable yaml file that tells what type of files it is
+
 
 class OpenmmlabsFramework(Enum):
     MMDET = "mmdet"

@@ -36,6 +36,23 @@ class DataStructures:
         """Here we could join different DataStructure object with each other.."""
         pass
 
+    def a_function_to_handle_text():
+        """
+        previews solution:
+        from torch import Tensor
+
+
+        class TextRecResult:
+            def __init__(self, text: str, score: Tensor):
+                self.text = text
+                self.score = score
+
+        """
+        pass
+
+    def a_function_to_handle_the_segmentations():
+        pass
+
 
 if __name__ == "__main__":
     data_folder = "path/to/image/folder"

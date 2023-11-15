@@ -1,8 +1,14 @@
-import numpy as np
 import torch
 
 from htrflow.helper.timing_decorator import timing_decorator
-from htrflow.structures.result import Result
+
+
+# TODO: Heavy rewrite here.. Should take the intermediate step from an TextSegmentation model.
+# TODO: Gabriel wil provide an intermediate DataStrucutres object (dataframe ) to test on here.
+# TODO: Decide on the structure and if the model should output. Leaning more towards creating the polygons only here.
+# and have a seperate class that takes those polygons and creates a new temporary folder
+# I guess we need to create a need pointer based on those "new images", basically cropped images based on the polygons,
+# were their tempoary folder path becoems the new pointer.
 
 
 class PostProcessSegmentation:
@@ -14,14 +20,6 @@ class PostProcessSegmentation:
         cols = torch.any(mask, dim=0)
         ymin, ymax = torch.where(rows)[0][[0, -1]]
         xmin, xmax = torch.where(cols)[0][[0, -1]]
-
-        return xmin, ymin, xmax, ymax
-
-    def get_bounding_box_np(mask):
-        rows = np.any(mask, axis=1)
-        cols = np.any(mask, axis=0)
-        ymin, ymax = np.where(rows)[0][[0, -1]]
-        xmin, xmax = np.where(cols)[0][[0, -1]]
 
         return xmin, ymin, xmax, ymax
 

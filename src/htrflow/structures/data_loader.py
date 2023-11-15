@@ -1,5 +1,6 @@
 import cv2
 
+
 # TODO: add rapids.ai
 
 
@@ -21,6 +22,9 @@ class DataLoader:
                 batch = []
 
     def image_loader():
+        pass
+
+    def polygons_to_mask_loader():
         pass
 
 
