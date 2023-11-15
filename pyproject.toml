@@ -53,6 +53,26 @@ test = [
     "python-dotenv",
 ]
 
+rapids11 = [
+    "cudf-cu11",
+    "dask-cudf-cu11",
+    "cuml-cu11",
+    "cugraph-cu11",
+    "cuspatial-cu11",
+    "cuproj-cu11",
+    "cuxfilter-cu11 cucim",
+]
+
+rapids12 = [
+    "cudf-cu12",
+    "dask-cudf-cu12",
+    "cuml-cu12",
+    "cugraph-cu12",
+    "cuspatial-cu12",
+    "cuproj-cu12",
+    "cuxfilter-cu12 cucim",
+]
+
 [tool.versioning-info]
 description = """
 Package version
