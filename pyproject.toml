@@ -60,7 +60,8 @@ rapids11 = [
     "cugraph-cu11",
     "cuspatial-cu11",
     "cuproj-cu11",
-    "cuxfilter-cu11 cucim",
+    "cuxfilter-cu11",
+    "cucim",
 ]
 
 rapids12 = [
@@ -70,7 +71,8 @@ rapids12 = [
     "cugraph-cu12",
     "cuspatial-cu12",
     "cuproj-cu12",
-    "cuxfilter-cu12 cucim",
+    "cuxfilter-cu12",
+    "cucim",
 ]
 
 [tool.versioning-info]
