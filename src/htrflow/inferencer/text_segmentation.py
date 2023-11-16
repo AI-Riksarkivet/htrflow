@@ -1,13 +1,14 @@
-from htrflow.inferencer.base_inferencer import BaseInferencer
-from htrflow.models.openmmlab_models import OpenmmlabModel
+from htrflow.inferencer.openmmlab.mmdet_inferencer import MMDetInferencer
+from htrflow.models.base_model import BaseModel
+from htrflow.models.openmmlab_models import OpenmmlabModelLoader
 
 
 class TextSegmentation:
-    def __init__(self, segmentation_model: BaseInferencer):
-        self.segmentation_model = segmentation_model
+    def __init__(self, segmentation_model: BaseModel):
+        self.segmentation_inferencer= TextSegInstanceChecker.get_inferencer(segmentation_model.framework)
 
     def predict(self, input_images):
-        self.segmentation_model.predict(input_images)
+        # self.segmentation_model.predict(input_images)
         print(input_images)
 
         # Should return to the dataframe
@@ -15,18 +16,17 @@ class TextSegmentation:
 
 class TextSegInstanceChecker:
     @staticmethod
-    def create_openmmlab_model(inferencer_scope):
+    def get_inferencer(inferencer_scope):
         inferencers = {
-            # OpenmmlabsFramework.MMDET.value: MMDetInferencer,
+            "mmdet": MMDetInferencer,
         }
 
         if inferencer_scope in inferencers:
-            return
+            return inferencers[inferencer_scope]
 
 
 if __name__ == "__main__":
-    region_model = OpenmmlabModel.from_pretrained("Riksarkivet/rtmdet_regions", cache_dir="/home/gabriel/Desktop/htrflow_core/models")
+    rtmdet_region_model = OpenmmlabModelLoader.from_pretrained("Riksarkivet/rtmdet_regions", cache_dir="/home/gabriel/Desktop/htrflow_core/models")
     # lines_model = OpenmmlabModel.from_pretrained("Riksarkivet/rtmdet_lines", cache_dir="./models")
-    # text_rec_model = OpenmmlabModel.from_pretrained("Riksarkivet/satrn_htr", cache_dir="./models")
-
-    print(region_model)
+    region_inferencer= TextSegmentation(rtmdet_region_model)
+    print(region_inferencer.segmentation_inferencer)

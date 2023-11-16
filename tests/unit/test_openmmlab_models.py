@@ -2,7 +2,7 @@ import pytest
 from mmdet.apis import DetInferencer
 from mmocr.apis import TextRecInferencer
 
-from htrflow.models.openmmlab_models import OpenmmlabModel
+from htrflow.models.openmmlab_models import OpenmmlabModelLoader
 
 
 @pytest.mark.parametrize(
@@ -14,7 +14,7 @@ from htrflow.models.openmmlab_models import OpenmmlabModel
     ],
 )
 def test_from_pretrained__returns_correct_type(model_id, expected_type):
-    result = OpenmmlabModel.from_pretrained(model_id)
+    result = OpenmmlabModelLoader.from_pretrained(model_id)
 
     if expected_type is None:
         assert result is None

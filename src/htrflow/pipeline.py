@@ -3,7 +3,7 @@ from collections import OrderedDict
 import torch
 import yaml
 
-from htrflow.models.openmmlab_models import OpenmmlabModel
+from htrflow.models.openmmlab_models import OpenmmlabModelLoader
 
 
 class MultiModelManager:
@@ -18,5 +18,5 @@ class MultiModelManager:
                 model_id = model_def.get("model_id")
                 cache_dir = model_def.get("cache_dir")
                 device = model_def.get("device", torch.device("cuda:0" if torch.cuda.is_available() else "cpu"))
-                model_manager = OpenmmlabModel.from_pretrained(model_id, cache_dir, device)
+                model_manager = OpenmmlabModelLoader.from_pretrained(model_id, cache_dir, device)
                 self.models[model_id] = model_manager
