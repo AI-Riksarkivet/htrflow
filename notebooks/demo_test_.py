@@ -1,11 +1,4 @@
-import os
-from glob import glob
-
-import mmcv
-
 from htrflow.helper.timing_decorator import timing_decorator
-from htrflow.inferencer.mmdet_inferencer import MMDetInferencer
-from htrflow.inferencer.mmocr_inferencer import MMOCRInferencer
 from htrflow.models.openmmlab_models import OpenmmlabModel
 from htrflow.postprocess.postprocess_segmentation import PostProcessSegmentation
 from htrflow.postprocess.postprocess_transcription import PostProcessTranscription
@@ -58,43 +51,41 @@ def predict_batch(inferencer_regions, inferencer_lines, inferencer_htr, imgs_num
 
 
 if __name__ == "__main__":
-    region_model = OpenmmlabModel.from_pretrained("Riksarkivet/rtmdet_regions", cache_dir="./config")
-    lines_model = OpenmmlabModel.from_pretrained("Riksarkivet/rtmdet_lines", cache_dir="./config")
-    text_rec_model = OpenmmlabModel.from_pretrained("Riksarkivet/satrn_htr", cache_dir="./config")
+    region_model = OpenmmlabModel.from_pretrained("Riksarkivet/rtmdet_regions", cache_dir="./models")
+    lines_model = OpenmmlabModel.from_pretrained("Riksarkivet/rtmdet_lines", cache_dir="./models")
+    text_rec_model = OpenmmlabModel.from_pretrained("Riksarkivet/satrn_htr", cache_dir="./models")
 
-    # try with region_inferencer instead (type=region till mmdetinferencer)
+    # inferencer_regions = MMDetInferencer(region_model=region_model)
+    # inferencer_lines = MMDetInferencer(region_model=lines_model)
+    # inferencer_htr = MMOCRInferencer(text_rec_model=text_rec_model)
 
-    inferencer_regions = MMDetInferencer(region_model=region_model)
-    inferencer_lines = MMDetInferencer(region_model=lines_model)
-    inferencer_htr = MMOCRInferencer(text_rec_model=text_rec_model)
+    # imgs = glob(
+    #     os.path.join(
+    #         "/media/erik/Elements/Riksarkivet/data/datasets/htr/Trolldomskommissionen3/Kommissorialrätt_i_Stockholm_ang_trolldomsväsendet,_nr_4_(1676)",
+    #         "**",
+    #         "bin_image",
+    #         "*",
+    #     ),
+    #     recursive=True,
+    # )
+    # imgs_numpy = []
 
-    imgs = glob(
-        os.path.join(
-            "/media/erik/Elements/Riksarkivet/data/datasets/htr/Trolldomskommissionen3/Kommissorialrätt_i_Stockholm_ang_trolldomsväsendet,_nr_4_(1676)",
-            "**",
-            "bin_image",
-            "*",
-        ),
-        recursive=True,
-    )
-    imgs_numpy = []
+    # for img in imgs[0:8]:
+    #     imgs_numpy.append(mmcv.imread(img))
 
-    for img in imgs[0:8]:
-        imgs_numpy.append(mmcv.imread(img))
+    # predict_batch(inferencer_regions, inferencer_lines, inferencer_htr, imgs_numpy)
 
-    predict_batch(inferencer_regions, inferencer_lines, inferencer_htr, imgs_numpy)
+    # # print(result[-1].img_shape)
+    # # print(result['predictions'][0].pred_instances.metadata_fields)
+    # # print(result['predictions'][0]._metainfo_fields)
+    # # print(result.keys())
+    # # print(result)
 
-    # print(result[-1].img_shape)
-    # print(result['predictions'][0].pred_instances.metadata_fields)
-    # print(result['predictions'][0]._metainfo_fields)
-    # print(result.keys())
-    # print(result)
+    # # load image from the IAM database
+    # # image = Image.open("./image_0.png").convert("RGB")
 
-    # load image from the IAM database
-    # image = Image.open("./image_0.png").convert("RGB")
+    # # Use a pipeline as a high-level helper
+    # # from transformers import pipeline
 
-    # Use a pipeline as a high-level helper
-    # from transformers import pipeline
-
-    # pipe = pipeline("image-to-text", model="microsoft/trocr-large-handwritten")
-    # print(pipe(image, batch_size=8))
+    # # pipe = pipeline("image-to-text", model="microsoft/trocr-large-handwritten")
+    # # print(pipe(image, batch_size=8))

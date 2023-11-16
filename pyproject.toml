@@ -3,7 +3,7 @@ name = "htrflow"
 version = "0.0.1.dev0"
 description = "short description of project."
 readme = "docs/README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 authors = [{ name = "Riksarkivet" }]
 license = { text = "MIT" }
 classifiers = [
@@ -126,7 +126,7 @@ no_implicit_reexport = true
 
 [tool.black]
 line-length = 119
-target-version = ['py39']
+target-version = ['py10']
 
 [tool.ruff]
 ignore = ["C901", "E501", "E741", "W605", "I001"]

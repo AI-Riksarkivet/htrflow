@@ -141,3 +141,7 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 image_0.png
+
+
+# Ignore model files.
+models/model*

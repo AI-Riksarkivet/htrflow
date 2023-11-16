@@ -1,2 +1,1 @@
-include src/htrflow/assets/*.txt
 include ./README.md

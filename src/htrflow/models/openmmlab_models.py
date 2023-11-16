@@ -2,7 +2,6 @@ import logging
 import os
 from enum import Enum
 
-import torch
 from huggingface_hub import hf_hub_download
 from huggingface_hub.utils import RepositoryNotFoundError
 from mmdet.apis import DetInferencer
@@ -10,6 +9,7 @@ from mmengine.config import Config
 from mmocr.apis import TextRecInferencer
 
 from htrflow.models.utils import check_device_to_use
+
 
 # TODO combine models here and add a serialized file to the models on huggingfacey
 # Add code to handle a readable yaml file that tells what type of files it is
@@ -38,14 +38,6 @@ class OpenmmlabModel:
             model = OpenModelFactory.create_openmmlab_model(model_scope, config_file, model_file, device)
             return model
         return None
-
-    @classmethod
-    def _check_device_to_use(cls, device):
-        if device is None:
-            device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-        else:
-            device = torch.device(device if torch.cuda.is_available() else "cpu")
-        return device
 
     @classmethod
     def _checking_model_scope(cls, model_id, cache_dir, config_file):
