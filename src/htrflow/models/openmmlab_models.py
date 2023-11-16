@@ -8,6 +8,7 @@ from mmdet.apis import DetInferencer
 from mmengine.config import Config
 from mmocr.apis import TextRecInferencer
 
+from htrflow.models.base_model import BaseModel
 from htrflow.models.framework_enums import ModelFrameworks
 
 
@@ -116,7 +117,7 @@ class OpenModelFactory:
 
 
 
-class OpenmmlabModel:
+class OpenmmlabModel(BaseModel):
     def __init__(self, inferencer ,framework ,config_file, model_file, device):
         self.model = inferencer(config_file, model_file, device)
         self.framework = framework
