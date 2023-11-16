@@ -47,7 +47,7 @@ class OpenmmlabModelLoader:
 
         model_scope = cfg.default_scope
 
-        if model_scope == OpenmmlabsFramework.MMOCR.value:
+        if model_scope == ModelFrameworks.MMOCR.value:
             download_dict_file = cls._download_dictonary_file(model_id, cache_dir)
 
             if os.path.exists(config_file):
