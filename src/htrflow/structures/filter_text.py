@@ -1,3 +1,9 @@
+class TextRecResult:
+    def __init__(self, text: str, score: Tensor):
+        self.text = text
+        self.score = score
+
+
 class PostProcessTranscription:
     def __init__(self):
         pass
