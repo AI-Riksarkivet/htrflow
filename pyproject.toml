@@ -43,16 +43,6 @@ repository = "https://github.com"
 changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
 
 [project.optional-dependencies]
-test = [
-    "pytest",
-    "pytest-cov[all]",
-    "ruff",
-    "black",
-    "mypy",
-    "coverage",
-    "isort",
-    "python-dotenv",
-]
 
 rapids11 = [
     "cudf-cu11",

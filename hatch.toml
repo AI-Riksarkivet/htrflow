@@ -1,0 +1,21 @@
+[envs.test]
+dependencies = [
+    "pytest",
+    "pytest-cov[all]",
+    "ruff",
+    "black",
+    "mypy",
+    "coverage",
+    "isort",
+    "python-dotenv",
+]
+
+[[envs.test.matrix]]
+rapids = ["none", "rapids11", "rapids12"]
+cuda = ["none", "some-cuda-version", "some-other-cuda-version"]
+
+[envs.test.rapids11]
+dependencies = ["cudf-cu11"]
+
+[envs.test.rapids12]
+dependencies = ["cudf-cu12"]
