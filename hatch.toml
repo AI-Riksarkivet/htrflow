@@ -19,3 +19,8 @@ dependencies = ["cudf-cu11"]
 
 [envs.test.rapids12]
 dependencies = ["cudf-cu12"]
+
+[build.targets.sdist]
+exclude = [
+        "/.github",
+]
