@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
 
 
+# Implemtnaton specfic for inferencers
 class BaseInferencer(ABC):
     @abstractmethod
-    def preprocess():
+    def preprocess(self):
         pass
 
     @abstractmethod
@@ -11,5 +12,6 @@ class BaseInferencer(ABC):
         pass
 
     @abstractmethod
-    def postprocess():
+    def postprocess(self):
         pass
+

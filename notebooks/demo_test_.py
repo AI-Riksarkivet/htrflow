@@ -1,5 +1,5 @@
 from htrflow.helper.timing_decorator import timing_decorator
-from htrflow.models.openmmlab_models import OpenmmlabModelLoader
+from htrflow.models.openmmlab_loader import OpenmmlabModelLoader
 from htrflow.postprocess.postprocess_segmentation import PostProcessSegmentation
 from htrflow.postprocess.postprocess_transcription import PostProcessTranscription
 

@@ -1,9 +1,10 @@
-from htrflow.inferencer.base_inferencer import BaseInferencer
+from htrflow.inferencers.base_inferencer import BaseInferencer
+from htrflow.models.openmmlab_loader import OpenmmlabModel
 from htrflow.structures.text_rec_result import TextRecResult
 
 
 class MMOCRInferencer(BaseInferencer):
-    def __init__(self, text_rec_model):
+    def __init__(self, text_rec_model: OpenmmlabModel):
         self.region_model = text_rec_model
 
     def preprocess():

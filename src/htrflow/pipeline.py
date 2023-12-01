@@ -3,7 +3,7 @@ from collections import OrderedDict
 import torch
 import yaml
 
-from htrflow.models.openmmlab_models import OpenmmlabModelLoader
+from htrflow.models.openmmlab_loader import OpenmmlabModelLoader
 
 
 class MultiModelManager:

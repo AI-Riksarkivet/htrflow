@@ -8,7 +8,6 @@ from mmdet.apis import DetInferencer
 from mmengine.config import Config
 from mmocr.apis import TextRecInferencer
 
-from htrflow.models.base_model import BaseModel
 from htrflow.models.framework_enums import ModelFrameworks
 
 
@@ -48,16 +47,20 @@ class OpenmmlabModelLoader:
         model_scope = cfg.default_scope
 
         if model_scope == ModelFrameworks.MMOCR.value:
-            download_dict_file = cls._download_dictonary_file(model_id, cache_dir)
-
-            if os.path.exists(config_file):
-                os.remove(config_file)
-
-            cfg.dictionary["dict_file"] = download_dict_file
-            cfg.model["decoder"]["dictionary"]["dict_file"] = download_dict_file
-            cfg.dump(config_file)
+            cls._overwriting_cfg_if_mmocr(model_id, cache_dir, config_file, cfg)
 
         return model_scope, config_file
+
+    @classmethod
+    def _overwriting_cfg_if_mmocr(cls, model_id, cache_dir, config_file, cfg):
+        download_dict_file = cls._download_dictonary_file(model_id, cache_dir)
+
+        if os.path.exists(config_file):
+            os.remove(config_file)
+
+        cfg.dictionary["dict_file"] = download_dict_file
+        cfg.model["decoder"]["dictionary"]["dict_file"] = download_dict_file
+        cfg.dump(config_file)
 
 
     @classmethod
@@ -109,6 +112,8 @@ class OpenModelFactory:
             ModelFrameworks.MMOCR.value: TextRecInferencer,
         }
 
+
+
         if model_scope in model_creators:
             return OpenmmlabModel( model_creators[model_scope] , model_scope,config_file, model_file, device)
 
@@ -117,25 +122,17 @@ class OpenModelFactory:
 
 
 
-class OpenmmlabModel(BaseModel):
+class OpenmmlabModel:
     def __init__(self, inferencer ,framework ,config_file, model_file, device):
         self.model = inferencer(config_file, model_file, device)
+
+        cfg = Config.fromfile(config_file)
+        self.model_cfg = cfg.model
         self.framework = framework
         self.device = device
 
     def __str__(self) -> str:
         return f"{self.model.__str__()}"
-
-
-    # TODO this should work on this here
-    # TODO Look at docuemntation for different init and args on call:
-    # TODO Update unit test --> However use unittest.mocks
-
-    #     @classmethod
-    # def from_local(cls, config_file: str, model_files, device: str = None):
-    #     cfg = Config.fromfile(config_file)
-    #     model = OpenModelFactory.create_openmmlab_model(cfg, config_file, model_files, device)
-    #     return model
 
 
 

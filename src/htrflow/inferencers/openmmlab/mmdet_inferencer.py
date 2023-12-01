@@ -1,14 +1,16 @@
 
 from htrflow.helper.timing_decorator import timing_decorator
-from htrflow.inferencer.base_inferencer import BaseInferencer
+from htrflow.inferencers.base_inferencer import BaseInferencer
+from htrflow.models.openmmlab_loader import OpenmmlabModel
+
 
 # from htrflow.structures.result import Result, SegResult
 
 
 
 class MMDetInferencer(BaseInferencer):
-    def __init__(self, region_model, parent_result = None):
-        self.region_model = region_model
+    def __init__(self, region_model: OpenmmlabModel , parent_result = None):
+        self.region_model = region_model.model
         self.parent_result = parent_result
 
     def preprocess():
