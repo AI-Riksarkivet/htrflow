@@ -3,7 +3,7 @@ import cv2
 # TODO: add rapids.ai
 
 
-class DataLoader:
+class TestDataLoader:
     def __init__(
         self,
         dataframe,
@@ -36,6 +36,7 @@ if __name__ == "__main__":
     from datasets import Dataset, Image
 
 
+
     image_folder = "/home/gabriel/Desktop/htrflow_core/data/raw"
 
     images_path_list = []
@@ -44,14 +45,37 @@ if __name__ == "__main__":
         if what(full_path):
             images_path_list.append(full_path)
 
-    # print(images_path_list)
 
-    dataset = Dataset.from_dict({"image": images_path_list}).cast_column("image", Image())
-    print(dataset[0]["image"])
+    fake_images_path_list = images_path_list*10
 
-    numpy_dataset = dataset.with_format("numpy")
 
-    print(numpy_dataset[0]["image"])
+    dataset = Dataset.from_dict({"image": fake_images_path_list}).cast_column("image", Image())
+    print(dataset)
+
+    class CustomBatchLoader:
+        def __init__(self, data, batch_size):
+            self.data = data
+            self.batch_size = batch_size
+            self.index = 0
+
+        def __iter__(self):
+            return self
+
+        def __next__(self):
+            if self.index >= len(self.data):
+                raise StopIteration
+            batch = self.data[self.index:self.index + self.batch_size]
+            self.index += self.batch_size
+            return batch
+
+    # Usage
+    batch_loader = CustomBatchLoader(dataset, batch_size=8)
+
+    for batch in batch_loader:
+        print(len(batch['image'] ))
+
+    # numpy_dataset = dataset.with_format("numpy")
+
 
     # dataloader = DataLoader(numpy_dataset, batch_size=3)
 
@@ -59,7 +83,7 @@ if __name__ == "__main__":
     # for image in numpy_dataset:
     #     print(image)
 
-    print(numpy_dataset.to_pandas())
+    # print(numpy_dataset.to_pandas())
 
 
 

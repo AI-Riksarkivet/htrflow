@@ -7,10 +7,21 @@ class TextSegmentation(BaseTask):
     def __init__(self, text_seg_inferencer: BaseInferencer):
         self.text_rec_inferencer= text_seg_inferencer
 
-    def run(self, input_images):
-        self.text_rec_inferencer.predict(input_images)
+    def preprocess(self):
+        pass
+
+    def run(self, dataset):
+        input_images = dataset["pointer_to_image"]
+        standard_dict = self.text_rec_inferencer.predict(input_images)
+
+        process_standard_dict = self.postprocess(standard_dict)
+
+        dataset["predictions_images"] = process_standard_dict
+
         print(input_images)
 
+    def postprocess(self):
+        pass
 
 if __name__ == "__main__":
 

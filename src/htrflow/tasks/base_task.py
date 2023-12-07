@@ -5,5 +5,13 @@ from abc import ABC, abstractmethod
 class BaseTask(ABC):
 
     @abstractmethod
-    def run(self):
+    def preprocess():
+        pass
+
+    @abstractmethod
+    def run(self, datasets):
+        pass
+
+    @abstractmethod
+    def postprocess():
         pass
