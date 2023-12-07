@@ -5,9 +5,12 @@ hide:
 
 <img src="images/riks.png" width="20%" height="20%" align="right" />
 
-# **htrflow**
+# **htrflow_core**
 
-Lorem ipsum dlor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+> [!NOTE]  
+> This repo is an work in progress ⚠️
+
+htrflow_core is a part of the htrflow suite, which is Riksarkivets open source project for handwritten text recogntion.
 
 ![Test Python 🐍 package ](https://github.com/Riksarkivet/htrflow/actions/workflows/tests.yml/badge.svg)
 [![Publish Python 🐍 distributions 📦 to PyPI](https://github.com/Riksarkivet/htrflow/actions/workflows/release.yml/badge.svg)](https://github.com/Riksarkivet/htrflow/actions/workflows/release.yml)
@@ -20,9 +23,15 @@ Lorem ipsum dlor sit amet, consectetur adipiscing elit, sed do eiusmod tempor in
 Installation can be done using [pypi](https://pypi.org/project/htrflow/):
 
 ```
-pip install htrflow
+pip install htrflow_core
 ```
 
 ## **Usage**
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+```
+...
+
+```
+
+
+
