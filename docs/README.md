@@ -15,8 +15,8 @@ htrflow_core is a part of the htrflow suite, which is Riksarkivets open source p
 ![Test Python 🐍 package ](https://github.com/Swedish-National-Archives-AI-lab/htrflow_core/actions/workflows/tests.yml/badge.svg)
 [![Publish Python 🐍 distributions 📦 to PyPI](https://github.com/Swedish-National-Archives-AI-lab/htrflow_core/actions/workflows/release.yml/badge.svg)](https://github.com/Riksarkivet/htrflow/actions/workflows/release.yml)
 [![Automatic generating docs for 📦](https://github.com/Swedish-National-Archives-AI-lab/htrflow_core/actions/workflows/docs.yml/badge.svg)](https://github.com/Riksarkivet/htrflow/actions/workflows/docs.yml)
-[![PyPI - License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/Riksarkivet/htrflow/blob/master/LICENSE)
-[![PyPI - Python](https://img.shields.io/badge/python-3.7%20|%203.8%20|%203.9-blue.svg)](https://pypi.org/project/htrflow/)
+[![PyPI - License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/Swedish-National-Archives-AI-lab/htrflow_core/blob/master/LICENSE)
+[![PyPI - Python](https://img.shields.io/badge/python-3.10%20-blue.svg)](https://pypi.org/project/htrflow/)
 
 ## **Installation**
 
