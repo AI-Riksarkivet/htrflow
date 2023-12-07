@@ -1,6 +1,6 @@
 
 
-<img src="images/riks.png" width="20%" height="20%" align="right" />
+<img src="https://github.com/Swedish-National-Archives-AI-lab/htrflow_core/blob/main/docs/images/riks.png?raw=true" width="20%" height="20%" align="right" />
 
 # **htrflow_core**
 
