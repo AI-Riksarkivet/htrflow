@@ -7,9 +7,16 @@ class TextRecognition(BaseTask):
     def __init__(self, text_rec_inferencer: BaseInferencer):
         self.text_rec_inferencer= text_rec_inferencer
 
+    def preprocess():
+        pass
+
     def run(self, input_images):
         self.text_rec_inferencer.predict(input_images)
         print(input_images)
+
+    def postprocess():
+        pass
+
 
 if __name__ == "__main__":
     from htrflow.inferencers.openmmlab.mmocr_inferencer import MMOCRInferencer
