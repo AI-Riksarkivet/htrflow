@@ -14,6 +14,7 @@ class TextSegmentation(BaseTask):
     # TODO perhaps the batch prcoess could be moved outside into a taskmangar /batch_task_manager? and that TextSegmentation is passed into it?
     # i.e Textsemgnetion can be run for just an dataset[image].. . However if we use it with batch_task_manager we can do in batch operation?
 
+    # Can we creata an observr pattern that track the memory footprint on the gpu when we run a task? just to log how effiecnt we are on each of gpus.. nice with like a plot
 ## test batching with HF map
     def batch_run(self, dataset_of_image , **kwargs):
 
@@ -69,4 +70,19 @@ if __name__ == "__main__":
     rtmdet_region_model = OpenmmlabModelLoader.from_pretrained("Riksarkivet/rtmdet_regions", cache_dir="/home/gabriel/Desktop/htrflow_core/models")
     text_segmenter= TextSegmentation(MMDetInferencer(rtmdet_region_model))
 
-    text_segmenter.run(image_dataset, "image", "new_images")
+
+    text_segmenter.run(image_dataset.select([0]), "image", "new_images")
+
+
+
+# from multiprocess import set_start_method
+# import torch
+# import os
+# set_start_method("spawn")
+# def gpu_computation(example, rank):
+#     os.environ["CUDA_VISIBLE_DEVICES"] = str(rank % torch.cuda.device_count())
+#     # Your big GPU call goes here
+#     return examples
+# updated_dataset = dataset.map(gpu_computation, with_rank=True)
+
+# https://huggingface.co/docs/datasets/v2.3.2/en/process#map
