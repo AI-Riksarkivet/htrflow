@@ -17,8 +17,8 @@ class TrocrInferencer(BaseInferencer):
         self.gen_config = gen_config #https://huggingface.co/docs/transformers/v4.26.1/en/main_classes/text_generation#transformers.GenerationMixin.compute_transition_scores
         self.skip_special_tokens= skip_special_tokens
 
-    def preprocess(self, images):
-        pixel_values = self.processor(images=images, return_tensors="pt").pixel_values #torch.FloatTensor of shape (batch_size, num_channels, height, width)
+    def preprocess(self, images) -> torch.FloatTensor("batch_size", "num_channels", "height", "width"):
+        pixel_values = self.processor(images=images, return_tensors="pt").pixel_values
         return pixel_values.to(self.device)
 
     @timing_decorator
