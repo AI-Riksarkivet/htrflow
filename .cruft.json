@@ -1,0 +1,20 @@
+{
+  "template": "https://github.com/Swedish-National-Archives-AI-lab/package_cookiecutter",
+  "commit": "e5767884d9396f701b8f7cad5bf0fb28d376f33e",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "maintainer": "Riksarkivet",
+      "author": "Riksarkivet",
+      "project_name": "htrflow_core",
+      "project_slug": "htrflow_core",
+      "LICENSE": "MIT",
+      "repo_owner": "Riksarkivet",
+      "repo_name": "htrflow_core",
+      "package_name": "htrflow_core",
+      "python_interpreter": "3.10",
+      "_template": "https://github.com/Swedish-National-Archives-AI-lab/package_cookiecutter"
+    }
+  },
+  "directory": null
+}
