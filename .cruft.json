@@ -1,6 +1,6 @@
 {
   "template": "https://github.com/Swedish-National-Archives-AI-lab/package_cookiecutter",
-  "commit": "e5767884d9396f701b8f7cad5bf0fb28d376f33e",
+  "commit": "0df1d1bb6c9be1ae7dfd8d14be822c1c7940642d",
   "checkout": null,
   "context": {
     "cookiecutter": {
