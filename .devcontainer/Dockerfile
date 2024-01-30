@@ -23,7 +23,10 @@ RUN DEBIAN_FRONTEND=noninteractive \
         libxml2-dev \
         libxmlsec1-dev \
         libffi-dev \
-        liblzma-dev
+        liblzma-dev \
+        ffmpeg \
+        libsm6 \
+        libxext6
 
 # Python and poetry installation
 USER $USER
