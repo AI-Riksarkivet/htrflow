@@ -101,6 +101,7 @@ exclude = [
 [tool.pytest.ini_options]
 addopts = "-v --cov=htrflow"
 testpaths = ["tests/unit"]
+pythonpath = "src"
 
 [tool.mypy]
 mypy_path = "src"
