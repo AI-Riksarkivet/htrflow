@@ -1,18 +1,23 @@
 {
   "template": "https://github.com/Swedish-National-Archives-AI-lab/package_cookiecutter",
-  "commit": "0df1d1bb6c9be1ae7dfd8d14be822c1c7940642d",
+  "commit": "c5f45f3ae29e57844fa9b7613b1333dc7b639d4b",
   "checkout": null,
   "context": {
     "cookiecutter": {
-      "maintainer": "Riksarkivet",
-      "author": "Riksarkivet",
+      "author_name": "Swedish-National-Archives-AI-lab",
+      "author_email": "gabriel.borg@riksarkivet.se",
+      "github_username": "Swedish-National-Archives-AI-lab",
       "project_name": "htrflow_core",
       "project_slug": "htrflow_core",
-      "LICENSE": "MIT",
-      "repo_owner": "Riksarkivet",
-      "repo_name": "htrflow_core",
       "package_name": "htrflow_core",
+      "project_short_description": "A short description of the project",
+      "license": "EUPL-1.2",
       "python_interpreter": "3.10",
+      "include_data_folder": true,
+      "include_model_folder": true,
+      "include_notebook_folder": true,
+      "include_docker": true,
+      "include_docs_folder": true,
       "_template": "https://github.com/Swedish-National-Archives-AI-lab/package_cookiecutter"
     }
   },

@@ -1,0 +1,23 @@
+name: Code Quality
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  code-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: ./.github/actions/poetry
+
+      - name: Linting check with ruff
+        run: ruff check .
+
+      - name: Strict typehinting check with mypy
+        run: mypy . #mypy --strict .

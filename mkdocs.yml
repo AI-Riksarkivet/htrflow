@@ -1,19 +1,16 @@
 # Project information
-site_name: "htrflow"
-site_url: https://Riksarkivet.github.io/htrflow
-site_author: "Riksarkivet"
-site_description: >-
-  Work in progress ...
-repo_name: Riksarkivet/htrflow
-repo_url: https://Riksarkivet/htrflow
+site_name: "htrflow_core"
+site_url: https://Swedish-National-Archives-AI-lab.github.io/htrflow_core
+site_author: "Swedish-National-Archives-AI-lab"
+site_description: "A short description of the project"
+repo_url: https://github.com/Swedish-National-Archives-AI-lab/htrflow_core
 
 # Copyright
-copyright: Copyright &copy; 2023 Riksarkivet
+copyright: Copyright &copy; 2023 Swedish-National-Archives-AI-lab
 
 # Configuration
 theme:
   name: material
-  custom_dir: docs/overrides/
   features:
     - navigation.tabs
     - navigation.sections
@@ -38,8 +35,8 @@ theme:
   font:
     text: Roboto
     code: Roboto Mono
-  favicon: https://raw.githubusercontent.com/Borg93/riks_ds_utils/main/docs/images/riks.png
-  logo: https://raw.githubusercontent.com/Borg93/riks_ds_utils/main/docs/images/riks.png
+  favicon: https://raw.githubusercontent.com/Swedish-National-Archives-AI-lab/package_cookiecutter/main/%7B%7B%20cookiecutter.project_slug%20%7D%7D/docs/assets/favicon.ico
+  logo: https://raw.githubusercontent.com/Swedish-National-Archives-AI-lab/package_cookiecutter/main/%7B%7B%20cookiecutter.project_slug%20%7D%7D/docs/assets/riks.png
   icon:
     logo: logo
 
@@ -60,17 +57,15 @@ plugins:
             filters:
               - "!^_" # exclude all members starting with _
 
-  # - mkdocs-jupyter:
-  #     include_source: True
+  - mkdocs-jupyter:
+      include_source: True
 
 extra:
   social:
     - icon: fontawesome/brands/github-alt
-      link: https://github.com/Riksarkivet
-    - icon: fontawesome/brands/twitter
-      link: https://twitter.com/Riksarkivet
+      link: https://github.com/Swedish-National-Archives-AI-lab
     - icon: fontawesome/brands/linkedin
-      link: https://www.linkedin.com/in/Riksarkivet
+      link: https://www.linkedin.com/in/Swedish-National-Archives-AI-lab
   generator: false
 
 markdown_extensions:
@@ -89,8 +84,8 @@ markdown_extensions:
   - pymdownx.caret
   - pymdownx.details
   - pymdownx.emoji:
-      emoji_generator: !!python/name:materialx.emoji.to_svg
-      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: __span
@@ -116,6 +111,7 @@ markdown_extensions:
 
 # Page tree
 nav:
-  - Getting started: README.md
+  - Getting started: index.md
   - Refrence API: api.md
-  - Changelog: changelog.md
+  - Projects:
+      - Demos: "notebooks/demo.ipynb"  

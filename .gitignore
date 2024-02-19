@@ -6,9 +6,6 @@ __pycache__/
 # C extensions
 *.so
 
-# cache_dir
-config/
-
 # Distribution / packaging
 .Python
 build/
@@ -109,8 +106,6 @@ celerybeat.pid
 
 # # Environments
 # .env
-activate/
-bin/
 .venv
 env/
 venv/
@@ -118,8 +113,6 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-pyvenv.cfg
-.env
 
 # Spyder project settings
 .spyderproject
@@ -144,9 +137,6 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
-image_0.png
 
-*.rej
-
-# Ignore model files.
-models/model*
+# Ignore ruff cache
+.ruff_cache/

@@ -1,0 +1,21 @@
+name: Draft a release
+
+on: workflow_dispatch
+
+
+jobs:
+  draft-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/poetry
+      - name: Publish to test-pypi
+        run: |
+          poetry config repositories.test-pypi https://test.pypi.org/legacy/
+          poetry config pypi-token.test-pypi ${{ secrets.TEST_PYPI_TOKEN }}
+          poetry version prerelease
+          poetry publish --build --no-interaction -r test-pypi
+      - name: Test to build docs
+        run: poetry run mkdocs build
+
+

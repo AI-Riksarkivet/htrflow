@@ -1,16 +1,18 @@
-name: Test Python 🐍 before build
+name: GPU tests 
 
-on:
-  push:
-    branches:
-      - "**"
-  pull_request:
-    branches:
-      - main
+# Todo: 
+# 1.setup self-hosted runner..
+# # 2. set event on: 
+# pull_request:
+#     branches:
+#       - main
+
+on: workflow_dispatch
+
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  gpu-test:
+    runs-on: [self-hosted,GPU] 
     strategy:
       fail-fast: false
       matrix:
@@ -21,5 +23,5 @@ jobs:
       - uses: ./.github/actions/poetry
         with:
           python-version: ${{ matrix.python-version }}
-      - run: poetry run pytest -m "not gpu"
+      - run: poetry run pytest -m "gpu"
 

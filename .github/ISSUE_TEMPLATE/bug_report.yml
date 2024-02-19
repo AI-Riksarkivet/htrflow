@@ -11,7 +11,7 @@ body:
       value: "A bug happened!"
     validations:
       required: true
-      
+
   - type: textarea
     attributes:
       label: Steps To Reproduce
@@ -23,7 +23,7 @@ body:
         1. See error...
     validations:
       required: false
-    
+
   - type: textarea
     id: logs
     attributes:
