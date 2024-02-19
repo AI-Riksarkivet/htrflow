@@ -1,6 +1,6 @@
 
-from htrflow.inferencers.base_inferencer import BaseInferencer
-from htrflow.tasks.base_task import BaseTask
+from htrflow_core.inferencers.base_inferencer import BaseInferencer
+from htrflow_core.tasks.base_task import BaseTask
 
 
 class TextRecognition(BaseTask):
@@ -19,8 +19,8 @@ class TextRecognition(BaseTask):
 
 
 if __name__ == "__main__":
-    from htrflow.inferencers.openmmlab.mmocr_inferencer import MMOCRInferencer
-    from htrflow.models.openmmlab_loader import OpenmmlabModelLoader
+    from htrflow_core.inferencers.openmmlab.mmocr_inferencer import MMOCRInferencer
+    from htrflow_core.models.openmmlab_loader import OpenmmlabModelLoader
 
     satrn_model = OpenmmlabModelLoader.from_pretrained("Riksarkivet/satrn_htr", cache_dir="/home/gabriel/Desktop/htrflow_core/models")
     # lines_model = OpenmmlabModel.from_pretrained("Riksarkivet/rtmdet_lines", cache_dir="./models")

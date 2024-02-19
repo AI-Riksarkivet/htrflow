@@ -1,8 +1,8 @@
 import torch
-
 from ultralytics.engine.model import Model
 from ultralytics.engine.results import Results
-from htrflow.inferencers.base_inferencer import BaseInferencer
+
+from htrflow_core.inferencers.base_inferencer import BaseInferencer
 
 
 class UltralyticsInferencer(BaseInferencer):

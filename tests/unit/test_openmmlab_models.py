@@ -1,8 +1,7 @@
 import pytest
+from htrflow.models.openmmlab_loader import OpenmmlabModelLoader
 from mmdet.apis import DetInferencer
 from mmocr.apis import TextRecInferencer
-
-from htrflow.models.openmmlab_loader import OpenmmlabModelLoader
 
 
 @pytest.mark.parametrize(

@@ -2,8 +2,8 @@
 import torch
 from transformers import GenerationConfig, TrOCRProcessor, VisionEncoderDecoderModel
 
-from htrflow.helper.timing_decorator import timing_decorator
-from htrflow.inferencers.base_inferencer import BaseInferencer
+from htrflow_core.helper.timing_decorator import timing_decorator
+from htrflow_core.inferencers.base_inferencer import BaseInferencer
 
 
 # Rewrite and optimize this..

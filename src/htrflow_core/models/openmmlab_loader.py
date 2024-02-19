@@ -8,7 +8,7 @@ from mmdet.apis import DetInferencer
 from mmengine.config import Config
 from mmocr.apis import TextRecInferencer
 
-from htrflow.models.framework_enums import ModelFrameworks
+from htrflow_core.models.framework_enums import ModelFrameworks
 
 
 class OpenmmlabModelLoader:

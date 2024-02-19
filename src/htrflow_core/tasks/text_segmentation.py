@@ -1,7 +1,7 @@
 
-from htrflow.datasets.batch_loader import BatchLoader
-from htrflow.inferencers.base_inferencer import BaseInferencer
-from htrflow.tasks.base_task import BaseTask
+from htrflow_core.datasets.batch_loader import BatchLoader
+from htrflow_core.inferencers.base_inferencer import BaseInferencer
+from htrflow_core.tasks.base_task import BaseTask
 
 
 class TextSegmentation(BaseTask):
@@ -58,8 +58,8 @@ if __name__ == "__main__":
 
     from datasets import load_dataset
 
-    from htrflow.inferencers.openmmlab.mmdet_inferencer import MMDetInferencer
-    from htrflow.models.openmmlab_loader import OpenmmlabModelLoader
+    from htrflow_core.inferencers.openmmlab.mmdet_inferencer import MMDetInferencer
+    from htrflow_core.models.openmmlab_loader import OpenmmlabModelLoader
 
     image_dataset = load_dataset("nateraw/ade20k-tiny", split="train")
     # # Create and use the batch loader

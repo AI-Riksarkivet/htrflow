@@ -1,6 +1,7 @@
 import torch
 
-from htrflow.helper.timing_decorator import timing_decorator
+from htrflow_core.helper.timing_decorator import timing_decorator
+
 
 # TODO: Heavy rewrite here.. Should take the intermediate step from an TextSegmentation model.
 # TODO: Gabriel wil provide an intermediate DataStrucutres object (dataframe ) to test on here.

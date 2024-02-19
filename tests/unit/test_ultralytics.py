@@ -1,7 +1,8 @@
-import pytest
 import warnings
-from ultralyticsplus import YOLO
+
+import pytest
 from htrflow.inferencers.ultralytics.ultralytics_inferencer import UltralyticsInferencer
+from ultralyticsplus import YOLO
 
 
 @pytest.fixture

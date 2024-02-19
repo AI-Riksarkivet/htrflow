@@ -1,6 +1,7 @@
-from htrflow.inferencers.base_inferencer import BaseInferencer
-from htrflow.models.openmmlab_loader import OpenmmlabModel
 from htrflow.structures.text_rec_result import TextRecResult
+
+from htrflow_core.inferencers.base_inferencer import BaseInferencer
+from htrflow_core.models.openmmlab_loader import OpenmmlabModel
 
 
 class MMOCRInferencer(BaseInferencer):

@@ -2,7 +2,7 @@
 import torch
 from torch import Tensor
 
-from htrflow.helper.timing_decorator import timing_decorator
+from htrflow_core.helper.timing_decorator import timing_decorator
 
 
 # import cv2

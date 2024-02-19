@@ -1,6 +1,6 @@
 import cv2
 
-from htrflow.tasks.base_task import BaseTask
+from htrflow_core.tasks.base_task import BaseTask
 
 
 class Binarize(BaseTask):

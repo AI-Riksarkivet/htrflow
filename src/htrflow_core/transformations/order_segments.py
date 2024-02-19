@@ -4,7 +4,6 @@ from typing import List
 import numpy as np
 import pandas as pd
 import torch
-
 from htrflow.structures.seg_result import SegResult
 
 # import numpy as np
