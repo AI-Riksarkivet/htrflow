@@ -1,112 +1,88 @@
-
-import torch
-from transformers import GenerationConfig, TrOCRProcessor, VisionEncoderDecoderModel
-
-from htrflow_core.helper.timing_decorator import timing_decorator
+import numpy as np
+from PIL import Image
+from transformers import TrOCRProcessor, VisionEncoderDecoderModel
+from transformers.generation import BeamSearchEncoderDecoderOutput
+from transformers.utils import ModelOutput
 from htrflow_core.inferencers.base_inferencer import BaseInferencer
 
 
-# Rewrite and optimize this..
+class TrOCRInferencer(BaseInferencer):
+
+    default_config = {
+        "num_beams": 4,
+    }
+
+    def __init__(self, model: VisionEncoderDecoderModel, processor: TrOCRProcessor):
+        self._model = model
+        self._processor = processor
+
+    def preprocess(self, images: list[str]):
+        images = [Image.open(image).convert("RGB") for image in images]
+        return self._processor(images, return_tensors="pt").pixel_values
+
+    def predict(self, images: list[str], **kwargs):
+        """Run inference on `images`
+
+        Uses beam search with 4 beams by default. This can be altered by passing `num_beams` in `kwargs`.
+
+        Args:
+            images (list[str]): List of image paths
+            kwargs: Keyword arguments passed to model.generate()
+
+        Returns:
+            A tuple (texts, scores)
+        """
+
+        # Add default arguments
+        kwargs = TrOCRInferencer.default_config | kwargs
+
+        # `num_return_sequences` defaults to `num_beams`
+        kwargs["num_return_sequences"] = kwargs.get("num_return_sequences", kwargs["num_beams"])
+
+        # Overwrite mandatory arguments
+        kwargs["output_scores"] = True
+        kwargs["return_dict_in_generate"] = True
+
+        inputs = self.preprocess(images)
+        outputs = self._model.generate(inputs, **kwargs)
+        return self.postprocess(outputs, kwargs["num_return_sequences"])
+
+    def postprocess(self, outputs: BeamSearchEncoderDecoderOutput | ModelOutput, num_return_sequences: int):
+        texts = self._processor.batch_decode(outputs.sequences, skip_special_tokens=True)
+        scores = self._sequence_scores(outputs)
+
+        # Beam search returns all sequences in a flattened list so we need to re-group them so that each item in the
+        # final output list correspond to one input line
+        if num_return_sequences > 1:
+            texts = _group(texts, num_return_sequences)
+            scores = _group(self._sequence_scores(outputs), num_return_sequences)
+
+        return texts, scores
+
+    def _sequence_scores(self, outputs: ModelOutput) -> list[float] | list[list[float]]:
+        """Compute prediction score for each output sequence"""
+
+        # This implementation follows example #1 found here:
+        # https://discuss.huggingface.co/t/announcement-generation-get-probabilities-for-generated-output/30075
+        # Note that outputs.sequences_scores aren't used - those are based on unnormalized logits. This implementation
+        # normalizes the logits before computing the sequences' prediction scores, which should make the prediction
+        # scores produced by beam search and greedy decoding comparable with each other.
+
+        if isinstance(outputs, BeamSearchEncoderDecoderOutput):
+            transition_scores = self._model.decoder.compute_transition_scores(
+                outputs.sequences, outputs.scores, outputs.beam_indices, normalize_logits=True
+            )
+        else:
+            transition_scores = self._model.decoder.compute_transition_scores(
+                outputs.sequences, outputs.scores, normalize_logits=True
+            )
+
+        length_penalty = self._model.generation_config.length_penalty
+        output_length = np.sum(transition_scores.numpy() < 0, axis=1)
+        scores = transition_scores.sum(axis=1) / (output_length**length_penalty)
+        return scores.tolist()
 
 
-class TrocrInferencer(BaseInferencer):
-    def __init__(self, model : VisionEncoderDecoderModel , processor: TrOCRProcessor, gen_config: GenerationConfig = None, skip_special_tokens=True ):
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.model = model.to(self.device)
-        self.processor = processor
-        self.gen_config = gen_config #https://huggingface.co/docs/transformers/v4.26.1/en/main_classes/text_generation#transformers.GenerationMixin.compute_transition_scores
-        self.skip_special_tokens= skip_special_tokens
-
-    def preprocess(self, images) -> torch.FloatTensor("batch_size", "num_channels", "height", "width"):
-        pixel_values = self.processor(images=images, return_tensors="pt").pixel_values
-        return pixel_values.to(self.device)
-
-    @timing_decorator
-    def predict(self, images):
-
-        pixel_values = self.preprocess(images)
-
-        return_dict = self.model.generate(inputs=pixel_values ,generation_config=self.gen_config, output_scores=True, return_dict_in_generate=True)
-
-        generated_ids, scores = return_dict['sequences'], return_dict['scores']
-
-        print(generated_ids)
-
-        generated_texts = self.processor.batch_decode(generated_ids, skip_special_tokens=self.skip_special_tokens)
-
-        all_word_ids = []
-        all_conf_score = []
-
-
-        for idx, score in enumerate(scores):
-
-            prob= torch.nn.functional.softmax(score, dim=-1)
-
-            word_id = torch.argmax(prob, axis=-1)
-            conf_score = torch.max(prob, axis=-1)
-
-            all_word_ids.append(word_id)
-            all_conf_score.append(conf_score.values)
-
-        v_all_words_ids = torch.vstack(all_word_ids)
-        v_all_conf_score = torch.vstack(all_conf_score)
-
-        t_all_words_ids =v_all_words_ids.transpose(0, 1)
-        t_all_conf_score= v_all_conf_score.transpose(0, 1)
-
-        print(t_all_conf_score)
-
-        print(t_all_words_ids)
-
-        decoded_all_words_ids = self.processor.batch_decode(t_all_words_ids, skip_special_tokens=self.skip_special_tokens)
-
-        word_score_pairs = [(word, score.item()) for word, score in zip(decoded_all_words_ids, t_all_conf_score)]
-
-
-        return generated_texts, word_score_pairs
-
-
-    def postprocess(self):
-        pass
-        #decoder
-
-
-        #        labels = self.processor.tokenizer(text,
-        #                                   padding="max_length",
-        #                                   max_length=self.max_target_length).input_ids
-        # # important: make sure that PAD tokens are ignored by the loss function
-        # labels = [label if label != self.processor.tokenizer.pad_token_id else -100 for label in labels]
-
-        # encoding = {"pixel_values": pixel_values.squeeze(), "labels": torch.tensor(labels)}
-        # return encoding
-
-
-if __name__ == "__main__":
-
-    from PIL import Image
-    from transformers import TrOCRProcessor, VisionEncoderDecoderModel
-
-    # load image from the IAM database
-    image1 = Image.open("/home/gabriel/Desktop/htrflow_core/data/raw/trocr_demo_image.png").convert("RGB")
-    image2 = Image.open("/home/gabriel/Desktop/htrflow_core/data/raw/demo_image.jpg").convert("RGB")
-
-    images = [image1]
-
-    processor = TrOCRProcessor.from_pretrained('microsoft/trocr-base-handwritten')
-    model = VisionEncoderDecoderModel.from_pretrained('microsoft/trocr-base-handwritten')
-
-    generation_config = GenerationConfig(
-        num_beams=4,
-    )
-
-
-    trocr_rec = TrocrInferencer(model, processor, generation_config)
-
-
-    generated_texts, scores= trocr_rec.predict(images)
-
-    print(scores)
-
-
-
-
+def _group(lst: list, n: int) -> list:
+    """Group items in `lst` in sublists of length `n`"""
+    return [lst[i : i + n] for i in range(0, len(lst), n)]
