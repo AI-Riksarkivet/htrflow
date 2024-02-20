@@ -30,7 +30,6 @@ class Node:
     parent: Optional["Node"]
     children: list["Node"]
     depth: int
-
     _id_generator = defaultdict(lambda: count(0))
 
     def __init__(self, parent: "Node" = None, x: int = 0, y: int = 0):
@@ -66,6 +65,7 @@ class Node:
         return nodes
 
     def lines(self):
+        """Return all nodes that contains text attached to this node"""
         return [node for node in self.traverse() if node.text]
 
     def tree2str(self, sep="", is_last=True):
