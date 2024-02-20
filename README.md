@@ -2,17 +2,23 @@
 
 # **htrflow_core**
 
-[![PyPI](https://img.shields.io/pypi/v/htrflow_core?style=flat-square)](https://pypi.python.org/pypi/htrflow_core/)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/htrflow_core?style=flat-square)](https://pypi.python.org/pypi/htrflow_core/)
-[![PyPI - License](https://img.shields.io/pypi/l/htrflow_core?style=flat-square)](https://pypi.python.org/pypi/htrflow_core/)
+<p align="center">
+    <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/Swedish-National-Archives-AI-lab/htrflow_core">
+    <img alt="License" src="https://img.shields.io/github/license/Swedish-National-Archives-AI-lab/htrflow_core">
+    <a href="https://circleci.com/gh/Swedish-National-Archives-AI-lab/htrflow_core">
+        <img alt="Build" src="https://img.shields.io/github/Swedish-National-Archives-AI-lab/htrflow_core/main">
+    </a>
+    <a href="https://github.com/Swedish-National-Archives-AI-lab/htrflow_core/releases">
+        <img alt="GitHub release" src="https://img.shields.io/github/release/Swedish-National-Archives-AI-lab/htrflow_core.svg">
+    </a>
+    <a href="https://github.com/Swedish-National-Archives-AI-lab/htrflow_core/releases">
+        <img alt="GitHub docs" src="https://img.shields.io/github/docs/Swedish-National-Archives-AI-lab/htrflow_core.svg">
+    </a>
+"Add test, ci, build, publish, draft bagdges here.."
 
----
+</p>
 
-**Documentation**: [https://Swedish-National-Archives-AI-lab.github.io/htrflow_core](https://Swedish-National-Archives-AI-lab.github.io/htrflow_core)
 
-**Source Code**: [https://github.com/Swedish-National-Archives-AI-lab/htrflow_core](https://github.com/Swedish-National-Archives-AI-lab/htrflow_core)
-
-**PyPI**: [https://pypi.org/project/htrflow_core/](https://pypi.org/project/htrflow_core/)
 
 ---
 
