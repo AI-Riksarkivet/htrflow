@@ -2,18 +2,17 @@
 This module holds the base data structures
 """
 
-from typing import Optional, Literal
 import os
-from functools import singledispatchmethod
 from collections import defaultdict
+from functools import singledispatchmethod
 from itertools import count
+from typing import Literal, Optional
 
 import cv2
-import numpy as np
-
-from results import SegmentationResult, Segment, RecognitionResult
 import image
+import numpy as np
 import serialization
+from results import RecognitionResult, Segment, SegmentationResult
 
 
 class Node:

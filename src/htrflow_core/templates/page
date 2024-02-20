@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15 http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15/pagecontent.xsd">
+    <Metadata>
+        <Creator>{{ metadata.creator }}</Creator>
+        <Created>{{ metadata.created }}</Created>
+        <LastChange>{{ metadata.last_change }}</LastChange>
+    </Metadata>
+    <Page imageFilename="{{ page.image_path }}" imageWidth="{{ page.width }}" imageHeight="{{ page.height }}">
+        {%- for block in blocks %}
+        <TextRegion id="region{{ block.id_ }}">
+            <Coords points="{% for point in block.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}" />
+            {%- for line in block.children %}
+            <TextLine id="region{{ block.id_ }}_line{{ line.id_ }}">
+                <TextEquiv>
+                    <Unicode>{{ line.text.top_candidate() }}</Unicode>
+                </TextEquiv>
+                <PredScore pred_score="{{ line.text.top_score() }}" />
+            </TextLine>
+            {%- endfor %}
+        </TextRegion>
+        {%- endfor %}
+    </Page>
+</PcGts>
