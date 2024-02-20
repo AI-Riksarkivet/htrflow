@@ -1,6 +1,11 @@
+"""
+Module containing utilities related to images and geometries
+"""
+
 from typing import Iterable
-import numpy as np
+
 import cv2
+import numpy as np
 
 
 Color = tuple[int, int, int]
@@ -157,29 +162,3 @@ def mask2bbox(mask: Mask) -> Bbox:
     """Convert mask to bounding box"""
     y, x = np.where(mask != 0)
     return np.min(x), np.max(x), np.min(y), np.max(y)
-
-
-
-if __name__ == "__main__":
-
-    # demo of masks and polygon functions
-    import models
-
-    image = cv2.imread("demo_image.jpg")
-    h, w, _ = image.shape
-
-    masks = [models.randommask(h, w), models.randommask(h, w)]
-    masks_image = draw_masks(image, masks)
-
-    bboxes = [mask2bbox(mask) for mask in masks]
-    bboxes_image = draw_bboxes(image, bboxes)
-    cv2.imwrite("demo_bboxes.png", bboxes_image)
-
-
-    cv2.imwrite("demo_mask.png", masks_image)
-
-    polygons = masks2polygons(masks)
-    polygons_image = draw_polygons(image, polygons)
-    cv2.imwrite("demo_polygon.png", polygons_image)
-
-
