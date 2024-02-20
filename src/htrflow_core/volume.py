@@ -41,9 +41,6 @@ class Node:
         self.id_ = next(Node._id_generator[parent])
         self.text = None
 
-    def __str__(self):
-        return f'{self.height}x{self.width} node at ({self.x}, {self.y})' + (self.text.texts[0] if self.text else '')
-
     def __getitem__(self, i):
         if isinstance(i, int):
             return self.children[i]
@@ -105,6 +102,12 @@ class RegionNode(Node):
         x, _, y, _ = segment.bbox
         super().__init__(parent, x, y)
 
+    def __str__(self):
+        s = f'{self.height}x{self.width} region at ({self.x}, {self.y})'
+        if self.text:
+            s += f' "{self.text.top_candidate()}"'
+        return s
+
     @property
     def image(self):
         """The image this segment represents"""
@@ -147,6 +150,9 @@ class PageNode(Node):
         # Extract image name and remove file extension (`path/to/image.jpg` -> `image`)
         self.image_name = os.path.basename(image_path).split(".")[0]
         super().__init__()
+
+    def __str__(self):
+        return f'{self.height}x{self.width} image {self.image_name}'
 
     @property
     def height(self):
