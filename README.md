@@ -4,15 +4,10 @@
 
 [![PyPI](https://img.shields.io/pypi/v/htrflow_core?style=flat-square)](https://pypi.python.org/pypi/htrflow_core/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/htrflow_core?style=flat-square)](https://pypi.python.org/pypi/htrflow_core/)
-[![PyPI - License](https://img.shields.io/pypi/l/htrflow_core?style=flat-square)](https://pypi.python.org/pypi/htrflow_core/)
+[![PyPI - License](https://img.shields.io/github/license/Swedish-National-Archives-AI-lab/htrflow_core
+)](https://pypi.python.org/pypi/htrflow_core/)
 
----
-
-**Documentation**: [https://Swedish-National-Archives-AI-lab.github.io/htrflow_core](https://Swedish-National-Archives-AI-lab.github.io/htrflow_core)
-
-**Source Code**: [https://github.com/Swedish-National-Archives-AI-lab/htrflow_core](https://github.com/Swedish-National-Archives-AI-lab/htrflow_core)
-
-**PyPI**: [https://pypi.org/project/htrflow_core/](https://pypi.org/project/htrflow_core/)
+"Add test, ci, build, publish, draft bagdges here.."
 
 ---
 
