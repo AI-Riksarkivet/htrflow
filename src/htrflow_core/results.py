@@ -52,7 +52,7 @@ class Segment:
 
 class Result:
     """Result base class"""
-
+    metadata: dict
 
 @dataclass
 class SegmentationResult(Result):
