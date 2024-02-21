@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 
 import numpy as np
 
@@ -18,21 +19,21 @@ class Segment:
     """
 
     bbox: tuple[int, int, int, int]
-    mask: np.ndarray | None
-    score: float
-    class_label: str | None
-    polygon: list[tuple]
+    mask: Optional[np.ndarray]
+    polygon: list[tuple] = None
+    score: Optional[float] = None
+    class_label: Optional[str] = None
     # baseline: list[tuple] ?
 
     @classmethod
-    def from_bbox(cls, bbox, **kwargs):
+    def from_bbox(cls, bbox, *args):
         """Create a segment from a bounding box"""
         mask = None
         polygon = image.bbox2polygon(bbox)
-        return cls(bbox, mask, polygon=polygon, **kwargs)
+        return cls(bbox, mask, polygon, *args)
 
     @classmethod
-    def from_mask(cls, mask, **kwargs):
+    def from_mask(cls, mask, *args):
         """Create a segment from a mask
 
         Args:
@@ -41,17 +42,16 @@ class Segment:
         bbox = image.mask2bbox(mask)
         polygon = image.mask2polygon(mask)
         cropped_mask = image.crop(mask, bbox)
-        return cls(bbox, cropped_mask, polygon=polygon, **kwargs)
+        return cls(bbox, cropped_mask, polygon, **args)
 
     @classmethod
-    def from_baseline(cls, baseline, **kwargs):
+    def from_baseline(cls, baseline, *args):
         """Create a segment from a baseline"""
         raise NotImplementedError()
 
 
-@dataclass
 class Result:
-    metadata: dict
+    """Result base class"""
 
 
 @dataclass
@@ -62,6 +62,9 @@ class SegmentationResult(Result):
     def bboxes(self):
         return [segment.bbox for segment in self.segments]
 
+    def polygons(self):
+        return [segment.polygon for segment in self.segments]
+
     @classmethod
     def from_bboxes(cls, image, bboxes, *args):
         segments = [Segment.from_bbox(*item) for item in zip(bboxes, *args)]
@@ -71,6 +74,10 @@ class SegmentationResult(Result):
     def from_masks(cls, image, masks, *args):
         segments = [Segment.from_mask(*item) for item in zip(masks, *args)]
         return cls(image, segments)
+
+    def save(self, dest: str):
+        img = image.draw_polygons(self.image, self.bboxes())
+        image.write(dest, img)
 
 
 @dataclass
