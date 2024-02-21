@@ -175,3 +175,11 @@ def binarize(image: np.ndarray) -> np.ndarray:
     threshold = cv2.adaptiveThreshold(img_blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
     img_binarized = cv2.cvtColor(threshold, cv2.COLOR_BGR2RGB)
     return img_binarized
+
+
+def read(source: str) -> np.ndarray:
+    return cv2.imread(source)
+
+
+def write(dest: str, image: np.ndarray):
+    cv2.imwrite(dest, image)

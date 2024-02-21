@@ -5,7 +5,7 @@
         <sourceImageInformation>
             <fileName>{{ page.image_path }}</fileName>
         </sourceImageInformation>
-        {%- for step in metadata.steps %}
+        {%- for step in metadata.processing_steps %}
         <Processing ID="step{{ loop.index }}">
             <processingDateTime>{{ metadata.created }}</processingDateTime>
             <processingStepDescription>{{ step.description}} </processingStepDescription>

@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 
-import image
 import numpy as np
+
+from htrflow_core import image
 
 
 @dataclass
@@ -49,16 +50,31 @@ class Segment:
 
 
 @dataclass
-class SegmentationResult:
+class Result:
+    metadata: dict
+
+
+@dataclass
+class SegmentationResult(Result):
     image: np.ndarray
     segments: list[Segment]
 
     def bboxes(self):
         return [segment.bbox for segment in self.segments]
 
+    @classmethod
+    def from_bboxes(cls, image, bboxes, *args):
+        segments = [Segment.from_bbox(*item) for item in zip(bboxes, *args)]
+        return cls(image, segments)
+
+    @classmethod
+    def from_masks(cls, image, masks, *args):
+        segments = [Segment.from_mask(*item) for item in zip(masks, *args)]
+        return cls(image, segments)
+
 
 @dataclass
-class RecognitionResult:
+class RecognitionResult(Result):
     texts: list[str]
     scores: list[float]
 
@@ -66,4 +82,4 @@ class RecognitionResult:
         return self.texts[self.scores.index(self.top_score())]
 
     def top_score(self):
-        return max(self.score)
+        return max(self.scores)

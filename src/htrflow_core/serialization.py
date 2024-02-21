@@ -42,7 +42,7 @@ def serialize_xml(volume, template: str) -> list[tuple[str, str]]:
     timestamp = datetime.datetime.utcnow().isoformat()
 
     metadata = _METADATA | {
-        'steps': [],   # TODO: Document processing steps
+        'processing_steps': [{'description': 'step description', 'settings': 'step settings'}],   # TODO: Document processing steps
         'created': timestamp,
         'last_change': timestamp,
     }
