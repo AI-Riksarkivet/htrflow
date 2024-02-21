@@ -42,7 +42,7 @@ class Segment:
         bbox = image.mask2bbox(mask)
         polygon = image.mask2polygon(mask)
         cropped_mask = image.crop(mask, bbox)
-        return cls(bbox, cropped_mask, polygon, **args)
+        return cls(bbox, cropped_mask, polygon, *args)
 
     @classmethod
     def from_baseline(cls, baseline, *args):
@@ -50,9 +50,12 @@ class Segment:
         raise NotImplementedError()
 
 
+@dataclass
 class Result:
     """Result base class"""
+
     metadata: dict
+
 
 @dataclass
 class SegmentationResult(Result):

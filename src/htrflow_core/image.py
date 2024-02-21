@@ -23,6 +23,14 @@ class Colors:
     WHITE = (255, 255, 255)
 
 
+def create_blank(width, height, rgb_color=Colors.WHITE):
+    """Create new image(numpy array) filled with certain color in RGB"""
+    image = np.zeros((height, width, 3), np.uint8)
+    color = tuple(reversed(rgb_color))
+    image[:] = color
+    return image
+
+
 def crop(image: np.ndarray, bbox: Bbox) -> np.ndarray:
     """Crop image
 
