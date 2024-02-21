@@ -13,7 +13,7 @@ _TEMPLATES_DIR = 'templates'
 _METADATA = {
     'creator': 'Riksarkivets AI-labb',
     'software_name': 'HTRFLOW',
-    'software_version': '{__version__}',
+    'software_version': f'{__version__}',
     'application_description': '...'
 }
 
