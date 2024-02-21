@@ -1,14 +1,19 @@
+from __future__ import annotations
 import datetime
+from typing import TYPE_CHECKING, List, Tuple
 
 from jinja2 import Environment, FileSystemLoader
-from volume import Volume
+
+
+if TYPE_CHECKING:
+    from htrflow_core.volume import Volume
 
 
 _TEMPLATES_DIR = 'templates'
 _METADATA = {
     'creator': 'Riksarkivets AI-labb',
     'software_name': 'HTRFLOW',
-    'software_version': '1.0',
+    'software_version': '{__version__}',
     'application_description': '...'
 }
 
@@ -28,7 +33,7 @@ def get_serializer(format_):
     return _FORMATS[format_]
 
 
-def serialize_xml(volume, template: str) -> list[tuple[str, str]]:
+def serialize_xml(volume : Volume, template: str) -> List[Tuple[str, str]]:
     """Serialize volume according to `template`
 
     Arguments:

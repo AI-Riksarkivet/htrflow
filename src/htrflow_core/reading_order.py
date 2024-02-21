@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
-from results import SegmentationResult
+
+from htrflow_core.results import SegmentationResult
 
 
 def order_segments_marginalia(result: SegmentationResult, margin_ratio=0.2, histogram_bins=50, histogram_dip_ratio=0.5):

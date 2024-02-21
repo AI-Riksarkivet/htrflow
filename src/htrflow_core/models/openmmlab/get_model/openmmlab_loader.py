@@ -10,6 +10,7 @@ from mmocr.apis import TextRecInferencer
 
 from htrflow_core.models.framework_enums import ModelFrameworks
 
+
 # TODO should donwload models to cache folder, should look for models in that cache_folder also
 
 

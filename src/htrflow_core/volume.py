@@ -9,10 +9,10 @@ from itertools import count
 from typing import Literal, Optional
 
 import cv2
-import image
 import numpy as np
-import serialization
-from results import RecognitionResult, Segment, SegmentationResult
+
+from htrflow_core import image, serialization
+from htrflow_core.results import RecognitionResult, Segment, SegmentationResult
 
 
 class Node:
