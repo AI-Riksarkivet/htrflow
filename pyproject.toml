@@ -46,8 +46,9 @@ skip = ["src", "tests"]
 
 [tool.poetry.dependencies]
 datasets = "2.17.1"
-huggingface-hub = "*"
+huggingface-hub = "^0.20.3"
 jinja2 = "3.1.3"
+lorem = "^0.1.1"
 mmcv = "2.1.0"
 mmdet = "3.3.0"
 mmengine = "0.9.1"
@@ -57,7 +58,8 @@ opencv-python = "4.9.0.80"
 openmim = "0.3.9"
 pandas = "2.2.0"
 python = ">=3.10, <4.0"
-transformers = "*"
+transformers = "^4.37.2"
+ultralytics = "^8.1.17"
 
 [tool.pytest.ini_options]
 addopts = "-v --cov htrflow_core --cov-report term-missing --no-cov-on-fail "
