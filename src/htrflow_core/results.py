@@ -69,14 +69,14 @@ class SegmentationResult(Result):
         return [segment.polygon for segment in self.segments]
 
     @classmethod
-    def from_bboxes(cls, image, bboxes, *args):
+    def from_bboxes(cls, metadata, image, bboxes, *args):
         segments = [Segment.from_bbox(*item) for item in zip(bboxes, *args)]
-        return cls(image, segments)
+        return cls(metadata, image, segments)
 
     @classmethod
-    def from_masks(cls, image, masks, *args):
+    def from_masks(cls, metadata, image, masks, *args):
         segments = [Segment.from_mask(*item) for item in zip(masks, *args)]
-        return cls(image, segments)
+        return cls(metadata, image, segments)
 
     def save(self, dest: str):
         img = image.draw_polygons(self.image, self.polygons())
