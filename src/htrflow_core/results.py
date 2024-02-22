@@ -79,7 +79,7 @@ class SegmentationResult(Result):
         return cls(image, segments)
 
     def save(self, dest: str):
-        img = image.draw_polygons(self.image, self.bboxes())
+        img = image.draw_polygons(self.image, self.polygons())
         image.write(dest, img)
 
 
