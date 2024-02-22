@@ -140,3 +140,5 @@ cython_debug/
 
 # Ignore ruff cache
 .ruff_cache/
+todo.txt
+src/htrflow_core/dummies/img.jpg

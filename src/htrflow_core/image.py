@@ -23,14 +23,6 @@ class Colors:
     WHITE = (255, 255, 255)
 
 
-def create_blank(width, height, rgb_color=Colors.WHITE):
-    """Create new image(numpy array) filled with certain color in RGB"""
-    image = np.zeros((height, width, 3), np.uint8)
-    color = tuple(reversed(rgb_color))
-    image[:] = color
-    return image
-
-
 def crop(image: np.ndarray, bbox: Bbox) -> np.ndarray:
     """Crop image
 
@@ -132,6 +124,10 @@ def draw_polygons(
     return image
 
 
+def draw_reading_order():
+    pass
+
+
 def mask2polygon(mask: Mask, epsilon: float = 0.01) -> Polygon:
     """Convert mask to polygon
 
@@ -189,5 +185,5 @@ def read(source: str) -> np.ndarray:
     return cv2.imread(source)
 
 
-def write(dest: str, image: np.ndarray):
+def write(dest: str, image: np.ndarray) -> None:
     cv2.imwrite(dest, image)
