@@ -1,88 +1,85 @@
+from typing import Iterable
+
 import numpy as np
-from PIL import Image
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel
-from transformers.generation import BeamSearchEncoderDecoderOutput
-from transformers.utils import ModelOutput
-from htrflow_core.inferencers.base_inferencer import BaseInferencer
+
+from htrflow_core.models.base_inferencer import BaseModel
+from htrflow_core.results import RecognitionResult
 
 
-class TrOCRInferencer(BaseInferencer):
-
-    default_config = {
+class TrOCR(BaseModel):
+    default_generation_kwargs = {
         "num_beams": 4,
     }
 
-    def __init__(self, model: VisionEncoderDecoderModel, processor: TrOCRProcessor):
-        self._model = model
-        self._processor = processor
-
-    def preprocess(self, images: list[str]):
-        images = [Image.open(image).convert("RGB") for image in images]
-        return self._processor(images, return_tensors="pt").pixel_values
-
-    def predict(self, images: list[str], **kwargs):
-        """Run inference on `images`
-
-        Uses beam search with 4 beams by default. This can be altered by passing `num_beams` in `kwargs`.
+    def __init__(
+        self,
+        model_source: str = "microsoft/trocr-small-handwritten",
+        processor_source: str = "microsoft/trocr-base-handwritten",
+    ):
+        """Initialize a TrOCR model
 
         Args:
-            images (list[str]): List of image paths
-            kwargs: Keyword arguments passed to model.generate()
-
-        Returns:
-            A tuple (texts, scores)
+            model_source: Path or name of pretrained VisisonEncoderDeocderModel.
+                Defaults to 'microsoft/trocr-small-handwritten'.
+            processor_source: Path or name of pretrained TrOCRProcessor.
+                Defaults to 'microsoft/trocr-base-handwritten'.
         """
+        self.model = VisionEncoderDecoderModel.from_pretrained(model_source)
+
+        if processor_source is None:
+            processor_source = model_source
+        self.processor = TrOCRProcessor.from_pretrained(processor_source)
+
+        self.metadata = {
+            "model": self.model.name_or_path,
+            "processor": self.processor.to_dict(),
+        }
+
+    def predict(self, images: Iterable[np.ndarray], **generation_kwargs) -> Iterable[RecognitionResult]:
+        # Prepare generation keyword arguments
+        generation_kwargs = self._prepare_generation_kwargs(**generation_kwargs)
+        metadata = self.metadata | {"generation_args": generation_kwargs}
+
+        # Run inference
+        model_inputs = self.processor(images, return_tensors="pt").pixel_values
+        model_outputs = self.model.generate(model_inputs, **generation_kwargs)
+
+        # Prepare output
+        texts = self.processor.batch_decode(model_outputs.sequences, skip_special_tokens=True)
+        scores = model_outputs.sequences_scores.tolist()
+        # `texts` and `scores` are flattened lists so we need to iterate
+        # over them in steps to ensure that the list of results correspond
+        # 1-to-1 with the list of images
+        step = generation_kwargs["num_return_sequences"]
+        results = []
+        for i in range(0, len(texts), step):
+            texts_chunk = texts[i : i + step]
+            scores_chunk = scores[i : i + step]
+            result = RecognitionResult(metadata, texts_chunk, scores_chunk)
+            results.append(result)
+        return results
+
+    def _prepare_generation_kwargs(self, **kwargs):
+        # Generally, all generation keyword arguments are passed to
+        # the model's .generate method. However, to ensure that we
+        # get the output format we want, some arguments needs to be
+        # set (and potentially overridden)
 
         # Add default arguments
-        kwargs = TrOCRInferencer.default_config | kwargs
+        kwargs = TrOCR.default_generation_kwargs | kwargs
 
-        # `num_return_sequences` defaults to `num_beams`
-        kwargs["num_return_sequences"] = kwargs.get("num_return_sequences", kwargs["num_beams"])
+        # HF defaults to greedy search if the user sets num_beams=1
+        # But greedy search doesn't output sequence_scores, which we
+        # we want to keep. Instead, we override num_beams to 2, and
+        # set the return sequecens to 1.
+        if kwargs.get("num_beams", None) == 1:
+            kwargs["num_beams"] = 2
+            kwargs["num_return_sequences"] = 1
+        else:
+            kwargs["num_return_sequences"] = kwargs["num_beams"]
 
-        # Overwrite mandatory arguments
+        # Override arguments related to the output format
         kwargs["output_scores"] = True
         kwargs["return_dict_in_generate"] = True
-
-        inputs = self.preprocess(images)
-        outputs = self._model.generate(inputs, **kwargs)
-        return self.postprocess(outputs, kwargs["num_return_sequences"])
-
-    def postprocess(self, outputs: BeamSearchEncoderDecoderOutput | ModelOutput, num_return_sequences: int):
-        texts = self._processor.batch_decode(outputs.sequences, skip_special_tokens=True)
-        scores = self._sequence_scores(outputs)
-
-        # Beam search returns all sequences in a flattened list so we need to re-group them so that each item in the
-        # final output list correspond to one input line
-        if num_return_sequences > 1:
-            texts = _group(texts, num_return_sequences)
-            scores = _group(self._sequence_scores(outputs), num_return_sequences)
-
-        return texts, scores
-
-    def _sequence_scores(self, outputs: ModelOutput) -> list[float] | list[list[float]]:
-        """Compute prediction score for each output sequence"""
-
-        # This implementation follows example #1 found here:
-        # https://discuss.huggingface.co/t/announcement-generation-get-probabilities-for-generated-output/30075
-        # Note that outputs.sequences_scores aren't used - those are based on unnormalized logits. This implementation
-        # normalizes the logits before computing the sequences' prediction scores, which should make the prediction
-        # scores produced by beam search and greedy decoding comparable with each other.
-
-        if isinstance(outputs, BeamSearchEncoderDecoderOutput):
-            transition_scores = self._model.decoder.compute_transition_scores(
-                outputs.sequences, outputs.scores, outputs.beam_indices, normalize_logits=True
-            )
-        else:
-            transition_scores = self._model.decoder.compute_transition_scores(
-                outputs.sequences, outputs.scores, normalize_logits=True
-            )
-
-        length_penalty = self._model.generation_config.length_penalty
-        output_length = np.sum(transition_scores.numpy() < 0, axis=1)
-        scores = transition_scores.sum(axis=1) / (output_length**length_penalty)
-        return scores.tolist()
-
-
-def _group(lst: list, n: int) -> list:
-    """Group items in `lst` in sublists of length `n`"""
-    return [lst[i : i + n] for i in range(0, len(lst), n)]
+        return kwargs
