@@ -1,25 +1,23 @@
-import torch
-from ultralytics.engine.model import Model
-from ultralytics.engine.results import Results
+import numpy as np
 
-from htrflow_core.inferencers.base_inferencer import BaseInferencer
+from htrflow_core.models.base_inferencer import BaseModel
+from htrflow_core.results import SegmentationResult
+from ultralyticsplus import YOLO as UltraylticsplusYOLO
 
 
-class UltralyticsInferencer(BaseInferencer):
-    def __init__(self, model: Model):
-        self._model = model
+class YOLO(BaseModel):
+    def __init__(self, model, *args):
+        self.model = UltraylticsplusYOLO(model, *args)
+        self.metadata = {'model': model}
 
-    def preprocess(self, inputs):
-        return inputs
+    def predict(self, images: list[np.ndarray], **kwargs) -> list[SegmentationResult]:
+        outputs = self.model(images, stream=True, **kwargs)
 
-    def predict(self, inputs, *args, **kwargs):
-        inputs = self.preprocess(inputs)
-        results = self._model(inputs, *args, **kwargs)
-        return self.postprocess(results)
-
-    def postprocess(self, results: list[Results]) -> list[list[tuple]]:
-        """Map list of Results objects to lists of (x_min, y_min, x_max, y_max, confidence_score) tuples"""
-        return [self._results_to_tuples(res) for res in results]
-
-    def _results_to_tuples(self, results: Results) -> list[tuple]:
-        return [tuple(xyxyc) for xyxyc in torch.cat((results.boxes.xyxy, results.boxes.conf.unsqueeze(1)), 1).tolist()]
+        results = []
+        for image, output in zip(images, outputs):
+            boxes = [[x1, x2, y1, y2] for x1, y1, x2, y2 in output.boxes.xyxy.int()]
+            scores = output.boxes.conf.tolist()
+            class_labels = [output.names[label] for label in output.boxes.cls.tolist()]
+            result = SegmentationResult.from_bboxes(self.metadata, image, boxes, scores, class_labels)
+            results.append(result)
+        return results
