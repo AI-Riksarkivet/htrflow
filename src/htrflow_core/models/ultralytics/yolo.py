@@ -1,6 +1,6 @@
 import numpy as np
 
-from htrflow_core.models.base_inferencer import BaseModel
+from htrflow_core.models.base_model import BaseModel
 from htrflow_core.results import SegmentationResult
 from ultralyticsplus import YOLO as UltraylticsplusYOLO
 

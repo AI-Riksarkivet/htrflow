@@ -3,7 +3,7 @@ from typing import Iterable
 import numpy as np
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 
-from htrflow_core.models.base_inferencer import BaseModel
+from htrflow_core.models.base_model import BaseModel
 from htrflow_core.results import RecognitionResult
 
 
