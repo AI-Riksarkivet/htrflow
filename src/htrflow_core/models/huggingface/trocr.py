@@ -3,7 +3,7 @@ from typing import Iterable
 import numpy as np
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 
-from htrflow_core.models.base_inferencer import BaseModel
+from htrflow_core.models.base_model import BaseModel
 from htrflow_core.results import RecognitionResult
 
 
@@ -19,7 +19,7 @@ class TrOCR(BaseModel):
     ):
         """Initialize a TrOCR model
 
-        Args:
+        Arguments:
             model_source: Path or name of pretrained VisisonEncoderDeocderModel.
                 Defaults to 'microsoft/trocr-small-handwritten'.
             processor_source: Path or name of pretrained TrOCRProcessor.
@@ -37,6 +37,19 @@ class TrOCR(BaseModel):
         }
 
     def predict(self, images: Iterable[np.ndarray], **generation_kwargs) -> Iterable[RecognitionResult]:
+        """Perform inference on `images`
+
+        Uses beam search with 4 beams by default, this can be altered
+        by setting `num_beams` in generation_kwargs.
+
+        Arguments:
+            images: Input images.
+            **generation_kwargs: Optional keyword arguments that are
+                forwarded to the model's .generate() method.
+
+        Returns:
+            The predicted texts and their beam scores.
+        """
         # Prepare generation keyword arguments
         generation_kwargs = self._prepare_generation_kwargs(**generation_kwargs)
         metadata = self.metadata | {"generation_args": generation_kwargs}
@@ -50,7 +63,7 @@ class TrOCR(BaseModel):
         scores = model_outputs.sequences_scores.tolist()
         # `texts` and `scores` are flattened lists so we need to iterate
         # over them in steps to ensure that the list of results correspond
-        # 1-to-1 with the list of images
+        # 1-to-1 with the list of images.
         step = generation_kwargs["num_return_sequences"]
         results = []
         for i in range(0, len(texts), step):
@@ -64,7 +77,7 @@ class TrOCR(BaseModel):
         # Generally, all generation keyword arguments are passed to
         # the model's .generate method. However, to ensure that we
         # get the output format we want, some arguments needs to be
-        # set (and potentially overridden)
+        # set (and potentially overridden).
 
         # Add default arguments
         kwargs = TrOCR.default_generation_kwargs | kwargs
