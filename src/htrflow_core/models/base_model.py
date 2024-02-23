@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Iterable, Optional
 from itertools import islice
+from typing import Iterable, Optional
 
 import numpy as np
 
@@ -8,10 +8,7 @@ from htrflow_core.results import Result
 
 
 class BaseModel(ABC):
-
-    def predict(
-        self, images: Iterable[np.ndarray], batch_size: Optional[int], *args, **kwargs
-    ) -> Iterable[Result]:
+    def predict(self, images: Iterable[np.ndarray], batch_size: Optional[int], *args, **kwargs) -> Iterable[Result]:
         """Perform inference on images
 
         Arguments:

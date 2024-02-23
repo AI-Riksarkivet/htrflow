@@ -1,26 +1,30 @@
 from __future__ import annotations
+
 import datetime
 from typing import TYPE_CHECKING, List, Tuple
 
 from jinja2 import Environment, FileSystemLoader
+
+import htrflow_core
 
 
 if TYPE_CHECKING:
     from htrflow_core.volume import Volume
 
 
-_TEMPLATES_DIR = 'src/htrflow_core/templates'
+_TEMPLATES_DIR = "src/htrflow_core/templates"
 _METADATA = {
-    'creator': 'Riksarkivets AI-labb',
-    'software_name': 'HTRFLOW',
-    'software_version': f'{__version__}',
-    'application_description': '...'
+    "creator": f"{htrflow_core.__author__}",
+    "software_name": f"{htrflow_core.__package_name__}",
+    "software_version": f"{htrflow_core.__version__}",
+    "application_description": f"{htrflow_core.__desc__}",
 }
 
+
 _FORMATS = {
-    'alto': lambda volume: serialize_xml(volume, 'alto'),
-    'page': lambda volume: serialize_xml(volume, 'page'),
-    'txt': lambda volume: serialize_txt(volume),
+    "alto": lambda volume: serialize_xml(volume, "alto"),
+    "page": lambda volume: serialize_xml(volume, "page"),
+    "txt": lambda volume: serialize_txt(volume),
 }
 
 
@@ -33,7 +37,7 @@ def get_serializer(format_):
     return _FORMATS[format_]
 
 
-def serialize_xml(volume : Volume, template: str) -> List[Tuple[str, str]]:
+def serialize_xml(volume: Volume, template: str) -> List[Tuple[str, str]]:
     """Serialize volume according to `template`
 
     Arguments:
@@ -47,12 +51,14 @@ def serialize_xml(volume : Volume, template: str) -> List[Tuple[str, str]]:
     timestamp = datetime.datetime.utcnow().isoformat()
 
     metadata = _METADATA | {
-        'processing_steps': [{'description': 'step description', 'settings': 'step settings'}],   # TODO: Document processing steps
-        'created': timestamp,
-        'last_change': timestamp,
+        "processing_steps": [
+            {"description": "step description", "settings": "step settings"}
+        ],  # TODO: Document processing steps
+        "created": timestamp,
+        "last_change": timestamp,
     }
 
-    env = Environment(loader=FileSystemLoader([_TEMPLATES_DIR, '.']))
+    env = Environment(loader=FileSystemLoader([_TEMPLATES_DIR, "."]))
     tmpl = env.get_template(template)
 
     docs = []
@@ -61,7 +67,7 @@ def serialize_xml(volume : Volume, template: str) -> List[Tuple[str, str]]:
         blocks = list({node.parent for node in page.lines() if node.parent})
         blocks.sort(key=lambda x: x.id_)
         doc = tmpl.render(page=page, blocks=blocks, metadata=metadata)
-        filename = page.image_name + '.xml'
+        filename = page.image_name + ".xml"
         docs.append((doc, filename))
     return docs
 
@@ -77,7 +83,7 @@ def serialize_txt(volume: Volume) -> list[tuple[str, str]]:
     """
     docs = []
     for page in volume:
-        doc = '\n'.join(line.text.top_candidate() for line in page.lines())
-        filename = page.image_name + '.txt'
+        doc = "\n".join(line.text.top_candidate() for line in page.lines())
+        filename = page.image_name + ".txt"
         docs.append((doc, filename))
     return docs

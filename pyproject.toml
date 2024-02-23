@@ -92,21 +92,20 @@ known-first-party = ["htrflow_core"]
 lines-after-imports = 2
 
 [tool.poetry.group.test.dependencies]
-coverage = "*"
-importlib-metadata = "==4.11.*"
-mypy = "*"
-pre-commit = "*"
-pytest = "*"
-pytest-cov = "*"
-pytest-github-actions-annotate-failures = "*"
-python-dotenv = "*"
-ruff = "*"
+mypy = "^1.8.0"
+pre-commit = "^3.6.2"
+pytest = "^8.0.1"
+pytest-cov = "4.1.0"
+pytest-github-actions-annotate-failures = "^0.2.0"
+python-dotenv = "1.0.1"
+ruff = "^0.2.2"
+xmlschema = "3.0.2"
 
 [tool.poetry.group.docs.dependencies]
-mkdocs = "*"
-mkdocs-jupyter = "*"
-mkdocs-material = "*"
-pymdown-extensions = "*"
+mkdocs = "1.5.3"
+mkdocs-jupyter = "0.24.6"
+mkdocs-material = "9.5.10"
+pymdown-extensions = "10.7"
 
 [tool.poetry.group.docs.dependencies.mkdocstrings]
 extras = ["python"]

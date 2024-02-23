@@ -138,8 +138,8 @@ if __name__ == "__main__":
         width,
         height,
         segments=100,
-        noise_level=0,
-        bbox_top_left_factor=(0.1, 0.1),
+        noise_level=1,
+        bbox_top_left_factor=(0.2, 0.1),
         bbox_size_factor=(0.4, 0.12),
         smooth_level=3,
         seed=3,
@@ -150,7 +150,7 @@ if __name__ == "__main__":
         height,
         segments=100,
         noise_level=0.01,
-        bbox_top_left_factor=(0.2, 0.12),
+        bbox_top_left_factor=(0.2, 0.15),
         bbox_size_factor=(0.3, 0.09),
         smooth_level=5,
         seed=3,
@@ -169,7 +169,7 @@ if __name__ == "__main__":
 
     final_masked_image = apply_mask_with_opacity(
         image,
-        masks=[mask_1, mask_3],
+        masks=[mask_1, mask_2],
         opacities=[0.5, 0.5],
         colors=[[255, 0, 0], [0, 255, 0]],
     )

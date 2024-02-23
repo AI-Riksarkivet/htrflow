@@ -1,4 +1,3 @@
-from typing import Iterable
 
 import numpy as np
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel

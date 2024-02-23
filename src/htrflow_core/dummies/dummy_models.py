@@ -18,6 +18,8 @@ class SegmentType:
     BBOX = "bbox"
 
 
+# TODO add so metadata works like this for the dummies:
+# https://github.com/Swedish-National-Archives-AI-lab/htrflow_core/blob/47fde48b12b140ac52c50f5488d71318c109bf28/src/htrflow_core/models/ultralytics/yolo.py#L11
 class SegmentationModel:
     def __init__(self, segment_type: str = "mask") -> None:
         self.segment_type = segment_type

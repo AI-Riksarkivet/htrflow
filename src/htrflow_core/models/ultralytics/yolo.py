@@ -1,8 +1,8 @@
 import numpy as np
+from ultralyticsplus import YOLO as UltraylticsplusYOLO
 
 from htrflow_core.models.base_model import BaseModel
 from htrflow_core.results import SegmentationResult
-from ultralyticsplus import YOLO as UltraylticsplusYOLO
 
 
 class YOLO(BaseModel):

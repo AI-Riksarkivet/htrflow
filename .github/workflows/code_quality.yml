@@ -17,7 +17,7 @@ jobs:
       - uses: ./.github/actions/poetry
 
       - name: Linting check with ruff
-        run: ruff check .
+        run: poetry run ruff check .
 
       - name: Strict typehinting check with mypy
-        run: mypy . #mypy --strict .
+        run: poetry run mypy .
