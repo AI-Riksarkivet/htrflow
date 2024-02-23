@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from htrflow_core.volume import Volume
 
 
-_TEMPLATES_DIR = 'templates'
+_TEMPLATES_DIR = 'src/htrflow_core/templates'
 _METADATA = {
     'creator': 'Riksarkivets AI-labb',
     'software_name': 'HTRFLOW',

@@ -12,9 +12,9 @@
             <processingStepSettings>{{ step.settings }}</processingStepSettings>
             <processingSoftware>
                 <softwareCreator>{{ metadata.creator }}</softwareCreator>
-                <softwareName>{{ metadata.software }}</softwareName>
+                <softwareName>{{ metadata.software_name }}</softwareName>
                 <softwareVersion>{{ metadata.software_version }}</softwareVersion>
-                <applicationDescription></applicationDescription>
+                <applicationDescription>{{ metadata.application_description }}</applicationDescription>
             </processingSoftware>
         </Processing>
         {%- endfor %}

@@ -15,7 +15,7 @@ class YOLO(BaseModel):
 
         results = []
         for image, output in zip(images, outputs):
-            boxes = [[x1, x2, y1, y2] for x1, y1, x2, y2 in output.boxes.xyxy.int()]
+            boxes = [[x1, x2, y1, y2] for x1, y1, x2, y2 in output.boxes.xyxy.int().tolist()]
             scores = output.boxes.conf.tolist()
             class_labels = [output.names[label] for label in output.boxes.cls.tolist()]
             result = SegmentationResult.from_bboxes(self.metadata, image, boxes, scores, class_labels)
