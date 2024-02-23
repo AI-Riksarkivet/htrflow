@@ -10,7 +10,7 @@ class YOLO(BaseModel):
         self.model = UltraylticsplusYOLO(model, *args)
         self.metadata = {'model': model}
 
-    def predict(self, images: list[np.ndarray], **kwargs) -> list[SegmentationResult]:
+    def _predict(self, images: list[np.ndarray], **kwargs) -> list[SegmentationResult]:
         outputs = self.model(images, stream=True, **kwargs)
 
         results = []

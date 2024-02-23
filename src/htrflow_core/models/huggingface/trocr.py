@@ -36,7 +36,7 @@ class TrOCR(BaseModel):
             "processor_source": processor_source,
         }
 
-    def predict(self, images: Iterable[np.ndarray], **generation_kwargs) -> Iterable[RecognitionResult]:
+    def _predict(self, images: list[np.ndarray], **generation_kwargs) -> list[RecognitionResult]:
         """Perform inference on `images`
 
         Uses beam search with 4 beams by default, this can be altered
