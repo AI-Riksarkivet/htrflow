@@ -32,8 +32,8 @@ class TrOCR(BaseModel):
         self.processor = TrOCRProcessor.from_pretrained(processor_source)
 
         self.metadata = {
-            "model": self.model.name_or_path,
-            "processor": self.processor.to_dict(),
+            "model_source": model_source,
+            "processor_source": processor_source,
         }
 
     def predict(self, images: Iterable[np.ndarray], **generation_kwargs) -> Iterable[RecognitionResult]:
