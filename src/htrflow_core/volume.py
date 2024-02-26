@@ -164,6 +164,14 @@ class PageNode(Node):
         """Image width"""
         return self.image.shape[1]
 
+    @property
+    def polygon(self):
+        return self.bbox
+
+    @property
+    def bbox(self):
+        return [(0, 0), (0, self.height), (self.width, self.height), (self.width, 0)]
+
     def show(self):
         polygons = [np.array(node.polygon) for node in self.traverse() if node != self]
         im = image.draw_polygons(self.image, polygons)
