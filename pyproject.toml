@@ -59,8 +59,9 @@ openmim = "0.3.9"
 pandas = "2.2.0"
 python = ">=3.10, <4.0"
 transformers = "^4.37.2"
-ultralytics = "^8.1.17"
+ultralytics = "^8.0.225"
 xmlschema = "^3.0.2"
+ultralyticsplus = "^0.1.0"
 
 [tool.pytest.ini_options]
 addopts = "-v --cov htrflow_core --cov-report term-missing --no-cov-on-fail "
