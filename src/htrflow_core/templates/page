@@ -7,6 +7,7 @@
        <!-- <ReadingOrder> -->
     </Metadata>
     <Page imageFilename="{{ page.image_path }}" imageWidth="{{ page.width }}" imageHeight="{{ page.height }}">
+        {%- if blocks -%}{# page has regions #}
         {%- for block in blocks %}
         <TextRegion id="region{{ block.id_ }}">
             <Coords points="{% for point in block.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}" />
@@ -20,5 +21,16 @@
             {%- endfor %}
         </TextRegion>
         {%- endfor %}
+        {%- else %} {# page has no regions #}
+        <TextRegion id="region0">
+            <Coords points="{% for point in page.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}" />
+            <TextLine id="region0_line0">
+                <Coords points="{% for point in page.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}" />
+                <TextEquiv conf="{{ page.text.top_score() }}">
+                    <Unicode>{{ page.text.top_candidate() }}</Unicode>
+                </TextEquiv>
+            </TextLine>
+        </TextRegion>
+        {%- endif %}
     </Page>
 </PcGts>
