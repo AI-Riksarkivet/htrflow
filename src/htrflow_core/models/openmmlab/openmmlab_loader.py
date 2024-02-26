@@ -1,5 +1,6 @@
 import logging
 import os
+from enum import Enum
 
 import torch
 from huggingface_hub import hf_hub_download
@@ -8,10 +9,11 @@ from mmdet.apis import DetInferencer
 from mmengine.config import Config
 from mmocr.apis import TextRecInferencer
 
-from htrflow_core.models.framework_enums import ModelFrameworks
 
-
-# TODO should donwload models to cache folder, should look for models in that cache_folder also
+class ModelFrameworks(Enum):
+    MMDET = "mmdet"
+    MMOCR = "mmocr"
+    TROCR = "trocr"
 
 
 class OpenmmlabModelLoader:
@@ -34,17 +36,15 @@ class OpenmmlabModelLoader:
         return None
 
     @classmethod
-    def check_device_to_use(cls,device):
+    def check_device_to_use(cls, device):
         if device is None:
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         else:
             device = torch.device(device if torch.cuda.is_available() else "cpu")
         return device
 
-
     @classmethod
     def _checking_model_scope(cls, model_id, cache_dir, config_file):
-
         cfg = Config.fromfile(config_file)
 
         model_scope = cfg.default_scope
@@ -64,7 +64,6 @@ class OpenmmlabModelLoader:
         cfg.dictionary["dict_file"] = download_dict_file
         cfg.model["decoder"]["dictionary"]["dict_file"] = download_dict_file
         cfg.dump(config_file)
-
 
     @classmethod
     def _download_config_and_model_file(cls, repo_id, cache_dir):
@@ -115,18 +114,15 @@ class OpenModelFactory:
             ModelFrameworks.MMOCR.value: TextRecInferencer,
         }
 
-
-
         if model_scope in model_creators:
-            return OpenmmlabModel( model_creators[model_scope] , model_scope,config_file, model_file, device)
+            return OpenmmlabModel(model_creators[model_scope], model_scope, config_file, model_file, device)
 
         logging.error(f"Unknown model scope: {model_scope}")
         return None
 
 
-
 class OpenmmlabModel:
-    def __init__(self, inferencer ,framework ,config_file, model_file, device):
+    def __init__(self, inferencer, framework, config_file, model_file, device):
         self.model = inferencer(config_file, model_file, device)
 
         cfg = Config.fromfile(config_file)
@@ -138,17 +134,12 @@ class OpenmmlabModel:
         return f"{self.model.__str__()}"
 
 
-
 if __name__ == "__main__":
-    region_model = OpenmmlabModelLoader.from_pretrained("Riksarkivet/rtmdet_regions", cache_dir="/home/gabriel/Desktop/htrflow_core/models")
-    text_model = OpenmmlabModelLoader.from_pretrained("Riksarkivet/satrn_htr", cache_dir="/home/gabriel/Desktop/htrflow_core/models")
+    region_model = OpenmmlabModelLoader.from_pretrained(
+        "Riksarkivet/rtmdet_regions", cache_dir="/home/gabriel/Desktop/htrflow_core/models"
+    )
+    text_model = OpenmmlabModelLoader.from_pretrained(
+        "Riksarkivet/satrn_htr", cache_dir="/home/gabriel/Desktop/htrflow_core/models"
+    )
 
     print(region_model)
-    print(region_model.framework)
-    print(text_model.device)
-
-
-    print(text_model)
-    print(text_model.framework)
-    print(text_model.device)
-
