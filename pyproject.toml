@@ -60,6 +60,7 @@ pandas = "2.2.0"
 python = ">=3.10, <4.0"
 transformers = "^4.37.2"
 ultralytics = "^8.1.17"
+xmlschema = "^3.0.2"
 
 [tool.pytest.ini_options]
 addopts = "-v --cov htrflow_core --cov-report term-missing --no-cov-on-fail "
@@ -99,7 +100,6 @@ pytest-cov = "4.1.0"
 pytest-github-actions-annotate-failures = "^0.2.0"
 python-dotenv = "1.0.1"
 ruff = "^0.2.2"
-xmlschema = "3.0.2"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = "1.5.3"
