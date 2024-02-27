@@ -103,8 +103,6 @@ def serialize_xml(volume: Volume, template: str) -> list[Tuple[str, str]]:
     # Validate the XML strings against the schema
     schema = _SCHEMAS[template]
     xsd = xmlschema.XMLSchema(schema)
-    print(doc)
-
     for doc, filename in docs:
         for error in xsd.iter_errors(doc):
             warnings.warn(
