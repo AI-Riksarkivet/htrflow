@@ -11,7 +11,7 @@ import htrflow_core
 
 
 if TYPE_CHECKING:
-    from htrflow_core.volume import Volume
+    from htrflow_core.volume import Node, Volume
 
 
 # Path to templates
@@ -91,17 +91,20 @@ def serialize_xml(volume: Volume, template: str) -> list[Tuple[str, str]]:
     env = Environment(loader=FileSystemLoader([_TEMPLATES_DIR, "."]))
     tmpl = env.get_template(template)
     docs = []
+    labels = label_volume(volume)
     for page in volume:
         # `blocks` are the parents of the lines (i.e. nodes that contain text)
         blocks = list({node.parent for node in page.lines() if node.parent})
-        blocks.sort(key=lambda x: x.id_)
-        doc = tmpl.render(page=page, blocks=blocks, metadata=metadata)
+        blocks.sort(key=lambda x: x.parent.children.index(x))
+        doc = tmpl.render(page=page, blocks=blocks, labels=labels, metadata=metadata)
         filename = page.image_name + ".xml"
         docs.append((doc, filename))
 
     # Validate the XML strings against the schema
     schema = _SCHEMAS[template]
     xsd = xmlschema.XMLSchema(schema)
+    print(doc)
+
     for doc, filename in docs:
         for error in xsd.iter_errors(doc):
             warnings.warn(
@@ -126,3 +129,41 @@ def serialize_txt(volume: Volume) -> list[tuple[str, str]]:
         filename = page.image_name + ".txt"
         docs.append((doc, filename))
     return docs
+
+
+def label_volume(volume: Volume, no_text_label: str = 'region', text_label: str = 'line') -> dict[Node, str]:
+    """Assign labels to volume
+
+    Arguments:
+        volume: Input volume
+        no_text_label: Label to assign to nodes without text, default 'region'
+        text_label: Label to assign to nodes with text, default 'line'
+    Returns:
+        A dictionary mapping the volume's nodes to human readable
+        labels of format `regionX_lineY`. Labels are unique within
+        each page.
+    """
+    labels = {}
+    for page in volume:
+        labels |= _label_node(page, no_text_label=no_text_label, text_label=text_label)
+    return labels
+
+
+def _label_node(node: Node, no_text_label: str, text_label: str, _label_template: str = '') -> dict[Node, str]:
+    """Assign labels to node and its decendents
+
+    Arguments:
+        node: Input node
+        no_text_label: Label to assign to nodes without text
+        text_label: Label to assign to nodes with text
+        _label_template: %-formatted template for the node's label,
+            not meant to be set outside the recursive call
+    """
+    labels = {}
+    if _label_template:
+        _label_template %= (no_text_label if node.text is None else text_label)
+        labels[node] = _label_template
+    for i, child in enumerate(node.children):
+        child_label = f'{_label_template}_%s{i}'.strip('_')
+        labels |= _label_node(child, no_text_label, text_label, child_label)
+    return labels

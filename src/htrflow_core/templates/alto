@@ -19,6 +19,16 @@
         </Processing>
         {%- endfor %}
     </Description>
+    <ReadingOrder>
+        {%- for block in blocks recursive %}
+        {%- if block.text %}
+            <ElementRef ID="reading_order_{{ labels[block] }}" REF="{{ labels[block] }}" />
+        {%- else %}
+        <OrderedGroup ID="reading_order_{{ labels[block] }}">{{ loop(block.children) }}
+        </OrderedGroup>
+        {%- endif %}
+        {%- endfor %}
+    </ReadingOrder>
     <Layout>
         <Page WIDTH="{{ page.width }}" HEIGHT="{{ page.height }}" PHYSICAL_IMG_NR="0" ID="PAGE">
             <TopMargin />
@@ -28,14 +38,14 @@
             <PrintSpace>
                 {%- if blocks -%}
                 {%- for block in blocks %}
-                <TextBlock ID="block{{ block.id_ }}" HPOS="{{ block.x }}" VPOS="{{ block.y }}" HEIGHT="{{ block.height}}" WIDTH="{{ block.width }}">
+                <TextBlock ID="{{ labels[block] }}" HPOS="{{ block.x }}" VPOS="{{ block.y }}" HEIGHT="{{ block.height}}" WIDTH="{{ block.width }}">
                     {%- if block.polygon %}
                     <Shape>
                         <Polygon POINTS="{% for point in block.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}"/>
                     </Shape>
                     {%- endif %}
                     {%- for line in block.children %}
-                    <TextLine ID="block{{ block.id_ }}_line{{ line.id_ }}"  HPOS="{{ line.x }}" VPOS="{{ line.y }}" HEIGHT="{{ line.height}}" WIDTH="{{ line.width }}"> 
+                    <TextLine ID="{{ labels[line] }}"  HPOS="{{ line.x }}" VPOS="{{ line.y }}" HEIGHT="{{ line.height}}" WIDTH="{{ line.width }}">
                         <String CONTENT="{{line.text.top_candidate()}}" />
                     </TextLine>
                     {%- endfor %}
@@ -43,7 +53,7 @@
                 {%- endfor %}
                 {%- else %}
                 <TextBlock ID="block0" HPOS="0" VPOS="0" HEIGHT="{{ page.height }}" WIDTH="{{ page.width }}">
-                    <TextLine ID="block0_line0"  HPOS="0" VPOS="0" HEIGHT="{{ page.height }}" WIDTH="{{ page.width }}"> 
+                    <TextLine ID="line0"  HPOS="0" VPOS="0" HEIGHT="{{ page.height }}" WIDTH="{{ page.width }}">
                         <String CONTENT="{{page.text.top_candidate()}}" />
                     </TextLine>
                 </TextBlock>

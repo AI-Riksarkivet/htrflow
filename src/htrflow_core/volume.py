@@ -3,9 +3,7 @@ This module holds the base data structures
 """
 
 import os
-from collections import defaultdict
 from functools import singledispatchmethod
-from itertools import count
 from typing import Literal, Optional
 
 import cv2
@@ -30,7 +28,6 @@ class Node:
     parent: Optional["Node"]
     children: list["Node"]
     depth: int
-    _id_generator = defaultdict(lambda: count(0))
 
     def __init__(self, parent: "Node" = None, x: int = 0, y: int = 0):
         self.parent = parent
@@ -38,7 +35,6 @@ class Node:
         self.depth = parent.depth + 1 if parent else 0
         self.x = parent.x + x if parent else x
         self.y = parent.y + y if parent else y
-        self.id_ = next(Node._id_generator[parent])
         self.text = None
 
     def __getitem__(self, i):
