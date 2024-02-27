@@ -35,7 +35,6 @@ class Node:
         self.depth = parent.depth + 1 if parent else 0
         self.x = parent.x + x if parent else x
         self.y = parent.y + y if parent else y
-        self.text = None
 
     def __getitem__(self, i):
         if isinstance(i, int):
@@ -56,10 +55,6 @@ class Node:
         for child in self.children:
             nodes.extend(child.traverse())
         return nodes
-
-    def lines(self):
-        """Return all nodes that contains text attached to this node"""
-        return [node for node in self.traverse() if node.text]
 
     def tree2str(self, sep="", is_last=True):
         """Return a string representation of this node and its decendants"""
@@ -93,8 +88,16 @@ class Node:
 class RegionNode(Node):
     """A node representing a segment of a page"""
 
+    children: list["RegionNode"]
+    segment: Segment
+    parent: Node
+    text: RecognitionResult
+    label: str
+
     def __init__(self, segment: Segment, parent: Node):
         self.segment = segment
+        self.text = None
+        self.label = segment.class_label
         x, _, y, _ = segment.bbox
         super().__init__(parent, x, y)
 
@@ -135,10 +138,25 @@ class RegionNode(Node):
         x1, x2, y1, y2 = self.segment.bbox
         return [x1+x, x2+x, y1+y, y2+y]
 
+    @singledispatchmethod
+    def update(self, result: SegmentationResult | RecognitionResult):
+        """Update this node with `result`"""
+        super().update(result)
+
+    @update.register
+    def _(self, result: RecognitionResult):
+        """Update the text of this node"""
+        self.text = result
+
+
 
 class PageNode(Node):
-
     """A node representing a page / input image"""
+
+    children: list[RegionNode]
+    image: np.ndarray
+    image_path: str
+    image_name: str
 
     def __init__(self, image_path: str):
         self.image = cv2.imread(image_path)
@@ -162,17 +180,31 @@ class PageNode(Node):
 
     @property
     def polygon(self):
-        return self.bbox
+        return [(0, 0), (0, self.height), (self.width, self.height), (self.width, 0)]
 
     @property
     def bbox(self):
-        return [(0, 0), (0, self.height), (self.width, self.height), (self.width, 0)]
+        return [0, self.width, 0, self.height]
 
     def show(self):
         polygons = [np.array(node.polygon) for node in self.traverse() if node != self]
         im = image.draw_polygons(self.image, polygons)
         cv2.imshow('image', im)
         cv2.waitKey(0)
+
+    @singledispatchmethod
+    def update(self, result: RecognitionResult):
+        """Update this node with `result`"""
+        super().update(result)
+
+    @update.register
+    def _(self, result: RecognitionResult):
+        """Update the text of this node"""
+
+        segment = Segment.from_bbox(self.bbox)
+        child = RegionNode(segment, self)
+        child.update(result)
+        self.children = [child]
 
 
 class Volume:

@@ -11,7 +11,7 @@ import htrflow_core
 
 
 if TYPE_CHECKING:
-    from htrflow_core.volume import Node, Volume
+    from htrflow_core.volume import RegionNode, Volume
 
 
 # Path to templates
@@ -93,9 +93,9 @@ def serialize_xml(volume: Volume, template: str) -> list[Tuple[str, str]]:
     docs = []
     labels = label_volume(volume)
     for page in volume:
-        # `blocks` are the parents of the lines (i.e. nodes that contain text)
-        blocks = list({node.parent for node in page.lines() if node.parent})
-        blocks.sort(key=lambda x: x.parent.children.index(x))
+        # `blocks` are the parents of the leaves (i.e. nodes that contain text)
+        blocks = list({node.parent for node in page.leaves() if node.parent})
+        blocks.sort(key=lambda x: x.parent.children.index(x) if x.parent else 0)
         doc = tmpl.render(page=page, blocks=blocks, labels=labels, metadata=metadata)
         filename = page.image_name + ".xml"
         docs.append((doc, filename))
@@ -129,7 +129,7 @@ def serialize_txt(volume: Volume) -> list[tuple[str, str]]:
     return docs
 
 
-def label_volume(volume: Volume, no_text_label: str = 'region', text_label: str = 'line') -> dict[Node, str]:
+def label_volume(volume: Volume, no_text_label: str = 'region', text_label: str = 'line') -> dict[RegionNode, str]:
     """Assign labels to volume
 
     Arguments:
@@ -141,13 +141,19 @@ def label_volume(volume: Volume, no_text_label: str = 'region', text_label: str 
         labels of format `regionX_lineY`. Labels are unique within
         each page.
     """
-    labels = {}
+    labels: dict[RegionNode, str] = {}
     for page in volume:
-        labels |= _label_node(page, no_text_label=no_text_label, text_label=text_label)
+        for i, region in enumerate(page):
+            labels |= _label_node(region, no_text_label=no_text_label, text_label=text_label, label_template=f'%s{i}')
     return labels
 
 
-def _label_node(node: Node, no_text_label: str, text_label: str, _label_template: str = '') -> dict[Node, str]:
+def _label_node(
+    node: RegionNode,
+    no_text_label: str,
+    text_label: str,
+    label_template: str = '%s0',
+    ) -> dict[RegionNode, str]:
     """Assign labels to node and its decendents
 
     Arguments:
@@ -158,10 +164,9 @@ def _label_node(node: Node, no_text_label: str, text_label: str, _label_template
             not meant to be set outside the recursive call
     """
     labels = {}
-    if _label_template:
-        _label_template %= (no_text_label if node.text is None else text_label)
-        labels[node] = _label_template
+    label_template %= (no_text_label if node.text is None else text_label)
+    labels[node] = label_template
     for i, child in enumerate(node.children):
-        child_label = f'{_label_template}_%s{i}'.strip('_')
+        child_label = f'{label_template}_%s{i}'.strip('_')
         labels |= _label_node(child, no_text_label, text_label, child_label)
     return labels
