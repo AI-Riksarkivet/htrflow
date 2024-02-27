@@ -22,9 +22,9 @@
     <ReadingOrder>
         {%- for block in blocks recursive %}
         {%- if block.text %}
-            <ElementRef ID="reading_order_{{ labels[block] }}" REF="{{ labels[block] }}" />
+            <ElementRef ID="ro_{{ labels[block] }}" REF="{{ labels[block] }}" />
         {%- else %}
-        <OrderedGroup ID="reading_order_{{ labels[block] }}">{{ loop(block.children) }}
+        <OrderedGroup ID="ro_{{ labels[block] }}">{{ loop(block.children) }}
         </OrderedGroup>
         {%- endif %}
         {%- endfor %}
