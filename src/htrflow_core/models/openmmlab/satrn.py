@@ -4,7 +4,7 @@ from htrflow_core.results import RecognitionResult
 
 class MMOCRInferencer(BaseModel):
     def __init__(self, model, *args):
-        self.region_model = text_rec_model
+        self.region_model = model
 
     def predict(self, imgs):
         # image = mmcv.imread(input_image)

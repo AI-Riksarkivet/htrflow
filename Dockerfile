@@ -1,18 +1,31 @@
-# Use the official Python image with the version as specified by the cookiecutter template
-FROM python:3.10
+FROM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu22.04
+#nvidia/cuda:12.1.1-cudnn8-devel-ubuntu22.04
 
-# Set the working directory in the container
-WORKDIR /usr/src/app
+ARG DEBIAN_FRONTEND=noninteractive
 
-# Install Poetry
-RUN pip install poetry
+ENV PYTHONUNBUFFERED=1
 
-# Copy the Python project files to the container
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    build-essential \
+    python3.10 \
+    python3-pip \
+    git \
+    ffmpeg \
+    && ln -s /usr/bin/python3.10 /usr/bin/python \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /code
+
 COPY . .
 
-# Disable virtualenv creation by Poetry and install dependencies
-# This ensures that the packages are installed globally in the container
-RUN poetry config virtualenvs.create false && poetry install
+RUN pip install --upgrade pip && pip install poetry
 
-# Set the command to run the application using Poetry
-CMD ["poetry", "run", "python", "./src/htrflow_core/main.py"]
+RUN poetry install --extras "openmmlab"
+
+# CMD ["poetry", "run", "python", "./src/htrflow_core/models/openmmlab/openmmlab_loader.py"]
+
+
+## Usage
+# docker build -t htrflow_core:latest .
+# docker run --gpus all -it --rm --name htrflow htrflow_core:latestk
+

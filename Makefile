@@ -49,3 +49,6 @@ patch: ## patch - how to bump version
 quality: ## quality - Check code quality
 	ruff check .
 	mypy . 
+
+install_openmmlab: ## Install openmmlab extras
+	poetry install --extras "openmmlab"

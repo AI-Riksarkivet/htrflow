@@ -1,145 +1,171 @@
-import logging
-import os
-from enum import Enum
+# import logging
+# import os
+# from enum import Enum
 
-import torch
-from huggingface_hub import hf_hub_download
-from huggingface_hub.utils import RepositoryNotFoundError
-from mmdet.apis import DetInferencer
-from mmengine.config import Config
-from mmocr.apis import TextRecInferencer
+# import torch
+# from huggingface_hub import hf_hub_download
+# from huggingface_hub.utils import RepositoryNotFoundError
 
-
-class ModelFrameworks(Enum):
-    MMDET = "mmdet"
-    MMOCR = "mmocr"
-    TROCR = "trocr"
+# # from mmdet.apis import DetInferencer
+# from mmengine.config import Config
+# from mmocr.apis import TextRecInferencer
 
 
-class OpenmmlabModelLoader:
-    REPO_TYPE = "model"
-    MODEL_FILE = "model.pth"
-    CONFIG_FILE = "config.py"
-    DICT_FILE = "dictionary.txt"
-
-    @classmethod
-    def from_pretrained(cls, model_id: str, cache_dir: str = None, device: str = None):
-        device = cls.check_device_to_use(device)
-
-        model_file, config_file = cls._download_config_and_model_file(model_id, cache_dir)
-
-        if model_file and config_file:
-            model_scope, config_file = cls._checking_model_scope(model_id, cache_dir, config_file)
-
-            model = OpenModelFactory.create_openmmlab_model(model_scope, config_file, model_file, device)
-            return model
-        return None
-
-    @classmethod
-    def check_device_to_use(cls, device):
-        if device is None:
-            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        else:
-            device = torch.device(device if torch.cuda.is_available() else "cpu")
-        return device
-
-    @classmethod
-    def _checking_model_scope(cls, model_id, cache_dir, config_file):
-        cfg = Config.fromfile(config_file)
-
-        model_scope = cfg.default_scope
-
-        if model_scope == ModelFrameworks.MMOCR.value:
-            cls._overwriting_cfg_if_mmocr(model_id, cache_dir, config_file, cfg)
-
-        return model_scope, config_file
-
-    @classmethod
-    def _overwriting_cfg_if_mmocr(cls, model_id, cache_dir, config_file, cfg):
-        download_dict_file = cls._download_dictonary_file(model_id, cache_dir)
-
-        if os.path.exists(config_file):
-            os.remove(config_file)
-
-        cfg.dictionary["dict_file"] = download_dict_file
-        cfg.model["decoder"]["dictionary"]["dict_file"] = download_dict_file
-        cfg.dump(config_file)
-
-    @classmethod
-    def _download_config_and_model_file(cls, repo_id, cache_dir):
-        try:
-            model_file = hf_hub_download(
-                repo_id=repo_id,
-                repo_type=cls.REPO_TYPE,
-                filename=cls.MODEL_FILE,
-                library_name=__package__,
-                cache_dir=cache_dir,
-            )
-            config_file = hf_hub_download(
-                repo_id=repo_id,
-                repo_type=cls.REPO_TYPE,
-                filename=cls.CONFIG_FILE,
-                library_name=__package__,
-                cache_dir=cache_dir,
-            )
-            return model_file, config_file
-
-        except RepositoryNotFoundError as e:
-            logging.error(f"Could not download files for {repo_id}: {str(e)}")
-            return None, None
-
-    @classmethod
-    def _download_dictonary_file(cls, repo_id, cache_dir):
-        try:
-            dictionary_file = hf_hub_download(
-                repo_id=repo_id,
-                repo_type=cls.REPO_TYPE,
-                filename=cls.DICT_FILE,
-                library_name=__package__,
-                cache_dir=cache_dir,
-            )
-
-            return dictionary_file
-
-        except RepositoryNotFoundError as e:
-            logging.error(f"Could not download files for {repo_id}: {str(e)}")
-            return None
+# class ModelFrameworks(Enum):
+#     MMDET = "mmdet"
+#     MMOCR = "mmocr"
+#     TROCR = "trocr"
 
 
-class OpenModelFactory:
-    @staticmethod
-    def create_openmmlab_model(model_scope, config_file, model_file, device):
-        model_creators = {
-            ModelFrameworks.MMDET.value: DetInferencer,
-            ModelFrameworks.MMOCR.value: TextRecInferencer,
-        }
+# class OpenmmlabModelLoader:
+#     REPO_TYPE = "model"
+#     MODEL_FILE = "model.pth"
+#     CONFIG_FILE = "config.py"
+#     DICT_FILE = "dictionary.txt"
 
-        if model_scope in model_creators:
-            return OpenmmlabModel(model_creators[model_scope], model_scope, config_file, model_file, device)
+#     @classmethod
+#     def from_pretrained(cls, model_id: str, cache_dir: str = ".cache", device: str = None):
+#         device = cls.check_device_to_use(device)
 
-        logging.error(f"Unknown model scope: {model_scope}")
-        return None
+#         model_file, config_file = cls._download_config_and_model_file(model_id, cache_dir)
+
+#         if model_file and config_file:
+#             model_scope, config_file = cls._checking_model_scope(model_id, cache_dir, config_file)
+
+#             model = OpenModelFactory.create_openmmlab_model(model_scope, config_file, model_file, device)
+#             return model
+#         return None
+
+#     @classmethod
+#     def check_device_to_use(cls, device):
+#         if device is None:
+#             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+#         else:
+#             device = torch.device(device if torch.cuda.is_available() else "cpu")
+#         return device
+
+#     @classmethod
+#     def _checking_model_scope(cls, model_id, cache_dir, config_file):
+#         cfg = Config.fromfile(config_file)
+
+#         model_scope = cfg.default_scope
+
+#         if model_scope == ModelFrameworks.MMOCR.value:
+#             cls._overwriting_cfg_if_mmocr(model_id, cache_dir, config_file, cfg)
+
+#         return model_scope, config_file
+
+#     @classmethod
+#     def _overwriting_cfg_if_mmocr(cls, model_id, cache_dir, config_file, cfg):
+#         download_dict_file = cls._download_dictonary_file(model_id, cache_dir)
+
+#         if os.path.exists(config_file):
+#             os.remove(config_file)
+
+#         cfg.dictionary["dict_file"] = download_dict_file
+#         cfg.model["decoder"]["dictionary"]["dict_file"] = download_dict_file
+#         cfg.dump(config_file)
+
+#     @classmethod
+#     def _download_config_and_model_file(cls, repo_id, cache_dir):
+#         try:
+#             model_file = hf_hub_download(
+#                 repo_id=repo_id,
+#                 repo_type=cls.REPO_TYPE,
+#                 filename=cls.MODEL_FILE,
+#                 library_name=__package__,
+#                 cache_dir=cache_dir,
+#             )
+#             config_file = hf_hub_download(
+#                 repo_id=repo_id,
+#                 repo_type=cls.REPO_TYPE,
+#                 filename=cls.CONFIG_FILE,
+#                 library_name=__package__,
+#                 cache_dir=cache_dir,
+#             )
+#             return model_file, config_file
+
+#         except RepositoryNotFoundError as e:
+#             logging.error(f"Could not download files for {repo_id}: {str(e)}")
+#             return None, None
+
+#     @classmethod
+#     def _download_dictonary_file(cls, repo_id, cache_dir):
+#         try:
+#             dictionary_file = hf_hub_download(
+#                 repo_id=repo_id,
+#                 repo_type=cls.REPO_TYPE,
+#                 filename=cls.DICT_FILE,
+#                 library_name=__package__,
+#                 cache_dir=cache_dir,
+#             )
+
+#             return dictionary_file
+
+#         except RepositoryNotFoundError as e:
+#             logging.error(f"Could not download files for {repo_id}: {str(e)}")
+#             return None
 
 
-class OpenmmlabModel:
-    def __init__(self, inferencer, framework, config_file, model_file, device):
-        self.model = inferencer(config_file, model_file, device)
+# class OpenModelFactory:
+#     @staticmethod
+#     def create_openmmlab_model(model_scope, config_file, model_file, device):
+#         model_creators = {
+#             ModelFrameworks.MMDET.value: "DetInferencer",
+#             ModelFrameworks.MMOCR.value: TextRecInferencer,
+#         }
 
-        cfg = Config.fromfile(config_file)
-        self.model_cfg = cfg.model
-        self.framework = framework
-        self.device = device
+#         if model_scope in model_creators:
+#             return OpenmmlabModel(model_creators[model_scope], model_scope, config_file, model_file, device)
 
-    def __str__(self) -> str:
-        return f"{self.model.__str__()}"
+#         logging.error(f"Unknown model scope: {model_scope}")
+#         return None
+
+
+# class OpenmmlabModel:
+#     def __init__(self, inferencer, framework, config_file, model_file, device):
+#         self.model = inferencer(config_file, model_file, device)
+
+#         cfg = Config.fromfile(config_file)
+#         self.model_cfg = cfg.model
+#         self.framework = framework
+#         self.device = device
+
+#     def __str__(self) -> str:
+#         return f"{self.model.__str__()}"
 
 
 if __name__ == "__main__":
-    region_model = OpenmmlabModelLoader.from_pretrained(
-        "Riksarkivet/rtmdet_regions", cache_dir="/home/gabriel/Desktop/htrflow_core/models"
-    )
-    text_model = OpenmmlabModelLoader.from_pretrained(
-        "Riksarkivet/satrn_htr", cache_dir="/home/gabriel/Desktop/htrflow_core/models"
-    )
+    # region_model = OpenmmlabModelLoader.from_pretrained("Riksarkivet/rtmdet_regions"")
+    # text_model = OpenmmlabModelLoader.from_pretrained("Riksarkivet/satrn_htr")
 
-    print(region_model)
+    # print(text_model)
+
+    # Check Pytorch installation
+    import torch
+
+    print("torch version:", torch.__version__, "cuda:", torch.cuda.is_available())
+
+    # Check MMDetection installation
+    import mmdet
+
+    print("mmdetection:", mmdet.__version__)
+
+    import mmocr
+
+    print("mmdetection:", mmocr.__version__)
+
+    # Check mmcv installation
+    import mmcv
+
+    print("mmcv:", mmcv.__version__)
+
+    # Check mmengine installation
+    import mmengine
+
+    print("mmengine:", mmengine.__version__)
+
+    from mmdet.apis import DetInferencer
+
+    def test():
+        DetInferencer
