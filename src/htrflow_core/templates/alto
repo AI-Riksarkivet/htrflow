@@ -20,35 +20,39 @@
         {%- endfor %}
     </Description>
     <ReadingOrder>
-        {%- for block in blocks recursive %}
-        {%- if block.text %}
-            <ElementRef ID="ro_{{ labels[block] }}" REF="{{ labels[block] }}" />
-        {%- else %}
-        <OrderedGroup ID="ro_{{ labels[block] }}">{{ loop(block.children) }}
-        </OrderedGroup>
+        <OrderedGroup ID="ro">
+        {%- for node in page recursive %}
+            {%- if node.text %}
+                <ElementRef ID="ro_{{ labels[node] }}" REF="{{ labels[node] }}" />
+            {%- else %}
+            <OrderedGroup ID="ro_{{ labels[node] }}">{{ loop(node.children) }}
+            </OrderedGroup>
         {%- endif %}
         {%- endfor %}
+        </OrderedGroup>
     </ReadingOrder>
     <Layout>
-        <Page WIDTH="{{ page.width }}" HEIGHT="{{ page.height }}" PHYSICAL_IMG_NR="0" ID="PAGE">
+        <Page WIDTH="{{ page.width }}" HEIGHT="{{ page.height }}" PHYSICAL_IMG_NR="0" ID="page">
             <TopMargin />
             <LeftMargin />
             <RightMargin />
             <BottomMargin />
             <PrintSpace>
-                {%- for block in blocks %}
-                <TextBlock ID="{{ labels[block] }}" HPOS="{{ block.x }}" VPOS="{{ block.y }}" HEIGHT="{{ block.height}}" WIDTH="{{ block.width }}">
-                    {%- if block.polygon %}
+                {%- for node in page.traverse() %}
+                {%- if is_text_block(node) %}
+                <TextBlock ID="{{ labels[node] }}" HPOS="{{ node.x }}" VPOS="{{ node.y }}" HEIGHT="{{ node.height}}" WIDTH="{{ node.width }}">
+                    {%- if node.polygon %}
                     <Shape>
-                        <Polygon POINTS="{% for point in block.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}"/>
+                        <Polygon POINTS="{% for point in node.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}"/>
                     </Shape>
                     {%- endif %}
-                    {%- for line in block.children %}
+                    {%- for line in node.children %}
                     <TextLine ID="{{ labels[line] }}"  HPOS="{{ line.x }}" VPOS="{{ line.y }}" HEIGHT="{{ line.height}}" WIDTH="{{ line.width }}">
                         <String CONTENT="{{line.text.top_candidate()}}" />
                     </TextLine>
                     {%- endfor %}
                 </TextBlock>
+                {% endif %}
                 {%- endfor %}
             </PrintSpace>
         </Page>

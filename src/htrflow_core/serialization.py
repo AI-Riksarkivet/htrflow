@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import datetime
-import warnings
-from typing import TYPE_CHECKING, Callable, Tuple
+import os
+from typing import TYPE_CHECKING, Iterable, Optional, Union
 
 import xmlschema
 from jinja2 import Environment, FileSystemLoader
@@ -11,162 +11,170 @@ import htrflow_core
 
 
 if TYPE_CHECKING:
-    from htrflow_core.volume import RegionNode, Volume
+    from htrflow_core.volume import PageNode, RegionNode, Volume
 
 
-# Path to templates
-_TEMPLATES_DIR = "src/htrflow_core/templates"
+_TEMPLATES_DIR = "src/htrflow_core/templates"   # Path to templates
+_DEFAULT_OUTPUT_DIR = "outputs/%s"
 
-# Default metadata
-_METADATA = {
-    "creator": f"{htrflow_core.__author__}",
-    "software_name": f"{htrflow_core.__package_name__}",
-    "software_version": f"{htrflow_core.__version__}",
-    "application_description": f"{htrflow_core.__desc__}",
-}
 
-# Mapping of format name -> serializer function
-_SERIALIZERS = {
-    "alto": lambda volume: serialize_xml(volume, "alto"),
-    "page": lambda volume: serialize_xml(volume, "page"),
-    "txt": lambda volume: serialize_txt(volume),
-}
+class Serializer:
+    """Serializer base class.
 
-# Mapping of (XML) format name -> XML schema
-_SCHEMAS = {
-    "alto": "http://www.loc.gov/standards/alto/v4/alto-4-4.xsd",
-    "page": "https://www.primaresearch.org/schema/PAGE/gts/pagecontent/2019-07-15/pagecontent.xsd"
-}
+    Each output format is implemented as a subclass to this class.
+
+    Attributes:
+        extension: The file extension assigned with this format, for
+            example ".txt" or ".xml"
+        format_name: The name of this format, for example "alto"
+    """
+
+    extension: str
+    format_name: str
+
+    def serialize(self, page: PageNode) -> str:
+        """Serialize page
+
+        Arguments:
+            page: Input page
+
+        Returns:
+            A string"""
+
+    def validate(self, doc: str):
+        """Validate document"""
+
+
+class AltoXML(Serializer):
+    """Alto XML serializer"""
+
+    extension = ".xml"
+    format_name = "alto"
+
+    def __init__(self):
+        env = Environment(loader=FileSystemLoader([_TEMPLATES_DIR, "."]))
+        self.template = env.get_template('alto')
+        self.schema = "http://www.loc.gov/standards/alto/v4/alto-4-4.xsd"
+
+    def serialize(self, page: PageNode) -> str:
+        # ALTO doesn't support nesting of regions ("TextBlock" elements)
+        # This function is called from within the jinja template to tell
+        # if a node corresponds to a TextBlock element, i.e. if its
+        # children contains text and not other regions.
+        def is_text_block(node):
+            return node.children and all(child.is_leaf() for child in node.children)
+
+        return self.template.render(
+            page=page,
+            metadata=metadata(page),
+            labels=label_nodes(page),
+            is_text_block=is_text_block
+        )
+
+    def validate(self, doc: str):
+        xmlschema.validate(doc, self.schema)
+
+
+class PageXML(Serializer):
+
+    extension = ".xml"
+    format_name = "page"
+
+    def __init__(self):
+        env = Environment(loader=FileSystemLoader([_TEMPLATES_DIR, "."]))
+        self.template = env.get_template("page")
+        self.schema = "https://www.primaresearch.org/schema/PAGE/gts/pagecontent/2019-07-15/pagecontent.xsd"
+
+    def serialize(self, page: PageNode):
+        return self.template.render(
+            page=page,
+            metadata=metadata(page),
+            labels=label_nodes(page),
+        )
+
+    def validate(self, doc: str):
+        xmlschema.validate(doc, self.schema)
+
+
+class PlainText(Serializer):
+    extension = ".txt"
+    format_name = "txt"
+
+    def serialize(self, page: PageNode) -> str:
+        lines = page.traverse(lambda node: node.is_leaf())
+        return "\n".join(line.text.top_candidate() for line in lines)
+
+
+def metadata(page: PageNode) -> dict[str, Union[str, list[dict[str, str]]]]:
+    """Generate metadata for `page`
+
+    Args:
+        page: input page
+
+    Returns:
+        A dictionary with metadata
+    """
+    timestamp = datetime.datetime.utcnow().isoformat()
+    return {
+        "creator": f"{htrflow_core.__author__}",
+        "software_name": f"{htrflow_core.__package_name__}",
+        "software_version": f"{htrflow_core.__version__}",
+        "application_description": f"{htrflow_core.__desc__}",
+        "created": timestamp,
+        "last_change": timestamp,
+        "processing_steps": [{"description": "", "settings": ""}]
+    }
+
 
 def supported_formats():
     """The supported formats"""
-    return _SERIALIZERS.keys()
+    return [cls.format_name for cls in Serializer.__subclasses__()]
 
 
-def get_serializer(format_: str) -> Callable[[Volume], list[Tuple[str, str]]]:
-    """Get the serializer function associated with `format_`.
-
-    See `serialization.supported_formats()` for supported formats.
-
-    Arguments:
-        format_: The output format
-
-    Returns:
-        A function that takes a volume and returns a list of (text, filename)
-        tuples, where `text` is a serialized page according to the specified
-        format, and `filename` is a suggested filename with appropriate file
-        extension.
-
-    Raises:
-        ValueError: If the format is not supported
-    """
-    if format_ not in _SERIALIZERS:
-        raise ValueError(f"The specified format {format_} is not among the supported formats: {supported_formats()}")
-    return _SERIALIZERS[format_]
+def _get_serializer(format_name):
+    for cls in Serializer.__subclasses__():
+        if cls.format_name.lower() == format_name.lower():
+            return cls()
+    msg = f"Format '{format_name}' is not among the supported formats: {supported_formats()}"
+    raise ValueError(msg)
 
 
-def serialize_xml(volume: Volume, template: str) -> list[Tuple[str, str]]:
-    """Serialize `volume` according to `template`
-
-    Arguments:
-        volume: The input volume
-        template: Path to jinja template. Will search in `_TEMPLATES_DIR` and
-            the current working directory.
-
-    Returns:
-        A list of (document, filename) tuples
-    """
-
-    # Prepare metadata (added to all output files)
-    timestamp = datetime.datetime.utcnow().isoformat()
-    metadata = _METADATA | {
-        "processing_steps": [
-            {"description": "step description", "settings": "step settings"}
-        ],  # TODO: Document processing steps
-        "created": timestamp,
-        "last_change": timestamp,
-    }
-
-    # Prepare the content of each file
-    env = Environment(loader=FileSystemLoader([_TEMPLATES_DIR, "."]))
-    tmpl = env.get_template(template)
-    docs = []
-    labels = label_volume(volume)
-    for page in volume:
-        # `blocks` are the parents of the leaves (i.e. nodes that contain text)
-        blocks = list({node.parent for node in page.leaves() if node.parent})
-        blocks.sort(key=lambda x: x.parent.children.index(x) if x.parent else 0)
-        doc = tmpl.render(page=page, blocks=blocks, labels=labels, metadata=metadata)
-        filename = page.image_name + ".xml"
-        docs.append((doc, filename))
-
-    # Validate the XML strings against the schema
-    schema = _SCHEMAS[template]
-    xsd = xmlschema.XMLSchema(schema)
-    for doc, filename in docs:
-        for error in xsd.iter_errors(doc):
-            warnings.warn(
-                f"Failed to validate {filename} against {schema}: {error.reason}."
-            )
-
-    return docs
-
-
-def serialize_txt(volume: Volume) -> list[tuple[str, str]]:
-    """Seralize volume as plain text
-
-    Args:
-        volume: The input volume
-
-    Returns:
-        A list of (text, filename) tuples
-    """
-    docs = []
-    for page in volume:
-        doc = "\n".join(line.text.top_candidate() for line in page.lines())
-        filename = page.image_name + ".txt"
-        docs.append((doc, filename))
-    return docs
-
-
-def label_volume(volume: Volume, no_text_label: str = 'region', text_label: str = 'line') -> dict[RegionNode, str]:
-    """Assign labels to volume
+def save_volume(volume: Volume, format_: str, dest: Optional[str] = None) -> Iterable[tuple[str, str]]:
+    """Serialize and save volume
 
     Arguments:
         volume: Input volume
-        no_text_label: Label to assign to nodes without text, default 'region'
-        text_label: Label to assign to nodes with text, default 'line'
-    Returns:
-        A dictionary mapping the volume's nodes to human readable
-        labels of format `regionX_lineY`. Labels are unique within
-        each page.
+        format_: What format to use, as a string. See serialization.supported_formats()
+            for supported formats.
+        dest: Output directory
     """
-    labels: dict[RegionNode, str] = {}
+
+    serializer = _get_serializer(format_)
+
+    if dest is None:
+        dest = _DEFAULT_OUTPUT_DIR % volume.label
+        os.makedirs(dest, exist_ok=True)
+
     for page in volume:
-        for i, region in enumerate(page):
-            labels |= _label_node(region, no_text_label=no_text_label, text_label=text_label, label_template=f'%s{i}')
-    return labels
+        if not page.contains_text():
+            raise ValueError(f'Cannot serialize page without text: {page.image_name}')
+
+        doc = serializer.serialize(page)
+        filename = os.path.join(dest, page.image_name + serializer.extension)
+
+        with open(filename, 'w') as f:
+            f.write(doc)
 
 
-def _label_node(
-    node: RegionNode,
-    no_text_label: str,
-    text_label: str,
-    label_template: str = '%s0',
-    ) -> dict[RegionNode, str]:
+def label_nodes(node: PageNode | RegionNode, template = '%s') -> dict[PageNode | RegionNode, str]:
     """Assign labels to node and its decendents
 
     Arguments:
-        node: Input node
-        no_text_label: Label to assign to nodes without text
-        text_label: Label to assign to nodes with text
-        _label_template: %-formatted template for the node's label,
-            not meant to be set outside the recursive call
+        node: Start node
+        template: Label template
     """
     labels = {}
-    label_template %= (no_text_label if node.text is None else text_label)
-    labels[node] = label_template
+    labels[node] = template % node.label
     for i, child in enumerate(node.children):
-        child_label = f'{label_template}_%s{i}'.strip('_')
-        labels |= _label_node(child, no_text_label, text_label, child_label)
+        labels |= label_nodes(child, f'{labels[node]}_%s{i}')
     return labels

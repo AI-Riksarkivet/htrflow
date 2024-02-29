@@ -8,28 +8,29 @@
     <Page imageFilename="{{ page.image_path }}" imageWidth="{{ page.width }}" imageHeight="{{ page.height }}">
         <ReadingOrder>
             <OrderedGroup id='ro'>
-                {%- for block in blocks recursive %}
-                {%- if block.text %}
-                    <RegionRefIndexed regionRef="{{ labels[block] }}" index="{{ loop.index-1 }}"/>
-                {%- else %}
-                <OrderedGroupIndexed id="ro_{{ labels[block] }}" index="{{ loop.index-1 }}">{{ loop(block.children) }}
-                </OrderedGroupIndexed>
-                {%- endif %}
-                {%- endfor %}
+            {%- for node in page recursive %}
+            {%- if node.text %}
+            <RegionRefIndexed regionRef="{{ labels[node] }}" index="{{ loop.index-1 }}"/>
+            {%- else %}
+            <OrderedGroupIndexed id="ro_{{ labels[node] }}" index="{{ loop.index-1 }}">{{ loop(node.children) }}
+            </OrderedGroupIndexed>
+            {%- endif %}
+            {%- endfor %}
             </OrderedGroup>
         </ReadingOrder>
-        {%- for block in blocks %}
-        <TextRegion id="{{ labels[block] }}">
-            <Coords points="{% for point in block.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}" />
-            {%- for line in block.children %}
-            <TextLine id="{{ labels[line] }}">
-                <Coords points="{% for point in line.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}" />
-                <TextEquiv conf="{{ line.text.top_score() }}">
-                    <Unicode>{{ line.text.top_candidate() }}</Unicode>
+        {%- for node in [page] recursive %}
+        {%- if node.text %}
+            <TextLine id="{{ labels[node] }}">
+                <Coords points="{% for point in node.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}" />
+                <TextEquiv conf="{{ node.text.top_score() }}">
+                    <Unicode>{{ node.text.top_candidate() }}</Unicode>
                 </TextEquiv>
-            </TextLine>
-            {%- endfor %}
+            </TextLine>            
+        {%- else %}
+        <TextRegion id="{{ labels[node] }}">
+            <Coords points="{% for point in node.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}" />{{ loop(node.children) }}
         </TextRegion>
+        {%- endif %}
         {%- endfor %}
     </Page>
 </PcGts>

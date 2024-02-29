@@ -4,7 +4,7 @@ This module holds the base data structures
 
 import os
 from functools import singledispatchmethod
-from typing import Literal, Optional
+from typing import Callable, Literal, Optional
 
 import cv2
 import numpy as np
@@ -28,6 +28,7 @@ class Node:
     parent: Optional["Node"]
     children: list["Node"]
     depth: int
+    label: str
 
     def __init__(self, parent: "Node" = None, x: int = 0, y: int = 0):
         self.parent = parent
@@ -49,11 +50,11 @@ class Node:
             nodes.extend(child.leaves())
         return nodes
 
-    def traverse(self):
+    def traverse(self, filter: Optional[Callable[["Node"], bool]] = None):
         """Return all nodes attached to this node"""
-        nodes = [self]
+        nodes = [self] if (filter is None or filter(self)) else []
         for child in self.children:
-            nodes.extend(child.traverse())
+            nodes.extend(child.traverse(filter=filter))
         return nodes
 
     def tree2str(self, sep="", is_last=True):
@@ -79,10 +80,8 @@ class Node:
             children.append(RegionNode(segment, self))
         self.children = children
 
-    @update.register
-    def _(self, result: RecognitionResult):
-        """Update the text of this node"""
-        self.text = result
+    def is_leaf(self):
+        return not self.children
 
 
 class RegionNode(Node):
@@ -92,7 +91,6 @@ class RegionNode(Node):
     segment: Segment
     parent: Node
     text: RecognitionResult
-    label: str
 
     def __init__(self, segment: Segment, parent: Node):
         self.segment = segment
@@ -129,14 +127,14 @@ class RegionNode(Node):
     @property
     def polygon(self):
         """Region polygon, relative to original image size"""
-        return [(self.parent.x + x, self.parent.y + y) for x,y in self.segment.polygon]
+        return [(self.parent.x + x, self.parent.y + y) for x, y in self.segment.polygon]
 
     @property
     def bbox(self):
         """Region bounding box, relative to original image size"""
         x, y = self.parent.x, self.parent.y
         x1, x2, y1, y2 = self.segment.bbox
-        return [x1+x, x2+x, y1+y, y2+y]
+        return x1+x, x2+x, y1+y, y2+y
 
     @singledispatchmethod
     def update(self, result: SegmentationResult | RecognitionResult):
@@ -148,6 +146,13 @@ class RegionNode(Node):
         """Update the text of this node"""
         self.text = result
 
+    def contains_text(self):
+        if not self.children:
+            return self.text is not None
+        return any(child.contains_text() for child in self.children)
+
+    def is_region(self):
+        return self.children and not self.text
 
 
 class PageNode(Node):
@@ -163,6 +168,7 @@ class PageNode(Node):
         self.image_path = image_path
         # Extract image name and remove file extension (`path/to/image.jpg` -> `image`)
         self.image_name = os.path.basename(image_path).split(".")[0]
+        self.label = self.image_name
         super().__init__()
 
     def __str__(self):
@@ -184,13 +190,7 @@ class PageNode(Node):
 
     @property
     def bbox(self):
-        return [0, self.width, 0, self.height]
-
-    def show(self):
-        polygons = [np.array(node.polygon) for node in self.traverse() if node != self]
-        im = image.draw_polygons(self.image, polygons)
-        cv2.imshow('image', im)
-        cv2.waitKey(0)
+        return (0, self.width, 0, self.height)
 
     @singledispatchmethod
     def update(self, result: RecognitionResult):
@@ -200,11 +200,16 @@ class PageNode(Node):
     @update.register
     def _(self, result: RecognitionResult):
         """Update the text of this node"""
-
         segment = Segment.from_bbox(self.bbox)
         child = RegionNode(segment, self)
         child.update(result)
         self.children = [child]
+
+    def contains_text(self):
+        return any(child.contains_text() for child in self.children)
+
+    def has_regions(self):
+        return all(not child.is_leaf() for child in self.children)
 
 
 class Volume:
@@ -214,6 +219,7 @@ class Volume:
     def __init__(self, paths: list[str]):
         self._root = Node()
         self._root.children = [PageNode(path) for path in paths]
+        self.label = "untitled_volume"
 
     def __getitem__(self, i):
         return self._root[i]
@@ -264,10 +270,4 @@ class Volume:
             directory: Output directory
             format_: Output format
         """
-        serializer = serialization.get_serializer(format_)
-        pages = serializer(self)
-        if pages:
-            os.makedirs(directory, exist_ok=True)
-            for page, filename in pages:
-                with open(os.path.join(directory, filename), 'w') as f:
-                    f.write(page)
+        serialization.save_volume(self, format_, directory)
