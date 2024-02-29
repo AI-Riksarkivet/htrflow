@@ -1,5 +1,5 @@
 FROM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu22.04
-#nvidia/cuda:12.1.1-cudnn8-devel-ubuntu22.04
+#nvidia/cuda:12.1.1-cudnn8-devel-ubuntu20.04
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -22,10 +22,14 @@ RUN pip install --upgrade pip && pip install poetry
 
 RUN poetry install --extras "openmmlab"
 
+# CMD  ["poetry", "shell"]
+
 # CMD ["poetry", "run", "python", "./src/htrflow_core/models/openmmlab/openmmlab_loader.py"]
 
 
 ## Usage
-# docker build -t htrflow_core:latest .
-# docker run --gpus all -it --rm --name htrflow htrflow_core:latestk
+# docker build --no-cache -t htrflow_core:latest .
+# docker run --gpus all -it --rm --name htrflow htrflow_core:latest
+# poetry run python ./src/htrflow_core/models/openmmlab/openmmlab_loader.py
+
 

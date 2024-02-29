@@ -8,7 +8,7 @@ from htrflow_core.results import SegmentationResult
 class YOLO(BaseModel):
     def __init__(self, model, *args):
         self.model = UltraylticsplusYOLO(model, *args)
-        self.metadata = {'model': model}
+        self.metadata = {"model": model}
 
     def _predict(self, images: list[np.ndarray], **kwargs) -> list[SegmentationResult]:
         outputs = self.model(images, stream=True, **kwargs)
@@ -21,3 +21,6 @@ class YOLO(BaseModel):
             result = SegmentationResult.from_bboxes(self.metadata, image, boxes, scores, class_labels)
             results.append(result)
         return results
+
+
+# TODO remove Ultraltycisplus depenendices and write an own own download_model

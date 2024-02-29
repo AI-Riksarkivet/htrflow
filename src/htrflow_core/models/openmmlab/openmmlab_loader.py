@@ -153,9 +153,10 @@ if __name__ == "__main__":
 
     import mmocr
 
-    print("mmdetection:", mmocr.__version__)
+    print("mmocr:", mmocr.__version__)
 
     # Check mmcv installation
+
     import mmcv
 
     print("mmcv:", mmcv.__version__)

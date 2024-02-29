@@ -1896,17 +1896,18 @@ min-versions = ["babel (==2.9.0)", "click (==7.0)", "colorama (==0.4)", "ghp-imp
 
 [[package]]
 name = "mkdocs-autorefs"
-version = "0.5.0"
+version = "1.0.0"
 description = "Automatically link across pages in MkDocs."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "mkdocs_autorefs-0.5.0-py3-none-any.whl", hash = "sha256:7930fcb8ac1249f10e683967aeaddc0af49d90702af111a5e390e8b20b3d97ff"},
-    {file = "mkdocs_autorefs-0.5.0.tar.gz", hash = "sha256:9a5054a94c08d28855cfab967ada10ed5be76e2bfad642302a610b252c3274c0"},
+    {file = "mkdocs_autorefs-1.0.0-py3-none-any.whl", hash = "sha256:2b6d288f0582589d1be7c99ce4470c8e7c5077892014051ff0d4ff574a73dbe8"},
+    {file = "mkdocs_autorefs-1.0.0.tar.gz", hash = "sha256:1b20db41cade632b07b7a73dee818977b52e869c9deb438f6f20e2896ff01859"},
 ]
 
 [package.dependencies]
 Markdown = ">=3.3"
+markupsafe = ">=2.0.1"
 mkdocs = ">=1.1"
 
 [[package]]
@@ -1970,13 +1971,13 @@ files = [
 
 [[package]]
 name = "mkdocstrings"
-version = "0.24.0"
+version = "0.24.1"
 description = "Automatic documentation from sources, for MkDocs."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "mkdocstrings-0.24.0-py3-none-any.whl", hash = "sha256:f4908560c10f587326d8f5165d1908817b2e280bbf707607f601c996366a2264"},
-    {file = "mkdocstrings-0.24.0.tar.gz", hash = "sha256:222b1165be41257b494a9d29b14135d2b7ca43f38161d5b10caae03b87bd4f7e"},
+    {file = "mkdocstrings-0.24.1-py3-none-any.whl", hash = "sha256:b4206f9a2ca8a648e222d5a0ca1d36ba7dee53c88732818de183b536f9042b5d"},
+    {file = "mkdocstrings-0.24.1.tar.gz", hash = "sha256:cc83f9a1c8724fc1be3c2fa071dd73d91ce902ef6a79710249ec8d0ee1064401"},
 ]
 
 [package.dependencies]
@@ -2012,30 +2013,63 @@ mkdocstrings = ">=0.20"
 
 [[package]]
 name = "mmcv"
-version = "2.0.1"
+version = "2.0.0"
 description = "OpenMMLab Computer Vision Foundation"
 optional = true
 python-versions = ">=3.7"
 files = [
-    {file = "mmcv-2.0.1.tar.gz", hash = "sha256:2b9b2c23795b3f43cf2ebcaca46552d9b4ef7e903eacdcf7c08ee15195044071"},
+    {file = "mmcv-2.0.0-cp310-cp310-manylinux1_x86_64.whl", hash = "sha256:5dba5d1717b017a451cffdb07a7162d733d3325960a9933f07cb4ae13d7efc19"},
 ]
 
 [package.dependencies]
 addict = "*"
-mmengine = ">=0.3.0"
+mmengine = ">=0.2.0"
 numpy = "*"
 opencv-python = ">=3"
 packaging = "*"
 Pillow = "*"
 pyyaml = "*"
-regex = {version = "*", markers = "sys_platform == \"win32\""}
 yapf = "*"
 
 [package.extras]
-all = ["Pillow", "PyTurboJPEG", "addict", "coverage", "lmdb", "mmengine (>=0.3.0)", "ninja", "numpy", "onnx", "onnxoptimizer", "onnxruntime", "packaging", "psutil", "pytest", "pytest-runner", "pyyaml", "regex", "scipy", "tifffile", "yapf"]
+all = ["Pillow", "PyTurboJPEG", "addict", "coverage", "lmdb", "mmengine (>=0.2.0)", "ninja", "numpy", "onnx", "onnxoptimizer", "onnxruntime", "packaging", "psutil", "pytest", "pytest-runner", "pyyaml", "regex", "scipy", "tifffile", "yapf"]
 build = ["pytest-runner"]
 optional = ["ninja", "psutil"]
 tests = ["PyTurboJPEG", "coverage", "lmdb", "onnx", "onnxoptimizer", "onnxruntime", "pytest", "scipy", "tifffile"]
+
+[package.source]
+type = "url"
+url = "https://github.com/Swedish-National-Archives-AI-lab/openmim_install/raw/main/mmcv-2.0.0-cp310-cp310-manylinux1_x86_64.whl"
+
+[[package]]
+name = "mmcv"
+version = "2.0.0"
+description = "OpenMMLab Computer Vision Foundation"
+optional = true
+python-versions = ">=3.7"
+files = [
+    {file = "mmcv-2.0.0-cp310-cp310-win_amd64.whl", hash = "sha256:62fa4196631f37b1e30e7892d476ef085b74a6966f28337b100f1e78cad0f497"},
+]
+
+[package.dependencies]
+addict = "*"
+mmengine = ">=0.2.0"
+numpy = "*"
+opencv-python = ">=3"
+packaging = "*"
+Pillow = "*"
+pyyaml = "*"
+yapf = "*"
+
+[package.extras]
+all = ["Pillow", "PyTurboJPEG", "addict", "coverage", "lmdb", "mmengine (>=0.2.0)", "ninja", "numpy", "onnx", "onnxoptimizer", "onnxruntime", "packaging", "psutil", "pytest", "pytest-runner", "pyyaml", "regex", "scipy", "tifffile", "yapf"]
+build = ["pytest-runner"]
+optional = ["ninja", "psutil"]
+tests = ["PyTurboJPEG", "coverage", "lmdb", "onnx", "onnxoptimizer", "onnxruntime", "pytest", "scipy", "tifffile"]
+
+[package.source]
+type = "url"
+url = "https://github.com/Swedish-National-Archives-AI-lab/openmim_install/raw/main/mmcv-2.0.0-cp310-cp310-win_amd64.whl"
 
 [[package]]
 name = "mmdet"
@@ -2068,13 +2102,13 @@ tracking = ["mmpretrain", "motmetrics", "numpy (<1.24.0)", "scikit-learn", "seab
 
 [[package]]
 name = "mmengine"
-version = "0.10.3"
+version = "0.7.2"
 description = "Engine of OpenMMLab projects"
 optional = true
 python-versions = ">=3.7"
 files = [
-    {file = "mmengine-0.10.3-py3-none-any.whl", hash = "sha256:3160c6f9042d0d1adbe8bba0296ad6c918563035ca15373864004e5e429a7041"},
-    {file = "mmengine-0.10.3.tar.gz", hash = "sha256:5dfb84e89db2e0f6683e877916b6d1a1411f45f11cbf2ac9cd730574912c4628"},
+    {file = "mmengine-0.7.2-py3-none-any.whl", hash = "sha256:e161cf62f39af94ef893646f3fcdde74f278176438640000969257e696447a20"},
+    {file = "mmengine-0.7.2.tar.gz", hash = "sha256:18f18a6534b2ae3b6accb44a94b811fc555792500a67d7f9c0b1dd4d7823bd14"},
 ]
 
 [package.dependencies]
@@ -2089,8 +2123,8 @@ termcolor = "*"
 yapf = "*"
 
 [package.extras]
-all = ["addict", "aim (<=3.17.5)", "bitsandbytes", "clearml", "coverage", "dadaptation", "dvclive", "lion-pytorch", "lmdb", "matplotlib", "mlflow", "numpy", "parameterized", "pydantic (==1.10.9)", "pytest", "pyyaml", "regex", "rich", "termcolor", "transformers", "yapf"]
-tests = ["aim (<=3.17.5)", "bitsandbytes", "clearml", "coverage", "dadaptation", "dvclive", "lion-pytorch", "lmdb", "mlflow", "parameterized", "pydantic (==1.10.9)", "pytest", "transformers"]
+all = ["addict", "coverage", "dadaptation", "lion-pytorch", "lmdb", "matplotlib", "numpy", "parameterized", "pytest", "pyyaml", "regex", "rich", "termcolor", "yapf"]
+tests = ["coverage", "dadaptation", "lion-pytorch", "lmdb", "parameterized", "pytest"]
 
 [[package]]
 name = "mmocr"
@@ -2840,7 +2874,7 @@ ptyprocess = ">=0.5"
 name = "pillow"
 version = "10.2.0"
 description = "Python Imaging Library (Fork)"
-optional = false
+optional = true
 python-versions = ">=3.8"
 files = [
     {file = "pillow-10.2.0-cp310-cp310-macosx_10_10_x86_64.whl", hash = "sha256:7823bdd049099efa16e4246bdf15e5a13dbb18a51b68fa06d6c1d4d8b99a796e"},
@@ -3860,13 +3894,13 @@ requests = ">=2.0.1,<3.0.0"
 
 [[package]]
 name = "rich"
-version = "13.7.0"
+version = "13.7.1"
 description = "Render rich text, tables, progress bars, syntax highlighting, markdown and more to the terminal"
 optional = true
 python-versions = ">=3.7.0"
 files = [
-    {file = "rich-13.7.0-py3-none-any.whl", hash = "sha256:6da14c108c4866ee9520bbffa71f6fe3962e193b7da68720583850cd4548e235"},
-    {file = "rich-13.7.0.tar.gz", hash = "sha256:5cb5123b5cf9ee70584244246816e9114227e0b98ad9176eede6ad54bf5403fa"},
+    {file = "rich-13.7.1-py3-none-any.whl", hash = "sha256:4edbae314f59eb482f54e9e30bf00d33350aaa94f4bfcd4e9e3110e64d0d7222"},
+    {file = "rich-13.7.1.tar.gz", hash = "sha256:9be308cb1fe2f1f57d67ce99e95af38a1e2bc71ad9813b0e247cf7ffbcc3a432"},
 ]
 
 [package.dependencies]
@@ -3878,13 +3912,13 @@ jupyter = ["ipywidgets (>=7.5.1,<9)"]
 
 [[package]]
 name = "roboflow"
-version = "1.1.20"
+version = "1.1.21"
 description = "Official Python package for working with the Roboflow API"
 optional = true
 python-versions = ">=3.8"
 files = [
-    {file = "roboflow-1.1.20-py3-none-any.whl", hash = "sha256:fee48b70f64a12dfb719f663f2b7ffb096550918a37917c3f27e159154f28996"},
-    {file = "roboflow-1.1.20.tar.gz", hash = "sha256:25be8d5320bae6feb19f4d0d4998be882d9c80b2589f7efa0dbde6f4cb87a586"},
+    {file = "roboflow-1.1.21-py3-none-any.whl", hash = "sha256:662f5564611b8d58022cba9e8196716280c60b1973209978e8337d7bdcc286a4"},
+    {file = "roboflow-1.1.21.tar.gz", hash = "sha256:5ff77241333261644f0e8ad2790147d36e5b01c7deb84ac05e2e837d3ea52031"},
 ]
 
 [package.dependencies]
@@ -4748,7 +4782,7 @@ opt-einsum = ["opt-einsum (>=3.3)"]
 name = "torchvision"
 version = "0.15.1"
 description = "image and video datasets and models for torch deep learning"
-optional = false
+optional = true
 python-versions = ">=3.8"
 files = [
     {file = "torchvision-0.15.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:bc10d48e9a60d006d0c1b48dea87f1ec9b63d856737d592f7c5c44cd87f3f4b7"},
@@ -5410,11 +5444,10 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 
 [extras]
 huggingface = ["datasets", "huggingface-hub", "transformers"]
-models = ["ultralytics"]
-openmmlab = ["huggingface-hub", "mmcv", "mmdet", "mmengine", "mmocr"]
+openmmlab = ["huggingface-hub", "mmcv", "mmcv", "mmcv", "mmdet", "mmengine", "mmocr"]
 ultralytics = ["ultralytics", "ultralyticsplus"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10, <4.0"
-content-hash = "57564ce9d0f64ac217815e277f813f47321d5d21b2a6ddd26723d500460c9b28"
+content-hash = "d7e84874cf6b22edf4232fc34cd1a4758be3047e1b5790b1deba0ce420305754"
