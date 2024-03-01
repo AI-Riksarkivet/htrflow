@@ -16,11 +16,13 @@ classifiers = [
 ]
 description = "A short description of the project"
 documentation = "https://Swedish-National-Archives-AI-lab.github.io/htrflow_core"
+include = ["scripts/openmim_install.py"]
 license = "EUPL-1.2"
 name = "htrflow_core"
-readme = ["README.md", "LICENSE"]
+readme = "README.md"
 repository = "https://github.com/Swedish-National-Archives-AI-lab/htrflow_core"
 version = "0.0.1"
+
 [[tool.poetry.packages]]
 from = "src"
 include = "htrflow_core"
@@ -53,12 +55,14 @@ huggingface-hub = {version = "^0.20.3", optional = true}
 transformers = {version = "^4.37.2", optional = true}
 # ultralytics
 ultralytics = {version = "^8.0.225", optional = true}
-ultralyticsplus = {version = "^0.1.0", optional = true}# Todo remove this depedency an its extras
 
 [tool.poetry.extras]
 huggingface = ["transformers", "huggingface-hub", "datasets"]
 openmmlab = ["mmcv", "mmdet", "mmengine", "mmocr", "huggingface-hub"]
-ultralytics = ["ultralytics", "ultralyticsplus"]
+ultralytics = ["ultralytics", "huggingface-hub"]
+
+[tool.poetry.scripts]
+openmim-install = "scripts.openmim_install:main"
 
 [tool.poetry.group.test.dependencies]
 mypy = "^1.8.0"

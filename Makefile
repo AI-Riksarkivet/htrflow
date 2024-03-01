@@ -1,5 +1,6 @@
 REPO_URL = https://github.com/Swedish-National-Archives-AI-lab/htrflow_core
 PACKAGE = htrflow_core
+CONTAINER = htrflow
 
 ## help - Display this help screen in a more structured format
 help:
@@ -38,9 +39,12 @@ local_clean_linux: ## local_clean_linux - Clean local folders for linux
 	rm -rf dist
 	rm -rf src/${PACKAGE}.egg-info
 
-docker_build: ## docker_build - Build and run docker container
-	docker build -t ${PACKAGE} .
-	docker run ${PACKAGE}
+docker_build: ## docker_build - Build container
+	docker build -t ${PACKAGE}:latest .
+
+docker_run: ## docker_run - Run docker interactive, with gpus and stop container on exit (ctrl-D)
+	docker run --gpus all -it --rm --name ${CONTAINER} ${PACKAGE}:latest
+	@echo Dont forget to prune unsed images -$  docker image prune
 
 patch: ## patch - how to bump version
 	@echo poetry version prerelease
@@ -50,5 +54,5 @@ quality: ## quality - Check code quality
 	ruff check .
 	mypy . 
 
-install_openmmlab: ## Install openmmlab extras
+install_openmmlab: ## install_openmmlab - Install openmmlab extras
 	poetry install --extras "openmmlab"
