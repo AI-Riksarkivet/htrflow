@@ -3,6 +3,7 @@ This module holds the base data structures
 """
 
 import os
+import pickle
 from abc import ABC, abstractmethod, abstractproperty
 from collections import namedtuple
 from itertools import chain
@@ -215,6 +216,35 @@ class Volume:
         files = (os.path.join(path, file) for file in os.listdir(path))
         label = os.path.basename(path)
         return cls(files, label)
+
+    @classmethod
+    def from_pickle(cls, path: str) -> "Volume":
+        """Initialize a volume from a pickle file
+
+        Arguments:
+            path: A path to a previously pickled volume instance
+        """
+        with open(path, 'rb') as f:
+            vol = pickle.load(f)
+        return vol
+
+    def pickle(self, directory: str=".cache", filename: Optional[str] = None):
+        """Pickle volume
+
+        Arguments:
+            directory: Where to save the pickle file
+            filename: Name of pickle file, optional. Defaults to
+                "volume_{volume label}.pickle" if left as None
+
+        Returns:
+            The path to the pickled file.
+        """
+        os.makedirs(directory, exist_ok=True)
+        filename = f"volume_{self.label}.pickle" if filename is None else filename
+        path = os.path.join(directory, filename)
+        with open(path, 'wb') as f:
+            pickle.dump(self, f)
+        return path
 
     def __getitem__(self, i):
         return self.pages[i]
