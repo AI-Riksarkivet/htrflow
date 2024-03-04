@@ -247,6 +247,9 @@ class Volume:
         return path
 
     def __getitem__(self, i):
+        if isinstance(i, Iterable):
+            i, *rest = i
+            return self.pages[i].__getitem__(rest)
         return self.pages[i]
 
     def __iter__(self):
