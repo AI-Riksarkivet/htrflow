@@ -4,6 +4,9 @@ import cv2
 import numpy as np
 
 
+# TODO to just a simplifed bbox to test for overlapping mask
+
+
 def create_blank_image(width: int, height: int, color=(255, 255, 255)):
     """Create new image(numpy array) filled with certain color in RGB"""
     image = np.full((height, width, 3), color, dtype=np.uint8)
