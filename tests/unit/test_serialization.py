@@ -33,11 +33,13 @@ def demo_page_unsegmented(demo_image):
 def demo_page_segmented_once(demo_image):
     node = volume.PageNode(demo_image)
     model = SegmentationModel()
-    result = model([node.image])
-    node.update(result[0])
+    results = model(node.segments())
+    for result, leaf in zip(results, node.leaves()):
+        leaf.update(result)
     model = RecognitionModel()
-    result = model([node.image for node in node.leaves()])
-    node.update(result[0])
+    results = model(node.segments())
+    for result, leaf in zip(results, node.leaves()):
+        leaf.update(result)
     return node
 
 
@@ -45,12 +47,14 @@ def demo_page_segmented_once(demo_image):
 def demo_page_segmented_twice(demo_image):
     node = volume.PageNode(demo_image)
     model = SegmentationModel()
-    result = model([node.image])
-    node.update(result[0])
-    model = RecognitionModel()
     for _ in range(2):
-        result = model([node.image for node in node.leaves()])
-        node.update(result[0])
+        results = model(node.segments())
+        for result, leaf in zip(results, node.leaves()):
+            leaf.update(result)
+    model = RecognitionModel()
+    results = model(node.segments())
+    for result, leaf in zip(results, node.leaves()):
+        leaf.update(result)
     return node
 
 
@@ -58,12 +62,14 @@ def demo_page_segmented_twice(demo_image):
 def demo_page_segmented_thrice(demo_image):
     node = volume.PageNode(demo_image)
     model = SegmentationModel()
-    result = model([node.image])
-    node.update(result[0])
-    model = RecognitionModel()
     for _ in range(3):
-        result = model([node.image for node in node.leaves()])
-        node.update(result[0])
+        results = model(node.segments())
+        for result, leaf in zip(results, node.leaves()):
+            leaf.update(result)
+    model = RecognitionModel()
+    results = model(node.segments())
+    for result, leaf in zip(results, node.leaves()):
+        leaf.update(result)
     return node
 
 

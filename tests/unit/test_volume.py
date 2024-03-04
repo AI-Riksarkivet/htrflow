@@ -4,25 +4,24 @@ import pytest
 
 import htrflow_core.volume as volume
 from htrflow_core.dummies.dummy_models import RecognitionModel, SegmentationModel
-from htrflow_core.image import read
 
 
 @pytest.fixture
 def demo_image():
-    return read('data/demo_image.jpg')
+    return 'data/demo_image.jpg'
 
 
 @pytest.fixture
-def demo_volume_unsegmented():
+def demo_volume_unsegmented(demo_image):
     n_images = 5
-    vol = volume.Volume(['data/demo_image.jpg'] * n_images)
+    vol = volume.Volume([demo_image] * n_images)
     return vol
 
 
 @pytest.fixture
-def demo_volume_segmented():
+def demo_volume_segmented(demo_image):
     n_images = 5
-    vol = volume.Volume(['data/demo_image.jpg'] * n_images)
+    vol = volume.Volume([demo_image] * n_images)
     model = SegmentationModel()
     result = model(vol.images())
     vol.update(result)
@@ -30,9 +29,9 @@ def demo_volume_segmented():
 
 
 @pytest.fixture
-def demo_volume_segmented_nested():
+def demo_volume_segmented_nested(demo_image):
     n_images = 5
-    vol = volume.Volume(['data/demo_image.jpg'] * n_images)
+    vol = volume.Volume([demo_image] * n_images)
     model = SegmentationModel()
     result = model(vol.images())
     vol.update(result)
@@ -42,9 +41,9 @@ def demo_volume_segmented_nested():
 
 
 @pytest.fixture
-def demo_volume_with_text():
+def demo_volume_with_text(demo_image):
     n_images = 1
-    vol = volume.Volume(['data/demo_image.jpg'] * n_images)
+    vol = volume.Volume([demo_image] * n_images)
     model = RecognitionModel()
     result = model(vol.images())
     vol.update(result)
@@ -97,24 +96,24 @@ def test_traverse_grandchildren():
     assert {*root.traverse()} == {root, *children, *grandchildren}
 
 
-def test_update_wrong_type():
-    root = volume.Node()
-    root.update(5)
-    # Nothing should happen
+def test_update_wrong_type(demo_image):
+    root = volume.PageNode(demo_image)
+    with pytest.raises(TypeError) as _:
+        root.update(5)
 
 
 def test_update_segmentation(demo_image):
     segmentation_model = SegmentationModel("mask")
-    result, *_ = segmentation_model([demo_image])
-    node = volume.Node()
+    node = volume.PageNode(demo_image)
+    result, *_ = segmentation_model([node.image])
     node.update(result)
     assert len(node.children) == len(result.segments)
 
 
 def test_update_segmentation_bbox(demo_image):
     segmentation_model = SegmentationModel("mask")
-    result, *_ = segmentation_model([demo_image])
-    node = volume.Node()
+    node = volume.PageNode(demo_image)
+    result, *_ = segmentation_model([node.image])
     node.update(result)
     segment_index = 0
     segment_bbox = result.segments[segment_index].bbox
@@ -124,8 +123,8 @@ def test_update_segmentation_bbox(demo_image):
 
 def test_update_segmentation_width_height(demo_image):
     segmentation_model = SegmentationModel("mask")
-    result, *_ = segmentation_model([demo_image])
-    node = volume.Node()
+    node = volume.PageNode(demo_image)
+    result, *_ = segmentation_model([node.image])
     node.update(result)
     segment_index = 0
     x1, x2, y1, y2 = result.segments[segment_index].bbox
@@ -137,14 +136,14 @@ def test_update_nested_segmentation_coordinates(demo_volume_segmented_nested):
     page = demo_volume_segmented_nested[0]
     segment = page[0]
     nested_segment = page[0, 0]
-    parent_x = segment.x
+    parent_x = segment.coord.x
     nested_segment_x_relative_to_parent = nested_segment.segment.bbox[0]
-    assert nested_segment.x == parent_x + nested_segment_x_relative_to_parent
+    assert nested_segment.coord.x == parent_x + nested_segment_x_relative_to_parent
 
-    parent_y = segment.y
+    parent_y = segment.coord.y
     nested_segment = page[0, 0]
     nested_segment_y_relative_to_parent = nested_segment.segment.bbox[2]
-    assert nested_segment.y == parent_y + nested_segment_y_relative_to_parent
+    assert nested_segment.coord.y == parent_y + nested_segment_y_relative_to_parent
 
 
 def test_update_region_text(demo_volume_segmented):
@@ -175,13 +174,14 @@ def test_polygon_nested(demo_volume_segmented_nested):
     nested_node = page[0, 0]
     # .polygon attribute should be relative to original image
     # but segment.polygon should be relative to parent
-    expected_polygon = [(node.x + x, node.y + y) for x, y in nested_node.segment.polygon]
+    expected_polygon = [(node.coord.x + x, node.coord.y + y) for x, y in nested_node.segment.polygon]
     assert nested_node.polygon == expected_polygon
 
 
 def test_polygon_not_nested(demo_volume_segmented):
-    page = demo_volume_segmented[0]
-    node = page[0]
+    ...
+    # page = demo_volume_segmented[0]
+    # node = page[0]
     # TODO fix so that the types match
     # assert node.polygon == node.segment.polygon
 
@@ -204,19 +204,19 @@ def test_volume_update_wrong_size(demo_volume_segmented):
 
 def test_volume_iter(demo_volume_segmented):
     # iterating over the volume should iterate over its children (pages)
-    assert all(a == b for a, b in zip(demo_volume_segmented, demo_volume_segmented._root.children))
+    assert all(a == b for a, b in zip(demo_volume_segmented, demo_volume_segmented.pages))
 
 
 def test_volume_segments_depth(demo_volume_segmented):
     depth = 1
-    all_nodes = demo_volume_segmented._root.traverse()
+    all_nodes = demo_volume_segmented.traverse()
     expected_n_images = sum(node.depth==depth for node in all_nodes)
     n_images = len([*demo_volume_segmented.segments(depth=depth)])
     assert n_images == expected_n_images
 
 
 def test_volume_segments_depth_none(demo_volume_segmented):
-    leaves = demo_volume_segmented._root.leaves()
+    leaves = demo_volume_segmented.leaves()
     segments = demo_volume_segmented.segments()
     # (A==B).all() checks if two arrays are equal (cannot do A==B)
     assert all((img == leaf.image).all() for img, leaf in zip(segments, leaves))

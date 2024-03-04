@@ -40,14 +40,14 @@
             <PrintSpace>
                 {%- for node in page.traverse() %}
                 {%- if is_text_block(node) %}
-                <TextBlock ID="{{ labels[node] }}" HPOS="{{ node.x }}" VPOS="{{ node.y }}" HEIGHT="{{ node.height}}" WIDTH="{{ node.width }}">
+                <TextBlock ID="{{ labels[node] }}" HPOS="{{ node.coord.x }}" VPOS="{{ node.coord.y }}" HEIGHT="{{ node.height}}" WIDTH="{{ node.width }}">
                     {%- if node.polygon %}
                     <Shape>
                         <Polygon POINTS="{% for point in node.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}"/>
                     </Shape>
                     {%- endif %}
                     {%- for line in node.children %}
-                    <TextLine ID="{{ labels[line] }}"  HPOS="{{ line.x }}" VPOS="{{ line.y }}" HEIGHT="{{ line.height}}" WIDTH="{{ line.width }}">
+                    <TextLine ID="{{ labels[line] }}"  HPOS="{{ line.coord.x }}" VPOS="{{ line.coord.y }}" HEIGHT="{{ line.height}}" WIDTH="{{ line.width }}">
                         <String CONTENT="{{line.text.top_candidate()}}" />
                     </TextLine>
                     {%- endfor %}
