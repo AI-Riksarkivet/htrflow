@@ -6,7 +6,7 @@ import os
 from abc import ABC, abstractmethod, abstractproperty
 from collections import namedtuple
 from itertools import chain
-from typing import Callable, Literal, Optional, Sequence
+from typing import Callable, Iterable, Literal, Optional, Sequence
 
 import cv2
 
@@ -55,7 +55,7 @@ class Node:
         sep += "    " if is_last else "│   "
         for child in self.children:
             lines.append(child.tree2str(sep, child == self.children[-1]))
-        return "\n".join(lines)
+        return "\n".join(lines).strip("└──")
 
     def is_leaf(self) -> bool:
         return not self.children
@@ -193,9 +193,28 @@ class Volume:
 
     """Class representing a collection of input images"""
 
-    def __init__(self, paths: list[str]):
+    def __init__(self, paths: Iterable[str], label: str="untitled_volume"):
+        """Initialize volume
+
+        Arguments:
+            paths: A list of paths to images
+            label: A label describing the volume (optional)
+        """
         self.pages = [PageNode(path) for path in paths]
-        self.label = "untitled_volume"
+        self.label = label
+
+    @classmethod
+    def from_directory(cls, path: str) -> "Volume":
+        """Initialize a volume from a directory
+
+        Sets the volume label to the directory name.
+
+        Arguments:
+            path: A path to a directory of images.
+        """
+        files = (os.path.join(path, file) for file in os.listdir(path))
+        label = os.path.basename(path)
+        return cls(files, label)
 
     def __getitem__(self, i):
         return self.pages[i]
@@ -204,7 +223,7 @@ class Volume:
         return self.pages.__iter__()
 
     def __str__(self):
-        return "\n".join(page.tree2str() for page in self.pages)
+        return f"Volume label: {self.label}\nVolume tree:\n" + "\n".join(page.tree2str() for page in self.pages)
 
     def images(self):  # -> Generator[np.ndarray]:
         """Yields the volume's original input images"""
