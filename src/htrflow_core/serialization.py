@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import datetime
 import os
-from typing import TYPE_CHECKING, Iterable, Optional, Union
+from typing import TYPE_CHECKING, Iterable, Union
 
 import xmlschema
 from jinja2 import Environment, FileSystemLoader
@@ -15,7 +15,6 @@ if TYPE_CHECKING:
 
 
 _TEMPLATES_DIR = "src/htrflow_core/templates"   # Path to templates
-_DEFAULT_OUTPUT_DIR = "outputs/%s"
 
 
 class Serializer:
@@ -139,7 +138,7 @@ def _get_serializer(format_name):
     raise ValueError(msg)
 
 
-def save_volume(volume: Volume, format_: str, dest: Optional[str] = None) -> Iterable[tuple[str, str]]:
+def save_volume(volume: Volume, format_: str, dest: str) -> Iterable[tuple[str, str]]:
     """Serialize and save volume
 
     Arguments:
@@ -151,9 +150,8 @@ def save_volume(volume: Volume, format_: str, dest: Optional[str] = None) -> Ite
 
     serializer = _get_serializer(format_)
 
-    if dest is None:
-        dest = _DEFAULT_OUTPUT_DIR % volume.label
-        os.makedirs(dest, exist_ok=True)
+    dest = os.path.join(dest, volume.label)
+    os.makedirs(dest, exist_ok=True)
 
     for page in volume:
         if not page.contains_text():
