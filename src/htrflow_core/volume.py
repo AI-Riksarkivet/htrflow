@@ -100,6 +100,9 @@ class BaseDocumentNode(Node, ABC):
     def has_regions(self) -> bool:
         return all(not child.is_leaf() for child in self.children)
 
+    def is_line(self):
+        return False
+
     def segments(self):
         for leaf in self.leaves():
             yield leaf.image

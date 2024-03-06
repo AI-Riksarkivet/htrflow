@@ -19,13 +19,24 @@
             </OrderedGroup>
         </ReadingOrder>
         {%- for node in [page] recursive %}
-        {%- if node.is_leaf() %}
-            {% if node.is_word() %} <Word id = "{{ labels[node] }}"> {% else %} <TextLine id="{{ labels[node] }}">{% endif %}
-                <Coords points="{% for point in node.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}" />
-                <TextEquiv conf="{{ node._text.top_score() }}">
-                    <Unicode>{{ node.text }}</Unicode>
-                </TextEquiv>
-            {% if node.is_word() %} </Word> {% else %} </TextLine> {% endif %}
+        {%- if node.is_line() %}
+            <TextLine id="{{ labels[node] }}">
+            <Coords points="{% for point in node.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}" />
+            {%- if node.children %}
+            {%- for child in node.children %}
+                <Word id="{{ labels[child] }}">
+                    <Coords points="{% for point in child.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}" />
+                    <TextEquiv conf="{{ child._text.top_score() }}">
+                        <Unicode>{{ child.text }}</Unicode>
+                    </TextEquiv>
+                </Word>
+            {%- endfor %}
+            {%- else %}
+            <TextEquiv conf="{{ node._text.top_score() }}">
+                <Unicode>{{ node.text }}</Unicode>
+            </TextEquiv>
+            {%-endif %}
+            </TextLine>
         {%- else %}
         <TextRegion id="{{ labels[node] }}">
             <Coords points="{% for point in node.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}" />{{ loop(node.children) }}
