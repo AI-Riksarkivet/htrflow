@@ -19,13 +19,13 @@
             </OrderedGroup>
         </ReadingOrder>
         {%- for node in [page] recursive %}
-        {%- if node.text %}
-            <TextLine id="{{ labels[node] }}">
+        {%- if node.is_leaf() %}
+            {% if node.is_word() %} <Word id = "{{ labels[node] }}"> {% else %} <TextLine id="{{ labels[node] }}">{% endif %}
                 <Coords points="{% for point in node.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}" />
-                <TextEquiv conf="{{ node.text.top_score() }}">
-                    <Unicode>{{ node.text.top_candidate() }}</Unicode>
+                <TextEquiv conf="{{ node._text.top_score() }}">
+                    <Unicode>{{ node.text }}</Unicode>
                 </TextEquiv>
-            </TextLine>            
+            {% if node.is_word() %} </Word> {% else %} </TextLine> {% endif %}
         {%- else %}
         <TextRegion id="{{ labels[node] }}">
             <Coords points="{% for point in node.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}" />{{ loop(node.children) }}

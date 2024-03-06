@@ -61,7 +61,7 @@ class AltoXML(Serializer):
         # if a node corresponds to a TextBlock element, i.e. if its
         # children contains text and not other regions.
         def is_text_block(node):
-            return node.children and all(child.is_leaf() for child in node.children)
+            return bool(node.children) and all(child.is_line() for child in node.children)
 
         return self.template.render(
             page=page,

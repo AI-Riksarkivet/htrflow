@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-from typing import Optional
+from dataclasses import dataclass, field
+from typing import Optional, Sequence
 
 import numpy as np
 
@@ -26,14 +26,14 @@ class Segment:
     # baseline: list[tuple] ?
 
     @classmethod
-    def from_bbox(cls, bbox, *args):
+    def from_bbox(cls, bbox, **kwargs):
         """Create a segment from a bounding box"""
         mask = None
         polygon = image.bbox2polygon(bbox)
-        return cls(bbox, mask, polygon, *args)
+        return cls(bbox, mask, polygon, **kwargs)
 
     @classmethod
-    def from_mask(cls, mask, *args):
+    def from_mask(cls, mask, **kwargs):
         """Create a segment from a mask
 
         Args:
@@ -42,54 +42,77 @@ class Segment:
         bbox = image.mask2bbox(mask)
         polygon = image.mask2polygon(mask)
         cropped_mask = image.crop(mask, bbox)
-        return cls(bbox, cropped_mask, polygon, *args)
+        return cls(bbox, cropped_mask, polygon, **kwargs)
 
     @classmethod
-    def from_baseline(cls, baseline, *args):
+    def from_baseline(cls, baseline, **kwargs):
         """Create a segment from a baseline"""
         raise NotImplementedError()
 
 
 @dataclass
-class Result:
-    """Result base class"""
+class RecognizedText:
+    """Recognized text class
 
-    metadata: dict
+    This class represents a result from a text recognition model.
 
-
-@dataclass
-class SegmentationResult(Result):
-    image: np.ndarray
-    segments: list[Segment]
-
-    def bboxes(self):
-        return [segment.bbox for segment in self.segments]
-
-    def polygons(self):
-        return [segment.polygon for segment in self.segments]
-
-    @classmethod
-    def from_bboxes(cls, metadata, image, bboxes, *args):
-        segments = [Segment.from_bbox(*item) for item in zip(bboxes, *args)]
-        return cls(metadata, image, segments)
-
-    @classmethod
-    def from_masks(cls, metadata, image, masks, *args):
-        segments = [Segment.from_mask(*item) for item in zip(masks, *args)]
-        return cls(metadata, image, segments)
-
-    def save(self, dest: str):
-        img = image.draw_polygons(self.image, self.polygons())
-        image.write(dest, img)
-
-
-@dataclass
-class RecognitionResult(Result):
-    texts: list[str]
-    scores: list[float]
+    Attributes:
+        texts: A sequence of candidate texts
+        scores: The scores of the candidate texts
+    """
+    texts: Sequence[str]
+    scores: Sequence[float]
 
     def top_candidate(self):
+        """The best candidate text"""
         return self.texts[self.scores.index(self.top_score())]
 
     def top_score(self):
+        """The highest score"""
         return max(self.scores)
+
+@dataclass
+class Result:
+    """Result class
+
+    This class bundles segmentation and text recognition results
+
+    Returns:
+        image: The original imaage
+        metadata: Metadata associated with the result
+        segments: Segments (may be empty)
+        texts: Texts (may be empty)
+    """
+
+    image: np.ndarray
+    metadata: dict
+    segments: Sequence[Segment] = field(default_factory=list)
+    texts: Sequence[RecognizedText] = field(default_factory=list)
+
+    @classmethod
+    def text_recognition_result(cls, image: np.ndarray, metadata: dict, text: RecognizedText) -> "Result":
+        """Create a text recognition result
+
+        Arguments:
+            image: The original image
+            metadata: Result metadata
+            text: The recognized text
+
+        Returns:
+            A Result instance with the specified data and no segments.
+        """
+        return cls(image, metadata | {'task': 'text recognition'}, texts=[text])
+
+    @classmethod
+    def segmentation_result(cls, image: np.ndarray, metadata: dict, segments: Sequence[Segment]) -> "Result":
+        """Create a segmentation result
+
+        Arguments:
+            image: The original image
+            metadata: Result metadata
+            segments: The segments
+
+        Returns:
+            A Result instance with the specified data and no texts.
+        """
+        return cls(image, metadata | {'task': 'segmentation'}, segments=segments)

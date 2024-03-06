@@ -12,7 +12,7 @@ from typing import Callable, Iterable, Literal, Optional, Sequence
 import cv2
 
 from htrflow_core import image, serialization
-from htrflow_core.results import RecognitionResult, Segment, SegmentationResult
+from htrflow_core.results import RecognizedText, Result, Segment
 
 
 Point = namedtuple("Point", ["x", "y"])
@@ -72,7 +72,8 @@ class BaseDocumentNode(Node, ABC):
     polygon: list[tuple[int, int]]
     bbox: tuple[int, int, int, int]
     children: Sequence["RegionNode"]
-    text: Optional[RecognitionResult]
+    _text: Optional[RecognizedText]
+    text: Optional[str]
 
     def __str__(self) -> str:
         return f'{self.height}x{self.width} region ({self.label}) at ({self.coord.x}, {self.coord.y})'
@@ -81,34 +82,23 @@ class BaseDocumentNode(Node, ABC):
     def image(self):
         pass
 
+    def add_text(self, text: RecognizedText):
+        """Add text to this node"""
+        self._text = text
+        self.text = text.top_candidate()
+
+    def segment(self, segments: Sequence[Segment]):
+        """Segment this node"""
+        children = []
+        for segment in segments:
+            children.append(RegionNode(segment, self))
+        self.children = children
+
     def contains_text(self) -> bool:
         return any(child.contains_text() for child in self.children)
 
     def has_regions(self) -> bool:
         return all(not child.is_leaf() for child in self.children)
-
-    def update(self, result: SegmentationResult | RecognitionResult) -> None:
-        """Update this node with `result`"""
-        if isinstance(result, SegmentationResult):
-            self._register_segmentation_result(result)
-        elif isinstance(result, RecognitionResult):
-            self._register_recognition_result(result)
-        else:
-            raise TypeError(f"Incorrect type for BaseDocumentNode.update: {type(result)}")
-
-    def _register_segmentation_result(self, result: SegmentationResult) -> None:
-        """Segment this node
-
-        Creates children according to the segmentation and attaches them to this node.
-        """
-        children = []
-        for segment in result.segments:
-            children.append(RegionNode(segment, self))
-        self.children = children
-
-    @abstractmethod
-    def _register_recognition_result(self, result: RecognitionResult) -> None:
-        """Register recognition result"""
 
     def segments(self):
         for leaf in self.leaves():
@@ -118,14 +108,14 @@ class BaseDocumentNode(Node, ABC):
 class RegionNode(BaseDocumentNode):
     """A node representing a segment of a page"""
 
-    segment: Segment
+    _segment: Segment
     parent: BaseDocumentNode
 
     DEFAULT_LABEL = "region"
 
     def __init__(self, segment: Segment, parent: BaseDocumentNode):
         super().__init__(parent)
-        self.segment = segment
+        self._segment = segment
         self.text = None
         self.label = segment.class_label if segment.class_label else RegionNode.DEFAULT_LABEL
         x1, x2, y1, y2 = segment.bbox
@@ -137,19 +127,16 @@ class RegionNode(BaseDocumentNode):
 
     def __str__(self) -> str:
         if self.text:
-            return f'{super().__str__()}: "{self.text.top_candidate()}"'
+            return f'{super().__str__()}: "{self.text}"'
         return super().__str__()
 
     @property
     def image(self):
         """The image this segment represents"""
-        img = image.crop(self.parent.image, self.segment.bbox)
-        if self.segment.mask is not None:
-            img = image.mask(img, self.segment.mask)
+        img = image.crop(self.parent.image, self._segment.bbox)
+        if self._segment.mask is not None:
+            img = image.mask(img, self._segment.mask)
         return img
-
-    def _register_recognition_result(self, result: RecognitionResult) -> None:
-        self.text = result
 
     def contains_text(self) -> bool:
         if not self.children:
@@ -158,6 +145,12 @@ class RegionNode(BaseDocumentNode):
 
     def is_region(self) -> bool:
         return bool(self.children) and not self.text
+
+    def is_word(self) -> bool:
+        return self.text is not None and len(self.text.split()) == 1
+
+    def is_line(self):
+        return self.text is not None and len(self.text.split()) > 1
 
 
 class PageNode(BaseDocumentNode):
@@ -181,14 +174,6 @@ class PageNode(BaseDocumentNode):
     @property
     def image(self):
         return self._image
-
-    def _register_recognition_result(self, result: RecognitionResult):
-        """Update the text of this node"""
-        segment = Segment.from_bbox(self.bbox)
-        child = RegionNode(segment, self)
-        child.update(result)
-        self.children = [child]
-
 
 class Volume:
 
@@ -285,7 +270,7 @@ class Volume:
                 for node in page.traverse(lambda node: node.depth == depth):
                     yield node.image
 
-    def update(self, results: list[SegmentationResult | RecognitionResult]) -> None:
+    def update(self, results: list[Result]) -> None:
         """
         Update the volume with model results
 
@@ -298,8 +283,19 @@ class Volume:
             raise ValueError(f"Size of input ({len(results)}) does not match "
                              f"the size of the tree ({len(leaves)})")
 
-        for node, result in zip(leaves, results):
-            node.update(result)
+        # Update the leaves of the tree
+        for leaf, result in zip(leaves, results):
+
+            # If the result has segments, segment the leaf
+            if result.segments:
+                leaf.segment(result.segments)
+
+            # If the result has texts, add them to the new leaves (which
+            # may be other than `leaves` if the result also had a segmentation)
+            if result.texts:
+                print(result.texts, type(result.texts))
+                for new_leaf, text in zip(leaf.leaves(), result.texts):
+                    new_leaf.add_text(text)
 
     def save(self, directory: str="outputs", format_: Literal["alto", "page", "txt"] = "alto") -> None:
         """Save volume

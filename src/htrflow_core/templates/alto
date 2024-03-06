@@ -47,9 +47,15 @@
                     </Shape>
                     {%- endif %}
                     {%- for line in node.children %}
-                    <TextLine ID="{{ labels[line] }}"  HPOS="{{ line.coord.x }}" VPOS="{{ line.coord.y }}" HEIGHT="{{ line.height}}" WIDTH="{{ line.width }}">
-                        <String CONTENT="{{line.text.top_candidate()}}" />
-                    </TextLine>
+                        <TextLine ID="{{ labels[line] }}"  HPOS="{{ line.coord.x }}" VPOS="{{ line.coord.y }}" HEIGHT="{{ line.height}}" WIDTH="{{ line.width }}">
+                            {%- if line.children %}
+                            {%- for word in line.children %}
+                                <String ID="{{ labels[word] }}"  HPOS="{{ word.coord.x }}" VPOS="{{ word.coord.y }}" HEIGHT="{{ word.height}}" WIDTH="{{ word.width }}" CONTENT="{{ word.text }}" />
+                            {%- endfor %}
+                            {%- else %}
+                            <String CONTENT="{{ line.text }}"/>
+                            {%- endif %}
+                        </TextLine>
                     {%- endfor %}
                 </TextBlock>
                 {% endif %}
