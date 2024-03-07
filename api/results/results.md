@@ -1,3 +1,3 @@
-# Results documentation
+# Results
 
 :::htrflow_core.results
