@@ -54,5 +54,5 @@ quality: ## quality - Check code quality
 	ruff check .
 	mypy . 
 
-install_openmmlab: ## install_openmmlab - Install openmmlab extras
-	poetry install --extras "openmmlab"
+gpu_monitor: ## gpu_monitor - check gpu usage (pip install gpustat)
+	gpustat --watch

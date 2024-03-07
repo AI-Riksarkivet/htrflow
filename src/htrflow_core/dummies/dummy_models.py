@@ -1,11 +1,12 @@
 import random
-from typing import List, Optional
+from typing import List, Literal, Optional
 
 import cv2
 import lorem  # type: ignore
 import numpy as np
 
-from htrflow_core.results import Result, Segment, RecognizedText
+from htrflow_core.models.base_model import BaseModel
+from htrflow_core.results import RecognizedText, Result, Segment
 
 
 """
@@ -13,16 +14,11 @@ This module contains dummy models
 """
 
 
-class SegmentType:
-    MASK = "mask"
-    BBOX = "bbox"
-
-
-class SegmentationModel:
-    def __init__(self, segment_type: str = "mask") -> None:
+class SegmentationModel(BaseModel):
+    def __init__(self, segment_type: Literal["mask", "bbox"] = "mask") -> None:
         self.segment_type = segment_type
 
-    def __call__(self, images: list[np.ndarray], label: Optional[str] = None) -> list[Result]:
+    def _predict(self, images: list[np.ndarray], label: Optional[str] = None) -> list[Result]:
         metadata = generate_metadata(self)
 
         results = []
@@ -32,23 +28,32 @@ class SegmentationModel:
             segments = []
             for _ in range(n_segments):
                 score = random.random()
-                if self.segment_type == SegmentType.MASK:
+
+                if self.segment_type == "mask":
                     mask = randommask(h, w)
-                    segments.append(Segment.from_mask(mask, score=score, class_label=label if label else randomlabel()))
+                    segments.append(
+                        Segment.from_mask(mask, score=score, class_label=label if label else randomlabel())
+                    )
                 else:
                     bbox = randombox(h, w)
-                    segments.append(Segment.from_bbox(bbox, score=score, class_label=label if label else randomlabel()))
+                    segments.append(
+                        Segment.from_bbox(bbox, score=score, class_label=label if label else randomlabel())
+                    )
 
             results.append(Result(metadata, image, segments, []))
         return results
 
 
-class RecognitionModel:
-    def __call__(self, images: list[np.ndarray]) -> list[Result]:
+class RecognitionModel(BaseModel):
+    def _predict(self, images: list[np.ndarray]) -> list[Result]:
         metadata = generate_metadata(self)
         n = 2
         return [
-            Result.text_recognition_result(image, metadata, RecognizedText(texts=[lorem.sentence() for _ in range(n)], scores=[random.random() for _ in range(n)]))
+            Result.text_recognition_result(
+                image,
+                metadata,
+                RecognizedText(texts=[lorem.sentence() for _ in range(n)], scores=[random.random() for _ in range(n)]),
+            )
             for image in images
         ]
 
@@ -94,9 +99,9 @@ def _simple_word_segmentation(image, text):
     for word in words:
         x2 = min(x1 + pixels_per_char * len(word), width)
         bboxes.append((x1, x2, 0, height))
-        x1 = x2 + pixels_per_char   # add a "whitespace"
+        x1 = x2 + pixels_per_char  # add a "whitespace"
 
-    segments = [Segment.from_bbox(bbox, class_label='word') for bbox in bboxes]
+    segments = [Segment.from_bbox(bbox, class_label="word") for bbox in bboxes]
     texts = [RecognizedText([word], [0]) for word in words]
     r = Result(image, {"model": "simple word segmentation"}, segments, texts)
     return r

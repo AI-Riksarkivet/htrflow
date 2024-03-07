@@ -3,11 +3,22 @@ from itertools import islice
 from typing import Iterable, Optional
 
 import numpy as np
+import torch
 
 from htrflow_core.results import Result
 
 
 class BaseModel(ABC):
+    def _device(self, device: Optional[str]):
+        if device is None:
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.device = torch.device(device)
+
+    def to(self, device: Optional[str]):
+        self._device(device)
+        if self.model:
+            self.model.to(device)
+
     def predict(self, images: Iterable[np.ndarray], batch_size: Optional[int], *args, **kwargs) -> Iterable[Result]:
         """Perform inference on images
 
@@ -19,6 +30,7 @@ class BaseModel(ABC):
                 the model specific prediction method.
         """
         out = []
+
         for batch in self._batch_input(images, batch_size):
             out.extend(self._predict(batch, *args, **kwargs))
         return out
