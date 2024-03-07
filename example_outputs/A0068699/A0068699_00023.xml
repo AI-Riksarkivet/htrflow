@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<alto xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.loc.gov/standards/alto/ns-v4#" xsi:schemaLocation="http://www.loc.gov/standards/alto/ns-v4# http://www.loc.gov/standards/alto/v4/alto-4-4.xsd">
+    <Description>
+        <MeasurementUnit>pixel</MeasurementUnit>
+        <sourceImageInformation>
+            <fileName>A0068699_00023.jpg</fileName>
+        </sourceImageInformation>
+        <Processing ID="step1">
+            <processingDateTime>2024-03-07T14:10:47.571769</processingDateTime>
+            <processingStepDescription> </processingStepDescription>
+            <processingStepSettings></processingStepSettings>
+            <processingSoftware>
+                <softwareCreator>unknown</softwareCreator>
+                <softwareName>htrflow_core</softwareName>
+                <softwareVersion>unknown</softwareVersion>
+                <applicationDescription>unknown</applicationDescription>
+            </processingSoftware>
+        </Processing>
+    </Description>
+    <ReadingOrder>
+        <OrderedGroup ID="ro">
+            <OrderedGroup ID="ro_A0068699_00023_region0">
+                <ElementRef ID="ro_A0068699_00023_region0_region0" REF="A0068699_00023_region0_region0" />
+                <ElementRef ID="ro_A0068699_00023_region0_region1" REF="A0068699_00023_region0_region1" />
+                <ElementRef ID="ro_A0068699_00023_region0_region2" REF="A0068699_00023_region0_region2" />
+                <ElementRef ID="ro_A0068699_00023_region0_region3" REF="A0068699_00023_region0_region3" />
+                <ElementRef ID="ro_A0068699_00023_region0_region4" REF="A0068699_00023_region0_region4" />
+                <ElementRef ID="ro_A0068699_00023_region0_region5" REF="A0068699_00023_region0_region5" />
+                <ElementRef ID="ro_A0068699_00023_region0_region6" REF="A0068699_00023_region0_region6" />
+                <ElementRef ID="ro_A0068699_00023_region0_region7" REF="A0068699_00023_region0_region7" />
+                <ElementRef ID="ro_A0068699_00023_region0_region8" REF="A0068699_00023_region0_region8" />
+                <ElementRef ID="ro_A0068699_00023_region0_region9" REF="A0068699_00023_region0_region9" />
+                <ElementRef ID="ro_A0068699_00023_region0_region10" REF="A0068699_00023_region0_region10" />
+                <ElementRef ID="ro_A0068699_00023_region0_region11" REF="A0068699_00023_region0_region11" />
+                <ElementRef ID="ro_A0068699_00023_region0_region12" REF="A0068699_00023_region0_region12" />
+                <ElementRef ID="ro_A0068699_00023_region0_region13" REF="A0068699_00023_region0_region13" />
+                <ElementRef ID="ro_A0068699_00023_region0_region14" REF="A0068699_00023_region0_region14" />
+                <ElementRef ID="ro_A0068699_00023_region0_region15" REF="A0068699_00023_region0_region15" />
+                <ElementRef ID="ro_A0068699_00023_region0_region16" REF="A0068699_00023_region0_region16" />
+                <ElementRef ID="ro_A0068699_00023_region0_region17" REF="A0068699_00023_region0_region17" />
+                <ElementRef ID="ro_A0068699_00023_region0_region18" REF="A0068699_00023_region0_region18" />
+            </OrderedGroup>
+            <OrderedGroup ID="ro_A0068699_00023_region1">
+                <ElementRef ID="ro_A0068699_00023_region1_region0" REF="A0068699_00023_region1_region0" />
+                <ElementRef ID="ro_A0068699_00023_region1_region1" REF="A0068699_00023_region1_region1" />
+                <ElementRef ID="ro_A0068699_00023_region1_region2" REF="A0068699_00023_region1_region2" />
+                <ElementRef ID="ro_A0068699_00023_region1_region3" REF="A0068699_00023_region1_region3" />
+                <ElementRef ID="ro_A0068699_00023_region1_region4" REF="A0068699_00023_region1_region4" />
+                <ElementRef ID="ro_A0068699_00023_region1_region5" REF="A0068699_00023_region1_region5" />
+                <ElementRef ID="ro_A0068699_00023_region1_region6" REF="A0068699_00023_region1_region6" />
+                <ElementRef ID="ro_A0068699_00023_region1_region7" REF="A0068699_00023_region1_region7" />
+                <ElementRef ID="ro_A0068699_00023_region1_region8" REF="A0068699_00023_region1_region8" />
+                <ElementRef ID="ro_A0068699_00023_region1_region9" REF="A0068699_00023_region1_region9" />
+                <ElementRef ID="ro_A0068699_00023_region1_region10" REF="A0068699_00023_region1_region10" />
+                <ElementRef ID="ro_A0068699_00023_region1_region11" REF="A0068699_00023_region1_region11" />
+                <ElementRef ID="ro_A0068699_00023_region1_region12" REF="A0068699_00023_region1_region12" />
+                <ElementRef ID="ro_A0068699_00023_region1_region13" REF="A0068699_00023_region1_region13" />
+                <ElementRef ID="ro_A0068699_00023_region1_region14" REF="A0068699_00023_region1_region14" />
+                <ElementRef ID="ro_A0068699_00023_region1_region15" REF="A0068699_00023_region1_region15" />
+                <ElementRef ID="ro_A0068699_00023_region1_region16" REF="A0068699_00023_region1_region16" />
+                <ElementRef ID="ro_A0068699_00023_region1_region17" REF="A0068699_00023_region1_region17" />
+                <ElementRef ID="ro_A0068699_00023_region1_region18" REF="A0068699_00023_region1_region18" />
+            </OrderedGroup>
+        </OrderedGroup>
+    </ReadingOrder>
+    <Layout>
+        <Page WIDTH="6280" HEIGHT="5168" PHYSICAL_IMG_NR="0" ID="A0068699_00023">
+            <TopMargin />
+            <LeftMargin />
+            <RightMargin />
+            <BottomMargin />
+            <PrintSpace>
+                <TextBlock ID="A0068699_00023_region0" HPOS="523" VPOS="523" HEIGHT="4122" WIDTH="2094">
+                    <Shape>
+                        <Polygon POINTS="523,523 523,4645 2617,4645 2617,523"/>
+                    </Shape>
+                        <TextLine ID="A0068699_00023_region0_region0"  HPOS="627" VPOS="626" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Non amet dolore neque ipsum numquam."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region0_region1"  HPOS="627" VPOS="832" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Ut neque quisquam adipisci."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region0_region2"  HPOS="627" VPOS="1038" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Eius labore sit est."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region0_region3"  HPOS="627" VPOS="1244" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Voluptatem neque neque magnam dolor dolore."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region0_region4"  HPOS="627" VPOS="1450" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Dolorem tempora neque ut dolor voluptatem."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region0_region5"  HPOS="627" VPOS="1656" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Non eius sed quiquia eius."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region0_region6"  HPOS="627" VPOS="1862" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Ipsum neque sed aliquam eius adipisci est."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region0_region7"  HPOS="627" VPOS="2068" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Dolore sed ut quisquam dolore eius numquam."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region0_region8"  HPOS="627" VPOS="2274" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Modi est velit sit sed ipsum velit dolor."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region0_region9"  HPOS="627" VPOS="2480" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Porro tempora non quiquia aliquam aliquam eius."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region0_region10"  HPOS="627" VPOS="2686" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Velit labore dolor dolorem eius adipisci sit amet."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region0_region11"  HPOS="627" VPOS="2892" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Porro quisquam non etincidunt quisquam dolorem ipsum."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region0_region12"  HPOS="627" VPOS="3098" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Ipsum dolor eius dolor amet labore quisquam."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region0_region13"  HPOS="627" VPOS="3304" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Neque aliquam sit ut adipisci labore quiquia ut."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region0_region14"  HPOS="627" VPOS="3510" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Eius neque quaerat quisquam etincidunt dolorem quaerat."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region0_region15"  HPOS="627" VPOS="3716" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Labore dolore neque non numquam amet quisquam dolor."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region0_region16"  HPOS="627" VPOS="3922" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Quisquam dolorem dolorem ipsum adipisci dolorem quisquam."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region0_region17"  HPOS="627" VPOS="4128" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Magnam magnam tempora dolorem adipisci amet tempora quisquam."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region0_region18"  HPOS="627" VPOS="4334" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Sed dolore eius aliquam non."/>
+                        </TextLine>
+                </TextBlock>
+                
+                <TextBlock ID="A0068699_00023_region1" HPOS="3663" VPOS="523" HEIGHT="4122" WIDTH="2094">
+                    <Shape>
+                        <Polygon POINTS="3663,523 3663,4645 5757,4645 5757,523"/>
+                    </Shape>
+                        <TextLine ID="A0068699_00023_region1_region0"  HPOS="3767" VPOS="626" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Quisquam ut magnam sit dolore voluptatem."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region1_region1"  HPOS="3767" VPOS="832" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Non adipisci quiquia sit."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region1_region2"  HPOS="3767" VPOS="1038" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Eius dolorem ut eius neque adipisci."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region1_region3"  HPOS="3767" VPOS="1244" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Quaerat sed quiquia eius consectetur modi consectetur."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region1_region4"  HPOS="3767" VPOS="1450" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Sed amet dolor neque quaerat porro."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region1_region5"  HPOS="3767" VPOS="1656" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Ut quiquia etincidunt consectetur eius eius."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region1_region6"  HPOS="3767" VPOS="1862" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Etincidunt adipisci velit amet sit tempora sit est."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region1_region7"  HPOS="3767" VPOS="2068" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Modi non aliquam amet velit ut aliquam voluptatem."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region1_region8"  HPOS="3767" VPOS="2274" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Dolorem numquam voluptatem sit numquam sit tempora."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region1_region9"  HPOS="3767" VPOS="2480" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Quisquam sit etincidunt est amet neque adipisci amet."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region1_region10"  HPOS="3767" VPOS="2686" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Modi sed tempora velit sed neque."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region1_region11"  HPOS="3767" VPOS="2892" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Quiquia quiquia etincidunt porro tempora porro ipsum non."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region1_region12"  HPOS="3767" VPOS="3098" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Neque magnam eius sit magnam."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region1_region13"  HPOS="3767" VPOS="3304" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Tempora adipisci tempora numquam consectetur neque sed dolor."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region1_region14"  HPOS="3767" VPOS="3510" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Etincidunt ipsum dolor ipsum sed modi etincidunt amet."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region1_region15"  HPOS="3767" VPOS="3716" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Tempora aliquam numquam magnam labore modi ut voluptatem."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region1_region16"  HPOS="3767" VPOS="3922" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Dolorem dolorem sed dolore."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region1_region17"  HPOS="3767" VPOS="4128" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Neque modi dolore voluptatem etincidunt."/>
+                        </TextLine>
+                        <TextLine ID="A0068699_00023_region1_region18"  HPOS="3767" VPOS="4334" HEIGHT="185" WIDTH="1886">
+                            <String CONTENT="Tempora eius neque eius."/>
+                        </TextLine>
+                </TextBlock>
+                
+            </PrintSpace>
+        </Page>
+    </Layout>
+</alto>
