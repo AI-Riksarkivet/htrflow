@@ -26,13 +26,13 @@
             {%- for child in node.children %}
                 <Word id="{{ labels[child] }}">
                     <Coords points="{% for point in child.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}" />
-                    <TextEquiv conf="{{ child._text.top_score() }}">
+                    <TextEquiv conf="{{ child.recognized_text.top_score() }}">
                         <Unicode>{{ child.text }}</Unicode>
                     </TextEquiv>
                 </Word>
             {%- endfor %}
             {%- else %}
-            <TextEquiv conf="{{ node._text.top_score() }}">
+            <TextEquiv conf="{{ node.recognized_text.top_score() }}">
                 <Unicode>{{ node.text }}</Unicode>
             </TextEquiv>
             {%-endif %}

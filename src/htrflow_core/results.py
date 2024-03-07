@@ -71,6 +71,7 @@ class RecognizedText:
         """The highest score"""
         return max(self.scores)
 
+
 @dataclass
 class Result:
     """Result class
@@ -101,7 +102,7 @@ class Result:
         Returns:
             A Result instance with the specified data and no segments.
         """
-        return cls(image, metadata | {'task': 'text recognition'}, texts=[text])
+        return cls(image, metadata, texts=[text])
 
     @classmethod
     def segmentation_result(cls, image: np.ndarray, metadata: dict, segments: Sequence[Segment]) -> "Result":
@@ -115,4 +116,4 @@ class Result:
         Returns:
             A Result instance with the specified data and no texts.
         """
-        return cls(image, metadata | {'task': 'segmentation'}, segments=segments)
+        return cls(image, metadata, segments=segments)

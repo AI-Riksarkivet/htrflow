@@ -72,8 +72,7 @@ class BaseDocumentNode(Node, ABC):
     polygon: list[tuple[int, int]]
     bbox: tuple[int, int, int, int]
     children: Sequence["RegionNode"]
-    _text: Optional[RecognizedText]
-    text: Optional[str]
+    recognized_text: Optional[RecognizedText]
 
     def __str__(self) -> str:
         return f'{self.height}x{self.width} region ({self.label}) at ({self.coord.x}, {self.coord.y})'
@@ -82,10 +81,9 @@ class BaseDocumentNode(Node, ABC):
     def image(self):
         pass
 
-    def add_text(self, text: RecognizedText):
+    @abstractmethod
+    def add_text(self, recognized_text: RecognizedText):
         """Add text to this node"""
-        self._text = text
-        self.text = text.top_candidate()
 
     def segment(self, segments: Sequence[Segment]):
         """Segment this node"""
@@ -119,7 +117,7 @@ class RegionNode(BaseDocumentNode):
     def __init__(self, segment: Segment, parent: BaseDocumentNode):
         super().__init__(parent)
         self._segment = segment
-        self.text = None
+        self.recognized_text = None
         self.label = segment.class_label if segment.class_label else RegionNode.DEFAULT_LABEL
         x1, x2, y1, y2 = segment.bbox
         self.height = y2 - y1
@@ -133,6 +131,9 @@ class RegionNode(BaseDocumentNode):
             return f'{super().__str__()}: "{self.text}"'
         return super().__str__()
 
+    def add_text(self, recognized_text):
+        self.recognized_text = recognized_text
+
     @property
     def image(self):
         """The image this segment represents"""
@@ -140,6 +141,13 @@ class RegionNode(BaseDocumentNode):
         if self._segment.mask is not None:
             img = image.mask(img, self._segment.mask)
         return img
+
+    @property
+    def text(self) -> Optional[str]:
+        """Return self.recognized_text.top_candidate() if available"""
+        if self.recognized_text:
+            return self.recognized_text.top_candidate()
+        return None
 
     def contains_text(self) -> bool:
         if not self.children:
@@ -150,16 +158,23 @@ class RegionNode(BaseDocumentNode):
         return bool(self.children) and not self.text
 
     def is_word(self) -> bool:
-        return self.text is not None and len(self.text.split()) == 1
+        """True if this node represents a word"""
+        return self.is_text() and len(self.text.split()) == 1
 
     def is_line(self):
-        return self.text is not None and len(self.text.split()) > 1
+        """True if this node represents a text line"""
+        return self.is_text() and len(self.text.split()) > 1
+
+    def is_text(self):
+        """True if this node represents text"""
+        return self.recognized_text is not None
 
 
 class PageNode(BaseDocumentNode):
     """A node representing a page / input image"""
 
-    text = None
+    recognized_text = None
+    _segment = None
 
     def __init__(self, image_path: str):
         self._image = cv2.imread(image_path)
@@ -177,6 +192,12 @@ class PageNode(BaseDocumentNode):
     @property
     def image(self):
         return self._image
+
+    def add_text(self, recognized_text: RecognizedText):
+        child = RegionNode(Segment.from_bbox(self.bbox), self)
+        self.children = [child]
+        child.add_text(recognized_text)
+
 
 class Volume:
 
@@ -296,7 +317,6 @@ class Volume:
             # If the result has texts, add them to the new leaves (which
             # may be other than `leaves` if the result also had a segmentation)
             if result.texts:
-                print(result.texts, type(result.texts))
                 for new_leaf, text in zip(leaf.leaves(), result.texts):
                     new_leaf.add_text(text)
 

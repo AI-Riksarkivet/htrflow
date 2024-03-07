@@ -101,7 +101,7 @@ class PlainText(Serializer):
 
     def serialize(self, page: PageNode) -> str:
         lines = page.traverse(lambda node: node.is_leaf())
-        return "\n".join(line.text.top_candidate() for line in lines)
+        return "\n".join(line.text for line in lines)
 
 
 def metadata(page: PageNode) -> dict[str, Union[str, list[dict[str, str]]]]:

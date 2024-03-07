@@ -98,7 +98,7 @@ def test_traverse_grandchildren():
 
 
 def test_update_wrong_type(demo_image):
-    root = volume.PageNode(demo_image)
+    root = volume.Volume([demo_image])
     with pytest.raises(TypeError) as _:
         root.update(5)
 
@@ -107,7 +107,7 @@ def test_update_segmentation(demo_image):
     segmentation_model = SegmentationModel("mask")
     node = volume.PageNode(demo_image)
     result, *_ = segmentation_model([node.image])
-    node.update(result)
+    node.segment(result.segments)
     assert len(node.children) == len(result.segments)
 
 
@@ -115,7 +115,7 @@ def test_update_segmentation_bbox(demo_image):
     segmentation_model = SegmentationModel("mask")
     node = volume.PageNode(demo_image)
     result, *_ = segmentation_model([node.image])
-    node.update(result)
+    node.segment(result.segments)
     segment_index = 0
     segment_bbox = result.segments[segment_index].bbox
     node_bbox = node[segment_index].bbox
@@ -126,7 +126,7 @@ def test_update_segmentation_width_height(demo_image):
     segmentation_model = SegmentationModel("mask")
     node = volume.PageNode(demo_image)
     result, *_ = segmentation_model([node.image])
-    node.update(result)
+    node.segment(result.segments)
     segment_index = 0
     x1, x2, y1, y2 = result.segments[segment_index].bbox
     assert x2-x1 == node[segment_index].width
@@ -138,12 +138,12 @@ def test_update_nested_segmentation_coordinates(demo_volume_segmented_nested):
     segment = page[0]
     nested_segment = page[0, 0]
     parent_x = segment.coord.x
-    nested_segment_x_relative_to_parent = nested_segment.segment.bbox[0]
+    nested_segment_x_relative_to_parent = nested_segment._segment.bbox[0]
     assert nested_segment.coord.x == parent_x + nested_segment_x_relative_to_parent
 
     parent_y = segment.coord.y
     nested_segment = page[0, 0]
-    nested_segment_y_relative_to_parent = nested_segment.segment.bbox[2]
+    nested_segment_y_relative_to_parent = nested_segment._segment.bbox[2]
     assert nested_segment.coord.y == parent_y + nested_segment_y_relative_to_parent
 
 
@@ -153,8 +153,8 @@ def test_update_region_text(demo_volume_segmented):
     demo_volume_segmented.update(result)
     page = demo_volume_segmented[0]
     node = page[0]
-    texts = result[0].texts
-    assert node.text.texts == texts
+    texts = result[0].texts[0]
+    assert node.recognized_text == texts
 
 
 def test_update_page_text(demo_volume_unsegmented):
@@ -164,9 +164,9 @@ def test_update_page_text(demo_volume_unsegmented):
     demo_volume_unsegmented.update(result)
     page = demo_volume_unsegmented[0]
     node = page[0]
-    texts = result[0].texts
+    texts = result[0].texts[0]
     assert page.children    # Check that the page has children
-    assert node.text.texts == texts     # Check that the texts match
+    assert node.text == texts.top_candidate()     # Check that the texts match
 
 
 def test_polygon_nested(demo_volume_segmented_nested):
@@ -175,7 +175,7 @@ def test_polygon_nested(demo_volume_segmented_nested):
     nested_node = page[0, 0]
     # .polygon attribute should be relative to original image
     # but segment.polygon should be relative to parent
-    expected_polygon = [(node.coord.x + x, node.coord.y + y) for x, y in nested_node.segment.polygon]
+    expected_polygon = [(node.coord.x + x, node.coord.y + y) for x, y in nested_node._segment.polygon]
     assert nested_node.polygon == expected_polygon
 
 
@@ -258,7 +258,7 @@ def test_pickling(demo_volume_segmented_nested):
     picklestring = pickle.dumps(demo_volume_segmented_nested)
     vol = pickle.loads(picklestring)
     assert isinstance(vol, volume.Volume)   # sanity check
-    assert vol[0, 0].segment.bbox == demo_volume_segmented_nested[0, 0].segment.bbox
+    assert vol[0, 0].polygon == demo_volume_segmented_nested[0, 0].polygon
     assert vol[0, 0, 0].label == demo_volume_segmented_nested[0, 0, 0].label
 
 
@@ -266,5 +266,5 @@ def test_save_and_load_pickle(tmpdir, demo_volume_with_text):
     # TODO: see test_pickling
     picklefile = demo_volume_with_text.pickle(tmpdir)
     vol = volume.Volume.from_pickle(picklefile)
-    assert vol[0, 0].text.top_candidate() == demo_volume_with_text[0, 0].text.top_candidate()
+    assert vol[0, 0].recognized_text.top_candidate() == demo_volume_with_text[0, 0].recognized_text.top_candidate()
     assert vol[0, 0].parent.height == demo_volume_with_text[0].height
