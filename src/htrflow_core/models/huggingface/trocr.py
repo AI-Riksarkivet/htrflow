@@ -15,7 +15,7 @@ class TrOCR(BaseModel):
 
     def __init__(
         self,
-        model: str | Path = "microsoft/trocr-small-handwritten",
+        model: str | Path = "microsoft/trocr-base-handwritten",
         processor: str = "microsoft/trocr-base-handwritten",
         device: str = "cuda",
         cache_dir: str = "./.cache",
@@ -25,11 +25,10 @@ class TrOCR(BaseModel):
 
         Arguments:
             model: Path or name of pretrained VisisonEncoderDeocderModel.
-                Defaults to 'microsoft/trocr-small-handwritten'.
+                Defaults to 'microsoft/trocr-base-handwritten'.
             processor: Path or name of pretrained TrOCRProcessor.
                 Defaults to 'microsoft/trocr-base-handwritten'.
         """
-        super().__init__()
 
         self.cache_dir = cache_dir
         self.model = VisionEncoderDecoderModel.from_pretrained(model, cache_dir=cache_dir, token=hf_token).to(
@@ -70,7 +69,6 @@ class TrOCR(BaseModel):
         # Prepare output
         texts = self.processor.batch_decode(model_outputs.sequences, skip_special_tokens=True)
 
-        print(texts)
         scores = model_outputs.sequences_scores.tolist()
         step = generation_kwargs["num_return_sequences"]
 
@@ -125,7 +123,7 @@ class TrOCR(BaseModel):
 if __name__ == "__main__":
     import cv2
 
-    model = TrOCR(model="microsoft/trocr-small-handwritten")
+    model = TrOCR(model="microsoft/trocr-base-handwritten")
 
     img = "/home/gabriel/Desktop/htrflow_core/data/trocr_demo_image.png"
     image = cv2.imread(img)

@@ -4,9 +4,34 @@ site_url: https://Swedish-National-Archives-AI-lab.github.io/htrflow_core
 site_author: "Swedish-National-Archives-AI-lab"
 site_description: "A short description of the project"
 repo_url: https://github.com/Swedish-National-Archives-AI-lab/htrflow_core
+use_directory_urls: false
+extra_css:
+  - stylesheets/extra.css
+
 
 # Copyright
 copyright: Copyright &copy; 2023 Swedish-National-Archives-AI-lab
+
+# Page tree
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Quickstart: getting_started/quick_start.md
+    - Data Structure: getting_started/data_structure.md
+    - Usage of Models: getting_started/serialization.md
+    - Pipeline: getting_started/pipeline.md
+    - Serialization: getting_started/serialization.md
+  - Refrence API: 
+      - htrflow_core:
+        - Volume: 
+          - Volume: api/volume/volume.md
+          - Node: api/volume/node.md
+        - Results: api/results/results.md
+        - Image: api/image/image.md
+
+  - Tutorials:
+      - The internals: "notebooks/demo.ipynb"  
+      - Simple workflow: "notebooks/demo2.ipynb"
 
 # Configuration
 theme:
@@ -30,8 +55,18 @@ theme:
 
   language: en
   palette:
-    primary: indigo
-    accent: indigo
+  - media: "(prefers-color-scheme: light)"
+    primary: custom
+    scheme: black
+    toggle:
+      icon: material/weather-sunny
+      name: Switch to dark mode
+  - media: "(prefers-color-scheme: dark)"
+    scheme: slate
+    primary: black
+    toggle:
+      icon: material/weather-night
+      name: Switch to light mode
   font:
     text: Roboto
     code: Roboto Mono
@@ -48,11 +83,11 @@ plugins:
       handlers:
         python:
           rendering:
-            show_root_toc_entry: False
+            show_root_toc_entry: True
             show_root_heading: True
             show_source: True
-            show_category_heading: False
-            show_bases: False
+            show_category_heading: True
+            show_bases: True
           selection:
             filters:
               - "!^_" # exclude all members starting with _
@@ -109,9 +144,3 @@ markdown_extensions:
       custom_checkbox: true
   - pymdownx.tilde
 
-# Page tree
-nav:
-  - Getting started: index.md
-  - Refrence API: api.md
-  - Projects:
-      - Demos: "notebooks/demo.ipynb"  

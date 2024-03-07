@@ -9,7 +9,7 @@ from htrflow_core.dummies.dummy_models import RecognitionModel, SegmentationMode
 
 @pytest.fixture
 def demo_image():
-    return 'data/demo_image.jpg'
+    return "data/demo_image.jpg"
 
 
 @pytest.fixture
@@ -129,8 +129,8 @@ def test_update_segmentation_width_height(demo_image):
     node.segment(result.segments)
     segment_index = 0
     x1, x2, y1, y2 = result.segments[segment_index].bbox
-    assert x2-x1 == node[segment_index].width
-    assert y2-y1 == node[segment_index].height
+    assert x2 - x1 == node[segment_index].width
+    assert y2 - y1 == node[segment_index].height
 
 
 def test_update_nested_segmentation_coordinates(demo_volume_segmented_nested):
@@ -165,8 +165,8 @@ def test_update_page_text(demo_volume_unsegmented):
     page = demo_volume_unsegmented[0]
     node = page[0]
     texts = result[0].texts[0]
-    assert page.children    # Check that the page has children
-    assert node.text == texts.top_candidate()     # Check that the texts match
+    assert page.children  # Check that the page has children
+    assert node.text == texts.top_candidate()  # Check that the texts match
 
 
 def test_polygon_nested(demo_volume_segmented_nested):
@@ -211,7 +211,7 @@ def test_volume_iter(demo_volume_segmented):
 def test_volume_segments_depth(demo_volume_segmented):
     depth = 1
     all_nodes = demo_volume_segmented.traverse()
-    expected_n_images = sum(node.depth==depth for node in all_nodes)
+    expected_n_images = sum(node.depth == depth for node in all_nodes)
     n_images = len([*demo_volume_segmented.segments(depth=depth)])
     assert n_images == expected_n_images
 
@@ -232,22 +232,23 @@ def test_volume_no_parentless_leaves(demo_volume_with_text):
 # Tests of volume.save()
 # More thorough serialization testing is done in test_seralization
 
+
 def test_volume_save_alto(tmpdir, demo_volume_with_text):
     # warning => the alto files don't follow schema
     with warnings.catch_warnings():
-        demo_volume_with_text.save(tmpdir, 'alto')
+        demo_volume_with_text.save(tmpdir, "alto")
         assert len(tmpdir.listdir()) == 1
 
 
 def test_volume_save_page(tmpdir, demo_volume_with_text):
     # warning => the page files don't follow schema
     with warnings.catch_warnings():
-        demo_volume_with_text.save(tmpdir, 'page')
+        demo_volume_with_text.save(tmpdir, "page")
         assert len(tmpdir.listdir()) == 1
 
 
 def test_volume_save_text(tmpdir, demo_volume_with_text):
-    demo_volume_with_text.save(tmpdir, 'txt')
+    demo_volume_with_text.save(tmpdir, "txt")
     assert len(tmpdir.listdir()) == 1
 
 
@@ -257,7 +258,7 @@ def test_pickling(demo_volume_segmented_nested):
     # and check that some attributes are equal.
     picklestring = pickle.dumps(demo_volume_segmented_nested)
     vol = pickle.loads(picklestring)
-    assert isinstance(vol, volume.Volume)   # sanity check
+    assert isinstance(vol, volume.Volume)  # sanity check
     assert vol[0, 0].polygon == demo_volume_segmented_nested[0, 0].polygon
     assert vol[0, 0, 0].label == demo_volume_segmented_nested[0, 0, 0].label
 

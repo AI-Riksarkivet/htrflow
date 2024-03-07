@@ -6,7 +6,7 @@ from ultralytics import YOLO as UltralyticsYOLO
 from ultralytics.engine.results import Results as UltralyticsResults
 
 from htrflow_core.models.base_model import BaseModel
-from htrflow_core.models.ultralytics.ultralytics_model import UltralyticsModel
+from htrflow_core.models.ultralytics.ultralytics_downloader import UltralyticsDownloader
 from htrflow_core.results import Result, Segment
 
 
@@ -20,7 +20,7 @@ class YOLO(BaseModel):
         *args,
     ) -> None:
         self.cache_dir = cache_dir
-        model_file = UltralyticsModel.from_pretrained(model, cache_dir, hf_token)
+        model_file = UltralyticsDownloader.from_pretrained(model, cache_dir, hf_token)
         self.model = UltralyticsYOLO(model_file, *args).to(self._device(device))
         self.metadata = {"model": str(model)}
 

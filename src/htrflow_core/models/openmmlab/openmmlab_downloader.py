@@ -1,47 +1,24 @@
-import logging
 from pathlib import Path
-from typing import Optional
 
 from huggingface_hub import hf_hub_download, list_repo_files
-from huggingface_hub.utils import RepositoryNotFoundError
 from mmengine.config import Config
 
+from htrflow_core.models.hf_downloader import HFDownloader
 
-class OpenmmlabModel:
+
+class OpenmmlabModel(HFDownloader):
+    """
+    A subclass of HFDownloader tailored for downloading and configuring OpenMMLab models from the Hugging Face Hub.
+
+    Attributes:
+        SUPPORTED_MODEL_TYPES (tuple): A tuple of supported model file extensions.
+        CONFIG_FILE (str): The default configuration file name.
+        DICT_FILE (str): The default dictionary file name.
+    """
+
     SUPPORTED_MODEL_TYPES = (".pth",)
-    CONFIG_JSON = "config.json"
-    META_MODEL_TYPE = "model"
     CONFIG_FILE = "config.py"
     DICT_FILE = "dictionary.txt"
-
-    @classmethod
-    def from_pretrained(
-        cls, model: str | Path, cache_dir: str | Path = "./.cache", hf_token: Optional[str] = None
-    ) -> Path:
-        """Downloads the model file from Hugging Face Hub or loads it from a local path.
-
-        Args:
-            model: The model ID on Hugging Face Hub or a local path to the model.
-            cache_dir: The directory where model files should be cached.
-            hf_token: An optional Hugging Face authentication token.
-
-        Returns:
-            The path to the downloaded model file.
-        """
-        model_path = Path(model)
-        try:
-            if model_path.exists() and model_path.suffix in cls.SUPPORTED_MODEL_TYPES:
-                return model_path
-            else:
-                try:
-                    return cls._download_from_hub(model, cache_dir, hf_token)
-
-                except RepositoryNotFoundError as e:
-                    logging.error(f"Could not download files for {model}: {str(e)}")
-                    return None
-
-        except Exception as e:
-            raise FileNotFoundError(f"Model file or Hugging Face Hub model {model} not found.") from e
 
     @classmethod
     def _download_from_hub(cls, hf_model_id, cache_dir, hf_token):
@@ -117,16 +94,3 @@ if __name__ == "__main__":
     # from mmocr.apis import TextRecInferencer
 
     # model = TextRecInferencer(config_py, model_pth, device="cuda")
-
-    # repo_files = [".gitattributes", "README.md", "config.json", "config.py", "dictionary.txt", "model.pth"]
-
-    # config = "config.py"
-
-    # dict_file = next((f for f in repo_files if any(f.endswith(ext) for ext in config)), None)
-
-    # print(dict_file)
-
-    # img = "/home/gabriel/Desktop/htrflow_core/data/demo_image.jpg"
-    # image = cv2.imread(img)
-
-    # results = model([image] * 100)

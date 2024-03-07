@@ -36,7 +36,7 @@ class Node:
         i, *rest = i
         return self.children[i][rest] if rest else self.children[i]
 
-    def leaves(self): # -> Sequence[Self]:
+    def leaves(self):  # -> Sequence[Self]:
         """Return the leaf nodes attached to this node"""
         nodes = [] if self.children else [self]
         for child in self.children:
@@ -50,7 +50,7 @@ class Node:
             nodes.extend(child.traverse(filter=filter))
         return nodes
 
-    def tree2str(self, sep: str="", is_last: bool=True) -> str:
+    def tree2str(self, sep: str = "", is_last: bool = True) -> str:
         """Return a string representation of this node and its decendants"""
         lines = [sep + ("└──" if is_last else "├──") + str(self)]
         sep += "    " if is_last else "│   "
@@ -75,7 +75,7 @@ class BaseDocumentNode(Node, ABC):
     recognized_text: Optional[RecognizedText]
 
     def __str__(self) -> str:
-        return f'{self.height}x{self.width} region ({self.label}) at ({self.coord.x}, {self.coord.y})'
+        return f"{self.height}x{self.width} region ({self.label}) at ({self.coord.x}, {self.coord.y})"
 
     @abstractproperty
     def image(self):
@@ -201,9 +201,21 @@ class PageNode(BaseDocumentNode):
 
 class Volume:
 
-    """Class representing a collection of input images"""
+    """Class representing a collection of input images
 
-    def __init__(self, paths: Iterable[str], label: str="untitled_volume"):
+    Examples:
+
+    ```python
+    from htrflow_core.volume import Volume
+
+    images = ['../assets/demo_image.jpg'] * 5
+
+    volume = Volume(images)
+    ```
+
+    """
+
+    def __init__(self, paths: Iterable[str], label: str = "untitled_volume"):
         """Initialize volume
 
         Arguments:
@@ -233,11 +245,11 @@ class Volume:
         Arguments:
             path: A path to a previously pickled volume instance
         """
-        with open(path, 'rb') as f:
+        with open(path, "rb") as f:
             vol = pickle.load(f)
         return vol
 
-    def pickle(self, directory: str=".cache", filename: Optional[str] = None):
+    def pickle(self, directory: str = ".cache", filename: Optional[str] = None):
         """Pickle volume
 
         Arguments:
@@ -251,7 +263,7 @@ class Volume:
         os.makedirs(directory, exist_ok=True)
         filename = f"volume_{self.label}.pickle" if filename is None else filename
         path = os.path.join(directory, filename)
-        with open(path, 'wb') as f:
+        with open(path, "wb") as f:
             pickle.dump(self, f)
         return path
 
@@ -272,13 +284,13 @@ class Volume:
         for page in self.pages:
             yield page.image
 
-    def leaves(self): # -> Iterable[BaseDocumentNode]:
+    def leaves(self):  # -> Iterable[BaseDocumentNode]:
         return chain.from_iterable(page.leaves() for page in self.pages)
 
     def traverse(self):
         return chain.from_iterable(page.traverse() for page in self.pages)
 
-    def segments(self, depth: Optional[int] = None): # -> Iterable[np.ndarray]:
+    def segments(self, depth: Optional[int] = None):  # -> Iterable[np.ndarray]:
         """Yields the volume's segments at `depth`
 
         Args:
@@ -304,12 +316,10 @@ class Volume:
         """
         leaves = list(self.leaves())
         if len(leaves) != len(results):
-            raise ValueError(f"Size of input ({len(results)}) does not match "
-                             f"the size of the tree ({len(leaves)})")
+            raise ValueError(f"Size of input ({len(results)}) does not match " f"the size of the tree ({len(leaves)})")
 
         # Update the leaves of the tree
         for leaf, result in zip(leaves, results):
-
             # If the result has segments, segment the leaf
             if result.segments:
                 leaf.segment(result.segments)
@@ -320,7 +330,7 @@ class Volume:
                 for new_leaf, text in zip(leaf.leaves(), result.texts):
                     new_leaf.add_text(text)
 
-    def save(self, directory: str="outputs", format_: Literal["alto", "page", "txt"] = "alto") -> None:
+    def save(self, directory: str = "outputs", format_: Literal["alto", "page", "txt"] = "alto") -> None:
         """Save volume
 
         Arguments:

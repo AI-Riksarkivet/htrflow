@@ -9,6 +9,8 @@ class HFDownloader:
     SUPPORTED_MODEL_TYPES = ()
     CONFIG_JSON = "config.json"
     META_MODEL_TYPE = "model"
+    CONFIG_FILE = None
+    DICT_FILE = None
 
     @classmethod
     def from_pretrained(
