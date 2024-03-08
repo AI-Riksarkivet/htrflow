@@ -2,62 +2,72 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://Swedish-National-Archives-AI-lab.github.io/htrflow_core/index.html</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://Swedish-National-Archives-AI-lab.github.io/htrflow_core/api/image/image.html</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://Swedish-National-Archives-AI-lab.github.io/htrflow_core/api/results/results.html</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://Swedish-National-Archives-AI-lab.github.io/htrflow_core/api/volume/node.html</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://Swedish-National-Archives-AI-lab.github.io/htrflow_core/api/volume/volume.html</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-08</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://Swedish-National-Archives-AI-lab.github.io/htrflow_core/core/design.html</loc>
+         <lastmod>2024-03-08</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://Swedish-National-Archives-AI-lab.github.io/htrflow_core/core/ecosystem.html</loc>
+         <lastmod>2024-03-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://Swedish-National-Archives-AI-lab.github.io/htrflow_core/getting_started/data_structure.html</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-08</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://Swedish-National-Archives-AI-lab.github.io/htrflow_core/getting_started/models.html</loc>
+         <lastmod>2024-03-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://Swedish-National-Archives-AI-lab.github.io/htrflow_core/getting_started/pipeline.html</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://Swedish-National-Archives-AI-lab.github.io/htrflow_core/getting_started/quick_start.html</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://Swedish-National-Archives-AI-lab.github.io/htrflow_core/getting_started/serialization.html</loc>
-         <lastmod>2024-03-07</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://Swedish-National-Archives-AI-lab.github.io/htrflow_core/getting_started/usage_of_model.html</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://Swedish-National-Archives-AI-lab.github.io/htrflow_core/notebooks/demo.html</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://Swedish-National-Archives-AI-lab.github.io/htrflow_core/notebooks/demo2.html</loc>
-         <lastmod>2024-03-07</lastmod>
+         <lastmod>2024-03-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
