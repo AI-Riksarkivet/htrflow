@@ -26,6 +26,21 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://Swedish-National-Archives-AI-lab.github.io/htrflow_core/assets_hf/datasets.html</loc>
+         <lastmod>2024-03-08</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://Swedish-National-Archives-AI-lab.github.io/htrflow_core/assets_hf/models.html</loc>
+         <lastmod>2024-03-08</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://Swedish-National-Archives-AI-lab.github.io/htrflow_core/assets_hf/spaces.html</loc>
+         <lastmod>2024-03-08</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://Swedish-National-Archives-AI-lab.github.io/htrflow_core/core/design.html</loc>
          <lastmod>2024-03-08</lastmod>
          <changefreq>daily</changefreq>
