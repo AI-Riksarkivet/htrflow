@@ -65,21 +65,64 @@ class Node:
 class BaseDocumentNode(Node, ABC):
     """Extension of Node class with functionality related to documents"""
 
-    height: int
-    width: int
-    coord: Point
     label: str
-    polygon: list[tuple[int, int]]
-    bbox: tuple[int, int, int, int]
     children: Sequence["RegionNode"]
-    recognized_text: Optional[RecognizedText]
+
+    # Read-only geometry related attributes
+    _height: int
+    _width: int
+    _coord: Point
+    _polygon: list[tuple[int, int]]
 
     def __str__(self) -> str:
-        return f"{self.height}x{self.width} region ({self.label}) at ({self.coord.x}, {self.coord.y})"
+        return f"{self.height}x{self.width} node ({self.label}) at ({self.coord.x}, {self.coord.y})"
 
     @abstractproperty
     def image(self):
+        """Image of the region this node represents"""
         pass
+
+    @abstractproperty
+    def text(self) -> str | None:
+        """Text of this region, if available"""
+        pass
+
+    @property
+    def height(self) -> int:
+        """Height of the region this node represents"""
+        return self._height
+
+    @property
+    def width(self) -> int:
+        """Width of the region this node represents"""
+        return self._width
+
+    @property
+    def coord(self) -> Point:
+        """
+        Position of the region this node represents relative to the
+        original input image (root node of the tree).
+        """
+        return self._coord
+
+    @property
+    def polygon(self) -> Sequence[tuple[int, int]]:
+        """
+        Approximation of the mask of the region this node represents
+        relative to the original input image (root node of the tree).
+        If no mask is available, this attribute defaults to a polygon
+        representation of the region's bounding box.
+        """
+        return self._polygon
+
+    @property
+    def bbox(self) -> tuple[int, int, int, int]:
+        """
+        Bounding box of the region this node represents relative to
+        the original input image (root node of the tree).
+        """
+        x, y = self.coord
+        return (x, x + self.width, y, y + self.height)
 
     @abstractmethod
     def add_text(self, recognized_text: RecognizedText):
@@ -93,38 +136,49 @@ class BaseDocumentNode(Node, ABC):
         self.children = children
 
     def contains_text(self) -> bool:
+        if self.text is not None:
+            return True
         return any(child.contains_text() for child in self.children)
 
     def has_regions(self) -> bool:
         return all(not child.is_leaf() for child in self.children)
 
-    def is_line(self):
-        return False
-
     def segments(self):
         for leaf in self.leaves():
             yield leaf.image
+
+    def is_region(self) -> bool:
+        return bool(self.children) and not self.text
+
+    def is_word(self) -> bool:
+        """True if this node represents a word"""
+        return self.text is not None and len(self.text.split()) == 1
+
+    def is_line(self):
+        """True if this node represents a text line"""
+        return self.text is not None and len(self.text.split()) > 1
 
 
 class RegionNode(BaseDocumentNode):
     """A node representing a segment of a page"""
 
     _segment: Segment
+    recognized_text: Optional[RecognizedText] = None
     parent: BaseDocumentNode
 
     DEFAULT_LABEL = "region"
 
     def __init__(self, segment: Segment, parent: BaseDocumentNode):
         super().__init__(parent)
-        self._segment = segment
         self.recognized_text = None
         self.label = segment.class_label if segment.class_label else RegionNode.DEFAULT_LABEL
+
         x1, x2, y1, y2 = segment.bbox
-        self.height = y2 - y1
-        self.width = x2 - x1
-        self.polygon = [(x + parent.coord.x, y + parent.coord.y) for x, y in segment.polygon]
-        self.bbox = (x1 + parent.coord.x, x2 + parent.coord.x, y1 + parent.coord.y, y2 + parent.coord.y)
-        self.coord = Point(parent.coord.x + x1, parent.coord.y + y1)
+        self._height = y2 - y1
+        self._width = x2 - x1
+        self._polygon = [(x + parent.coord.x, y + parent.coord.y) for x, y in segment.polygon]
+        self._coord = Point(parent.coord.x + x1, parent.coord.y + y1)
+        self._segment = segment
 
     def __str__(self) -> str:
         if self.text:
@@ -136,7 +190,7 @@ class RegionNode(BaseDocumentNode):
 
     @property
     def image(self):
-        """The image this segment represents"""
+        """The image this node represents"""
         img = image.crop(self.parent.image, self._segment.bbox)
         if self._segment.mask is not None:
             img = image.mask(img, self._segment.mask)
@@ -149,51 +203,41 @@ class RegionNode(BaseDocumentNode):
             return self.recognized_text.top_candidate()
         return None
 
-    def contains_text(self) -> bool:
-        if not self.children:
-            return self.text is not None
-        return super().contains_text()
-
-    def is_region(self) -> bool:
-        return bool(self.children) and not self.text
-
-    def is_word(self) -> bool:
-        """True if this node represents a word"""
-        return self.is_text() and len(self.text.split()) == 1
-
-    def is_line(self):
-        """True if this node represents a text line"""
-        return self.is_text() and len(self.text.split()) > 1
-
-    def is_text(self):
-        """True if this node represents text"""
-        return self.recognized_text is not None
-
 
 class PageNode(BaseDocumentNode):
     """A node representing a page / input image"""
 
-    recognized_text = None
-    _segment = None
-
     def __init__(self, image_path: str):
         self._image = cv2.imread(image_path)
         self.image_path = image_path
-        self.height, self.width = self.image.shape[:2]
-        self.coord = Point(0, 0)
-        self.polygon = [(0, 0), (0, self.height), (self.width, self.height), (self.width, 0)]
-        self.bbox = (0, self.width, 0, self.height)
 
         # Extract image name and remove file extension (`path/to/image.jpg` -> `image`)
         self.image_name = os.path.basename(image_path).split(".")[0]
         self.label = self.image_name
+
+        height, width = self.image.shape[:2]
+        self._height = height
+        self._width = width
+        self._coord = Point(0, 0)
+        self._polygon = [(0, 0), (0, height), (width, height), (width, 0)]
         super().__init__()
 
     @property
     def image(self):
         return self._image
 
+    @property
+    def text(self):
+        return None
+
     def add_text(self, recognized_text: RecognizedText):
+        """Add text to this node
+
+        A PageNode cannot contain any text directly. All text must be
+        put in RegionNodes. This method creates a new RegionNode that
+        covers the page, adds the text to this new node, and attaches
+        it to the PageNode.
+        """
         child = RegionNode(Segment.from_bbox(self.bbox), self)
         self.children = [child]
         child.add_text(recognized_text)
@@ -234,7 +278,7 @@ class Volume:
         Arguments:
             path: A path to a directory of images.
         """
-        files = (os.path.join(path, file) for file in os.listdir(path))
+        files = (os.path.join(path, file) for file in sorted(os.listdir(path)))
         label = os.path.basename(path)
         return cls(files, label)
 
