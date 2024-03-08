@@ -32,10 +32,10 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 
 <div class="grid cards" markdown>
 
-- :fontawesome-brands-html5: __HTML__ for content and structure
-- :fontawesome-brands-js: __JavaScript__ for interactivity
-- :fontawesome-brands-css3: __CSS__ for text running out of boxes
-- :fontawesome-brands-internet-explorer: __Internet Explorer__ ... huh?
+- :fontawesome-brands-python: __Core__ for serialization and structure
+- :fontawesome-brands-python: __Segmentation__ for Text Segmentation on images
+- :fontawesome-brands-python: __HTR__ for Handwritten Text Recogntion on images
+- :fontawesome-brands-js: __Sandbox__ our demo playground
 
 </div>
 
