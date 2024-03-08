@@ -1202,6 +1202,26 @@
 
 
 <h1 id="htrflow-design">Htrflow Design<a class="headerlink" href="#htrflow-design" title="Permanent link">&para;</a></h1>
+<pre class="mermaid"><code>graph TD
+    A[htrflow_core] --&gt; B(dummies)
+    A --&gt; C(image)
+    A --&gt; E(logging)
+    A --&gt; F(models)
+    A --&gt; G(overlapping_masks)
+
+    A --&gt; J(reading_order)
+    A --&gt; K(results)
+    A --&gt; L(serialization)
+    A --&gt; M(templates)
+    A --&gt; N(volume)
+
+
+    F --&gt; F3(huggingface)
+    F --&gt; F5(openmmlab)
+    F --&gt; F7(ultralytics)
+
+    M --&gt; M1(alto)
+    M --&gt; M2(page)</code></pre>
 <h1 id="sequence-diagram-workflow">Sequence Diagram workflow<a class="headerlink" href="#sequence-diagram-workflow" title="Permanent link">&para;</a></h1>
 <p>The Swedish National Archives introduces a...</p>
 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.</p>

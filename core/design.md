@@ -1,5 +1,27 @@
 # Htrflow Design
 
+```mermaid
+graph TD
+    A[htrflow_core] --> B(dummies)
+    A --> C(image)
+    A --> E(logging)
+    A --> F(models)
+    A --> G(overlapping_masks)
+
+    A --> J(reading_order)
+    A --> K(results)
+    A --> L(serialization)
+    A --> M(templates)
+    A --> N(volume)
+    
+    
+    F --> F3(huggingface)
+    F --> F5(openmmlab)
+    F --> F7(ultralytics)
+
+    M --> M1(alto)
+    M --> M2(page)
+```
 
 
 
