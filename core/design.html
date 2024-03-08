@@ -1064,12 +1064,19 @@
 
 
 <h1 id="htrflow-design">Htrflow Design<a class="headerlink" href="#htrflow-design" title="Permanent link">&para;</a></h1>
-<pre class="mermaid"><code>graph LR
-  A[Start] --&gt; B{Error?};
-  B --&gt;|Yes| C[Hmm...];
-  C --&gt; D[Debug];
-  D --&gt; B;
-  B ----&gt;|No| E[Yay!];</code></pre>
+<p>The Swedish National Archives introduces a...</p>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.</p>
+<pre class="mermaid"><code>graph TD
+    A("Image.jpg") --&gt; B("Region")
+    B --&gt; C1("Line - Text: 'Lorem non ipsum dolor.'")
+    C1 --&gt; D1("Word: 'Lorem'")
+    C1 --&gt; D2("Word: 'non'")
+    C1 --&gt; D3("Word: 'ipsum'")
+    C1 --&gt; D4("Word: 'dolor.'")
+    B --&gt; C2("Line - Text: 'Numquam consectetur ut'")
+    C2 --&gt; D5("Word: 'Numquam'")
+    C2 --&gt; D6("Word: 'consectetur'")
+    C2 --&gt; D7("Word: 'ut'")</code></pre>
 
 
 

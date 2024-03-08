@@ -32,37 +32,38 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 
 <div class="grid cards" markdown>
 
-- \_\_Working with Archical data
+- :material-clock-fast:{ .lg .middle } **Set up in 5 minutes**
 
   ***
 
-  Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  Install [`mkdocs-material`](#) with [`pip`](#) and get up
+  and running in minutes
 
-  [:octicons-arrow-right-24: Tutorial](getting_started/data_structure.md)
+  [:octicons-arrow-right-24: Getting started](#)
 
-- **Segments Documents**
-
-  ***
-
-  Lorem ipsum dolor sit amet, consectetur adipiscing elit
-
-  [:octicons-arrow-right-24: Tutorial](getting_started/models.md)
-
-- > **Handwritten Text Recognition**
+- :fontawesome-brands-markdown:{ .lg .middle } **It's just Markdown**
 
   ***
 
-  Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  Focus on your content and generate a responsive and searchable static site
 
-  [:octicons-arrow-right-24: Tutorial](getting_started/models.md)
+  [:octicons-arrow-right-24: Reference](#)
 
-- > **Visualize Archical Data**
+- :material-format-font:{ .lg .middle } **Made to measure**
 
   ***
 
-  Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  Change the colors, fonts, language, icons, logo and more with a few lines
 
-  [:octicons-arrow-right-24: Tutorial](getting_started/models.md)
+  [:octicons-arrow-right-24: Customization](#)
+
+- :material-scale-balance:{ .lg .middle } **Open Source, MIT**
+
+  ***
+
+  Material for MkDocs is licensed under MIT and available on [GitHub]
+
+  [:octicons-arrow-right-24: License](#)
 
 </div>
 
