@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional, Sequence
+from typing import Literal, Optional, Sequence
 
 import numpy as np
 
@@ -90,6 +90,21 @@ class Result:
     segments: Sequence[Segment] = field(default_factory=list)
     texts: Sequence[RecognizedText] = field(default_factory=list)
 
+    @property
+    def bboxes(self) -> Sequence[tuple[int, int, int, int]]:
+        """Bounding boxes relative to input image"""
+        return [segment.bbox for segment in self.segments]
+
+    @property
+    def polygons(self) -> Sequence[Sequence[tuple[int, int]]]:
+        """Polygons relative to input image"""
+        return [segment.polygon for segment in self.segments]
+
+    @property
+    def class_labels(self) -> Sequence[str]:
+        """Class labels of segments"""
+        return [segment.class_label for segment in self.segments]
+
     @classmethod
     def text_recognition_result(cls, image: np.ndarray, metadata: dict, text: RecognizedText) -> "Result":
         """Create a text recognition result
@@ -117,3 +132,42 @@ class Result:
             A Result instance with the specified data and no texts.
         """
         return cls(image, metadata, segments=segments)
+
+    def plot(self, filename: Optional[str]=None, labels: Optional[Literal["text", "class", "conf"]]=None):
+        """Plot results
+
+        Plots the segments on the input image. If the result doesn't
+        have any segments, this method will just return the original
+        input image.
+
+        Arguments:
+            filename: If given, save the plotted results to `filename`
+            labels: If given, plot a label of each segment. Available
+                options for labels are:
+                    "class": the segment class assigned by the
+                        segmentation model
+                    "text": the text associated with the segment
+                    "conf": the segment's confidence score rounded
+                        to four digits
+
+        Returns:
+            An annotated version of the original input image.
+        """
+
+        match labels:
+            case "text":
+                labels = [text.top_candidate() for text in self.texts]
+            case "class":
+                labels = self.class_labels
+            case "conf":
+                labels = [str(round(segment.score, 4)) for segment in self.segments]
+            case _:
+                labels = []
+
+
+        img = image.draw_bboxes(self.image, self.bboxes, labels=labels)
+
+        if filename:
+            image.write(filename, img)
+
+        return img

@@ -2,7 +2,7 @@
 Module containing utilities related to images and geometries
 """
 
-from typing import Iterable
+from typing import Iterable, Optional, Sequence
 
 import cv2
 import numpy as np
@@ -21,6 +21,7 @@ class Colors:
     GREEN = (0, 255, 0)
     BLUE = (255, 0, 0)
     WHITE = (255, 255, 255)
+    BLACK = (0, 0, 0)
 
 
 def crop(image: np.ndarray, bbox: Bbox) -> np.ndarray:
@@ -60,6 +61,7 @@ def draw_bboxes(
     color: Color = Colors.BLUE,
     thickness: int = 3,
     alpha: float = 0.2,
+    labels: Optional[Sequence[str]] = None,
 ) -> np.ndarray:
     """Draw bounding boxes on image
 
@@ -72,7 +74,7 @@ def draw_bboxes(
         A copy of the input image with the bounding boxes drawn.
     """
     polygons = [bbox2polygon(bbox) for bbox in bboxes]
-    return draw_polygons(image, polygons, color, thickness, alpha)
+    return draw_polygons(image, polygons, color, thickness, alpha, labels)
 
 
 def draw_masks(
@@ -103,6 +105,7 @@ def draw_polygons(
     color: Color = Colors.BLUE,
     thickness: int = 3,
     alpha: float = 0.2,
+    labels: Optional[Sequence[str]] = None,
 ) -> np.ndarray:
     """Draw polygons on image
 
@@ -111,6 +114,7 @@ def draw_polygons(
         polygons: The polygons
         color: Fill and border color
         alpha: Opacity of the fill
+        labels: Polygon labels
 
     Returns:
         A copy of the input image with polygons drawn on it.
@@ -121,7 +125,58 @@ def draw_polygons(
         for polygon in polygons:
             filled = cv2.fillPoly(image.copy(), [polygon], color=color)
             image = image * (1 - alpha) + filled * alpha
+
+    labels = labels if labels else []
+    for label, polygon in zip(labels, polygons):
+        x = min(x for x, _ in polygon)
+        y = min(y for _, y in polygon)
+        image = draw_label(image, label, (x, y), bg_color=color, font_thickness=thickness)
+
     return image
+
+
+def draw_label(
+    image: np.ndarray,
+    label: str,
+    pos: tuple[int, int],
+    font=cv2.FONT_HERSHEY_SIMPLEX,
+    font_scale: int = 2,
+    font_thickness: int = 2,
+    font_color: Color = Colors.WHITE,
+    bg_color: Optional[Color] = Colors.BLACK,
+):
+    """Draw label on image
+
+    This function draws text on the image. It tries to put the text at
+    the given position, but will move it downwards if the requested
+    position would put the text above the image.
+
+    Arguments:
+        image: Input image
+        label: Text to write on image
+        pos: (x, y) coordinate of the text's bottom left corner
+        font: A cv2 font
+        font_scale: Font scale
+        font_thickness: Font thickness
+        font_color: Font color
+        bg_color: Optional background color
+    """
+
+    (text_w, text_h), _ = cv2.getTextSize(label, font, font_scale, font_thickness)
+
+    # Adjust y coordinate if needed. It must be at least equal to the
+    # height of the text to ensure that the text is visible, or else
+    # the text ends up above the image.
+    pos = pos[0], max(pos[1], text_h)
+
+    if bg_color is not None:
+        x, y = pos
+        pad = font_thickness
+        p1 = x - pad, y + pad
+        p2 = x + text_w + pad, y - text_h + pad
+        image = cv2.rectangle(image, p1, p2, bg_color, -1)
+
+    return cv2.putText(image, label, pos, font, font_scale, font_color, font_thickness)
 
 
 def draw_reading_order():
