@@ -39,7 +39,7 @@ class YOLO(BaseModel):
             for box, score, class_label in zip(boxes, scores, class_labels)
         ]
 
-        return Result.segmentation_result(self.metadata, image, segments)
+        return Result.segmentation_result(image, self.metadata, segments)
 
 
 if __name__ == "__main__":

@@ -40,7 +40,7 @@ class SegmentationModel(BaseModel):
                         Segment.from_bbox(bbox, score=score, class_label=label if label else randomlabel())
                     )
 
-            results.append(Result(metadata, image, segments, []))
+            results.append(Result(image, metadata, segments, []))
         return results
 
 
