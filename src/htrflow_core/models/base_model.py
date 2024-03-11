@@ -4,6 +4,7 @@ from typing import Iterable, Optional
 
 import numpy as np
 import torch
+from tqdm import tqdm
 
 from htrflow_core.results import Result
 
@@ -20,7 +21,7 @@ class BaseModel(ABC):
             self.model.to(device)
 
     def predict(self, images: Iterable[np.ndarray], batch_size: Optional[int], *args, **kwargs) -> Iterable[Result]:
-        """Perform inference on images
+        """Perform inference on images with a progress bar.
 
         Arguments:
             images: Input images
@@ -31,13 +32,27 @@ class BaseModel(ABC):
         """
         out = []
 
-        for batch in self._batch_input(images, batch_size):
+        for batch in tqdm(
+            self._batch_input(images, batch_size),
+            total=self._tqdm_total(images, batch_size),
+            desc=self._tqdm_description(batch_size),
+        ):
             out.extend(self._predict(batch, *args, **kwargs))
         return out
 
     @abstractmethod
     def _predict(self, images: list[np.ndarray], *args, **kwargs) -> list[np.ndarray]:
         """Model specific prediction method"""
+
+    def _tqdm_description(self, batch_size) -> str:
+        model_name = self.__class__.__name__
+        tqdm_description = (
+            f"{model_name}: Running batch inference" if batch_size else f"{model_name}: Running inference"
+        )
+        return tqdm_description
+
+    def _tqdm_total(self, images, batch_size: Optional[int]) -> int:
+        return (len(images) + batch_size - 1) // batch_size if batch_size else None
 
     def _batch_input(self, images: Iterable[np.ndarray], batch_size: Optional[int]):
         if batch_size is None:

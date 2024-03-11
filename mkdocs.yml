@@ -1,5 +1,5 @@
 # Project information
-site_name: "htrflow_core"
+site_name: "HTRFLOW"
 site_url: https://Swedish-National-Archives-AI-lab.github.io/htrflow_core
 site_author: "Swedish-National-Archives-AI-lab"
 site_description: "A short description of the project"
@@ -10,18 +10,22 @@ extra_css:
 
 
 # Copyright
-copyright: Copyright &copy; 2023 Swedish-National-Archives-AI-lab
+copyright: Copyright &copy; 2024  <a href="https://github.com/Swedish-National-Archives-AI-lab" target="_blank">© Swedish-National-Archives-AI-lab.</a>
 
 # Page tree
 nav:
   - Home: index.md
+  - Core: 
+    - Ecosystem: core/ecosystem.md
+    - Design: core/design.md
+
   - Getting Started:
     - Quickstart: getting_started/quick_start.md
     - Data Structure: getting_started/data_structure.md
-    - Usage of Models: getting_started/serialization.md
+    - Models: getting_started/models.md
     - Pipeline: getting_started/pipeline.md
     - Serialization: getting_started/serialization.md
-  - Refrence API: 
+  - API: 
       - htrflow_core:
         - Volume: 
           - Volume: api/volume/volume.md
@@ -32,6 +36,12 @@ nav:
   - Tutorials:
       - The internals: "notebooks/demo.ipynb"  
       - Simple workflow: "notebooks/demo2.ipynb"
+
+  - Assets:
+    - Models: assets_hf/models.md
+    - Datasets: assets_hf/datasets.md
+    - Tools: assets_hf/spaces.md
+
 
 # Configuration
 theme:
@@ -74,6 +84,7 @@ theme:
   logo: https://raw.githubusercontent.com/Swedish-National-Archives-AI-lab/package_cookiecutter/main/%7B%7B%20cookiecutter.project_slug%20%7D%7D/docs/assets/riks.png
   icon:
     logo: logo
+    repo: fontawesome/brands/github
 
 plugins:
   - tags
@@ -97,7 +108,7 @@ plugins:
 
 extra:
   social:
-    - icon: fontawesome/brands/github-alt
+    - icon: fontawesome/brands/github
       link: https://github.com/Swedish-National-Archives-AI-lab
     - icon: fontawesome/brands/linkedin
       link: https://www.linkedin.com/in/Swedish-National-Archives-AI-lab
@@ -109,6 +120,7 @@ markdown_extensions:
   - attr_list
   - def_list
   - footnotes
+  - tables
   - md_in_html
   - toc:
       permalink: true

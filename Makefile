@@ -56,3 +56,7 @@ quality: ## quality - Check code quality
 
 gpu_monitor: ## gpu_monitor - check gpu usage (pip install gpustat)
 	gpustat --watch
+
+publish_docs: ## publish_docs - Deploy docs manually and removes site folder locally
+	poetry run mkdocs gh-deploy --force
+	rm -rf site

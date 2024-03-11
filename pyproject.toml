@@ -15,7 +15,7 @@ classifiers = [
   "Typing :: Typed",
 ]
 description = "A short description of the project"
-documentation = "https://Swedish-National-Archives-AI-lab.github.io/htrflow_core"
+documentation = "https://swedish-national-archives-ai-lab.github.io/htrflow_core/"
 include = ["scripts/openmim_install.py"]
 license = "EUPL-1.2"
 name = "htrflow_core"
@@ -40,6 +40,7 @@ pandas = "2.2.0"
 xmlschema = "^3.0.2"
 # torch
 torch = "2.0.0"
+
 # openmmlab
 mmcv = [
   {platform = "windows", url = "https://github.com/Swedish-National-Archives-AI-lab/openmim_install/raw/main/mmcv-2.0.0-cp310-cp310-win_amd64.whl", optional = true},
@@ -57,6 +58,7 @@ huggingface-hub = {version = "^0.20.3", optional = true}
 transformers = {version = "^4.37.2", optional = true}
 # ultralytics
 ultralytics = {version = "^8.0.225", optional = true}
+tqdm = "^4.66.2"
 
 [tool.poetry.extras]
 huggingface = ["transformers", "huggingface-hub", "datasets"]
@@ -70,16 +72,14 @@ openmim-install = "scripts.openmim_install:main"
 mypy = "^1.8.0"
 pre-commit = "^3.6.2"
 pytest = "^8.0.1"
-pytest-cov = "4.1.0"
+pytest-cov = "^4.1.0"
 pytest-github-actions-annotate-failures = "^0.2.0"
 python-dotenv = "1.0.1"
 ruff = "^0.2.2"
 
 [tool.poetry.group.docs.dependencies]
-mkdocs = "1.5.3"
-mkdocs-jupyter = "0.24.6"
-mkdocs-material = "9.5.10"
-pymdown-extensions = "10.7"
+mkdocs-jupyter = "^0.24.6"
+mkdocs-material = "^9.5.10"
 
 [tool.poetry.group.docs.dependencies.mkdocstrings]
 extras = ["python"]
