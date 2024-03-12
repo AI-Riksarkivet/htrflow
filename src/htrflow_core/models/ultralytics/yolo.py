@@ -25,7 +25,7 @@ class YOLO(BaseModel):
         self.metadata = {"model": str(model)}
 
     def _predict(self, images: list[np.ndarray], **kwargs) -> list[Result]:
-        outputs = self.model(images, verbose=False, stream=True, **kwargs)
+        outputs = self.model(images, verbose=False, stream=True, **kwargs)  # control verbosity
 
         return [self._create_segmentation_result(image, output) for image, output in zip(images, outputs)]
 
@@ -45,11 +45,13 @@ class YOLO(BaseModel):
 if __name__ == "__main__":
     import cv2
 
-    model = YOLO(model="ultralyticsplus/yolov8s")
+    model = YOLO(model="ultralyticsplus/yolov8s", device="cpu")
 
     img = "/home/gabriel/Desktop/htrflow_core/data/demo_image.jpg"
     image = cv2.imread(img)
 
-    results = model([image] * 200)
+    results = model(
+        [image] * 10,
+    )
 
-    # print(results)
+    print(model.device)

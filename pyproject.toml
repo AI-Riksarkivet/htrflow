@@ -57,8 +57,8 @@ datasets = {version = "2.17.1", optional = true}
 huggingface-hub = {version = "^0.20.3", optional = true}
 transformers = {version = "^4.37.2", optional = true}
 # ultralytics
-ultralytics = {version = "^8.0.225", optional = true}
 tqdm = "^4.66.2"
+ultralytics = {version = "^8.0.225", optional = true}
 
 [tool.poetry.extras]
 huggingface = ["transformers", "huggingface-hub", "datasets"]
@@ -111,7 +111,7 @@ line-length = 119
 target-version = "py310"
 
 [tool.ruff.lint]
-ignore = ["C901", "E501", "E741", "W605"]
+ignore = ["C901", "E741", "W605"]
 select = ["C", "E", "F", "I", "W"]
 
 [tool.ruff.lint.per-file-ignores]

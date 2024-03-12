@@ -4,7 +4,9 @@ import pandas as pd
 from htrflow_core.results import SegmentationResult
 
 
-def order_segments_marginalia(result: SegmentationResult, margin_ratio=0.2, histogram_bins=50, histogram_dip_ratio=0.5):
+def order_segments_marginalia(
+    result: SegmentationResult, margin_ratio=0.2, histogram_bins=50, histogram_dip_ratio=0.5
+):
     # Adapted from htrflow_core/src/transformations/order_segments.py
 
     # Create a pandas DataFrame from the regions

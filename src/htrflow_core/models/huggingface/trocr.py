@@ -128,6 +128,6 @@ if __name__ == "__main__":
     img = "/home/gabriel/Desktop/htrflow_core/data/trocr_demo_image.png"
     image = cv2.imread(img)
 
-    results = model([image])
+    results = model([image] * 100)
 
-    print(results[0])
+    print(model.device)

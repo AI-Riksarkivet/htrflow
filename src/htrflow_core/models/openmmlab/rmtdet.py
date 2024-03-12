@@ -1,34 +1,57 @@
-# from htrflow_core.helper.timing_decorator import timing_decorator
-# from htrflow_core.inferencers.base_inferencer import BaseInferencer
-# from htrflow_core.models.openmmlab_loader import OpenmmlabModel
+# https://mmdetection.readthedocs.io/en/main/user_guides/inference.html?highlight=Detinferencer#basic-usage
+# TODO  opnemlabdownloader and hf_downloader needs to be changed.. Since what happend when we pass both config and model into here..,
+# than we should not download both or either..
+import warnings
+from pathlib import Path
+from typing import Optional
+
+import numpy as np
+from mmdet.apis import DetInferencer
+from mmdet.structures import DetDataSample
+
+from htrflow_core.models.base_model import BaseModel
+from htrflow_core.results import Result
 
 
-# # from htrflow.structures.result import Result, SegResult
+warnings.filterwarnings("ignore")
 
 
-# class MMDetInferencer(BaseInferencer):
-#     def __init__(self, region_model: OpenmmlabModel, parent_result=None):
-#         self.region_model = region_model.model
-#         self.parent_result = parent_result
+class RTMDet(BaseModel):
+    def __init__(
+        self,
+        model: str | Path = "model.pth",
+        config: str | Path = "config.py",
+        device: str = "cuda",
+        cache_dir: str = "./.cache",
+        hf_token: Optional[str] = None,
+        *args,
+    ) -> None:
+        self.cache_dir = cache_dir
+        # config_py, weights = OpenmmlabDownloader.from_pretrained(model, cache_dir, hf_token)
 
-#     def preprocess():
-#         pass
+        self.model = DetInferencer(
+            model=config, weights=model, device=self._device(device), show_progress=False, *args
+        )
+        self.metadata = {"model": str(model)}
 
-#     @timing_decorator
-#     def predict(self, input_images, batch_size: int = 1, pred_score_thr: float = 0.3):
-#         # image = mmcv.imread(input_images)
+    def _predict(self, images: list[np.ndarray], **kwargs) -> list[Result]:
+        if len(images) > 1:
+            batch_size = len(images)
+        else:
+            batch_size = 1
 
-#         result_raw = self.region_model(input_images, batch_size, return_datasample=True)
-#         batch_result = self.postprocess(result_raw, input_images)
+        outputs = self.model(images, batch_size=batch_size, draw_pred=False, return_datasample=True, **kwargs)
 
-#         return batch_result
+        return [self._create_segmentation_result(image, output) for image, output in zip(images, outputs)]
+
+    def _create_segmentation_result(self, image: np.ndarray, output: DetDataSample) -> Result:
+        pass
+
 
 #     @timing_decorator
 #     def postprocess(self, result_raw, input_images):
 #         pass
 
-#     #     # hm jag behöver nog inte nästla lines i seg_result, eller kanske ett bra sätt för att skilja på lines within regions och lines within page?
-#     #     # i postprocess... eller hmm, jag vill inte lägga för mycket här, jag tror att jag lägger det i en egen klass istället...
 
 #     #     batch_result = [
 #     #         Result(
@@ -60,7 +83,8 @@
 #             mask_float = mask.float()
 
 #             # Resize the mask
-#             mask_resized = torch.nn.functional.interpolate(mask_float[None, None, ...], size=img_size, mode="nearest")[
+#             mask_resized = torch.nn.functional.interpolate(mask_float[None, None, ...], size=img_size,
+# mode="nearest")[
 #                 0, 0
 #             ]
 
@@ -76,3 +100,22 @@
 
 #         # Stack all masks into a single tensor
 #         self.masks = torch.stack(masks)
+
+
+if __name__ == "__main__":
+    import cv2
+
+    model = RTMDet(
+        model="/home/gabriel/Desktop/htrflow_core/.cache/models--Riksarkivet--rtmdet_lines/snapshots/41a37f829aa3bb0d6997dbaa9eeacfe8bd767cfa/model.pth",
+        config="/home/gabriel/Desktop/htrflow_core/.cache/models--Riksarkivet--rtmdet_lines/snapshots/41a37f829aa3bb0d6997dbaa9eeacfe8bd767cfa/config.py",
+        device="cuda:0",
+    )
+
+    img = "/home/gabriel/Desktop/htrflow_core/data/trocr_demo_image.png"
+    image = cv2.imread(img)
+
+    results = model(
+        [image] * 1,
+    )
+
+    print(results[0])
