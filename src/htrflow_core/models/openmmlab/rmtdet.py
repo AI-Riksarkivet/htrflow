@@ -41,11 +41,28 @@ class RTMDet(BaseModel):
             batch_size = 1
 
         outputs = self.model(images, batch_size=batch_size, draw_pred=False, return_datasample=True, **kwargs)
+        self._create_segmentation_result(images, outputs)
 
-        return [self._create_segmentation_result(image, output) for image, output in zip(images, outputs)]
+        return "hej"
 
-    def _create_segmentation_result(self, image: np.ndarray, output: DetDataSample) -> Result:
-        pass
+    def _create_segmentation_result(self, images: list[np.ndarray], outputs: DetDataSample) -> Result:
+        for output, image in zip(outputs["predictions"], images):
+            labels = output.pred_instances.labels.clone()
+            bboxes = output.pred_instances.bboxes.clone()
+            masks = output.pred_instances.masks.clone()
+            scores = output.pred_instances.scores.clone()
+            print(labels, bboxes, masks, scores, image)
+
+        # batch_result = [
+        #             segments=Segment(
+        #                 labels=x.pred_instances.labels.clone(),
+        #                 bboxes=x.pred_instances.bboxes.clone(),
+        #                 masks=x.pred_instances.masks.clone(),
+        #                 scores=x.pred_instances.scores.clone(),
+        #             ),
+        #         )
+        #         for x, y in zip(output["predictions"]
+        #     ]
 
 
 #     @timing_decorator
@@ -112,10 +129,8 @@ if __name__ == "__main__":
     )
 
     img = "/home/gabriel/Desktop/htrflow_core/data/trocr_demo_image.png"
+    img2 = "/home/gabriel/Desktop/htrflow_core/data/demo_image.jpg"
     image = cv2.imread(img)
+    image2 = cv2.imread(img2)
 
-    results = model(
-        [image] * 1,
-    )
-
-    print(results[0])
+    results = model([image, image2], batch_size=1)
