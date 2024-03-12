@@ -30,9 +30,11 @@ class TrOCR(BaseModel):
                 Defaults to 'microsoft/trocr-base-handwritten'.
         """
 
+        super().__init__(device=device)
+
         self.cache_dir = cache_dir
         self.model = VisionEncoderDecoderModel.from_pretrained(model, cache_dir=cache_dir, token=hf_token).to(
-            self._device(device)
+            self.device
         )
 
         if processor is None:

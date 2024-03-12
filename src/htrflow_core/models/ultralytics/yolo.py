@@ -19,9 +19,10 @@ class YOLO(BaseModel):
         hf_token: Optional[str] = None,
         *args,
     ) -> None:
+        super().__init__(device=device)
         self.cache_dir = cache_dir
         model_file = UltralyticsDownloader.from_pretrained(model, cache_dir, hf_token)
-        self.model = UltralyticsYOLO(model_file, *args).to(self._device(device))
+        self.model = UltralyticsYOLO(model_file, *args).to(self.device)
         self.metadata = {"model": str(model)}
 
     def _predict(self, images: list[np.ndarray], **kwargs) -> list[Result]:
@@ -45,13 +46,12 @@ class YOLO(BaseModel):
 if __name__ == "__main__":
     import cv2
 
-    model = YOLO(model="ultralyticsplus/yolov8s", device="cpu")
+    model = YOLO(model="ultralyticsplus/yolov8s", device="cuda:0")
 
     img = "/home/gabriel/Desktop/htrflow_core/data/demo_image.jpg"
+
     image = cv2.imread(img)
 
-    results = model(
-        [image] * 10,
-    )
+    results = model([image] * 100)
 
     print(model.device)

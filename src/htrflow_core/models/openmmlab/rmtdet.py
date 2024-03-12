@@ -26,6 +26,8 @@ class RTMDet(BaseModel):
         hf_token: Optional[str] = None,
         *args,
     ) -> None:
+        super().__init__(device=device)
+
         self.cache_dir = cache_dir
         # config_py, weights = OpenmmlabDownloader.from_pretrained(model, cache_dir, hf_token)
 
