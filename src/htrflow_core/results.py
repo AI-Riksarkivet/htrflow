@@ -153,17 +153,15 @@ class Result:
         Returns:
             An annotated version of the original input image.
         """
-
         match labels:
             case "text":
                 labels = [text.top_candidate() for text in self.texts]
             case "class":
                 labels = self.class_labels
             case "conf":
-                labels = [str(round(segment.score, 4)) for segment in self.segments]
+                labels = [f"{segment.score:.4}" for segment in self.segments]
             case _:
                 labels = []
-
 
         img = image.draw_bboxes(self.image, self.bboxes, labels=labels)
 
@@ -171,3 +169,30 @@ class Result:
             image.write(filename, img)
 
         return img
+
+    def reorder(self, index: Sequence[int]) -> None:
+        """Reorder result
+
+        Example: Given a `Result` with three segments s0, s1 and s2,
+        index = [2, 0, 1] will put the segments in order [s2, s0, s1].
+
+        Arguments:
+            index: A list of indices representing the new ordering.
+        """
+        if self.segments:
+            self.segments = [self.segments[i] for i in index]
+        if self.texts:
+            self.texts = [self.texts[i] for i in index]
+
+    def drop(self, index: Sequence[int]) -> None:
+        """Drop segments from result
+
+        Example: Given a `Result` with three segments s0, s1 and s2,
+        index = [0, 2] will drop segments s0 and s2.
+
+        Arguments:
+            index: Indices of segments to drop
+        """
+        keep = [i for i in range(len(self.segments)) if i not in index]
+        self.segments = [self.segments[i] for i in keep]
+        self.texts = [self.texts[i] for i in keep]

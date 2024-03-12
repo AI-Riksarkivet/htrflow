@@ -1,12 +1,12 @@
+from typing import Sequence
+
 import numpy as np
 import pandas as pd
 
-from htrflow_core.results import SegmentationResult
+from htrflow_core.results import Result
 
 
-def order_segments_marginalia(
-    result: SegmentationResult, margin_ratio=0.2, histogram_bins=50, histogram_dip_ratio=0.5
-):
+def order_segments_marginalia(result: Result, margin_ratio=0.2, histogram_bins=50, histogram_dip_ratio=0.5):
     # Adapted from htrflow_core/src/transformations/order_segments.py
 
     # Create a pandas DataFrame from the regions
@@ -41,12 +41,10 @@ def order_segments_marginalia(
         )
 
     df = df.sort_values(by=["page", "is_margin", "centroid_y", "centroid_x"])
-
-    # Reorder segments
-    result.segments = [result.segments[i] for i in df.index.tolist()]
+    return df.index.tolist()
 
 
-def order_lines(result: SegmentationResult, line_spacing_factor=0.5):
+def order_lines(result: Result, line_spacing_factor=0.5) -> Sequence[int]:
     # Adapted from htrflow_core/src/transformations/order_segments.py
 
     centroid_x = [(x1 + x2) / 2 for x1, x2, *_ in result.bboxes()]
@@ -59,6 +57,4 @@ def order_lines(result: SegmentationResult, line_spacing_factor=0.5):
     # Sort the indices based on vertical center points and horizontal positions
     index = list(range(len(result.segments)))
     index.sort(key=lambda i: (centroid_x[i] // threshold_distance, centroid_y[i]))
-
-    # Reorder segments
-    result.segments = [result.segments[i] for i in index]
+    return index
