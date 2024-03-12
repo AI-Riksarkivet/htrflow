@@ -5,7 +5,6 @@ This module holds the base data structures
 import os
 import pickle
 from abc import ABC, abstractmethod, abstractproperty
-from collections import namedtuple
 from itertools import chain
 from typing import Callable, Iterable, Literal, Optional, Sequence
 
@@ -13,9 +12,7 @@ import cv2
 
 from htrflow_core import image, serialization
 from htrflow_core.results import RecognizedText, Result, Segment
-
-
-Point = namedtuple("Point", ["x", "y"])
+from htrflow_core.utils.geometry import Bbox, Point, Polygon
 
 
 class Node:
@@ -72,7 +69,7 @@ class BaseDocumentNode(Node, ABC):
     _height: int
     _width: int
     _coord: Point
-    _polygon: list[tuple[int, int]]
+    _polygon: Polygon
 
     def __str__(self) -> str:
         return f"{self.height}x{self.width} node ({self.label}) at ({self.coord.x}, {self.coord.y})"
@@ -106,7 +103,7 @@ class BaseDocumentNode(Node, ABC):
         return self._coord
 
     @property
-    def polygon(self) -> Sequence[tuple[int, int]]:
+    def polygon(self) -> Polygon:
         """
         Approximation of the mask of the region this node represents
         relative to the original input image (root node of the tree).
@@ -116,7 +113,7 @@ class BaseDocumentNode(Node, ABC):
         return self._polygon
 
     @property
-    def bbox(self) -> tuple[int, int, int, int]:
+    def bbox(self) -> Bbox:
         """
         Bounding box of the region this node represents relative to
         the original input image (root node of the tree).
@@ -291,6 +288,10 @@ class Volume:
         """
         with open(path, "rb") as f:
             vol = pickle.load(f)
+
+        if not isinstance(vol, Volume):
+            raise pickle.UnpicklingError(f"Unpickling {path} did not return a Volume instance.")
+
         return vol
 
     def pickle(self, directory: str = ".cache", filename: Optional[str] = None):

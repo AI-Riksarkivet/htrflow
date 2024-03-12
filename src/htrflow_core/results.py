@@ -4,6 +4,7 @@ from typing import Literal, Optional, Sequence
 import numpy as np
 
 from htrflow_core import image
+from htrflow_core.utils.geometry import Bbox, Polygon
 
 
 @dataclass
@@ -18,9 +19,9 @@ class Segment:
         polygon: An approximation of the segment mask, !relative to the parent!
     """
 
-    bbox: tuple[int, int, int, int]
+    bbox: Bbox
     mask: Optional[np.ndarray]
-    polygon: list[tuple] = None
+    polygon: Polygon
     score: Optional[float] = None
     class_label: Optional[str] = None
     # baseline: list[tuple] ?
@@ -63,12 +64,12 @@ class RecognizedText:
     texts: Sequence[str]
     scores: Sequence[float]
 
-    def top_candidate(self):
-        """The best candidate text"""
+    def top_candidate(self) -> str:
+        """The candidate with the highest confidence score"""
         return self.texts[self.scores.index(self.top_score())]
 
     def top_score(self):
-        """The highest score"""
+        """The highest confidence score"""
         return max(self.scores)
 
 
