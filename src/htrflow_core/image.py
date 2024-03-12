@@ -7,11 +7,11 @@ from typing import Iterable, Optional, Sequence
 import cv2
 import numpy as np
 
+from htrflow_core.utils.geometry import Bbox, Polygon
+
 
 Color = tuple[int, int, int]
 Mask = np.ndarray[np.uint8]
-Polygon = Iterable[tuple[int, int]]
-Bbox = tuple[int, int, int, int]
 
 
 class Colors:
