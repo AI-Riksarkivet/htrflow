@@ -1,11 +1,13 @@
 from dataclasses import dataclass, field
-from typing import Optional, Sequence
+from typing import Literal, Optional, Sequence, TypeAlias
 
 import numpy as np
 
-from htrflow_core.types.geometry import Bbox, Mask, Polygon
-from htrflow_core.types.text import LabelType
-from htrflow_core.utils import image
+from htrflow_core.utils import draw, geometry, imgproc
+from htrflow_core.utils.geometry import Bbox, Mask, Polygon
+
+
+LabelType: TypeAlias = Optional[Literal["text", "class", "conf"]]
 
 
 @dataclass
@@ -32,17 +34,17 @@ class Segment:
             raise ValueError("Cannot instantiate Segment without bbox or mask")
 
         if self.mask is not None:
-            self.polygon = image.mask2polygon(self.mask)
+            self.polygon = geometry.mask2polygon(self.mask)
             if self.bbox is None:
-                self.bbox = image.mask2bbox(self.mask)
+                self.bbox = geometry.mask2bbox(self.mask)
 
             # Crop mask to bounding box if needed
             x1, x2, y1, y2 = self.bbox
             mask_h, mask_w = self.mask.shape[:2]
             if mask_h != y2 - y1 or mask_w != x2 - x1:
-                self.mask = image.crop(self.mask, self.bbox)
+                self.mask = imgproc.crop(self.mask, self.bbox)
         else:
-            self.polygon = image.bbox2polygon(self.bbox)
+            self.polygon = geometry.bbox2polygon(self.bbox)
 
     @classmethod
     def from_bbox(cls, bbox: Bbox, **kwargs) -> "Segment":
@@ -178,10 +180,10 @@ class Result:
             case _:
                 labels = []
 
-        img = image.draw_bboxes(self.image, self.bboxes, labels=labels)
+        img = draw.draw_bboxes(self.image, self.bboxes, labels=labels)
 
         if filename:
-            image.write(filename, img)
+            imgproc.write(filename, img)
 
         return img
 

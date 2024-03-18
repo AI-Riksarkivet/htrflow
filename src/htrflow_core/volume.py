@@ -8,11 +8,10 @@ from abc import ABC, abstractmethod, abstractproperty
 from itertools import chain
 from typing import Callable, Iterable, Literal, Optional, Sequence
 
-import cv2
-
-from htrflow_core import image, serialization
+from htrflow_core import serialization
 from htrflow_core.results import RecognizedText, Result, Segment
-from htrflow_core.types.geometry import Bbox, Point, Polygon
+from htrflow_core.utils import imgproc
+from htrflow_core.utils.geometry import Bbox, Point, Polygon
 
 
 class Node:
@@ -187,9 +186,9 @@ class RegionNode(BaseDocumentNode):
     @property
     def image(self):
         """The image this node represents"""
-        img = image.crop(self.parent.image, self._segment.bbox)
+        img = imgproc.crop(self.parent.image, self._segment.bbox)
         if self._segment.mask is not None:
-            img = image.mask(img, self._segment.mask)
+            img = imgproc.mask(img, self._segment.mask)
         return img
 
     @property
@@ -204,7 +203,7 @@ class PageNode(BaseDocumentNode):
     """A node representing a page / input image"""
 
     def __init__(self, image_path: str):
-        self._image = cv2.imread(image_path)
+        self._image = imgproc.read(image_path)
         self.image_path = image_path
 
         # Extract image name and remove file extension (`path/to/image.jpg` -> `image`)
