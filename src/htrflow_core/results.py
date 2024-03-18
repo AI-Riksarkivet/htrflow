@@ -3,17 +3,11 @@ from typing import Literal, Optional, Sequence, TypeAlias
 
 import numpy as np
 
-<<<<<<< HEAD
-from htrflow_core import image
-from htrflow_core.types.geometry import Bbox, Mask, Polygon
-from htrflow_core.types.text import LabelType
-=======
 from htrflow_core.utils import draw, geometry, imgproc
 from htrflow_core.utils.geometry import Bbox, Mask, Polygon
 
 
 LabelType: TypeAlias = Optional[Literal["text", "class", "conf"]]
->>>>>>> 6cb84f46e5117fd13563ce1d8552726de70e458e
 
 
 @dataclass
@@ -21,15 +15,12 @@ class Segment:
     """Segment class
 
     Attributes:
-        bbox: The bounding box of the segment relative to the input image.
-        Defaults to None, in which case a bounding box will be computed from the mask. Required if mask is None.
-        mask: The mask of the segment, if available.
-        The mask can either be of the same shape as the input image or of the same shape as the bounding box.
-        It will be cropped to match the size of the bounding box if needed. Defaults to None. Required if bbox is None.
+        bbox: The bounding box of the segment relative to the input image. Defaults to None, in which case a bounding box will be computed from the mask. Required if mask is None.
+        mask: The mask of the segment, if available. The mask can either be of the same shape as the input image or of the same shape as the bounding box. It will be cropped to match the size of the bounding box if needed. Defaults to None. Required if bbox is None.
         score: Segment confidence score. Defaults to None.
         class_label: Segment class label. Defaults to None.
         polygon: An approximation of the segment mask, relative to the parent.
-    """
+    """  # noqa: E501
 
     bbox: Optional[Bbox] = None
     mask: Optional[Mask] = None
