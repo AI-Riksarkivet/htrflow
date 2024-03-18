@@ -9,7 +9,7 @@ from htrflow_core.dummies.dummy_models import RecognitionModel, SegmentationMode
 
 @pytest.fixture
 def demo_image():
-    return "data/demo_image.jpg"
+    return "data/demo_images/demo_image.jpg"
 
 
 @pytest.fixture
