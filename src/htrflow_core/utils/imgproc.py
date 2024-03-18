@@ -54,7 +54,10 @@ def binarize(image: np.ndarray) -> np.ndarray:
 
 
 def read(source: str) -> np.ndarray:
-    return cv2.imread(source)
+    img = cv2.imread(source)
+    if img is None:
+        raise RuntimeError(f"Could not load {source}")
+    return img
 
 
 def write(dest: str, image: np.ndarray) -> None:
