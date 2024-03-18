@@ -3,6 +3,7 @@ Geometry utilities
 """
 
 from collections import namedtuple
+from dataclasses import astuple, dataclass
 from typing import Iterable, Sequence, TypeAlias
 
 import cv2
@@ -10,9 +11,66 @@ import numpy as np
 
 
 Point = namedtuple("Point", ["x", "y"])
-Bbox: TypeAlias = tuple[int, int, int, int]
 Polygon: TypeAlias = Sequence[Point] | Sequence[tuple[int, int]]
 Mask: TypeAlias = np.ndarray[np.uint8]
+
+
+@dataclass
+class Bbox:
+    """Bounding box class"""
+
+    xmin: int
+    xmax: int
+    ymin: int
+    ymax: int
+
+    @property
+    def height(self) -> int:
+        """Height of bounding box"""
+        return self.ymax - self.ymin
+
+    @property
+    def width(self) -> int:
+        """Width of bounding box"""
+        return self.xmax - self.xmin
+
+    @property
+    def xywh(self) -> tuple[int, int, int, int]:
+        """Bounding box as a (xmin, ymin, width, height) tuple"""
+        return self.xmin, self.ymin, self.width, self.height
+
+    @property
+    def xyxy(self):
+        """Bounding box as a (xmin, ymin, xmax, ymax) tuple"""
+        return self.xmin, self.ymin, self.xmax, self.ymax
+
+    @property
+    def xxyy(self):
+        """Bounding box as a (xmin, xmax, ymin, ymax) tuple"""
+        return self.xmin, self.xmax, self.ymin, self.ymax
+
+    @property
+    def p1(self) -> Point:
+        """Top left corner of bounding box (xmin, ymin)"""
+        return Point(self.xmin, self.ymin)
+
+    @property
+    def p2(self) -> Point:
+        """Bottom right corner of bounding box (xmax, ymax)"""
+        return Point(self.xmax, self.ymax)
+
+    @property
+    def center(self) -> Point:
+        """Center of bounding box"""
+        return Point((self.xmax - self.xmin) / 2, (self.ymax - self.ymin) / 2)
+
+    def __iter__(self):
+        # Tuple-like iteration and unpacking
+        return iter(astuple(self))
+
+    def __getitem__(self, i):
+        # Tuple-like indexing
+        return astuple(self)[i]
 
 
 def mask2polygon(mask: Mask, epsilon: float = 0.005) -> Polygon:
