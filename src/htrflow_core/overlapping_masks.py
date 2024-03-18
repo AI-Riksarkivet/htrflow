@@ -35,8 +35,8 @@ def calculate_containment_mask(masks_a, mask_b):
 if __name__ == "__main__":
     import cv2
 
+    from htrflow_core.image import helper_plot_for_segment
     from htrflow_core.models.openmmlab.rmtdet import RTMDet
-    from htrflow_core.utils.image import helper_plot_for_segment
 
     model = RTMDet(
         model="/home/gabriel/Desktop/htrflow_core/.cache/models--Riksarkivet--rtmdet_lines/snapshots/41a37f829aa3bb0d6997dbaa9eeacfe8bd767cfa/model.pth",

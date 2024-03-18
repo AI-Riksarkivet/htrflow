@@ -56,44 +56,11 @@ class RTMDet(BaseModel):
 
         return Result.segmentation_result(image, self.metadata, segments)
 
-    def align_masks_with_image(self, img):
-        # Create a tensor of all masks
-        all_masks = self.masks
-
-        # Calculate the size of the image
-        img_size = (img.shape[0], img.shape[1])
-
-        # Resize and pad each mask to match the size of the image
-        masks = []
-        for i in range(all_masks.shape[0]):
-            mask = all_masks[i]
-
-            # Convert the mask to float
-            mask_float = mask.float()
-
-            # Resize the mask
-            mask_resized = torch.nn.functional.interpolate(mask_float[None, None, ...], size=img_size, mode="nearest")[
-                0, 0
-            ]
-
-            # Convert the mask back to bool
-            mask = mask_resized.bool()
-
-            # Pad the mask
-            padded_mask = torch.zeros(img_size, dtype=torch.bool, device=mask.device)
-            padded_mask[: mask.shape[0], : mask.shape[1]] = mask
-            mask = padded_mask
-
-            masks.append(mask)
-
-        # Stack all masks into a single tensor
-        self.masks = torch.stack(masks)
-
 
 if __name__ == "__main__":
     import cv2
 
-    from htrflow_core.utils.image import helper_plot_for_segment
+    from htrflow_core.image import helper_plot_for_segment
 
     model = RTMDet(
         model="/home/gabriel/Desktop/htrflow_core/.cache/models--Riksarkivet--rtmdet_lines/snapshots/41a37f829aa3bb0d6997dbaa9eeacfe8bd767cfa/model.pth",
@@ -107,8 +74,3 @@ if __name__ == "__main__":
     results = model([image2] * 1, pred_score_thr=0.4)
 
     helper_plot_for_segment(image2, results[0].segments, maskalpha=0.7, boxcolor=None)
-
-    # TODO test so this always return corrrect format to Results
-    # TODO pytest
-    # TODO fix openmmlabloader and hfdownloader
-    # Fix overlpapping_mask
