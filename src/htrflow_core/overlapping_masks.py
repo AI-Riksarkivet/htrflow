@@ -1,108 +1,61 @@
 # Code that filters the segments based on threshold should be put here.
 import torch
-from torch import Tensor
+
+from htrflow_core.results import Result
 
 
-class SegResult:
-    def __init__(
-        self, labels: Tensor, scores: Tensor, bboxes: Tensor = None, masks: Tensor = None, polygons: list = None
-    ):
-        self.labels = labels
-        self.scores = scores
-        self.bboxes = bboxes
-        self.masks = masks
-        self.polygons = polygons
+def find_overlapping_masks_to_remove(result: Result, containments_threshold=0.5, batch_size=100):
+    num_masks = result.masks.size(0)
+    containments = torch.zeros((num_masks, num_masks), device=result.device)
 
-    def remove_overlapping_masks(self, method="mask", containments_threshold=0.5):
-        # Compute pairwise containment
-        containments = torch.zeros((len(self.masks), len(self.masks)))
+    # Batch calculation of containments
+    for i in range(0, num_masks, batch_size):
+        batch_masks = result[i : i + batch_size]
+        for j in range(num_masks):
+            containments[i : i + batch_size, j] = calculate_containment_mask(batch_masks, result[j])
 
-        # Create a tensor of all masks
-        all_masks = self.masks
+    # Determine masks to drop
+    drop_indices = []
+    for i in range(num_masks):
+        # Masks containing the current mask above the threshold
+        containing_masks = containments[:, i] > containments_threshold
+        containing_masks[i] = False  # Exclude self-containment
+        if containing_masks.any():
+            drop_indices.append(i)
 
-        # Calculate the area of each mask
-        torch.sum(all_masks.view(len(self.masks), -1), dim=1)
-
-        # Calculate containments in batches
-        batch_size = 100  # adjust this value based on your GPU memory
-        for i in range(0, len(self.masks), batch_size):
-            batch_masks = all_masks[i : i + batch_size]
-            for j in range(len(self.masks)):
-                if method == "mask":
-                    containments[i : i + batch_size, j] = self._calculate_containment_mask(batch_masks, self.masks[j])
-
-        # Keep only the biggest masks for overlapping pairs
-        keep_mask = torch.ones(len(self.masks), dtype=torch.bool)
-        for i in range(len(self.masks)):
-            if not keep_mask[i]:
-                continue
-            # Get indices of masks that contain mask i
-            containing_indices = torch.where(
-                (containments[:, i] > containments_threshold) & (torch.arange(len(self.masks)) != i)
-            )[0]
-            # Mark mask i for removal if it's contained in any other mask
-            if len(containing_indices) > 0:
-                keep_mask[i] = False
-
-        self.masks = self.masks[keep_mask]
-        self.labels = self.labels[keep_mask]
-        self.bboxes = self.bboxes[keep_mask]
-        self.scores = self.scores[keep_mask]
-
-    def _calculate_containment_mask(self, masks_a, mask_b):
-        intersections = torch.logical_and(masks_a, mask_b).sum(dim=(1, 2)).float()
-        containments = intersections / mask_b.sum().float() if mask_b.sum() > 0 else 0
-        return containments
+    return drop_indices
 
 
-# class PostProcessSegmentation:
-#     def __init__(self):
-#         pass
+def calculate_containment_mask(masks_a, mask_b):
+    intersections = torch.logical_and(masks_a, mask_b.unsqueeze(0)).sum(dim=(1, 2)).float()
+    containments = intersections / mask_b.sum().float() if mask_b.sum() > 0 else torch.tensor(0.0)
+    return containments
 
-#     def get_bounding_box(mask):
-#         rows = torch.any(mask, dim=1)
-#         cols = torch.any(mask, dim=0)
-#         ymin, ymax = torch.where(rows)[0][[0, -1]]
-#         xmin, xmax = torch.where(cols)[0][[0, -1]]
 
-#         return xmin, ymin, xmax, ymax
+if __name__ == "__main__":
+    import cv2
 
-#     @staticmethod
-#     @timing_decorator
-#     def crop_imgs_from_result_optim(result: Result, img):
-#         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    from htrflow_core.models.openmmlab.rmtdet import RTMDet
+    from htrflow_core.utils.image import helper_plot_for_segment
 
-#         # Convert img to a PyTorch tensor and move to GPU if available
-#         img = torch.from_numpy(img).to(device)
+    model = RTMDet(
+        model="/home/gabriel/Desktop/htrflow_core/.cache/models--Riksarkivet--rtmdet_lines/snapshots/41a37f829aa3bb0d6997dbaa9eeacfe8bd767cfa/model.pth",
+        config="/home/gabriel/Desktop/htrflow_core/.cache/models--Riksarkivet--rtmdet_lines/snapshots/41a37f829aa3bb0d6997dbaa9eeacfe8bd767cfa/config.py",
+        device="cuda:0",
+    )
 
-#         cropped_imgs = []
-#         masks = result.segmentation.masks.to(device)
+    img2 = "/home/gabriel/Desktop/htrflow_core/data/demo_image.jpg"
+    image2 = cv2.imread(img2)
 
-#         for mask in masks:
-#             # Get bounding box
-#             xmin, ymin, xmax, ymax = PostProcessSegmentation.get_bounding_box(mask)
+    results = model([image2], pred_score_thr=0.4)
 
-#             # Crop masked region and put on white background
-#             masked_region = img[ymin : ymax + 1, xmin : xmax + 1]
-#             white_background = torch.ones_like(masked_region) * 255
+    index_to_drop = find_overlapping_masks_to_remove(results)
 
-#             # Apply mask to the image
-#             masked_region_on_white = torch.where(
-#                 mask[ymin : ymax + 1, xmin : xmax + 1][..., None], masked_region, white_background
-#             )
-#             masked_region_on_white_np = masked_region_on_white.cpu().numpy()
+    new_results = results.drop(index_to_drop)
 
-#             cropped_imgs.append(masked_region_on_white_np)
+    helper_plot_for_segment(image2, new_results[0].segments, maskalpha=0.7, boxcolor=None)
 
-#         return cropped_imgs
-
-#     def combine_region_line_res(result_full, result_regions):
-#         ind = 0
-
-#         for res in result_full:
-#             res.nested_results = []
-#             for i in range(ind, ind + len(res.segmentation.masks)):
-#                 # result_lines.parent_result = res
-#                 res.nested_results.append(result_regions[i])
-
-#             ind += len(res.segmentation.masks)
+    # TODO test so this always return corrrect format to Results
+    # TODO pytest
+    # TODO fix openmmlabloader and hfdownloader
+    # Fix overlpapping_mask

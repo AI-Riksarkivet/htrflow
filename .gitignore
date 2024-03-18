@@ -6,6 +6,10 @@ __pycache__/
 # C extensions
 *.so
 
+# pytorch binaries
+*.pt
+*.pth
+
 # Distribution / packaging
 .Python
 build/
@@ -67,6 +71,9 @@ instance/
 
 # Scrapy stuff:
 .scrapy
+
+# vscode settings
+.vscode/
 
 # Sphinx documentation
 docs/_build/

@@ -12,7 +12,7 @@ import cv2
 
 from htrflow_core import image, serialization
 from htrflow_core.results import RecognizedText, Result, Segment
-from htrflow_core.utils.geometry import Bbox, Point, Polygon
+from htrflow_core.types.geometry import Bbox, Point, Polygon
 
 
 class Node:
@@ -344,7 +344,8 @@ class Volume:
             return ImageGenerator(self.leaves())
 
         else:
-            ...
+            filtered_nodes = (node for node in self.traverse() if node.depth == depth)
+            return ImageGenerator(filtered_nodes)
 
     def update(self, results: list[Result]) -> None:
         """

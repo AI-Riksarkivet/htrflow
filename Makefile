@@ -54,8 +54,8 @@ quality: ## quality - Check code quality
 	ruff check .
 	mypy . 
 
-gpu_monitor: ## gpu_monitor - check gpu usage (pip install gpustat)
-	gpustat --watch
+gpu_monitor: ## gpu_monitor - check gpu usage (pip install gpustat and bash: gpustat --watch) or just use nvidia-smi or use nvtop
+	watch -n 0.1 nvidia-smi 
 
 publish_docs: ## publish_docs - Deploy docs manually and removes site folder locally
 	poetry run mkdocs gh-deploy --force

@@ -43,8 +43,7 @@ class BaseModel(ABC):
         out = []
 
         tqdm_kwargs = kwargs.pop("tqdm_kwargs", {})
-        if "disable" not in tqdm_kwargs:
-            tqdm_kwargs["disable"] = False
+        tqdm_kwargs.setdefault("disable", False)
 
         for batch in tqdm(
             self._batch_input(images, batch_size),
@@ -74,6 +73,16 @@ class BaseModel(ABC):
         it = iter(images)
         while batch := list(islice(it, batch_size)):
             yield batch
+
+    def to_numpy(self, tensor):
+        """
+        Convert a PyTorch tensor to a NumPy array.
+        Moves the tensor to CPU if it's on a GPU.
+        """
+        # Check if the tensor is on a CUDA device and move it to CPU
+        if tensor.is_cuda:
+            tensor = tensor.cpu()
+        return tensor.numpy()
 
     def __call__(
         self,

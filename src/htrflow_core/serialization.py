@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from htrflow_core.volume import PageNode, RegionNode, Volume
 
 
-_TEMPLATES_DIR = "src/htrflow_core/templates"   # Path to templates
+_TEMPLATES_DIR = "src/htrflow_core/templates"  # Path to templates
 
 
 class Serializer:
@@ -52,7 +52,7 @@ class AltoXML(Serializer):
 
     def __init__(self):
         env = Environment(loader=FileSystemLoader([_TEMPLATES_DIR, "."]))
-        self.template = env.get_template('alto')
+        self.template = env.get_template("alto")
         self.schema = "http://www.loc.gov/standards/alto/v4/alto-4-4.xsd"
 
     def serialize(self, page: PageNode) -> str:
@@ -64,10 +64,7 @@ class AltoXML(Serializer):
             return bool(node.children) and all(child.is_line() for child in node.children)
 
         return self.template.render(
-            page=page,
-            metadata=metadata(page),
-            labels=label_nodes(page),
-            is_text_block=is_text_block
+            page=page, metadata=metadata(page), labels=label_nodes(page), is_text_block=is_text_block
         )
 
     def validate(self, doc: str):
@@ -75,7 +72,6 @@ class AltoXML(Serializer):
 
 
 class PageXML(Serializer):
-
     extension = ".xml"
     format_name = "page"
 
@@ -121,7 +117,7 @@ def metadata(page: PageNode) -> dict[str, Union[str, list[dict[str, str]]]]:
         "application_description": f"{htrflow_core.__desc__}",
         "created": timestamp,
         "last_change": timestamp,
-        "processing_steps": [{"description": "", "settings": ""}]
+        "processing_steps": [{"description": "", "settings": ""}],
     }
 
 
@@ -155,16 +151,16 @@ def save_volume(volume: Volume, format_: str, dest: str) -> Iterable[tuple[str, 
 
     for page in volume:
         if not page.contains_text():
-            raise ValueError(f'Cannot serialize page without text: {page.image_name}')
+            raise ValueError(f"Cannot serialize page without text: {page.image_name}")
 
         doc = serializer.serialize(page)
         filename = os.path.join(dest, page.image_name + serializer.extension)
 
-        with open(filename, 'w') as f:
+        with open(filename, "w") as f:
             f.write(doc)
 
 
-def label_nodes(node: PageNode | RegionNode, template = '%s') -> dict[PageNode | RegionNode, str]:
+def label_nodes(node: PageNode | RegionNode, template="%s") -> dict[PageNode | RegionNode, str]:
     """Assign labels to node and its decendents
 
     Arguments:
@@ -174,5 +170,5 @@ def label_nodes(node: PageNode | RegionNode, template = '%s') -> dict[PageNode |
     labels = {}
     labels[node] = template % node.label
     for i, child in enumerate(node.children):
-        labels |= label_nodes(child, f'{labels[node]}_%s{i}')
+        labels |= label_nodes(child, f"{labels[node]}_%s{i}")
     return labels

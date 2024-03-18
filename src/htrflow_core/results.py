@@ -1,10 +1,11 @@
 from dataclasses import dataclass, field
-from typing import Literal, Optional, Sequence
+from typing import Optional, Sequence
 
 import numpy as np
 
-from htrflow_core import image
-from htrflow_core.utils.geometry import Bbox, Polygon
+from htrflow_core.types.geometry import Bbox, Mask, Polygon
+from htrflow_core.types.text import LabelType
+from htrflow_core.utils import image
 
 
 @dataclass
@@ -12,38 +13,50 @@ class Segment:
     """Segment class
 
     Attributes:
-        bbox: The segment's bounding box as a tuple of coordinates (x1, x2, y1, y2)
-        mask: The segment's mask, if available. The mask is relative to the bounding box.
-        score: Segment confidence score
-        class_label: Segment label, if available
-        polygon: An approximation of the segment mask, !relative to the parent!
-    """
+        bbox: The bounding box of the segment relative to the input image. Defaults to None, in which case a bounding box will be computed from the mask. Required if mask is None.
+        mask: The mask of the segment, if available. The mask can either be of the same shape as the input image or of the same shape as the bounding box. It will be cropped to match the size of the bounding box if needed. Defaults to None. Required if bbox is None.
+        score: Segment confidence score. Defaults to None.
+        class_label: Segment class label. Defaults to None.
+        polygon: An approximation of the segment mask, relative to the parent.
+    """  # noqa: E501
 
-    bbox: Bbox
-    mask: Optional[np.ndarray]
-    polygon: Polygon
+    bbox: Optional[Bbox] = None
+    mask: Optional[Mask] = None
     score: Optional[float] = None
     class_label: Optional[str] = None
-    # baseline: list[tuple] ?
+    polygon: Polygon = field(init=False)
+
+    def __post_init__(self):
+        """Post-initialization to compute derived attributes like polygon from mask or bbox."""
+        if self.bbox is None and self.mask is None:
+            raise ValueError("Cannot instantiate Segment without bbox or mask")
+
+        if self.mask is not None:
+            self.polygon = image.mask2polygon(self.mask)
+            if self.bbox is None:
+                self.bbox = image.mask2bbox(self.mask)
+
+            # Crop mask to bounding box if needed
+            x1, x2, y1, y2 = self.bbox
+            mask_h, mask_w = self.mask.shape[:2]
+            if mask_h != y2 - y1 or mask_w != x2 - x1:
+                self.mask = image.crop(self.mask, self.bbox)
+        else:
+            self.polygon = image.bbox2polygon(self.bbox)
 
     @classmethod
-    def from_bbox(cls, bbox, **kwargs):
+    def from_bbox(cls, bbox: Bbox, **kwargs) -> "Segment":
         """Create a segment from a bounding box"""
-        mask = None
-        polygon = image.bbox2polygon(bbox)
-        return cls(bbox, mask, polygon, **kwargs)
+        return cls(bbox=bbox, **kwargs)
 
     @classmethod
-    def from_mask(cls, mask, **kwargs):
+    def from_mask(cls, mask: Mask, **kwargs) -> "Segment":
         """Create a segment from a mask
 
         Args:
             mask: A binary mask, of same shape as original image.
         """
-        bbox = image.mask2bbox(mask)
-        polygon = image.mask2polygon(mask)
-        cropped_mask = image.crop(mask, bbox)
-        return cls(bbox, cropped_mask, polygon, **kwargs)
+        return cls(mask=mask, **kwargs)
 
     @classmethod
     def from_baseline(cls, baseline, **kwargs):
@@ -61,6 +74,7 @@ class RecognizedText:
         texts: A sequence of candidate texts
         scores: The scores of the candidate texts
     """
+
     texts: Sequence[str]
     scores: Sequence[float]
 
@@ -92,12 +106,12 @@ class Result:
     texts: Sequence[RecognizedText] = field(default_factory=list)
 
     @property
-    def bboxes(self) -> Sequence[tuple[int, int, int, int]]:
+    def bboxes(self) -> Sequence[Bbox]:
         """Bounding boxes relative to input image"""
         return [segment.bbox for segment in self.segments]
 
     @property
-    def polygons(self) -> Sequence[Sequence[tuple[int, int]]]:
+    def polygons(self) -> Sequence[Polygon]:
         """Polygons relative to input image"""
         return [segment.polygon for segment in self.segments]
 
@@ -134,7 +148,7 @@ class Result:
         """
         return cls(image, metadata, segments=segments)
 
-    def plot(self, filename: Optional[str]=None, labels: Optional[Literal["text", "class", "conf"]]=None):
+    def plot(self, filename: Optional[str] = None, labels: LabelType = None) -> np.ndarray:
         """Plot results
 
         Plots the segments on the input image. If the result doesn't

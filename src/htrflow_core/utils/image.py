@@ -1,27 +1,24 @@
 """
 Module containing utilities related to images and geometries
 """
+from __future__ import annotations
 
-from typing import Iterable, Optional, Sequence
+from typing import TYPE_CHECKING, Iterable, List, Optional, Sequence, Tuple
 
 import cv2
+import matplotlib.patches as patches
+import matplotlib.pyplot as plt
 import numpy as np
 
-from htrflow_core.utils.geometry import Bbox, Polygon
+from htrflow_core.types.colors import Color, Colors
+from htrflow_core.types.geometry import Bbox, Mask, Point, Polygon
 
 
-Color = tuple[int, int, int]
-Mask = np.ndarray[np.uint8]
+if TYPE_CHECKING:
+    from htrflow_core.results import Segment
 
 
-class Colors:
-    """Color constants in BGR"""
-
-    RED = (0, 0, 255)
-    GREEN = (0, 255, 0)
-    BLUE = (255, 0, 0)
-    WHITE = (255, 255, 255)
-    BLACK = (0, 0, 0)
+# TODO is image thesame as Mask? Can we have an alias for that?
 
 
 def crop(image: np.ndarray, bbox: Bbox) -> np.ndarray:
@@ -183,7 +180,7 @@ def draw_reading_order():
     pass
 
 
-def mask2polygon(mask: Mask, epsilon: float = 0.01) -> Polygon:
+def mask2polygon(mask: Mask, epsilon: float = 0.005) -> Polygon:
     """Convert mask to polygon
 
     Args:
@@ -194,6 +191,12 @@ def mask2polygon(mask: Mask, epsilon: float = 0.01) -> Polygon:
     Returns:
         A list of coordinate tuples
     """
+    # Ensure mask is 8-bit single-channel image
+    if mask.dtype != np.uint8:
+        mask = mask.astype(np.uint8)
+    if len(mask.shape) == 3 and mask.shape[2] != 1:
+        mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+
     contours, _ = cv2.findContours(mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
     # `contours` is a high-resolution contour, but we need a simple polygon, so
@@ -242,3 +245,107 @@ def read(source: str) -> np.ndarray:
 
 def write(dest: str, image: np.ndarray) -> None:
     cv2.imwrite(dest, image)
+
+
+def helper_plot_for_segment(
+    image: np.ndarray,
+    segment_results: List[Segment],
+    maskcolor: Optional[Color] = Colors.RED,
+    maskalpha: float = 0.4,
+    boxcolor: Optional[str] = "blue",
+    polygencolor: Optional[str] = "yellow",
+    fontcolor: Optional[str] = "white",
+    fontsize: Optional[int] = None,
+) -> None:
+    """
+    Displays an image with mask overlays, bounding boxes, polygons, class labels, and scores using Matplotlib.
+    The function provides optional parameters to customize the appearance of these elements, including their colors and the mask's opacity.
+    The font size for text annotations can be specified; if not provided, it will be dynamically adjusted based on the average size of the bounding boxes.
+
+    Args:
+        image: Background image as a NumPy array.
+        segment_results: List of Segment objects for overlay. Each segment contains the bounding box, mask, class label, score, and polygon information.
+        maskcolor: Optional; fill color for masks. The default is RED in RGB format. Set to None to disable mask overlays.
+        maskalpha: Float specifying the opacity level of mask overlays. Default is 0.4.
+        boxcolor: Optional; color for bounding box edges. The default is BLUE. Set to None to disable drawing bounding boxes.
+        polygencolor: Optional; color for polygon edges. The default is YELLOW. Set to None to disable drawing polygons.
+        fontcolor: Optional; color for the text annotations (class labels and scores). The default is WHITE.
+        fontsize: Optional; integer specifying the font size for text annotations. If not provided, the size will be dynamically determined based on the average bounding box size.
+    """
+
+    maskcolor = bgr_to_rgb(maskcolor)
+
+    if fontsize is not None:
+        avg_bbox_size = sum(
+            (x2 - x1 + y2 - y1) / 2 for x1, x2, y1, y2 in (segment.bbox for segment in segment_results)
+        ) / len(segment_results)
+        fontsize = max(24, min(8, avg_bbox_size / 100))
+
+    fig, ax = plt.subplots(1)
+    ax.imshow(image)
+
+    for index, segment in enumerate(segment_results):
+        bbox, mask, score, class_label, polygon = (
+            segment.bbox,
+            segment.mask,
+            segment.score,
+            segment.class_label,
+            segment.polygon,
+        )
+
+        x1, x2, y1, y2 = bbox
+
+        if maskcolor is not None:
+            rgba_mask = mask_to_rgba(mask, (x1, y1), image.shape[:2], maskcolor, maskalpha)
+            ax.imshow(rgba_mask, interpolation="none")
+
+        if boxcolor is not None:
+            rect = patches.Rectangle((x1, y1), x2 - x1, y2 - y1, linewidth=1, edgecolor=boxcolor, facecolor="none")
+            ax.add_patch(rect)
+
+        if polygencolor is not None:
+            poly_patch = patches.Polygon(polygon, linewidth=1, edgecolor=polygencolor, facecolor="none")
+            ax.add_patch(poly_patch)
+
+        if fontcolor is not None:
+            label_text = f"{index}: Class: {class_label}, Score: {score:.2f}"
+            ax.text(
+                x1,
+                y1,
+                label_text,
+                color=fontcolor,
+                fontsize=fontsize,
+                bbox={"facecolor": "black", "alpha": 0.4, "pad": 0, "edgecolor": "none"},
+            )
+
+    plt.show()
+
+
+def mask_to_rgba(mask: Mask, point: Point, image_shape: Tuple[int, int], maskcolor: Color, alpha: float) -> np.ndarray:
+    """
+    Creates an RGBA overlay from a binary mask with specified color and alpha.
+
+    Args:
+        mask: Binary mask array.
+        point: Top-left coordinate (x1, y1) for mask positioning.
+        image_shape: Shape (height, width) of the background image.
+        maskcolor: Color for the mask overlay.
+        alpha: Transparency factor (0 is transparent, 1 is opaque).
+
+    Returns:
+        An RGBA image for overlaying on the background image.
+    """
+    x1, y1 = point
+    rgba_mask = np.zeros((image_shape[0], image_shape[1], 4), dtype=np.uint8)
+
+    nonzero_y, nonzero_x = np.nonzero(mask)
+    adjusted_nonzero_x = nonzero_x + x1
+    adjusted_nonzero_y = nonzero_y + y1
+    rgba_mask[adjusted_nonzero_y, adjusted_nonzero_x] = [*maskcolor, int(255 * alpha)]
+
+    return rgba_mask
+
+
+def bgr_to_rgb(bgr_color: Color) -> Color:
+    """Convert a color from BGR to RGB."""
+    return tuple(reversed(bgr_color))

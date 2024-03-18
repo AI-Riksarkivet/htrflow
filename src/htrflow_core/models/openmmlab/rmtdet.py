@@ -1,19 +1,14 @@
-# https://mmdetection.readthedocs.io/en/main/user_guides/inference.html?highlight=Detinferencer#basic-usage
-# TODO  opnemlabdownloader and hf_downloader needs to be changed.. Since what happend when we pass both config and model into here..,
-# than we should not download both or either..
-import warnings
 from pathlib import Path
 from typing import Optional
 
 import numpy as np
 from mmdet.apis import DetInferencer
 from mmdet.structures import DetDataSample
+from mmengine.structures import InstanceData
 
 from htrflow_core.models.base_model import BaseModel
-from htrflow_core.results import Result
-
-
-warnings.filterwarnings("ignore")
+from htrflow_core.models.openmmlab.openmmlab_utils import SuppressOutput
+from htrflow_core.results import Result, Segment
 
 
 class RTMDet(BaseModel):
@@ -30,10 +25,9 @@ class RTMDet(BaseModel):
 
         self.cache_dir = cache_dir
         # config_py, weights = OpenmmlabDownloader.from_pretrained(model, cache_dir, hf_token)
+        with SuppressOutput():
+            self.model = DetInferencer(model=config, weights=model, device=self.device, show_progress=False, *args)
 
-        self.model = DetInferencer(
-            model=config, weights=model, device=self._device(device), show_progress=False, *args
-        )
         self.metadata = {"model": str(model)}
 
     def _predict(self, images: list[np.ndarray], **kwargs) -> list[Result]:
@@ -43,86 +37,63 @@ class RTMDet(BaseModel):
             batch_size = 1
 
         outputs = self.model(images, batch_size=batch_size, draw_pred=False, return_datasample=True, **kwargs)
-        self._create_segmentation_result(images, outputs)
 
-        return "hej"
+        return [
+            self._create_segmentation_result(image, output) for image, output in zip(images, outputs["predictions"])
+        ]
 
-    def _create_segmentation_result(self, images: list[np.ndarray], outputs: DetDataSample) -> Result:
-        for output, image in zip(outputs["predictions"], images):
-            labels = output.pred_instances.labels.clone()
-            bboxes = output.pred_instances.bboxes.clone()
-            masks = output.pred_instances.masks.clone()
-            scores = output.pred_instances.scores.clone()
-            print(labels, bboxes, masks, scores, image)
+    def _create_segmentation_result(self, image: np.ndarray, output: DetDataSample) -> Result:
+        sample: InstanceData = output.pred_instances
+        boxes = [[x1, x2, y1, y2] for x1, y1, x2, y2 in sample.bboxes.int().tolist()]
+        masks = self.to_numpy(sample.masks).astype(np.uint8)
+        scores = sample.scores.tolist()
+        class_labels = sample.labels.tolist()
 
-        # batch_result = [
-        #             segments=Segment(
-        #                 labels=x.pred_instances.labels.clone(),
-        #                 bboxes=x.pred_instances.bboxes.clone(),
-        #                 masks=x.pred_instances.masks.clone(),
-        #                 scores=x.pred_instances.scores.clone(),
-        #             ),
-        #         )
-        #         for x, y in zip(output["predictions"]
-        #     ]
+        segments = [
+            Segment(bbox=box, mask=mask, score=score, class_label=class_label)
+            for box, mask, score, class_label in zip(boxes, masks, scores, class_labels)
+        ]
 
+        return Result.segmentation_result(image, self.metadata, segments)
 
-#     @timing_decorator
-#     def postprocess(self, result_raw, input_images):
-#         pass
+    def align_masks_with_image(self, img):
+        # Create a tensor of all masks
+        all_masks = self.masks
 
+        # Calculate the size of the image
+        img_size = (img.shape[0], img.shape[1])
 
-#     #     batch_result = [
-#     #         Result(
-#     #             img_shape=np.shape(y)[0:2],
-#     #             segmentation=SegResult(
-#     #                 labels=x.pred_instances.labels.clone(),
-#     #                 bboxes=x.pred_instances.bboxes.clone(),
-#     #                 masks=x.pred_instances.masks.clone(),
-#     #                 scores=x.pred_instances.scores.clone(),
-#     #             ),
-#     #         )
-#     #         for x, y in zip(result_raw["predictions"], input_images)
-#     #     ]
+        # Resize and pad each mask to match the size of the image
+        masks = []
+        for i in range(all_masks.shape[0]):
+            mask = all_masks[i]
 
-#     #     return batch_result
-#     def align_masks_with_image(self, img):
-#         # Create a tensor of all masks
-#         all_masks = self.masks
+            # Convert the mask to float
+            mask_float = mask.float()
 
-#         # Calculate the size of the image
-#         img_size = (img.shape[0], img.shape[1])
+            # Resize the mask
+            mask_resized = torch.nn.functional.interpolate(mask_float[None, None, ...], size=img_size, mode="nearest")[
+                0, 0
+            ]
 
-#         # Resize and pad each mask to match the size of the image
-#         masks = []
-#         for i in range(all_masks.shape[0]):
-#             mask = all_masks[i]
+            # Convert the mask back to bool
+            mask = mask_resized.bool()
 
-#             # Convert the mask to float
-#             mask_float = mask.float()
+            # Pad the mask
+            padded_mask = torch.zeros(img_size, dtype=torch.bool, device=mask.device)
+            padded_mask[: mask.shape[0], : mask.shape[1]] = mask
+            mask = padded_mask
 
-#             # Resize the mask
-#             mask_resized = torch.nn.functional.interpolate(mask_float[None, None, ...], size=img_size,
-# mode="nearest")[
-#                 0, 0
-#             ]
+            masks.append(mask)
 
-#             # Convert the mask back to bool
-#             mask = mask_resized.bool()
-
-#             # Pad the mask
-#             padded_mask = torch.zeros(img_size, dtype=torch.bool, device=mask.device)
-#             padded_mask[: mask.shape[0], : mask.shape[1]] = mask
-#             mask = padded_mask
-
-#             masks.append(mask)
-
-#         # Stack all masks into a single tensor
-#         self.masks = torch.stack(masks)
+        # Stack all masks into a single tensor
+        self.masks = torch.stack(masks)
 
 
 if __name__ == "__main__":
     import cv2
+
+    from htrflow_core.utils.image import helper_plot_for_segment
 
     model = RTMDet(
         model="/home/gabriel/Desktop/htrflow_core/.cache/models--Riksarkivet--rtmdet_lines/snapshots/41a37f829aa3bb0d6997dbaa9eeacfe8bd767cfa/model.pth",
@@ -130,9 +101,14 @@ if __name__ == "__main__":
         device="cuda:0",
     )
 
-    img = "/home/gabriel/Desktop/htrflow_core/data/trocr_demo_image.png"
     img2 = "/home/gabriel/Desktop/htrflow_core/data/demo_image.jpg"
-    image = cv2.imread(img)
     image2 = cv2.imread(img2)
 
-    results = model([image, image2], batch_size=1)
+    results = model([image2] * 1, pred_score_thr=0.4)
+
+    helper_plot_for_segment(image2, results[0].segments, maskalpha=0.7, boxcolor=None)
+
+    # TODO test so this always return corrrect format to Results
+    # TODO pytest
+    # TODO fix openmmlabloader and hfdownloader
+    # Fix overlpapping_mask

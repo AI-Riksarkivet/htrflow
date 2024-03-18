@@ -26,32 +26,51 @@ class YOLO(BaseModel):
         self.metadata = {"model": str(model)}
 
     def _predict(self, images: list[np.ndarray], **kwargs) -> list[Result]:
-        outputs = self.model(images, verbose=False, stream=True, **kwargs)  # control verbosity
+        outputs = self.model(images, stream=True, verbose=False, **kwargs)
 
         return [self._create_segmentation_result(image, output) for image, output in zip(images, outputs)]
 
     def _create_segmentation_result(self, image: np.ndarray, output: UltralyticsResults) -> Result:
-        boxes = [[x1, x2, y1, y2] for x1, y1, x2, y2 in output.boxes.xyxy.int().tolist()]
-        scores = output.boxes.conf.tolist()
-        class_labels = [output.names[label] for label in output.boxes.cls.tolist()]
+        if output.boxes is not None:
+            boxes = [[x1, x2, y1, y2] for x1, y1, x2, y2 in output.boxes.xyxy.int().tolist()]
+            scores = output.boxes.conf.tolist()
+            class_labels = [output.names[label] for label in output.boxes.cls.tolist()]
+        if output.masks is not None:
+            masks = self._create_masks_from_polygons(image, output.masks.xy)
+        else:
+            masks = [None] * len(boxes)
 
         segments = [
-            Segment.from_bbox(box, score=score, class_label=class_label)
-            for box, score, class_label in zip(boxes, scores, class_labels)
+            Segment(bbox=box, mask=mask, score=score, class_label=class_label)
+            for box, mask, score, class_label in zip(boxes, masks, scores, class_labels)
         ]
 
         return Result.segmentation_result(image, self.metadata, segments)
+
+    def _create_masks_from_polygons(self, image, polygons_xy):
+        image_height, image_width = image.shape[:2]
+        masks = []
+
+        for xy in polygons_xy:
+            polygon = np.round(xy).astype(np.int32)
+            mask = np.zeros((image_height, image_width), dtype=np.uint8)
+            cv2.fillPoly(mask, [polygon], color=255)
+            masks.append(mask)
+
+        return masks
 
 
 if __name__ == "__main__":
     import cv2
 
-    model = YOLO(model="ultralyticsplus/yolov8s", device="cuda:0")
+    from htrflow_core.image import helper_plot_for_segment
+
+    model = YOLO(model="/home/gabriel/Desktop/htrflow_core/yolov8n-seg.pt", device="cuda:0")
 
     img = "/home/gabriel/Desktop/htrflow_core/data/demo_image.jpg"
 
     image = cv2.imread(img)
 
-    results = model([image] * 100)
+    results = model([image] * 1, conf=0.2)
 
-    print(model.device)
+    helper_plot_for_segment(image, results[0].segments, maskalpha=0.7)
