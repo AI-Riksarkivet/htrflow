@@ -5,7 +5,11 @@ from htrflow_core.results import Result
 
 
 def find_overlapping_masks_to_remove(result: Result, containments_threshold=0.5, batch_size=100):
-    num_masks = result.masks.size(0)
+    num_masks = result.masks
+
+    print(num_masks[0].shape)
+
+    quit()
     containments = torch.zeros((num_masks, num_masks), device=result.device)
 
     # Batch calculation of containments
@@ -35,7 +39,6 @@ def calculate_containment_mask(masks_a, mask_b):
 if __name__ == "__main__":
     import cv2
 
-    from htrflow_core.image import helper_plot_for_segment
     from htrflow_core.models.openmmlab.rmtdet import RTMDet
 
     model = RTMDet(
@@ -44,16 +47,16 @@ if __name__ == "__main__":
         device="cuda:0",
     )
 
-    img2 = "/home/gabriel/Desktop/htrflow_core/data/demo_image.jpg"
+    img2 = "/home/gabriel/Desktop/htrflow_core/data/demo_images/demo_image.jpg"
     image2 = cv2.imread(img2)
 
     results = model([image2], pred_score_thr=0.4)
 
-    index_to_drop = find_overlapping_masks_to_remove(results)
+    index_to_drop = find_overlapping_masks_to_remove(results[0])
 
-    new_results = results.drop(index_to_drop)
+    # new_results = results.drop(index_to_drop)
 
-    helper_plot_for_segment(image2, new_results[0].segments, maskalpha=0.7, boxcolor=None)
+    # helper_plot_for_segment(image2, new_results[0].segments, maskalpha=0.5, boxcolor=None)
 
     # TODO test so this always return corrrect format to Results
     # TODO pytest

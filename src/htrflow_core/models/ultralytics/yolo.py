@@ -63,14 +63,14 @@ class YOLO(BaseModel):
 if __name__ == "__main__":
     import cv2
 
-    from htrflow_core.image import helper_plot_for_segment
+    from htrflow_core.utils.draw import helper_plot_for_segment
 
     model = YOLO(model="/home/gabriel/Desktop/htrflow_core/yolov8n-seg.pt", device="cuda:0")
 
-    img = "/home/gabriel/Desktop/htrflow_core/data/demo_image.jpg"
+    img = "/home/gabriel/Desktop/htrflow_core/data/demo_images/IM_test/500023_000413.TIF"
 
     image = cv2.imread(img)
 
-    results = model([image] * 1, conf=0.2)
+    results = model([image] * 1000, batch_size=16, conf=0.2)
 
     helper_plot_for_segment(image, results[0].segments, maskalpha=0.7)
