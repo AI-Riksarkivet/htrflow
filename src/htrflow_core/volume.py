@@ -384,7 +384,15 @@ class Volume:
 
 
 class ImageGenerator:
-    def __init__(self, nodes):
+    """A generator with __len__
+
+    Wrapper around `nodes` that provides a generator over the nodes'
+    images and implements len(). This way, there is no need to load
+    all images into memory at once, but the length of the generator
+    is known beforehand (which is typically not the case), which is
+    handy in some cases, e.g., when using tqdm progress bars.
+    """
+    def __init__(self, nodes: Sequence[Node]):
         self._nodes = list(nodes)
 
     def __iter__(self):
@@ -392,4 +400,4 @@ class ImageGenerator:
             yield node.image
 
     def __len__(self):
-        return sum(1 for _ in self._nodes)
+        return len(self._nodes)
