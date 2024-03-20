@@ -55,22 +55,3 @@ class RTMDet(BaseModel):
         ]
 
         return Result.segmentation_result(image, self.metadata, segments)
-
-
-if __name__ == "__main__":
-    import cv2
-
-    from htrflow_core.utils.draw import helper_plot_for_segment
-
-    model = RTMDet(
-        model="/home/gabriel/Desktop/htrflow_core/.cache/models--Riksarkivet--rtmdet_lines/snapshots/41a37f829aa3bb0d6997dbaa9eeacfe8bd767cfa/model.pth",
-        config="/home/gabriel/Desktop/htrflow_core/.cache/models--Riksarkivet--rtmdet_lines/snapshots/41a37f829aa3bb0d6997dbaa9eeacfe8bd767cfa/config.py",
-        device="cuda:0",
-    )
-
-    img2 = "/home/gabriel/Desktop/htrflow_core/data/demo_images/demo_image.jpg"
-    image2 = cv2.imread(img2)
-
-    results = model([image2] * 1, pred_score_thr=0.4)
-
-    helper_plot_for_segment(image2, results[0].segments, maskalpha=0.7, boxcolor=None)

@@ -1,45 +1,51 @@
-# Code that filters the segments based on threshold should be put here.
-import torch
+from typing import List, Sequence
+
+import numpy as np
 
 from htrflow_core.results import Result
+from htrflow_core.utils.geometry import Mask
 
 
-def find_overlapping_masks_to_remove(result: Result, containments_threshold=0.5, batch_size=100):
-    num_masks = result.masks
-
-    print(num_masks[0].shape)
-
-    quit()
-    containments = torch.zeros((num_masks, num_masks), device=result.device)
-
-    # Batch calculation of containments
-    for i in range(0, num_masks, batch_size):
-        batch_masks = result[i : i + batch_size]
-        for j in range(num_masks):
-            containments[i : i + batch_size, j] = calculate_containment_mask(batch_masks, result[j])
-
-    # Determine masks to drop
-    drop_indices = []
-    for i in range(num_masks):
-        # Masks containing the current mask above the threshold
-        containing_masks = containments[:, i] > containments_threshold
-        containing_masks[i] = False  # Exclude self-containment
-        if containing_masks.any():
-            drop_indices.append(i)
-
-    return drop_indices
+# Todo add class_label filtering
 
 
-def calculate_containment_mask(masks_a, mask_b):
-    intersections = torch.logical_and(masks_a, mask_b.unsqueeze(0)).sum(dim=(1, 2)).float()
-    containments = intersections / mask_b.sum().float() if mask_b.sum() > 0 else torch.tensor(0.0)
-    return containments
+def multiclass_mask_nms(result: Result, containments_threshold: float = 0.5):
+    return find_overlapping_masks_to_remove(result.global_masks, containments_threshold)
+
+
+def find_overlapping_masks_to_remove(masks: Sequence[Mask], containments_threshold: float = 0.5) -> List[int]:
+    stacked_masks = np.stack(masks, axis=0)
+
+    containments_score = np.array([_calculate_containment_score(stacked_masks, mask) for mask in stacked_masks])
+    np.fill_diagonal(containments_score, 0)
+
+    significantly_contained = containments_score > containments_threshold
+    is_smaller_than_others = _calculate_area_comparison_matrix(stacked_masks)
+
+    to_remove = np.any(significantly_contained & is_smaller_than_others, axis=1)
+    remove_indices = np.where(to_remove)[0]
+
+    return remove_indices.tolist()
+
+
+def _calculate_area_comparison_matrix(masks):
+    mask_areas = masks.sum(axis=(1, 2))
+    mask_areas_expanded = mask_areas[:, np.newaxis]
+    return mask_areas_expanded < mask_areas
+
+
+def _calculate_containment_score(masks, mask_i):
+    mask_i_expanded = np.expand_dims(mask_i, 0)
+    intersections = np.logical_and(masks, mask_i_expanded).sum(axis=(1, 2)).astype(float)
+    mask_a_area = mask_i_expanded.sum().astype(float)
+    return intersections / mask_a_area if mask_a_area > 0 else 0
 
 
 if __name__ == "__main__":
     import cv2
 
     from htrflow_core.models.openmmlab.rmtdet import RTMDet
+    from htrflow_core.utils.draw import helper_plot_for_segment
 
     model = RTMDet(
         model="/home/gabriel/Desktop/htrflow_core/.cache/models--Riksarkivet--rtmdet_lines/snapshots/41a37f829aa3bb0d6997dbaa9eeacfe8bd767cfa/model.pth",
@@ -52,13 +58,10 @@ if __name__ == "__main__":
 
     results = model([image2], pred_score_thr=0.4)
 
-    index_to_drop = find_overlapping_masks_to_remove(results[0])
+    index_to_drop = multiclass_mask_nms(results[0])
 
-    # new_results = results.drop(index_to_drop)
+    results[0].drop(index_to_drop)
 
-    # helper_plot_for_segment(image2, new_results[0].segments, maskalpha=0.5, boxcolor=None)
+    print(results[0])
 
-    # TODO test so this always return corrrect format to Results
-    # TODO pytest
-    # TODO fix openmmlabloader and hfdownloader
-    # Fix overlpapping_mask
+    helper_plot_for_segment(image2, results[0].segments, maskalpha=0.5, boxcolor=None)

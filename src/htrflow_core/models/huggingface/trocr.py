@@ -120,16 +120,3 @@ class TrOCR(BaseModel):
         kwargs["output_scores"] = True
         kwargs["return_dict_in_generate"] = True
         return kwargs
-
-
-if __name__ == "__main__":
-    import cv2
-
-    model = TrOCR(model="microsoft/trocr-base-handwritten")
-
-    img = "/home/gabriel/Desktop/htrflow_core/data/trocr_demo_image.png"
-    image = cv2.imread(img)
-
-    results = model([image] * 100)
-
-    print(model.device)

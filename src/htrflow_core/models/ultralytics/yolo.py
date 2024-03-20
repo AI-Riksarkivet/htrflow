@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Optional
 
+import cv2
 import numpy as np
 from ultralytics import YOLO as UltralyticsYOLO
 from ultralytics.engine.results import Results as UltralyticsResults
@@ -58,19 +59,3 @@ class YOLO(BaseModel):
             masks.append(mask)
 
         return masks
-
-
-if __name__ == "__main__":
-    import cv2
-
-    from htrflow_core.utils.draw import helper_plot_for_segment
-
-    model = YOLO(model="/home/gabriel/Desktop/htrflow_core/yolov8n-seg.pt", device="cuda:0")
-
-    img = "/home/gabriel/Desktop/htrflow_core/data/demo_images/IM_test/500023_000413.TIF"
-
-    image = cv2.imread(img)
-
-    results = model([image] * 1000, batch_size=16, conf=0.2)
-
-    helper_plot_for_segment(image, results[0].segments, maskalpha=0.7)

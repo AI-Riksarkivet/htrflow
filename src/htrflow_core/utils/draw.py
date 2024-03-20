@@ -17,8 +17,8 @@ if TYPE_CHECKING:
     from htrflow_core.results import Segment
 
 
-
 Color: TypeAlias = Tuple[int, int, int]
+
 
 class Colors:
     """Color constants in BGR."""
@@ -232,7 +232,7 @@ def helper_plot_for_segment(
             ax.add_patch(poly_patch)
 
         if fontcolor is not None:
-            label_text = f"{index}: Class: {class_label}, Score: {score:.2f}"
+            label_text = f"RO: {index}, Class: {class_label}, Score: {score:.2f}"
             ax.text(
                 x1,
                 y1,

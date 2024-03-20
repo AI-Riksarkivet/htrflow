@@ -137,9 +137,14 @@ class Result:
         return [segment.bbox for segment in self.segments]
 
     @property
-    def masks(self) -> Sequence[Mask]:
-        """Bounding boxes relative to input image"""
-        return [segment.mask for segment in self.segments]
+    def global_masks(self) -> Sequence[Mask]:
+        """Global masks relative to input image"""
+        return [segment.global_mask for segment in self.segments]
+
+    @property
+    def local_mask(self) -> Sequence[Mask]:
+        """Local masks relative to bounding boxes"""
+        return [segment.local_mask for segment in self.segments]
 
     @property
     def polygons(self) -> Sequence[Polygon]:
@@ -240,5 +245,9 @@ class Result:
             index: Indices of segments to drop
         """
         keep = [i for i in range(len(self.segments)) if i not in index]
-        self.segments = [self.segments[i] for i in keep]
-        self.texts = [self.texts[i] for i in keep]
+
+        print(keep)
+        if self.segments:
+            self.segments = [self.segments[i] for i in keep]
+        if self.texts:
+            self.texts = [self.texts[i] for i in keep]
