@@ -1,8 +1,9 @@
 """
 Visualization utilities
 """
+from __future__ import annotations
 
-from typing import TYPE_CHECKING, Iterable, Optional, Sequence, Tuple, TypeAlias
+from typing import TYPE_CHECKING, Iterable, List, Optional, Sequence, Tuple, TypeAlias
 
 import cv2
 import matplotlib.patches as patches
@@ -159,8 +160,8 @@ def draw_reading_order():
 
 
 def helper_plot_for_segment(
-    image: np.ndarray,
-    segment_results: list["Segment"],
+    segment_results: List[Segment],
+    image: Optional[np.ndarray] = None,
     maskcolor: Optional[Color] = Colors.RED,
     maskalpha: float = 0.4,
     boxcolor: Optional[str] = "blue",
@@ -178,10 +179,11 @@ def helper_plot_for_segment(
     size of the bounding boxes.
 
     Args:
-        image: Background image as a NumPy array.
         segment_results: List of Segment objects for overlay. Each
             segment contains the bounding box, mask, class label,
             score, and polygon information.
+        image: Background image as a NumPy array. If None, will try to use
+            background images as an empty mask from Segments.orig_shape
         maskcolor: Optional; fill color for masks. The default is RED
             in RGB format. Set to None to disable mask overlays.
         maskalpha: Float specifying the opacity level of mask
@@ -197,7 +199,9 @@ def helper_plot_for_segment(
             determined based on the average bounding box size.
     """
 
-    maskcolor = bgr_to_rgb(maskcolor)
+    if image is None:
+        img_shape = segment_results[0].orig_shape
+        image = np.zeros(img_shape, dtype=np.uint8)
 
     if fontsize is not None:
         avg_bbox_size = sum(
@@ -220,8 +224,10 @@ def helper_plot_for_segment(
         x1, x2, y1, y2 = bbox
 
         if maskcolor is not None:
-            rgba_mask = mask_to_rgba(mask, (x1, y1), image.shape[:2], maskcolor, maskalpha)
-            ax.imshow(rgba_mask, interpolation="none")
+            maskcolor_rgba = bgr_to_rgb(maskcolor)
+            if mask is not None:
+                rgba_mask = mask_to_rgba(mask, (x1, y1), image.shape[:2], maskcolor_rgba, maskalpha)
+                ax.imshow(rgba_mask, interpolation="none")
 
         if boxcolor is not None:
             rect = patches.Rectangle((x1, y1), x2 - x1, y2 - y1, linewidth=1, edgecolor=boxcolor, facecolor="none")
@@ -232,7 +238,11 @@ def helper_plot_for_segment(
             ax.add_patch(poly_patch)
 
         if fontcolor is not None:
-            label_text = f"RO: {index}, Class: {class_label}, Score: {score:.2f}"
+            class_label_str = class_label if class_label is not None else "Unknown"
+            score_str = f"{score:.2f}" if score is not None else "N/A"
+            reading_order_str = f"RO: {index}, " if len(segment_results) > 1 else ""
+
+            label_text = f"{reading_order_str}Class: {class_label_str}, Score: {score_str}"
             ax.text(
                 x1,
                 y1,

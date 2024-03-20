@@ -79,7 +79,6 @@ class BaseModel(ABC):
         Convert a PyTorch tensor to a NumPy array.
         Moves the tensor to CPU if it's on a GPU.
         """
-        # Check if the tensor is on a CUDA device and move it to CPU
         if tensor.is_cuda:
             tensor = tensor.cpu()
         return tensor.numpy()

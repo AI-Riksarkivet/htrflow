@@ -28,7 +28,6 @@ class YOLO(BaseModel):
 
     def _predict(self, images: list[np.ndarray], **kwargs) -> list[Result]:
         outputs = self.model(images, stream=True, verbose=False, **kwargs)
-
         return [self._create_segmentation_result(image, output) for image, output in zip(images, outputs)]
 
     def _create_segmentation_result(self, image: np.ndarray, output: UltralyticsResults) -> Result:

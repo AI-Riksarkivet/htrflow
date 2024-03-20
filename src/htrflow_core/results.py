@@ -246,7 +246,6 @@ class Result:
         """
         keep = [i for i in range(len(self.segments)) if i not in index]
 
-        print(keep)
         if self.segments:
             self.segments = [self.segments[i] for i in keep]
         if self.texts:

@@ -44,7 +44,7 @@ def mask2polygon(mask: Mask, epsilon: float = 0.005) -> Polygon:
     return np.squeeze(approx)
 
 
-def masks2polygons(masks: Iterable[Mask], epsilon=0.01) -> Iterable[Polygon]:
+def masks2polygons(masks: Iterable[Mask], epsilon=0.005) -> Iterable[Polygon]:
     """Convert masks to polygons"""
     return [mask2polygon(mask, epsilon) for mask in masks]
 
