@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import datetime
+import json
 import os
-from typing import TYPE_CHECKING, Iterable, Union
+from typing import TYPE_CHECKING, Any, Iterable, Optional, Sequence, Union
 
 import xmlschema
 from jinja2 import Environment, FileSystemLoader
@@ -11,7 +12,7 @@ import htrflow_core
 
 
 if TYPE_CHECKING:
-    from htrflow_core.volume import PageNode, RegionNode, Volume
+    from htrflow_core.volume import Node, PageNode, RegionNode, Volume
 
 
 _TEMPLATES_DIR = "src/htrflow_core/templates"  # Path to templates
@@ -91,6 +92,27 @@ class PageXML(Serializer):
         xmlschema.validate(doc, self.schema)
 
 
+class Json(Serializer):
+    """Simple JSON serializer"""
+    extension = ".json"
+    format_name = "json"
+
+    def __init__(self, include: Optional[Sequence[str]] = None):
+        """Initialize JSON serializer
+
+        Args:
+            include: A list of attributes to include in the output JSON.
+                If left as None, a default list of attributes is used,
+                see `node2dict`.
+        """
+        self.include = include
+
+    def serialize(self, page: PageNode):
+        # Instead of passing `page` directly to json.dumps, it is first
+        # converted to a dictionary with node2dict. This
+        return json.dumps(node2dict(page, self.include), default=lambda o: getattr(o, "__dict__", None), indent=4)
+
+
 class PlainText(Serializer):
     extension = ".txt"
     format_name = "txt"
@@ -134,17 +156,19 @@ def _get_serializer(format_name):
     raise ValueError(msg)
 
 
-def save_volume(volume: Volume, format_: str, dest: str) -> Iterable[tuple[str, str]]:
+def save_volume(volume: Volume, serializer: str | Serializer, dest: str) -> Iterable[tuple[str, str]]:
     """Serialize and save volume
 
     Arguments:
         volume: Input volume
-        format_: What format to use, as a string. See serialization.supported_formats()
-            for supported formats.
+        serializer: What serializer to use. Takes a Serializer instance
+            or the name of the serializer as a string, see
+            serialization.supported_formats() for supported formats.
         dest: Output directory
     """
 
-    serializer = _get_serializer(format_)
+    if isinstance(serializer, str):
+        serializer = _get_serializer(serializer)
 
     dest = os.path.join(dest, volume.label)
     os.makedirs(dest, exist_ok=True)
@@ -172,3 +196,38 @@ def label_nodes(node: PageNode | RegionNode, template="%s") -> dict[PageNode | R
     for i, child in enumerate(node.children):
         labels |= label_nodes(child, f"{labels[node]}_%s{i}")
     return labels
+
+
+def node2dict(node: Node, include: Optional[Sequence[str]] = None) -> dict[str, Any]:
+    """Convert node and its children to dictionary
+
+    Recursively converts the tree starting at `node` to a dictionary.
+    By default, this function includes the following attributes and
+    properties: height, width, (global) bounding box, label, segment
+    (i.e. the node's Segment instance, if available) and recognized text.
+
+    Arguments:
+        node: Starting node
+        include: Optional list of attributes and properies to include.
+            If None, the default attributes are included. See `Node` and
+            `BaseDocumentNode` for available attributes and properties.
+
+    Returns:
+        A dictionary containing the node's data.
+    """
+    d = {}
+
+    # Default attributes to include
+    if include is None:
+        include = ["height", "width", "bbox", "label", "recognized_text", "_segment"]
+
+    for attrib in include:
+        # Adds attribute to dictionary if 1) it exists and 2) it is "True",
+        # i.e. it is not an empty list or string
+        if val := getattr(node, attrib, False):
+            d[attrib] = val
+
+    if node.children:
+        d["children"] = [node2dict(child, include) for child in node.children]
+
+    return d
