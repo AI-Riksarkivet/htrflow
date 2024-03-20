@@ -6,10 +6,11 @@ import os
 import pickle
 from abc import ABC, abstractmethod, abstractproperty
 from itertools import chain
-from typing import Callable, Iterable, Literal, Optional, Sequence
+from typing import Callable, Iterable, Optional, Sequence
 
 from htrflow_core import serialization
 from htrflow_core.results import RecognizedText, Result, Segment
+from htrflow_core.serialization import Serializer
 from htrflow_core.utils import imgproc
 from htrflow_core.utils.geometry import Bbox, Point, Polygon
 
@@ -370,14 +371,16 @@ class Volume:
                 for new_leaf, text in zip(leaf.leaves(), result.texts):
                     new_leaf.add_text(text)
 
-    def save(self, directory: str = "outputs", format_: Literal["alto", "page", "txt"] = "alto") -> None:
+    def save(self, directory: str = "outputs", serializer: str | Serializer = "alto") -> None:
         """Save volume
 
         Arguments:
             directory: Output directory
-            format_: Output format
+            serializer: What serializer to use, either a string name (e.g.,
+                "alto") or a Serializer instance. See serialization.supported_formats()
+                for available string options.
         """
-        serialization.save_volume(self, format_, directory)
+        serialization.save_volume(self, serializer, directory)
 
 
 class ImageGenerator:
