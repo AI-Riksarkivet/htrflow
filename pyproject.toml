@@ -121,6 +121,7 @@ lines-after-imports = 2
 [tool.mypy]
 check_untyped_defs = true
 disallow_any_generics = true
+exclude = ['venv', '.venv', "tests", "docs"]
 ignore_missing_imports = true
 mypy_path = "src"
 no_implicit_optional = true

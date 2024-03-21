@@ -35,7 +35,6 @@ nav:
 
   - Tutorials:
       - The internals: "notebooks/demo.ipynb"  
-      - Simple workflow: "notebooks/demo2.ipynb"
 
   - Assets:
     - Models: assets_hf/models.md

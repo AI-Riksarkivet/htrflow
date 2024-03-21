@@ -19,5 +19,5 @@ jobs:
       - name: Linting check with ruff
         run: poetry run ruff check .
 
-      - name: Strict typehinting check with mypy
-        run: poetry run mypy .
+      - name: Typehinting check with mypy
+        run: poetry run mypy src

@@ -1,41 +1,43 @@
 from collections import Counter
+from importlib.metadata import PackageNotFoundError, metadata
+from typing import Counter, Dict, List, Optional
+
+import htrflow_core
 
 
-try:
-    from importlib.metadata import PackageNotFoundError, metadata, version
-except ImportError:
-    from importlib_metadata import PackageNotFoundError, metadata, version
-
-
-def _package_metadata_as_dict(package_name: str, exclude_keys=None) -> dict:
+def _package_metadata_as_dict(package_name: str, exclude_keys: Optional[List[str]] = None) -> Dict:
     """Get package metadata and return it as a dict, excluding specified keys."""
     if exclude_keys is None:
         exclude_keys = []
 
     try:
         meta_data = metadata(package_name)
+
     except PackageNotFoundError:
         return {"Version": "unknown", "Author": "unknown", "Summary": "unknown", "Name": package_name}
 
-    result = {}
-    keys_counter = Counter(meta_data.keys())
+    filtered_metadata = {}
+    keys_counter: Counter[str] = Counter(meta_data.keys())
 
     for key in keys_counter:
         if key in exclude_keys:
             continue
 
         values = meta_data.get_all(key) if keys_counter[key] > 1 else meta_data[key]
+
         if key == "Project-URL" and keys_counter[key] > 1:
-            result[key] = {k.strip(): v.strip() for k, v in (entry.split(", ", 1) for entry in values)}
+            filtered_metadata[key] = {k.strip(): v.strip() for k, v in (entry.split(", ", 1) for entry in values)}
         else:
-            result[key] = values
+            filtered_metadata[key] = values
 
-    return result
+    print(filtered_metadata)
+    return filtered_metadata
 
 
-__package_name__ = __name__
-meta = _package_metadata_as_dict(__package_name__, exclude_keys=None)
-__version__ = meta.get("Version", "unknown")
-__author__ = meta.get("Author", "unknown")
-__desc__ = meta.get("Summary", "unknown")
-__name__ = meta.get("Name", __package_name__)
+meta = _package_metadata_as_dict(
+    htrflow_core.__package__, exclude_keys=["Classifier", "Description", "Description-Content-Type"]
+)
+
+
+if __name__ == "__main__":
+    print(htrflow_core.meta)

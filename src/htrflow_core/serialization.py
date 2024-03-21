@@ -133,15 +133,14 @@ def metadata(page: PageNode) -> dict[str, Union[str, list[dict[str, str]]]]:
     """
     timestamp = datetime.datetime.utcnow().isoformat()
     return {
-        "creator": f"{htrflow_core.__author__}",
-        "software_name": f"{htrflow_core.__package_name__}",
-        "software_version": f"{htrflow_core.__version__}",
-        "application_description": f"{htrflow_core.__desc__}",
+        "creator": f"{htrflow_core.meta['Author']}",
+        "software_name": f"{htrflow_core.meta['Name']}",
+        "software_version": f"{htrflow_core.meta['Version']}",
+        "application_description": f"{htrflow_core.meta['Summary']}",
         "created": timestamp,
         "last_change": timestamp,
         "processing_steps": [{"description": "", "settings": ""}],
     }
-
 
 def supported_formats():
     """The supported formats"""
@@ -185,7 +184,7 @@ def save_volume(volume: Volume, serializer: str | Serializer, dest: str) -> Iter
 
 
 def label_nodes(node: PageNode | RegionNode, template="%s") -> dict[PageNode | RegionNode, str]:
-    """Assign labels to node and its decendents
+    """Assign labels to node and its descendants
 
     Arguments:
         node: Start node
@@ -208,7 +207,7 @@ def node2dict(node: Node, include: Optional[Sequence[str]] = None) -> dict[str, 
 
     Arguments:
         node: Starting node
-        include: Optional list of attributes and properies to include.
+        include: Optional list of attributes and properties to include.
             If None, the default attributes are included. See `Node` and
             `BaseDocumentNode` for available attributes and properties.
 
