@@ -21,7 +21,6 @@ configure_startup: ## configure_startup - Configuring poetry for venv + Installi
 	poetry install
 	poetry shell
 
-
 magic: connect_to_repo configure_startup ## runs connect_to_repo & configure_startup
 
 pre_commit: ## pre_commit - Setup pre-commit hooks

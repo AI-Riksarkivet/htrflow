@@ -16,7 +16,7 @@ classifiers = [
 ]
 description = "A short description of the project"
 documentation = "https://swedish-national-archives-ai-lab.github.io/htrflow_core/"
-include = ["scripts/openmim_install.py"]
+include = ["scripts/openmmlab_install.py"]
 license = "EUPL-1.2"
 name = "htrflow_core"
 readme = "README.md"
@@ -34,17 +34,15 @@ python = ">=3.10, <4.0"
 # dep
 jinja2 = "3.1.3"
 lorem = "^0.1.1"
+matplotlib = "^3.8.3"
 numpy = "1.26.4"
 opencv-python = ">=4.6.0"
 pandas = "2.2.0"
+tqdm = "^4.66.2"
 xmlschema = "^3.0.2"
 
 # openmmlab
-mmcv = [
-  {platform = "windows", url = "https://github.com/Swedish-National-Archives-AI-lab/openmim_install/raw/main/mmcv-2.0.0-cp310-cp310-win_amd64.whl", optional = true},
-  {platform = "linux", url = "https://github.com/Swedish-National-Archives-AI-lab/openmim_install/raw/main/mmcv-2.0.0-cp310-cp310-manylinux1_x86_64.whl", optional = true},
-  {platform = "macos", url = "https://github.com/Swedish-National-Archives-AI-lab/openmim_install/raw/main/mmcv-2.0.0-cp310-cp310-manylinux1_x86_64.whl", optional = true},
-]
+mmcv = {version = "2.0.0", optional = true}
 mmdet = {version = "3.1.0", optional = true}
 mmengine = {version = "0.7.2", optional = true}
 mmocr = {version = "1.0.1", optional = true}
@@ -56,16 +54,15 @@ datasets = {version = "2.17.1", optional = true}
 huggingface-hub = {version = "^0.20.3", optional = true}
 transformers = {version = "^4.37.2", optional = true}
 # ultralytics
-tqdm = "^4.66.2"
 ultralytics = {version = "^8.0.225", optional = true}
 
 [tool.poetry.extras]
-huggingface = ["transformers", "huggingface-hub", "datasets"]
+huggingface = ["transformers", "huggingface-hub", "datasets", "torch"]
 openmmlab = ["mmcv", "mmdet", "mmengine", "mmocr", "huggingface-hub", "yapf", "torch"]
 ultralytics = ["ultralytics", "huggingface-hub"]
 
 [tool.poetry.scripts]
-openmim-install = "scripts.openmim_install:main"
+openmmlab_install = "scripts.openmmlab_install:main"
 
 [tool.poetry.group.test.dependencies]
 mypy = "^1.8.0"

@@ -493,7 +493,7 @@ test = ["pytest"]
 name = "contourpy"
 version = "1.2.0"
 description = "Python library for calculating contours of 2D quadrilateral grids"
-optional = true
+optional = false
 python-versions = ">=3.9"
 files = [
     {file = "contourpy-1.2.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:0274c1cb63625972c0c007ab14dd9ba9e199c36ae1a231ce45d725cbcbfd10a8"},
@@ -623,7 +623,7 @@ toml = ["tomli"]
 name = "cycler"
 version = "0.12.1"
 description = "Composable style cycles"
-optional = true
+optional = false
 python-versions = ">=3.8"
 files = [
     {file = "cycler-0.12.1-py3-none-any.whl", hash = "sha256:85cef7cff222d8644161529808465972e51340599459b8ac3ccbac5a854e0d30"},
@@ -833,7 +833,7 @@ typing = ["typing-extensions (>=4.8)"]
 name = "fonttools"
 version = "4.50.0"
 description = "Tools to manipulate font files"
-optional = true
+optional = false
 python-versions = ">=3.8"
 files = [
     {file = "fonttools-4.50.0-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:effd303fb422f8ce06543a36ca69148471144c534cc25f30e5be752bc4f46736"},
@@ -1417,7 +1417,7 @@ test-ui = ["calysto-bash"]
 name = "kiwisolver"
 version = "1.4.5"
 description = "A fast implementation of the Cassowary constraint solver"
-optional = true
+optional = false
 python-versions = ">=3.7"
 files = [
     {file = "kiwisolver-1.4.5-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:05703cf211d585109fcd72207a31bb170a0f22144d68298dc5e61b3c946518af"},
@@ -1713,7 +1713,7 @@ files = [
 name = "matplotlib"
 version = "3.8.3"
 description = "Python plotting package"
-optional = true
+optional = false
 python-versions = ">=3.9"
 files = [
     {file = "matplotlib-3.8.3-cp310-cp310-macosx_10_12_x86_64.whl", hash = "sha256:cf60138ccc8004f117ab2a2bad513cc4d122e55864b4fe7adf4db20ca68a078f"},
@@ -1977,17 +1977,17 @@ description = "OpenMMLab Computer Vision Foundation"
 optional = true
 python-versions = ">=3.7"
 files = [
-    {file = "mmcv-2.0.0-cp310-cp310-manylinux1_x86_64.whl", hash = "sha256:5dba5d1717b017a451cffdb07a7162d733d3325960a9933f07cb4ae13d7efc19"},
+    {file = "mmcv-2.0.0.tar.gz", hash = "sha256:2a26c0b1148979954da9c98f88b1ca038ef823031f5975ff4f8951e75474638c"},
 ]
 
 [package.dependencies]
 addict = "*"
 mmengine = ">=0.2.0"
 numpy = "*"
-opencv-python = ">=3"
 packaging = "*"
 Pillow = "*"
 pyyaml = "*"
+regex = {version = "*", markers = "sys_platform == \"win32\""}
 yapf = "*"
 
 [package.extras]
@@ -1995,40 +1995,6 @@ all = ["Pillow", "PyTurboJPEG", "addict", "coverage", "lmdb", "mmengine (>=0.2.0
 build = ["pytest-runner"]
 optional = ["ninja", "psutil"]
 tests = ["PyTurboJPEG", "coverage", "lmdb", "onnx", "onnxoptimizer", "onnxruntime", "pytest", "scipy", "tifffile"]
-
-[package.source]
-type = "url"
-url = "https://github.com/Swedish-National-Archives-AI-lab/openmim_install/raw/main/mmcv-2.0.0-cp310-cp310-manylinux1_x86_64.whl"
-
-[[package]]
-name = "mmcv"
-version = "2.0.0"
-description = "OpenMMLab Computer Vision Foundation"
-optional = true
-python-versions = ">=3.7"
-files = [
-    {file = "mmcv-2.0.0-cp310-cp310-win_amd64.whl", hash = "sha256:62fa4196631f37b1e30e7892d476ef085b74a6966f28337b100f1e78cad0f497"},
-]
-
-[package.dependencies]
-addict = "*"
-mmengine = ">=0.2.0"
-numpy = "*"
-opencv-python = ">=3"
-packaging = "*"
-Pillow = "*"
-pyyaml = "*"
-yapf = "*"
-
-[package.extras]
-all = ["Pillow", "PyTurboJPEG", "addict", "coverage", "lmdb", "mmengine (>=0.2.0)", "ninja", "numpy", "onnx", "onnxoptimizer", "onnxruntime", "packaging", "psutil", "pytest", "pytest-runner", "pyyaml", "regex", "scipy", "tifffile", "yapf"]
-build = ["pytest-runner"]
-optional = ["ninja", "psutil"]
-tests = ["PyTurboJPEG", "coverage", "lmdb", "onnx", "onnxoptimizer", "onnxruntime", "pytest", "scipy", "tifffile"]
-
-[package.source]
-type = "url"
-url = "https://github.com/Swedish-National-Archives-AI-lab/openmim_install/raw/main/mmcv-2.0.0-cp310-cp310-win_amd64.whl"
 
 [[package]]
 name = "mmdet"
@@ -2810,7 +2776,7 @@ ptyprocess = ">=0.5"
 name = "pillow"
 version = "10.2.0"
 description = "Python Imaging Library (Fork)"
-optional = true
+optional = false
 python-versions = ">=3.8"
 files = [
     {file = "pillow-10.2.0-cp310-cp310-macosx_10_10_x86_64.whl", hash = "sha256:7823bdd049099efa16e4246bdf15e5a13dbb18a51b68fa06d6c1d4d8b99a796e"},
@@ -3210,7 +3176,7 @@ extra = ["pygments (>=2.12)"]
 name = "pyparsing"
 version = "3.1.2"
 description = "pyparsing module - Classes and methods to define and execute parsing grammars"
-optional = true
+optional = false
 python-versions = ">=3.6.8"
 files = [
     {file = "pyparsing-3.1.2-py3-none-any.whl", hash = "sha256:f9db75911801ed778fe61bb643079ff86601aca99fcae6345aa67292038fb742"},
@@ -5194,11 +5160,11 @@ docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.link
 testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-ignore-flaky", "pytest-mypy", "pytest-ruff (>=0.2.1)"]
 
 [extras]
-huggingface = ["datasets", "huggingface-hub", "transformers"]
-openmmlab = ["huggingface-hub", "mmcv", "mmcv", "mmcv", "mmdet", "mmengine", "mmocr", "torch", "yapf"]
+huggingface = ["datasets", "huggingface-hub", "torch", "transformers"]
+openmmlab = ["huggingface-hub", "mmcv", "mmdet", "mmengine", "mmocr", "torch", "yapf"]
 ultralytics = ["huggingface-hub", "ultralytics"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10, <4.0"
-content-hash = "97f31eef353c7b1d2604a30774670ba546c70fd2f70fa38e9c098d6fcae5b8d3"
+content-hash = "0c1cb95c4c8ad5d8eed514037e663a58d5529ca31d1691e3c0620ccfb3bc67cb"
