@@ -18,5 +18,5 @@ runs:
       run: python -m pip install poetry
       shell: bash
     - name: Create virtual environment
-      run: poetry install --with test,docs
+      run: poetry install --with test,docs --extras pytorch
       shell: bash

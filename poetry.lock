@@ -1543,12 +1543,12 @@ test = ["pytest (>=7.4)", "pytest-cov (>=4.1)"]
 
 [[package]]
 name = "lit"
-version = "18.1.1"
+version = "18.1.2"
 description = "A Software Testing Tool"
 optional = true
 python-versions = "*"
 files = [
-    {file = "lit-18.1.1.tar.gz", hash = "sha256:b687537151649101f9802b22615ffdd97e1ee90c07119129af09bf2bdca23472"},
+    {file = "lit-18.1.2.tar.gz", hash = "sha256:fdead6e464f9d975d31a937b82e1162d0768d61a0e5d8ee55991a33ed4aa7128"},
 ]
 
 [[package]]
@@ -2302,13 +2302,13 @@ test = ["flaky", "ipykernel (>=6.19.3)", "ipython", "ipywidgets", "nbconvert (>=
 
 [[package]]
 name = "nbconvert"
-version = "7.16.2"
+version = "7.16.3"
 description = "Converting Jupyter Notebooks (.ipynb files) to other formats.  Output formats include asciidoc, html, latex, markdown, pdf, py, rst, script.  nbconvert can be used both as a Python library (`import nbconvert`) or as a command line tool (invoked as `jupyter nbconvert ...`)."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "nbconvert-7.16.2-py3-none-any.whl", hash = "sha256:0c01c23981a8de0220255706822c40b751438e32467d6a686e26be08ba784382"},
-    {file = "nbconvert-7.16.2.tar.gz", hash = "sha256:8310edd41e1c43947e4ecf16614c61469ebc024898eb808cce0999860fc9fb16"},
+    {file = "nbconvert-7.16.3-py3-none-any.whl", hash = "sha256:ddeff14beeeedf3dd0bc506623e41e4507e551736de59df69a91f86700292b3b"},
+    {file = "nbconvert-7.16.3.tar.gz", hash = "sha256:a6733b78ce3d47c3f85e504998495b07e6ea9cf9bf6ec1c98dda63ec6ad19142"},
 ]
 
 [package.dependencies]
@@ -2334,7 +2334,7 @@ docs = ["ipykernel", "ipython", "myst-parser", "nbsphinx (>=0.2.12)", "pydata-sp
 qtpdf = ["nbconvert[qtpng]"]
 qtpng = ["pyqtwebengine (>=5.15)"]
 serve = ["tornado (>=6.1)"]
-test = ["flaky", "ipykernel", "ipywidgets (>=7.5)", "pytest"]
+test = ["flaky", "ipykernel", "ipywidgets (>=7.5)", "pytest (>=7)"]
 webpdf = ["playwright"]
 
 [[package]]
@@ -5162,9 +5162,10 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [extras]
 huggingface = ["datasets", "huggingface-hub", "torch", "transformers"]
 openmmlab = ["huggingface-hub", "mmcv", "mmdet", "mmengine", "mmocr", "torch", "yapf"]
+pytorch = ["torch"]
 ultralytics = ["huggingface-hub", "ultralytics"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10, <4.0"
-content-hash = "0c1cb95c4c8ad5d8eed514037e663a58d5529ca31d1691e3c0620ccfb3bc67cb"
+content-hash = "436da0c568a73cbc0dca2ddb1fe5c3162e3e2d11b4a990c9b942cf652d918e96"

@@ -59,6 +59,7 @@ ultralytics = {version = "^8.0.225", optional = true}
 [tool.poetry.extras]
 huggingface = ["transformers", "huggingface-hub", "datasets", "torch"]
 openmmlab = ["mmcv", "mmdet", "mmengine", "mmocr", "huggingface-hub", "yapf", "torch"]
+pytorch = ["torch"]
 ultralytics = ["ultralytics", "huggingface-hub"]
 
 [tool.poetry.scripts]
