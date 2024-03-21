@@ -168,6 +168,7 @@ def helper_plot_for_segment(
     polygencolor: Optional[str] = "yellow",
     fontcolor: Optional[str] = "white",
     fontsize: Optional[int] = None,
+    figsize: Optional[tuple] = (10, 8),
 ) -> None:
     """
     Displays an image with mask overlays, bounding boxes, polygons,
@@ -197,6 +198,8 @@ def helper_plot_for_segment(
         fontsize: Optional; integer specifying the font size for text
             annotations. If not provided, the size will be dynamically
             determined based on the average bounding box size.
+        figsize: Optional; tuple specifying the figure size in inches.
+            The default is (10, 8).
     """
 
     if image is None:
@@ -209,7 +212,7 @@ def helper_plot_for_segment(
         ) / len(segment_results)
         fontsize = max(24, min(8, avg_bbox_size / 100))
 
-    fig, ax = plt.subplots(1)
+    fig, ax = plt.subplots(1, figsize=figsize)
     ax.imshow(image)
 
     for index, segment in enumerate(segment_results):

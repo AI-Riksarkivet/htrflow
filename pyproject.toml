@@ -38,8 +38,6 @@ numpy = "1.26.4"
 opencv-python = ">=4.6.0"
 pandas = "2.2.0"
 xmlschema = "^3.0.2"
-# torch
-torch = "2.0.0"
 
 # openmmlab
 mmcv = [
@@ -50,6 +48,7 @@ mmcv = [
 mmdet = {version = "3.1.0", optional = true}
 mmengine = {version = "0.7.2", optional = true}
 mmocr = {version = "1.0.1", optional = true}
+torch = {version = "2.0.0", optional = true}
 yapf = {version = "0.40.1", optional = true}
 
 # huggingface
@@ -62,7 +61,7 @@ ultralytics = {version = "^8.0.225", optional = true}
 
 [tool.poetry.extras]
 huggingface = ["transformers", "huggingface-hub", "datasets"]
-openmmlab = ["mmcv", "mmdet", "mmengine", "mmocr", "huggingface-hub", "yapf"]
+openmmlab = ["mmcv", "mmdet", "mmengine", "mmocr", "huggingface-hub", "yapf", "torch"]
 ultralytics = ["ultralytics", "huggingface-hub"]
 
 [tool.poetry.scripts]
