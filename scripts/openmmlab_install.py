@@ -15,7 +15,7 @@ def install_packages():
             raise ValueError(f"Unsupported operating system: {os_name}")
         
         subprocess.check_call(["pip", "install", "-U", mmcv_url])
-                subprocess.check_call(["pip", "install", "-U", "mmdet==3.1.0"])
+        subprocess.check_call(["pip", "install", "-U", "mmdet==3.1.0"])
         subprocess.check_call(["pip", "install", "-U", "mmengine==0.7.2"])
         subprocess.check_call(["pip", "install", "-U", "mmocr==1.0.1"])
 
