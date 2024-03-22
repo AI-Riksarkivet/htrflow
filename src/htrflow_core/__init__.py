@@ -30,14 +30,9 @@ def _package_metadata_as_dict(package_name: str, exclude_keys: Optional[List[str
         else:
             filtered_metadata[key] = values
 
-    print(filtered_metadata)
     return filtered_metadata
 
 
 meta = _package_metadata_as_dict(
     htrflow_core.__package__, exclude_keys=["Classifier", "Description", "Description-Content-Type"]
 )
-
-
-if __name__ == "__main__":
-    print(htrflow_core.meta)
