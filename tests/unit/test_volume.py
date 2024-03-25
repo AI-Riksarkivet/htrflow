@@ -128,7 +128,7 @@ def test_update_segmentation_width_height(demo_image):
     result, *_ = segmentation_model([node.image])
     node.segment(result.segments)
     segment_index = 0
-    x1, x2, y1, y2 = result.segments[segment_index].bbox
+    x1, y1, x2, y2 = result.segments[segment_index].bbox
     assert x2 - x1 == node[segment_index].width
     assert y2 - y1 == node[segment_index].height
 
@@ -143,7 +143,7 @@ def test_update_nested_segmentation_coordinates(demo_volume_segmented_nested):
 
     parent_y = segment.coord.y
     nested_segment = page[0, 0]
-    nested_segment_y_relative_to_parent = nested_segment._segment.bbox[2]
+    nested_segment_y_relative_to_parent = nested_segment._segment.bbox[1]
     assert nested_segment.coord.y == parent_y + nested_segment_y_relative_to_parent
 
 

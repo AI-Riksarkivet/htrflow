@@ -15,7 +15,7 @@ def crop(image: np.ndarray, bbox: Bbox) -> np.ndarray:
         image: The input image
         bbox: The bounding box
     """
-    x1, x2, y1, y2 = bbox
+    x1, y1, x2, y2 = bbox
     return image[y1:y2, x1:x2]
 
 

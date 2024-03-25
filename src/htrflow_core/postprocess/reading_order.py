@@ -18,8 +18,8 @@ def is_margin(region: Bbox, page: Bbox, margin_ratio: float=0.2):
         margin_ratio: Margin to page width ratio. Default is 0.2.
     """
     margin = page.width * margin_ratio
-    left_margin = page.x1 + margin
-    right_margin = page.x2 - margin
+    left_margin = page.xmin + margin
+    right_margin = page.xmax - margin
     return (region.center.x < left_margin or region.center.x > right_margin)
 
 
@@ -36,20 +36,20 @@ def is_twopage(segments: Sequence[Bbox], histogram_bins=50, histogram_dip_ratio=
 def order_segments_marginalia(result: Result, histogram_bins=50, histogram_dip_ratio=0.5):
     # Adapted from htrflow_core/src/transformations/order_segments.py
 
-    xs = [segment.center.x for segment in result.segments]
-    ys = [segment.center.y for segment in result.segments]
+    xs = [segment.center.x for segment in result.bboxes]
+    ys = [segment.center.y for segment in result.bboxes]
 
     image_height, image_width = result.image.shape[:2]
     index = list(range(len(result.segments)))
 
-    if is_twopage(result.segments, histogram_bins, histogram_dip_ratio):
+    if is_twopage(result.bboxes, histogram_bins, histogram_dip_ratio):
         page_width = int(image_width / 2)
         pagei = [x < page_width for x in xs]
         pages = [Bbox(0, page_width, 0, image_height), Bbox(page_width, image_width, 0, image_height)]
-        index.sort(key=lambda i: (pagei[i], is_margin(result.segments[i], pages[pagei[i]], ys[i], xs[i])))
+        index.sort(key=lambda i: (pagei[i], is_margin(result.bboxes[i], pages[pagei[i]]), ys[i], xs[i]))
     else:
         page = Bbox(0, image_width, 0, image_height)
-        index.sort(key=lambda i: (is_margin(result.segments[i], page), ys[i], xs[i]))
+        index.sort(key=lambda i: (is_margin(result.bboxes[i], page), ys[i], xs[i]))
 
     return index
 
@@ -57,11 +57,11 @@ def order_segments_marginalia(result: Result, histogram_bins=50, histogram_dip_r
 def order_lines(result: Result, line_spacing_factor=0.5) -> Sequence[int]:
     # Adapted from htrflow_core/src/transformations/order_segments.py
 
-    xs = [segment.center.x for segment in result.segments]
-    ys = [segment.center.y for segment in result.segments]
+    xs = [bbox.center.x for bbox in result.bboxes]
+    ys = [bbox.center.y for bbox in result.bboxes]
 
     # Calculate the threshold distance
-    average_line_height = sum(segment.height for segment in result.segments) / len(result.segments)
+    average_line_height = sum(bbox.height for bbox in result.bboxes) / len(result.segments)
     threshold_distance = average_line_height * line_spacing_factor
 
     # Sort the indices based on vertical center points and horizontal positions

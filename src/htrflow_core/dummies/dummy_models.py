@@ -68,7 +68,7 @@ def randombox(h: int, w: int) -> List[int]:
     """Makes a box that is a height/3-by-width/4 and places it at a random location"""
     x = random.randrange(0, 4 * w // 5)
     y = random.randrange(0, 5 * h // 6)
-    return [x, x + w // 5, y, y + h // 6]
+    return [x, y, x + w // 5, y + h // 6]
 
 
 def randomlabel() -> str:
@@ -98,7 +98,7 @@ def _simple_word_segmentation(image, text):
     words = text.split()
     for word in words:
         x2 = min(x1 + pixels_per_char * len(word), width)
-        bboxes.append((x1, x2, 0, height))
+        bboxes.append((x1, 0, height, x2))
         x1 = x2 + pixels_per_char  # add a "whitespace"
 
     segments = [Segment.from_bbox(bbox, class_label="word") for bbox in bboxes]

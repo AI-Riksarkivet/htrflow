@@ -23,7 +23,7 @@
         <OrderedGroup ID="ro">
         {%- for node in page recursive %}
             {%- if node.text %}
-                <ElementRef ID="ro_{{ labels[node] }}" REF="{{ labels[node] }}" />
+            <ElementRef ID="ro_{{ labels[node] }}" REF="{{ labels[node] }}" />
             {%- else %}
             <OrderedGroup ID="ro_{{ labels[node] }}">{{ loop(node.children) }}
             </OrderedGroup>
@@ -41,24 +41,29 @@
                 {%- for node in page.traverse() %}
                 {%- if is_text_block(node) %}
                 <TextBlock ID="{{ labels[node] }}" HPOS="{{ node.coord.x }}" VPOS="{{ node.coord.y }}" HEIGHT="{{ node.height}}" WIDTH="{{ node.width }}">
-                    {%- if node.polygon %}
+                    {%- if node.polygon|length > 4 %}
                     <Shape>
                         <Polygon POINTS="{% for point in node.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}"/>
                     </Shape>
-                    {%- endif %}
+                    {% endif %}
                     {%- for line in node.children %}
-                        <TextLine ID="{{ labels[line] }}"  HPOS="{{ line.coord.x }}" VPOS="{{ line.coord.y }}" HEIGHT="{{ line.height}}" WIDTH="{{ line.width }}">
-                            {%- if line.children %}
-                            {%- for word in line.children %}
-                                <String ID="{{ labels[word] }}"  HPOS="{{ word.coord.x }}" VPOS="{{ word.coord.y }}" HEIGHT="{{ word.height}}" WIDTH="{{ word.width }}" CONTENT="{{ word.text }}" />
-                            {%- endfor %}
-                            {%- else %}
-                            <String CONTENT="{{ line.text }}"/>
-                            {%- endif %}
-                        </TextLine>
+                    <TextLine ID="{{ labels[line] }}"  HPOS="{{ line.coord.x }}" VPOS="{{ line.coord.y }}" HEIGHT="{{ line.height}}" WIDTH="{{ line.width }}">
+                        {%- if node.polygon|length > 4 %}
+                        <Shape>
+                            <Polygon POINTS="{% for point in node.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}"/>
+                        </Shape>
+                        {% endif %}
+                        {%- if line.children %}
+                        {%- for word in line.children %}
+                        <String ID="{{ labels[word] }}"  HPOS="{{ word.coord.x }}" VPOS="{{ word.coord.y }}" HEIGHT="{{ word.height}}" WIDTH="{{ word.width }}" CONTENT="{{ word.text }}" />
+                        {%- endfor %}
+                        {%- else %}
+                        <String HPOS="{{ line.coord.x }}" VPOS="{{ line.coord.y }}" HEIGHT="{{ line.height}}" WIDTH="{{ line.width }}" CONTENT="{{ line.text }}"/>
+                        {%- endif %}
+                    </TextLine>
                     {%- endfor %}
                 </TextBlock>
-                {% endif %}
+                {%- endif %}
                 {%- endfor %}
             </PrintSpace>
         </Page>

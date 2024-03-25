@@ -208,7 +208,7 @@ def helper_plot_for_segment(
 
     if fontsize is not None:
         avg_bbox_size = sum(
-            (x2 - x1 + y2 - y1) / 2 for x1, x2, y1, y2 in (segment.bbox for segment in segment_results)
+            (x2 - x1 + y2 - y1) / 2 for x1, y1, x2, y2 in (segment.bbox for segment in segment_results)
         ) / len(segment_results)
         fontsize = max(24, min(8, avg_bbox_size / 100))
 
@@ -224,7 +224,7 @@ def helper_plot_for_segment(
             segment.polygon,
         )
 
-        x1, x2, y1, y2 = bbox
+        x1, y1, x2, y2 = bbox
 
         if maskcolor is not None:
             maskcolor_rgba = bgr_to_rgb(maskcolor)
