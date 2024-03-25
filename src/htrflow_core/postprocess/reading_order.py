@@ -45,10 +45,10 @@ def order_segments_marginalia(result: Result, histogram_bins=50, histogram_dip_r
     if is_twopage(result.bboxes, histogram_bins, histogram_dip_ratio):
         page_width = int(image_width / 2)
         pagei = [x < page_width for x in xs]
-        pages = [Bbox(0, page_width, 0, image_height), Bbox(page_width, image_width, 0, image_height)]
+        pages = [Bbox(0, 0, page_width, image_height), Bbox(page_width, 0, image_width, image_height)]
         index.sort(key=lambda i: (pagei[i], is_margin(result.bboxes[i], pages[pagei[i]]), ys[i], xs[i]))
     else:
-        page = Bbox(0, image_width, 0, image_height)
+        page = Bbox(0, 0, image_width, image_height)
         index.sort(key=lambda i: (is_margin(result.bboxes[i], page), ys[i], xs[i]))
 
     return index
