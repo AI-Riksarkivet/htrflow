@@ -15,7 +15,8 @@ if TYPE_CHECKING:
     from htrflow_core.volume import Node, PageNode, RegionNode, Volume
 
 
-_TEMPLATES_DIR = "src/htrflow_core/templates"  # Path to templates
+_TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "templates")
+_SCHEMA_DIR = os.path.join(os.path.dirname(__file__), "templates/schema")
 
 
 class Serializer:
@@ -54,7 +55,7 @@ class AltoXML(Serializer):
     def __init__(self):
         env = Environment(loader=FileSystemLoader([_TEMPLATES_DIR, "."]))
         self.template = env.get_template("alto")
-        self.schema = "http://www.loc.gov/standards/alto/v4/alto-4-4.xsd"
+        self.schema = os.path.join(_SCHEMA_DIR, "alto-4-4.xsd")
 
     def serialize(self, page: PageNode) -> str:
         # ALTO doesn't support nesting of regions ("TextBlock" elements)
@@ -79,7 +80,7 @@ class PageXML(Serializer):
     def __init__(self):
         env = Environment(loader=FileSystemLoader([_TEMPLATES_DIR, "."]))
         self.template = env.get_template("page")
-        self.schema = "https://www.primaresearch.org/schema/PAGE/gts/pagecontent/2019-07-15/pagecontent.xsd"
+        self.schema = os.path.join(_SCHEMA_DIR, "pagecontent.xsd")
 
     def serialize(self, page: PageNode):
         return self.template.render(
@@ -94,6 +95,7 @@ class PageXML(Serializer):
 
 class Json(Serializer):
     """Simple JSON serializer"""
+
     extension = ".json"
     format_name = "json"
 
@@ -141,6 +143,7 @@ def metadata(page: PageNode) -> dict[str, Union[str, list[dict[str, str]]]]:
         "last_change": timestamp,
         "processing_steps": [{"description": "", "settings": ""}],
     }
+
 
 def supported_formats():
     """The supported formats"""
