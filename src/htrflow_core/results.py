@@ -45,7 +45,7 @@ class Segment:
                 self.bbox = geometry.mask2bbox(self.mask)
 
             # Crop mask to bounding box if needed
-            x1, x2, y1, y2 = self.bbox
+            x1, y1, x2, y2 = self.bbox
             mask_h, mask_w = self.mask.shape[:2]
             if mask_h != y2 - y1 or mask_w != x2 - x1:
                 self.mask = imgproc.crop(self.mask, self.bbox)
@@ -78,7 +78,7 @@ class Segment:
         """The segment mask relative to the original input image"""
         if self.mask is None:
             return None
-        x1, x2, y1, y2 = self.bbox
+        x1, y1, x2, y2 = self.bbox
         mask = np.zeros(self.orig_shape, dtype=np.uint8)
         mask[y1:y2, x1:x2] = self.mask
         return mask

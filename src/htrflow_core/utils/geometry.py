@@ -20,8 +20,8 @@ class Bbox:
     """Bounding box class"""
 
     xmin: int
-    xmax: int
     ymin: int
+    xmax: int
     ymax: int
 
     @property
@@ -109,11 +109,11 @@ def masks2polygons(masks: Iterable[Mask], epsilon=0.005) -> Iterable[Polygon]:
 
 def bbox2polygon(bbox: Bbox) -> Polygon:
     """Convert bounding box to polygon"""
-    x1, x2, y1, y2 = bbox
+    x1, y1, x2, y2 = bbox
     return np.array([[x1, y1], [x1, y2], [x2, y2], [x2, y1]])
 
 
 def mask2bbox(mask: Mask) -> Bbox:
     """Convert mask to bounding box"""
     y, x = np.where(mask != 0)
-    return np.min(x), np.max(x), np.min(y), np.max(y)
+    return np.min(x), np.min(y), np.max(x), np.max(y)

@@ -44,7 +44,7 @@ class RTMDet(BaseModel):
 
     def _create_segmentation_result(self, image: np.ndarray, output: DetDataSample) -> Result:
         sample: InstanceData = output.pred_instances
-        boxes = [[x1, x2, y1, y2] for x1, y1, x2, y2 in sample.bboxes.int().tolist()]
+        boxes = [[x1, y1, x2, y2] for x1, y1, x2, y2 in sample.bboxes.int().tolist()]
         masks = self.to_numpy(sample.masks).astype(np.uint8)
         scores = sample.scores.tolist()
         class_labels = sample.labels.tolist()

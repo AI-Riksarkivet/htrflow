@@ -32,7 +32,7 @@ class YOLO(BaseModel):
 
     def _create_segmentation_result(self, image: np.ndarray, output: UltralyticsResults) -> Result:
         if output.boxes is not None:
-            boxes = [[x1, x2, y1, y2] for x1, y1, x2, y2 in output.boxes.xyxy.int().tolist()]
+            boxes = [[x1, y1, x2, y2] for x1, y1, x2, y2 in output.boxes.xyxy.int().tolist()]
             scores = output.boxes.conf.tolist()
             class_labels = [output.names[label] for label in output.boxes.cls.tolist()]
         if output.masks is not None:
