@@ -68,8 +68,8 @@ class BaseDocumentNode(Node, ABC):
     # Read-only geometry related attributes
     _height: int
     _width: int
-    _coord: Point
-    _polygon: Polygon
+    _coord: Optional[Point] = None
+    _polygon: Optional[Polygon] = None
 
     def __str__(self) -> str:
         return f"{self.height}x{self.width} node ({self.label}) at ({self.coord.x}, {self.coord.y})"
@@ -100,7 +100,7 @@ class BaseDocumentNode(Node, ABC):
         Position of the region this node represents relative to the
         original input image (root node of the tree).
         """
-        return self._coord
+        return self._coord or Point(0, 0)
 
     @property
     def polygon(self) -> Polygon:
@@ -110,7 +110,7 @@ class BaseDocumentNode(Node, ABC):
         If no mask is available, this attribute defaults to a polygon
         representation of the region's bounding box.
         """
-        return self._polygon
+        return self._polygon or self.bbox.polygon()
 
     @property
     def bbox(self) -> Bbox:
@@ -169,11 +169,10 @@ class RegionNode(BaseDocumentNode):
         self.recognized_text = None
         self.label = segment.class_label if segment.class_label else RegionNode.DEFAULT_LABEL
 
-        x1, y1, x2, y2 = segment.bbox
         self._height = segment.bbox.height
         self._width = segment.bbox.width
-        self._polygon = [(x + parent.coord.x, y + parent.coord.y) for x, y in segment.polygon]
-        self._coord = Point(parent.coord.x + x1, parent.coord.y + y1)
+        self._polygon = segment.polygon.move(parent.coord)
+        self._coord = segment.bbox.p1.move(parent.coord)
         self._segment = segment
 
     def __str__(self) -> str:
@@ -214,8 +213,6 @@ class PageNode(BaseDocumentNode):
         height, width = self.image.shape[:2]
         self._height = height
         self._width = width
-        self._coord = Point(0, 0)
-        self._polygon = [(0, 0), (0, height), (width, height), (width, 0)]
         super().__init__()
 
     @property
@@ -234,7 +231,7 @@ class PageNode(BaseDocumentNode):
         covers the page, adds the text to this new node, and attaches
         it to the PageNode.
         """
-        child = RegionNode(Segment.from_bbox(self.bbox), self)
+        child = RegionNode(Segment(bbox=self.bbox), self)
         self.children = [child]
         child.add_text(recognized_text)
 

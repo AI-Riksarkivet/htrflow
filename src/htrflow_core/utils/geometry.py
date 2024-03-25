@@ -2,7 +2,6 @@
 Geometry utilities
 """
 
-from collections import namedtuple
 from dataclasses import astuple, dataclass
 from typing import Iterable, Sequence, TypeAlias
 
@@ -10,14 +9,71 @@ import cv2
 import numpy as np
 
 
-Point = namedtuple("Point", ["x", "y"])
-Polygon: TypeAlias = Sequence[Point] | Sequence[tuple[int, int]]
 Mask: TypeAlias = np.ndarray[np.uint8]
 
 
 @dataclass
+class Point:
+    """Class representing a point
+
+    This class supports tuple-like unpacking and indexing.
+
+    Attributes:
+        x: The x-coordinate of the point
+        y: The y-coordinate of the point
+
+    Example:
+    ```
+    >>> p = Point(10, 20)
+    >>> x, y = p
+    >>> x == p[0]
+    True
+    ```
+    """
+    x: int
+    y: int
+
+    def move(self, dest: "Point | tuple[int, int]") -> "Point":
+        """Move point to `dest`
+
+        Arguments:
+            dest: A (dx, dy) tuple or Point specifying where to move.
+
+        Returns:
+            A copy of this Point instance moved `dx` along the x-axis
+            and `dy` along the y-axis.
+
+        Example:
+        ```
+        >>> Point(1, 2).move((10, 10))
+        Point(11, 12)
+        ```
+        """
+        dx, dy = dest
+        return Point(self.x + dx, self.y + dy)
+
+    def __iter__(self) -> Iterable[int]:
+        # Enables tuple-like iteration and unpacking
+        return iter(astuple(self))
+
+    def __getitem__(self, i: int) -> int:
+        # Enables tuple-like indexing
+        return astuple(self)[i]
+
+
+@dataclass
 class Bbox:
-    """Bounding box class"""
+    """Bounding box class
+
+    A dataclass that represents a bounding box. It supports tuple-like
+    unpacking and indexing. For example:
+    ```python
+    >>> bbox = Bbox(0, 0, 10, 10)
+    >>> xmin, ymin, xmax, ymax = bbox
+    >>> ymax == bbox[3]
+    True
+    ```
+    """
 
     xmin: int
     ymin: int
@@ -40,12 +96,12 @@ class Bbox:
         return self.xmin, self.ymin, self.width, self.height
 
     @property
-    def xyxy(self):
+    def xyxy(self) -> tuple[int, int, int, int]:
         """Bounding box as a (xmin, ymin, xmax, ymax) tuple"""
         return self.xmin, self.ymin, self.xmax, self.ymax
 
     @property
-    def xxyy(self):
+    def xxyy(self) -> tuple[int, int, int, int]:
         """Bounding box as a (xmin, xmax, ymin, ymax) tuple"""
         return self.xmin, self.xmax, self.ymin, self.ymax
 
@@ -61,16 +117,87 @@ class Bbox:
 
     @property
     def center(self) -> Point:
-        """Center of bounding box"""
-        return Point((self.xmax - self.xmin) / 2, (self.ymax - self.ymin) / 2)
+        """Center of bounding box rounded down to closest integer"""
+        return Point((self.xmax - self.xmin) // 2, (self.ymax - self.ymin) // 2)
+
+    def polygon(self) -> "Polygon":
+        """Return a polygon representation of the bounding box"""
+        return Polygon([
+            Point(self.xmin, self.ymin),
+            Point(self.xmin, self.ymax),
+            Point(self.xmax, self.ymin),
+            Point(self.xmax, self.ymax),
+        ])
+
+    def move(self, dest: Point | tuple[int, int]) -> "Bbox":
+        """Move bounding box to `dest`
+
+        Arguments:
+            dest: A (dx, dy) tuple or Point.
+
+        Returns:
+            A copy of the bounding box with its coordinates shifted
+            `dx` and `dy` in the x- and y-axis, respectively.
+        """
+        dx, dy = dest
+        return Bbox(self.xmin + dx, self.xmax + dx, self.ymin + dy, self.ymax + dy)
 
     def __iter__(self):
-        # Tuple-like iteration and unpacking
+        # Enables tuple-like iteration and unpacking
         return iter(astuple(self))
 
-    def __getitem__(self, i):
-        # Tuple-like indexing
+    def __getitem__(self, i: int) -> int:
+        # Enables tuple-like indexing
         return astuple(self)[i]
+
+
+class Polygon:
+    """Polygon class
+
+    This class represents a polygon as a sequence of `Point` instances.
+    """
+
+    points: Sequence[Point]
+
+    def __init__(self, points: Iterable[tuple[int, int] | Point]):
+        """Create a Polygon
+
+        Attributes:
+            points: The points defining the polygon, as either tuples
+                or `Point` instances.
+        """
+        self.points = [Point(*point) for point in points]
+
+    def move(self, dest: tuple[int, int] | Point) -> "Polygon":
+        """Move polygon to `dest`
+
+        Arguments:
+            dest: A (dx, dy) tuple or Point.
+
+        Returns:
+            A copy of the polygon with its coordinates shifted
+            `dx` and `dy` in the x- and y-axis, respectively.
+        """
+        return Polygon(point.move(dest) for point in self)
+
+    def bbox(self) -> Bbox:
+        """The smallest bounding box that encloses the polygon"""
+        xs = [x for x, _ in self]
+        ys = [y for _, y in self]
+        return Bbox(min(xs), min(ys), max(xs), max(ys))
+
+    def as_nparray(self):   # -> n x 2 numpy array of integers
+        """A np array version of the polygon"""
+        return np.array([[x, y] for x, y in self])
+
+    def __iter__(self):  # -> Iterable[Point]
+        return iter(self.points)
+
+    def __getitem__(self, i: int) -> Point:
+        return self.points[i]
+
+    def __len__(self) -> int:
+        return len(self.points)
 
 
 def mask2polygon(mask: Mask, epsilon: float = 0.005) -> Polygon:
@@ -99,7 +226,7 @@ def mask2polygon(mask: Mask, epsilon: float = 0.005) -> Polygon:
     # Adjust the tolerance parameter `epsilon` relative to the size of the mask
     epsilon *= cv2.arcLength(contours[0], closed=True)
     approx = cv2.approxPolyDP(contours[0], epsilon, closed=True)
-    return np.squeeze(approx)
+    return Polygon(np.squeeze(approx))
 
 
 def masks2polygons(masks: Iterable[Mask], epsilon=0.005) -> Iterable[Polygon]:
@@ -107,13 +234,7 @@ def masks2polygons(masks: Iterable[Mask], epsilon=0.005) -> Iterable[Polygon]:
     return [mask2polygon(mask, epsilon) for mask in masks]
 
 
-def bbox2polygon(bbox: Bbox) -> Polygon:
-    """Convert bounding box to polygon"""
-    x1, y1, x2, y2 = bbox
-    return np.array([[x1, y1], [x1, y2], [x2, y2], [x2, y1]])
-
-
 def mask2bbox(mask: Mask) -> Bbox:
     """Convert mask to bounding box"""
     y, x = np.where(mask != 0)
-    return np.min(x), np.min(y), np.max(x), np.max(y)
+    return Bbox(np.min(x), np.min(y), np.max(x), np.max(y))

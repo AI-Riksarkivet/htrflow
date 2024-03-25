@@ -33,7 +33,7 @@ class TestSegment:
         expected_polygon = np.array([[3, 1], [1, 3], [3, 5], [5, 3]])
 
         assert segment.bbox.xyxy == expected_bbox, "Bbox should enclose the ellipse"
-        assert np.allclose(segment.polygon, expected_polygon), "Polygon should approximate the ellipse"
+        assert np.allclose(segment.polygon.as_nparray(), expected_polygon), "Polygon should approximate the ellipse"
 
     def test_segment_initialization_with_mask_and_bbox(self, ellipse_mask_with_fitted_bbox_tuple):
         given_mask, given_bbox = ellipse_mask_with_fitted_bbox_tuple
@@ -43,4 +43,4 @@ class TestSegment:
 
         assert segment.bbox.xyxy == given_bbox, "Provided bbox should be used"
         assert np.array_equal(segment.mask, given_mask), "Provided mask should be used"
-        assert np.array_equal(segment.polygon, expected_polygon), "Polygon should approximate the ellipse"
+        assert np.array_equal(segment.polygon.as_nparray(), expected_polygon), "Polygon should approximate the ellipse"

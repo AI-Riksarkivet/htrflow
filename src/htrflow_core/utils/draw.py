@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from htrflow_core.utils import imgproc
-from htrflow_core.utils.geometry import Bbox, Mask, Point, Polygon, bbox2polygon
+from htrflow_core.utils.geometry import Bbox, Mask, Point, Polygon
 
 
 if TYPE_CHECKING:
@@ -49,7 +49,7 @@ def draw_bboxes(
     Returns:
         A copy of the input image with the bounding boxes drawn.
     """
-    polygons = [bbox2polygon(bbox) for bbox in bboxes]
+    polygons = [bbox.as_polygon() for bbox in bboxes]
     return draw_polygons(image, polygons, color, thickness, alpha, labels)
 
 
@@ -96,6 +96,7 @@ def draw_polygons(
         A copy of the input image with polygons drawn on it.
     """
     image = image.copy()
+    polygons = [polygon.as_nparray() for polygon in polygons]
     cv2.polylines(image, polygons, isClosed=True, color=color, thickness=thickness)
     if alpha > 0:
         for polygon in polygons:

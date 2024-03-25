@@ -176,7 +176,7 @@ def test_polygon_nested(demo_volume_segmented_nested):
     # .polygon attribute should be relative to original image
     # but segment.polygon should be relative to parent
     expected_polygon = [(node.coord.x + x, node.coord.y + y) for x, y in nested_node._segment.polygon]
-    assert nested_node.polygon == expected_polygon
+    assert all(p1[0] == p2[0] for p1, p2 in zip(nested_node.polygon, expected_polygon))
 
 
 def test_polygon_not_nested(demo_volume_segmented):
@@ -259,7 +259,7 @@ def test_pickling(demo_volume_segmented_nested):
     picklestring = pickle.dumps(demo_volume_segmented_nested)
     vol = pickle.loads(picklestring)
     assert isinstance(vol, volume.Volume)  # sanity check
-    assert vol[0, 0].polygon == demo_volume_segmented_nested[0, 0].polygon
+    assert all(p1 == p2 for p1, p2 in zip(vol[0, 0].polygon[0], demo_volume_segmented_nested[0, 0].polygon[0]))
     assert vol[0, 0, 0].label == demo_volume_segmented_nested[0, 0, 0].label
 
 

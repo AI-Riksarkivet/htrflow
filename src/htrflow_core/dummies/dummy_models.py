@@ -32,12 +32,12 @@ class SegmentationModel(BaseModel):
                 if self.segment_type == "mask":
                     mask = randommask(h, w)
                     segments.append(
-                        Segment.from_mask(mask, score=score, class_label=label if label else randomlabel())
+                        Segment(mask=mask, score=score, class_label=label if label else randomlabel())
                     )
                 else:
                     bbox = randombox(h, w)
                     segments.append(
-                        Segment.from_bbox(bbox, score=score, class_label=label if label else randomlabel())
+                        Segment(bbox=bbox, score=score, class_label=label if label else randomlabel())
                     )
 
             results.append(Result(image, metadata, segments, []))

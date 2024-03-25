@@ -7,79 +7,130 @@ from htrflow_core.utils import draw, geometry, imgproc
 from htrflow_core.utils.geometry import Bbox, Mask, Polygon
 
 
-LabelType: TypeAlias = Optional[Literal["text", "class", "conf"]]
+LabelType: TypeAlias = Literal["text", "class", "conf"] | None
 
 
-@dataclass
 class Segment:
     """Segment class
 
+    Class representing a segment of an image, typically a result from
+    a segmentation model or a detection model.
+
     Attributes:
-        bbox: The bounding box of the segment relative to the input image.
-        Defaults to None, in which case a bounding box will be computed from the mask. Required if mask is None.
-        mask: The mask of the segment, if available.
-        The mask can either be of the same shape as the input image or of the same shape as the bounding box.
-        It will be cropped to match the size of the bounding box if needed. Defaults to None. Required if bbox is None.
-        score: Segment confidence score. Defaults to None.
-        class_label: Segment class label. Defaults to None.
-        polygon: An approximation of the segment mask, relative to the parent.
-        orig_shape: The shape of the input image.
-    """  # noqa: E501
+        bbox: The bounding box of the segment
+        mask: The segment's mask, if available. The mask is stored
+            relative to the bounding box. Use the `global_mask()`
+            method to retrieve the mask relative to the original image.
+        score: Segment confidence score, if available.
+        class_label: Segment class label, if available.
+        polygon: An approximation of the segment mask, relative to the
+            original image. If no mask is available, `polygon` defaults
+            to a polygon representation of the segment's bounding box.
+        orig_shape: The shape of the orginal input image.
+    """
 
-    bbox: Optional[Bbox] = None
-    mask: Optional[Mask] = None
-    score: Optional[float] = None
-    class_label: Optional[str] = None
-    polygon: Polygon = field(init=False)
-    orig_shape: Optional[tuple[int, int]] = None
+    bbox: Bbox
+    mask: Mask | None
+    score: float | None
+    class_label: str | None
+    polygon: Polygon
+    orig_shape: tuple[int, int] | None
 
-    def __post_init__(self):
-        """Post-initialization to compute derived attributes like polygon from mask or bbox."""
+    def __init__(
+            self,
+            bbox: tuple[int, int, int, int] | Bbox | None = None,
+            mask: Mask | None = None,
+            score: float | None = None,
+            class_label: str | None = None,
+            polygon: Polygon | Sequence[tuple[int, int]] | None = None,
+            orig_shape: tuple[int, int] | None = None
+    ):
+        """Create a `Segment` instance
 
-        if self.bbox is None and self.mask is None:
-            raise ValueError("Cannot instantiate Segment without bbox or mask")
+        A segment can be created from a bounding box, a polygon, a mask
+        or any combination of the three.
 
-        if self.mask is not None:
-            self.polygon = geometry.mask2polygon(self.mask)
-            if self.bbox is None:
-                self.bbox = geometry.mask2bbox(self.mask)
-
-            # Crop mask to bounding box if needed
-            x1, y1, x2, y2 = self.bbox
-            mask_h, mask_w = self.mask.shape[:2]
-            if mask_h != y2 - y1 or mask_w != x2 - x1:
-                self.mask = imgproc.crop(self.mask, self.bbox)
-        else:
-            self.polygon = geometry.bbox2polygon(self.bbox)
-
-        self.bbox = Bbox(*self.bbox)
-
-    @classmethod
-    def from_bbox(cls, bbox: Bbox, **kwargs) -> "Segment":
-        """Create a segment from a bounding box"""
-        return cls(bbox=bbox, **kwargs)
-
-    @classmethod
-    def from_mask(cls, mask: Mask, **kwargs) -> "Segment":
-        """Create a segment from a mask
-
-        Args:
-            mask: A binary mask, of same shape as original image.
+        Arguments:
+            bbox: The segment's bounding box, as either a `geometry.Bbox`
+                instance or as a (xmin, ymin, xmax, ymax) tuple. Required
+                if `mask` and `polygon` are None. Defaults to None.
+            mask: The segment's mask, either relative to the bounding box
+                or relative to the original input image. If both `bbox`
+                and `polygon` are None, `mask` is required and must be the
+                same shape as the original input image. Defaults to None.
+            score: Segment confidence score. Defaults to None.
+            class_label: Segment class label. Defaults to None.
+            polygon: A polygon defining the segment, relative to the input
+                image. Defaults to None. Required if both `mask` and `bbox`
+                are None.
+            orig_shape: The shape of the orginal input image. Defaults to
+                None.
         """
-        return cls(mask=mask, **kwargs)
 
-    @classmethod
-    def from_baseline(cls, baseline, **kwargs):
-        """Create a segment from a baseline"""
-        raise NotImplementedError()
+        # Convert polygon and bbox to Polygon and Bbox instances
+        if polygon is not None:
+            polygon = geometry.Polygon(polygon)
+        if bbox is not None:
+            bbox = geometry.Bbox(*bbox)
 
-    @property
-    def global_mask(self):
-        """The segment mask relative to the original input image"""
+
+        match (bbox, mask, polygon):
+
+            case (None, None, None):
+                raise ValueError("Cannot create a Segment without bbox, mask or polygon")
+
+            case (_, None, None):
+                # Only bbox is given: Create a polygon from the bbox and leave the
+                # mask as None.
+                polygon = bbox.polygon()
+
+            case (None, _, None):
+                # Only mask is given: In this case, the mask is assumed to be aligned
+                # with the original image, i.e., it has the same height and width as
+                # the input image. The other attributes (bbox and polygon) can in such
+                # case be inferred from the mask. After computing them, the mask is
+                # converted to a local mask.
+                bbox = geometry.mask2bbox(mask)
+                polygon = geometry.mask2polygon(mask)
+                mask = imgproc.crop(mask, bbox)
+
+            case (None, None, _):
+                # Only polygon is given: Create a bounding box from the polygon and
+                # leave the mask as None.
+                bbox = geometry.Polygon(polygon).bbox()
+
+            case (_, _, None):
+                # Both bbox and mask are given: Create a polygon from the mask.
+                polygon = geometry.mask2polygon(mask)
+                if mask.shape[:2] == (bbox.height, bbox.width):
+                    polygon = polygon.move(bbox.p1)
+                else:
+                    mask = imgproc.crop(mask, bbox)
+
+        self.bbox = bbox
+        self.polygon = polygon
+        self.mask = mask
+        self.score = score
+        self.class_label = class_label
+        self.orig_shape = orig_shape
+
+    def global_mask(self, orig_shape: tuple[int, int] | None = None) -> Optional[Mask]:
+        """
+        The segment mask relative to the original input image.
+
+        Arguments:
+            orig_shape: Pass this argument to use another original shape
+                than the segment's `orig_shape` attribute. Defaults to None.
+        """
         if self.mask is None:
             return None
+
+        orig_shape = self.orig_shape if orig_shape is None else orig_shape
+        if orig_shape is None:
+            raise ValueError("Cannot compute the global mask without knowing the original shape.")
+
         x1, y1, x2, y2 = self.bbox
-        mask = np.zeros(self.orig_shape, dtype=np.uint8)
+        mask = np.zeros(orig_shape, dtype=np.uint8)
         mask[y1:y2, x1:x2] = self.mask
         return mask
 
