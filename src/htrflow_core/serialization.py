@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from htrflow_core.volume import Node, PageNode, RegionNode, Volume
 
 
-_TEMPLATES_DIR = "src/htrflow_core/templates"  # Path to templates
+_TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "templates")
 
 
 class Serializer:
