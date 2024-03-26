@@ -3,7 +3,7 @@
     <Description>
         <MeasurementUnit>pixel</MeasurementUnit>
         <sourceImageInformation>
-            <fileName>{{ page.image_path }}</fileName>
+            <fileName>{{ page.get('image_path') }}</fileName>
         </sourceImageInformation>
         {%- for step in metadata.processing_steps %}
         <Processing ID="step{{ loop.index }}">

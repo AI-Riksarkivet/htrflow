@@ -5,7 +5,7 @@
         <Created>{{ metadata.created }}</Created>
         <LastChange>{{ metadata.last_change }}</LastChange>
     </Metadata>
-    <Page imageFilename="{{ page.image_path }}" imageWidth="{{ page.width }}" imageHeight="{{ page.height }}">
+    <Page imageFilename="{{ page.get('image_path') }}" imageWidth="{{ page.width }}" imageHeight="{{ page.height }}">
         <ReadingOrder>
             <OrderedGroup id='ro'>
             {%- for node in page recursive %}
@@ -26,13 +26,13 @@
             {%- for child in node.children %}
                 <Word id="{{ labels[child] }}">
                     <Coords points="{% for point in child.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}" />
-                    <TextEquiv conf="{{ child.recognized_text.top_score() }}">
+                    <TextEquiv conf="{{ child.get('text_result').top_score() }}">
                         <Unicode>{{ child.text }}</Unicode>
                     </TextEquiv>
                 </Word>
             {%- endfor %}
             {%- else %}
-            <TextEquiv conf="{{ node.recognized_text.top_score() }}">
+            <TextEquiv conf="{{ node.get('text_result').top_score() }}">
                 <Unicode>{{ node.text }}</Unicode>
             </TextEquiv>
             {%-endif %}

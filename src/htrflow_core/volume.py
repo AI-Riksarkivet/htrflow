@@ -4,9 +4,8 @@ This module holds the base data structures
 
 import os
 import pickle
-from abc import ABC, abstractmethod, abstractproperty
-from itertools import chain
-from typing import Callable, Iterable, Optional, Sequence
+from abc import ABC, abstractproperty
+from typing import Any, Callable, Iterable, Optional, Sequence
 
 from htrflow_core import serialization
 from htrflow_core.results import RecognizedText, Result, Segment
@@ -20,12 +19,12 @@ class Node:
 
     parent: Optional["Node"]
     children: Sequence["Node"]
-    depth: int
+    data: dict[str, Any]
 
     def __init__(self, parent: Optional["Node"] = None):
         self.parent = parent
         self.children = []
-        self.depth = parent.depth + 1 if parent else 0
+        self.data = {}
 
     def __getitem__(self, i):
         if isinstance(i, int):
@@ -33,12 +32,23 @@ class Node:
         i, *rest = i
         return self.children[i][rest] if rest else self.children[i]
 
+    def __iter__(self):
+        return iter(self.children)
+
+    def depth(self):
+        if self.parent is None:
+            return 0
+        return self.parent.depth + 1
+
+    def add_data(self, **data):
+        self.data |= data
+
+    def get(self, key: str, default=None):
+        return self.data.get(key, default)
+
     def leaves(self):  # -> Sequence[Self]:
         """Return the leaf nodes attached to this node"""
-        nodes = [] if self.children else [self]
-        for child in self.children:
-            nodes.extend(child.leaves())
-        return nodes
+        return self.traverse(filter=lambda node: node.is_leaf())
 
     def traverse(self, filter: Optional[Callable[["Node"], bool]] = None) -> Sequence["Node"]:
         """Return all nodes attached to this node"""
@@ -56,43 +66,39 @@ class Node:
         return "\n".join(lines).strip("└──")
 
     def is_leaf(self) -> bool:
+        """True if this node does not have any children"""
         return not self.children
+
+    def asdict(self):
+        """This node's and its decendents' data as a dictionary"""
+        if self.is_leaf():
+            return self.data
+        return self.data | {"children": [child.asdict() for child in self.children]}
 
 
 class BaseDocumentNode(Node, ABC):
     """Extension of Node class with functionality related to documents"""
 
-    label: str
-    children: Sequence["RegionNode"]
-
-    # Read-only geometry related attributes
-    _height: int
-    _width: int
-    _coord: Optional[Point] = None
-    _polygon: Optional[Polygon] = None
-
-    def __str__(self) -> str:
-        return f"{self.height}x{self.width} node ({self.label}) at ({self.coord.x}, {self.coord.y})"
-
     @abstractproperty
     def image(self):
         """Image of the region this node represents"""
-        pass
 
-    @abstractproperty
+    @property
     def text(self) -> str | None:
         """Text of this region, if available"""
-        pass
+        if text_result := self.get("text_result"):
+            return text_result.top_candidate()
+        return None
 
     @property
     def height(self) -> int:
         """Height of the region this node represents"""
-        return self._height
+        return self.get("height")
 
     @property
     def width(self) -> int:
         """Width of the region this node represents"""
-        return self._width
+        return self.get("width")
 
     @property
     def coord(self) -> Point:
@@ -100,7 +106,7 @@ class BaseDocumentNode(Node, ABC):
         Position of the region this node represents relative to the
         original input image (root node of the tree).
         """
-        return self._coord or Point(0, 0)
+        return self.get("coord", Point(0, 0))
 
     @property
     def polygon(self) -> Polygon:
@@ -110,7 +116,7 @@ class BaseDocumentNode(Node, ABC):
         If no mask is available, this attribute defaults to a polygon
         representation of the region's bounding box.
         """
-        return self._polygon or self.bbox.polygon()
+        return self.get("polygon")
 
     @property
     def bbox(self) -> Bbox:
@@ -121,9 +127,17 @@ class BaseDocumentNode(Node, ABC):
         x, y = self.coord
         return Bbox(x, y, x + self.width, y + self.height)
 
-    @abstractmethod
-    def add_text(self, recognized_text: RecognizedText):
-        """Add text to this node"""
+    def add_text(self, text: RecognizedText):
+        if self.parent is None:
+            child = RegionNode(Segment(bbox=self.bbox), self)
+            self.children = [child]
+            child.add_data(text_result = text)
+        else:
+            self.add_data(text_result = text)
+
+    @property
+    def label(self):
+        return self.get("label", "node")
 
     def segment(self, segments: Sequence[Segment]):
         """Segment this node"""
@@ -158,85 +172,61 @@ class BaseDocumentNode(Node, ABC):
 class RegionNode(BaseDocumentNode):
     """A node representing a segment of a page"""
 
-    _segment: Segment
-    recognized_text: Optional[RecognizedText] = None
-    parent: BaseDocumentNode
-
-    DEFAULT_LABEL = "region"
-
     def __init__(self, segment: Segment, parent: BaseDocumentNode):
-        super().__init__(parent)
-        self.recognized_text = None
-        self.label = segment.class_label if segment.class_label else RegionNode.DEFAULT_LABEL
-
-        self._height = segment.bbox.height
-        self._width = segment.bbox.width
-        self._polygon = segment.polygon.move(parent.coord)
-        self._coord = segment.bbox.p1.move(parent.coord)
-        self._segment = segment
+        super().__init__(parent=parent)
+        self.add_data(
+            height=segment.bbox.height,
+            width=segment.bbox.width,
+            polygon=segment.polygon.move(parent.coord),
+            coord=segment.bbox.p1.move(parent.coord),
+            segment=segment,
+        )
 
     def __str__(self) -> str:
+        s = f"{self.height}x{self.width} node ({self.label}) at ({self.coord.x}, {self.coord.y})"
         if self.text:
-            return f'{super().__str__()}: "{self.text}"'
-        return super().__str__()
-
-    def add_text(self, recognized_text):
-        self.recognized_text = recognized_text
+            s += f": {self.text}"
+        return s
 
     @property
     def image(self):
         """The image this node represents"""
-        img = imgproc.crop(self.parent.image, self._segment.bbox)
-        if self._segment.mask is not None:
-            img = imgproc.mask(img, self._segment.mask)
+        segment = self.get("segment")
+        bbox = segment.bbox
+        mask = segment.mask
+        img = imgproc.crop(self.parent.image, bbox)
+        if mask is not None:
+            img = imgproc.mask(img, mask)
         return img
-
-    @property
-    def text(self) -> Optional[str]:
-        """Return self.recognized_text.top_candidate() if available"""
-        if self.recognized_text:
-            return self.recognized_text.top_candidate()
-        return None
 
 
 class PageNode(BaseDocumentNode):
     """A node representing a page / input image"""
 
     def __init__(self, image_path: str):
-        self._image = imgproc.read(image_path)
-        self.image_path = image_path
-
-        # Extract image name and remove file extension (`path/to/image.jpg` -> `image`)
-        self.image_name = os.path.basename(image_path).split(".")[0]
-        self.label = self.image_name
-
-        height, width = self.image.shape[:2]
-        self._height = height
-        self._width = width
         super().__init__()
+        self._image = imgproc.read(image_path)
+        # Extract image name and remove file extension (`path/to/image.jpg` -> `image`)
+        name = os.path.basename(image_path).split(".")[0]
+        height, width = self.image.shape[:2]
+        self.add_data(
+            image_path = image_path,
+            image_name = name,
+            height = height,
+            width = width,
+            polygon = Bbox(0, 0, width, height).polygon(),
+            label = name
+        )
+
+    def __str__(self):
+        return f"{self.height}x{self.width} image ({self.get('image_name')})"
 
     @property
     def image(self):
         return self._image
 
-    @property
-    def text(self):
-        return None
 
-    def add_text(self, recognized_text: RecognizedText):
-        """Add text to this node
-
-        A PageNode cannot contain any text directly. All text must be
-        put in RegionNodes. This method creates a new RegionNode that
-        covers the page, adds the text to this new node, and attaches
-        it to the PageNode.
-        """
-        child = RegionNode(Segment(bbox=self.bbox), self)
-        self.children = [child]
-        child.add_text(recognized_text)
-
-
-class Volume:
+class Volume(Node):
 
     """Class representing a collection of input images
 
@@ -259,7 +249,8 @@ class Volume:
             paths: A list of paths to images
             label: A label describing the volume (optional)
         """
-        self.pages = [PageNode(path) for path in paths]
+        super().__init__()
+        self.children = [PageNode(path) for path in paths]
         self.label = label
 
     @classmethod
@@ -308,27 +299,12 @@ class Volume:
             pickle.dump(self, f)
         return path
 
-    def __getitem__(self, i):
-        if isinstance(i, Iterable):
-            i, *rest = i
-            return self.pages[i].__getitem__(rest)
-        return self.pages[i]
-
-    def __iter__(self):
-        return self.pages.__iter__()
-
     def __str__(self):
-        return f"Volume label: {self.label}\nVolume tree:\n" + "\n".join(page.tree2str() for page in self.pages)
+        return f"Volume label: {self.get('label')}\nVolume tree:\n" + "\n".join(child.tree2str() for child in self)
 
     def images(self):  # -> Generator[np.ndarray]:
         """Yields the volume's original input images"""
-        return ImageGenerator(self.pages)
-
-    def leaves(self):  # -> Iterable[BaseDocumentNode]:
-        return chain.from_iterable(page.leaves() for page in self.pages)
-
-    def traverse(self):
-        return chain.from_iterable(page.traverse() for page in self.pages)
+        return ImageGenerator(self.children)
 
     def segments(self, depth: Optional[int] = None):  # -> Iterable[np.ndarray]:
         """Yields the volume's segments at `depth`

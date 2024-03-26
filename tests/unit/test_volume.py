@@ -3,7 +3,7 @@ import warnings
 
 import pytest
 
-import htrflow_core.volume as volume
+from htrflow_core import volume
 from htrflow_core.dummies.dummy_models import RecognitionModel, SegmentationModel
 
 
@@ -118,7 +118,7 @@ def test_update_segmentation_bbox(demo_image):
     node.segment(result.segments)
     segment_index = 0
     segment_bbox = result.segments[segment_index].bbox
-    node_bbox = node[segment_index].bbox
+    node_bbox = node[segment_index].get("segment").bbox
     assert node_bbox == segment_bbox
 
 
@@ -138,12 +138,12 @@ def test_update_nested_segmentation_coordinates(demo_volume_segmented_nested):
     segment = page[0]
     nested_segment = page[0, 0]
     parent_x = segment.coord.x
-    nested_segment_x_relative_to_parent = nested_segment._segment.bbox[0]
+    nested_segment_x_relative_to_parent = nested_segment.get("segment").bbox[0]
     assert nested_segment.coord.x == parent_x + nested_segment_x_relative_to_parent
 
     parent_y = segment.coord.y
     nested_segment = page[0, 0]
-    nested_segment_y_relative_to_parent = nested_segment._segment.bbox[1]
+    nested_segment_y_relative_to_parent = nested_segment.get("segment").bbox[1]
     assert nested_segment.coord.y == parent_y + nested_segment_y_relative_to_parent
 
 
@@ -154,7 +154,7 @@ def test_update_region_text(demo_volume_segmented):
     page = demo_volume_segmented[0]
     node = page[0]
     texts = result[0].texts[0]
-    assert node.recognized_text == texts
+    assert node.get("text_result") == texts
 
 
 def test_update_page_text(demo_volume_unsegmented):
@@ -175,7 +175,7 @@ def test_polygon_nested(demo_volume_segmented_nested):
     nested_node = page[0, 0]
     # .polygon attribute should be relative to original image
     # but segment.polygon should be relative to parent
-    expected_polygon = [(node.coord.x + x, node.coord.y + y) for x, y in nested_node._segment.polygon]
+    expected_polygon = [(node.coord.x + x, node.coord.y + y) for x, y in nested_node.get("segment").polygon]
     assert all(p1[0] == p2[0] for p1, p2 in zip(nested_node.polygon, expected_polygon))
 
 
@@ -205,7 +205,7 @@ def test_volume_update_wrong_size(demo_volume_segmented):
 
 def test_volume_iter(demo_volume_segmented):
     # iterating over the volume should iterate over its children (pages)
-    assert all(a == b for a, b in zip(demo_volume_segmented, demo_volume_segmented.pages))
+    assert all(a == b for a, b in zip(demo_volume_segmented, demo_volume_segmented.children))
 
 
 def test_volume_segments_depth(demo_volume_segmented):
@@ -267,5 +267,5 @@ def test_save_and_load_pickle(tmpdir, demo_volume_with_text):
     # TODO: see test_pickling
     picklefile = demo_volume_with_text.pickle(tmpdir)
     vol = volume.Volume.from_pickle(picklefile)
-    assert vol[0, 0].recognized_text.top_candidate() == demo_volume_with_text[0, 0].recognized_text.top_candidate()
+    assert vol[0, 0].get("text_result").top_candidate() == demo_volume_with_text[0, 0].get("text_result").top_candidate()
     assert vol[0, 0].parent.height == demo_volume_with_text[0].height
