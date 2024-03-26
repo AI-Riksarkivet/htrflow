@@ -12,6 +12,8 @@ from htrflow_core.results import RecognizedText, Result
 # TODO adding LLavaNext
 # test so qunatization works.
 # see if there are possibleies to refactor TrOCR and LLavaNext for creatiion of dataset
+# SOmething is wrong with the image type for list
+
 
 class LLavaNext(BaseModel):
     default_generation_kwargs = {
@@ -32,18 +34,20 @@ class LLavaNext(BaseModel):
 
         nf4_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4")
 
-        self.model = LlavaNextForConditionalGeneration.from_pretrained(model, cache_dir=cache_dir,
-                                                                       token=hf_token,
-                                                                       quantization_config = nf4_config,
-                                                                       torch_dtype=torch.float32,
-                                                                       low_cpu_mem_usage=True,
-                                                                       ).to(self.device)
+        self.model = LlavaNextForConditionalGeneration.from_pretrained(
+            model,
+            cache_dir=cache_dir,
+            token=hf_token,
+            quantization_config=nf4_config,
+            torch_dtype=torch.float32,
+            low_cpu_mem_usage=True,
+            device_map="auto",
+        )
 
         if processor is None:
             processor = model
-        self.processor = LlavaNextProcessor.from_pretrained.from_pretrained(processor,
-                                                                            cache_dir=cache_dir,
-                                                                            token=hf_token)
+        self.processor = LlavaNextProcessor.from_pretrained(processor, cache_dir=cache_dir, token=hf_token)
+
         self.metadata = {
             "model": str(model),
             "processor": str(processor),
@@ -53,7 +57,6 @@ class LLavaNext(BaseModel):
         # Prepare generation keyword arguments
         generation_kwargs = self._prepare_generation_kwargs(**generation_kwargs)
         metadata = self.metadata | {"generation_args": generation_kwargs}
-
 
         prompt = "[INST] <image>\Transcribe the text in the image [/INST]"
 
