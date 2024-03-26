@@ -3,7 +3,7 @@ from __future__ import annotations
 import datetime
 import json
 import os
-from typing import TYPE_CHECKING, Any, Iterable, Optional, Sequence, Union
+from typing import TYPE_CHECKING, Iterable, Optional, Sequence, Union
 
 import xmlschema
 from jinja2 import Environment, FileSystemLoader
@@ -12,7 +12,7 @@ import htrflow_core
 
 
 if TYPE_CHECKING:
-    from htrflow_core.volume import Node, PageNode, RegionNode, Volume
+    from htrflow_core.volume import PageNode, RegionNode, Volume
 
 
 _TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "templates")
@@ -110,9 +110,9 @@ class Json(Serializer):
         self.include = include
 
     def serialize(self, page: PageNode):
-        # Instead of passing `page` directly to json.dumps, it is first
-        # converted to a dictionary with node2dict. This
-        return json.dumps(node2dict(page, self.include), default=lambda o: getattr(o, "__dict__", None), indent=4)
+        def _serialize(obj):
+            return {k: v for k, v in obj.__dict__ if k not in ["mask", "_image", "parent"]}
+        return json.dumps(page.asdict(), default=_serialize, indent=4)
 
 
 class PlainText(Serializer):
@@ -177,10 +177,10 @@ def save_volume(volume: Volume, serializer: str | Serializer, dest: str) -> Iter
 
     for page in volume:
         if not page.contains_text():
-            raise ValueError(f"Cannot serialize page without text: {page.image_name}")
+            raise ValueError(f"Cannot serialize page without text: {page.label}")
 
         doc = serializer.serialize(page)
-        filename = os.path.join(dest, page.image_name + serializer.extension)
+        filename = os.path.join(dest, page.label + serializer.extension)
 
         with open(filename, "w") as f:
             f.write(doc)
@@ -198,38 +198,3 @@ def label_nodes(node: PageNode | RegionNode, template="%s") -> dict[PageNode | R
     for i, child in enumerate(node.children):
         labels |= label_nodes(child, f"{labels[node]}_%s{i}")
     return labels
-
-
-def node2dict(node: Node, include: Optional[Sequence[str]] = None) -> dict[str, Any]:
-    """Convert node and its children to dictionary
-
-    Recursively converts the tree starting at `node` to a dictionary.
-    By default, this function includes the following attributes and
-    properties: height, width, (global) bounding box, label, segment
-    (i.e. the node's Segment instance, if available) and recognized text.
-
-    Arguments:
-        node: Starting node
-        include: Optional list of attributes and properties to include.
-            If None, the default attributes are included. See `Node` and
-            `BaseDocumentNode` for available attributes and properties.
-
-    Returns:
-        A dictionary containing the node's data.
-    """
-    d = {}
-
-    # Default attributes to include
-    if include is None:
-        include = ["height", "width", "bbox", "label", "recognized_text", "_segment"]
-
-    for attrib in include:
-        # Adds attribute to dictionary if 1) it exists and 2) it is "True",
-        # i.e. it is not an empty list or string
-        if val := getattr(node, attrib, False):
-            d[attrib] = val
-
-    if node.children:
-        d["children"] = [node2dict(child, include) for child in node.children]
-
-    return d
