@@ -226,7 +226,7 @@ def mask2polygon(mask: Mask, epsilon: float = 0.005) -> Polygon:
     # Adjust the tolerance parameter `epsilon` relative to the size of the mask
     epsilon *= cv2.arcLength(contours[0], closed=True)
     approx = cv2.approxPolyDP(contours[0], epsilon, closed=True)
-    return Polygon(np.squeeze(approx))
+    return Polygon(np.squeeze(approx).tolist())
 
 
 def masks2polygons(masks: Iterable[Mask], epsilon=0.005) -> Iterable[Polygon]:
@@ -237,4 +237,4 @@ def masks2polygons(masks: Iterable[Mask], epsilon=0.005) -> Iterable[Polygon]:
 def mask2bbox(mask: Mask) -> Bbox:
     """Convert mask to bounding box"""
     y, x = np.where(mask != 0)
-    return Bbox(np.min(x), np.min(y), np.max(x), np.max(y))
+    return Bbox(np.min(x).item(), np.min(y).item(), np.max(x).item(), np.max(y).item())
