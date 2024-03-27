@@ -75,8 +75,8 @@ def demo_page_segmented_thrice(demo_image):
 
 
 def test_alto_unsegmented(demo_page_unsegmented, alto):
-    doc = alto.serialize(demo_page_unsegmented)
-    alto.validate(doc)
+    with pytest.raises(ValueError) as _:
+        alto.serialize(demo_page_unsegmented)
 
 
 def test_alto_segmented(demo_page_segmented_once, alto):
@@ -95,8 +95,9 @@ def test_alto_segmented_thrice(demo_page_segmented_thrice, alto):
 
 
 def test_page_unsegmented(demo_page_unsegmented, page):
-    doc = page.serialize(demo_page_unsegmented)
-    page.validate(doc)
+    with pytest.raises(ValueError) as _:
+        page.serialize(demo_page_unsegmented)
+
 
 
 def test_page_segmented(demo_page_segmented_once, page):

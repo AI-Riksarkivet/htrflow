@@ -58,6 +58,9 @@ class AltoXML(Serializer):
         self.schema = os.path.join(_SCHEMA_DIR, "alto-4-4.xsd")
 
     def serialize(self, page: PageNode) -> str:
+        if page.is_leaf():
+            raise ValueError("Cannot serialize unsegmented page to Alto XML")
+
         # ALTO doesn't support nesting of regions ("TextBlock" elements)
         # This function is called from within the jinja template to tell
         # if a node corresponds to a TextBlock element, i.e. if its
@@ -83,6 +86,9 @@ class PageXML(Serializer):
         self.schema = os.path.join(_SCHEMA_DIR, "pagecontent.xsd")
 
     def serialize(self, page: PageNode):
+        if page.is_leaf():
+            raise ValueError("Cannot serialize unsegmented page to Page XML")
+
         return self.template.render(
             page=page,
             metadata=metadata(page),

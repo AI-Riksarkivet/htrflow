@@ -1,5 +1,4 @@
 import pickle
-import warnings
 
 import pytest
 
@@ -157,18 +156,6 @@ def test_update_region_text(demo_volume_segmented):
     assert node.get("text_result") == texts
 
 
-def test_update_page_text(demo_volume_unsegmented):
-    model = RecognitionModel()
-    result = model(demo_volume_unsegmented.segments())
-    # This should create children and assign the text to them (not to the page)
-    demo_volume_unsegmented.update(result)
-    page = demo_volume_unsegmented[0]
-    node = page[0]
-    texts = result[0].texts[0]
-    assert page.children  # Check that the page has children
-    assert node.text == texts.top_candidate()  # Check that the texts match
-
-
 def test_polygon_nested(demo_volume_segmented_nested):
     page = demo_volume_segmented_nested[0]
     node = page[0]
@@ -223,30 +210,8 @@ def test_volume_segments_depth_none(demo_volume_segmented):
     assert all((img == leaf.image).all() for img, leaf in zip(segments, leaves))
 
 
-def test_volume_no_parentless_leaves(demo_volume_with_text):
-    page = demo_volume_with_text[0]
-    leaves = page.leaves()
-    assert all(leaf.parent is not None for leaf in leaves)
-
-
 # Tests of volume.save()
 # More thorough serialization testing is done in test_seralization
-
-
-def test_volume_save_alto(tmpdir, demo_volume_with_text):
-    # warning => the alto files don't follow schema
-    with warnings.catch_warnings():
-        demo_volume_with_text.save(tmpdir, "alto")
-        assert len(tmpdir.listdir()) == 1
-
-
-def test_volume_save_page(tmpdir, demo_volume_with_text):
-    # warning => the page files don't follow schema
-    with warnings.catch_warnings():
-        demo_volume_with_text.save(tmpdir, "page")
-        assert len(tmpdir.listdir()) == 1
-
-
 def test_volume_save_text(tmpdir, demo_volume_with_text):
     demo_volume_with_text.save(tmpdir, "txt")
     assert len(tmpdir.listdir()) == 1
@@ -263,9 +228,9 @@ def test_pickling(demo_volume_segmented_nested):
     assert vol[0, 0, 0].label == demo_volume_segmented_nested[0, 0, 0].label
 
 
-def test_save_and_load_pickle(tmpdir, demo_volume_with_text):
+def test_save_and_load_pickle(tmpdir, demo_volume_segmented_nested):
     # TODO: see test_pickling
-    picklefile = demo_volume_with_text.pickle(tmpdir)
+    picklefile = demo_volume_segmented_nested.pickle(tmpdir)
     vol = volume.Volume.from_pickle(picklefile)
-    assert vol[0, 0].get("text_result").top_candidate() == demo_volume_with_text[0, 0].get("text_result").top_candidate()
-    assert vol[0, 0].parent.height == demo_volume_with_text[0].height
+    assert vol[0, 0].height == demo_volume_segmented_nested[0, 0].height
+    assert vol[0, 0].parent.width == demo_volume_segmented_nested[0].width

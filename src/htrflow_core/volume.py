@@ -79,6 +79,12 @@ class Node:
 class BaseDocumentNode(Node, ABC):
     """Extension of Node class with functionality related to documents"""
 
+    def __str__(self) -> str:
+        s = f"{self.height}x{self.width} node ({self.label}) at ({self.coord.x}, {self.coord.y})"
+        if self.text:
+            s += f": {self.text}"
+        return s
+
     @abstractproperty
     def image(self):
         """Image of the region this node represents"""
@@ -128,12 +134,7 @@ class BaseDocumentNode(Node, ABC):
         return Bbox(x, y, x + self.width, y + self.height)
 
     def add_text(self, text: RecognizedText):
-        if self.parent is None:
-            child = RegionNode(Segment(bbox=self.bbox), self)
-            self.children = [child]
-            child.add_data(text_result = text)
-        else:
-            self.add_data(text_result = text)
+        self.add_data(text_result = text)
 
     @property
     def label(self):
@@ -182,12 +183,6 @@ class RegionNode(BaseDocumentNode):
             segment=segment,
         )
 
-    def __str__(self) -> str:
-        s = f"{self.height}x{self.width} node ({self.label}) at ({self.coord.x}, {self.coord.y})"
-        if self.text:
-            s += f": {self.text}"
-        return s
-
     @property
     def image(self):
         """The image this node represents"""
@@ -217,9 +212,6 @@ class PageNode(BaseDocumentNode):
             polygon = Bbox(0, 0, width, height).polygon(),
             label = name
         )
-
-    def __str__(self):
-        return f"{self.height}x{self.width} image ({self.get('image_name')})"
 
     @property
     def image(self):
