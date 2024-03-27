@@ -38,7 +38,7 @@ class Node:
     def depth(self):
         if self.parent is None:
             return 0
-        return self.parent.depth + 1
+        return self.parent.depth() + 1
 
     def add_data(self, **data):
         self.data |= data
@@ -74,6 +74,35 @@ class Node:
         if self.is_leaf():
             return self.data
         return self.data | {"children": [child.asdict() for child in self.children]}
+
+    def detach(self):
+        """Detach node from tree
+
+        Removes the node from its parent's children and sets its parent
+        to None, effectively removing it from the tree.
+        """
+        if self.parent:
+            siblings = self.parent.children
+            self.parent.children = [child for child in siblings if child != self]
+        self.parent = None
+
+    def prune(self, condition: Callable[["Node"], bool]):
+        """Prune the tree
+
+        Removes (detaches) all nodes starting from this node that
+        fulfil the given condition. Any decendents of a node that
+        fulfils the condition are also removed.
+
+        Arguments:
+            condition: A function `f` where `f(node) == True` if `node`
+            should be removed from the tree.
+
+        Example: To remove all nodes at depth 2, use
+            node.prune(lambda node: node.depth() == 2)
+        """
+        nodes = self.traverse(filter=condition)
+        for node in nodes:
+            node.detach()
 
 
 class BaseDocumentNode(Node, ABC):

@@ -96,6 +96,22 @@ def test_traverse_grandchildren():
     assert {*root.traverse()} == {root, *children, *grandchildren}
 
 
+def test_node_detach():
+    n_children = 3
+    root = two_layer_tree(n_children)
+    root[0].detach()
+    assert len(root.children) == n_children - 1
+
+
+def test_node_prune():
+    n_children = 3
+    root = two_layer_tree(n_children)
+    def filter_(node):
+        return node.depth() > 1
+    root.prune(filter_)
+    assert not any(filter_(node) for node in root.traverse())
+
+
 def test_update_wrong_type(demo_image):
     root = volume.Volume([demo_image])
     with pytest.raises(TypeError) as _:
