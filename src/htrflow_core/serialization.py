@@ -117,7 +117,7 @@ class Json(Serializer):
 
     def serialize(self, page: PageNode):
         def _serialize(obj):
-            return {k: v for k, v in obj.__dict__ if k not in ["mask", "_image", "parent"]}
+            return {k: v for k, v in obj.__dict__.items() if k not in ["mask", "_image", "parent"]}
         return json.dumps(page.asdict(), default=_serialize, indent=4)
 
 
