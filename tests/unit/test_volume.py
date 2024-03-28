@@ -41,6 +41,21 @@ def demo_volume_segmented_nested(demo_image):
 
 
 @pytest.fixture
+def demo_volume_segmented_nested_with_text(demo_image):
+    n_images = 5
+    vol = volume.Volume([demo_image] * n_images)
+    model = SegmentationModel()
+    result = model(vol.images())
+    vol.update(result)
+    result = model(vol.segments())
+    vol.update(result)
+    model = RecognitionModel()
+    result = model(vol.segments())
+    vol.update(result)
+    return vol
+
+
+@pytest.fixture
 def demo_volume_with_text(demo_image):
     n_images = 1
     vol = volume.Volume([demo_image] * n_images)
@@ -250,3 +265,9 @@ def test_save_and_load_pickle(tmpdir, demo_volume_segmented_nested):
     vol = volume.Volume.from_pickle(picklefile)
     assert vol[0, 0].height == demo_volume_segmented_nested[0, 0].height
     assert vol[0, 0].parent.width == demo_volume_segmented_nested[0].width
+
+
+@pytest.mark.parametrize("threshold", [0.3, 0.6, 0.9, 0.99])
+def test_remove_noise_regions(demo_volume_segmented_nested_with_text, threshold):
+    pruned = volume.remove_noise_regions(demo_volume_segmented_nested_with_text, threshold)
+    assert not any(volume.is_noise(node, threshold) for node in pruned.traverse())

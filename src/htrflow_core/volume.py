@@ -5,6 +5,7 @@ This module holds the base data structures
 import os
 import pickle
 from abc import ABC, abstractproperty
+from copy import deepcopy
 from typing import Any, Callable, Iterable, Optional, Sequence
 
 from htrflow_core import serialization
@@ -86,7 +87,7 @@ class Node:
             self.parent.children = [child for child in siblings if child != self]
         self.parent = None
 
-    def prune(self, condition: Callable[["Node"], bool]):
+    def prune(self, condition: Callable[["Node"], bool], include_starting_node=True):
         """Prune the tree
 
         Removes (detaches) all nodes starting from this node that
@@ -95,13 +96,19 @@ class Node:
 
         Arguments:
             condition: A function `f` where `f(node) == True` if `node`
-            should be removed from the tree.
+                should be removed from the tree.
+            include_starting_node: Whether to include the starting node
+                or not. If False, the starting node will not be
+                detached from its parent even though it fulfils the
+                given condition. Defaults to True.
 
         Example: To remove all nodes at depth 2, use
             node.prune(lambda node: node.depth() == 2)
         """
         nodes = self.traverse(filter=condition)
         for node in nodes:
+            if not include_starting_node and node == self:
+                continue
             node.detach()
 
 
@@ -395,3 +402,45 @@ class ImageGenerator:
 
     def __len__(self):
         return len(self._nodes)
+
+
+def remove_noise_regions(volume: Volume, threshold: float = 0.8):
+    """Remove noise regions from volume
+
+    Makes a copy of the given volume where noisy regions are removed.
+    Uses the heuristic defined in `is_noise`.
+
+    Arguments:
+        volume: Input volume with text and regions
+        threshold: The confidence score threshold, default 0.8.
+
+    Returns:
+        A copy of `volume` where all regions have an average text
+        recognition confidence score above the given threshold.
+    """
+    volume = deepcopy(volume)
+    volume.prune(lambda node: is_noise(node, threshold), include_starting_node=False)
+    return volume
+
+
+def is_noise(node: BaseDocumentNode, threshold: float = 0.8):
+    """Heuristically determine if region is noise
+
+    Assumes that a region is noise if the average text recognition
+    confidence score is lower than the given threshold.
+
+    Arguments:
+        node: Which node to check
+        threshold: Threshold for the average text recognition
+            confidence score. Defaults to 0.8, i.e., any region with
+            avg. confidence lower than 0.8 is regarded as noise.
+
+    Returns:
+        True if `node` is a region (i.e. parent to nodes with text lines)
+        and the average text recognition confidence score of its
+        children is below `threshold`.
+    """
+    if node.children and all(child.is_line() for child in node):
+        conf = sum(child.get("text_result").top_score() for child in node) / len(node.children)
+        return conf < threshold
+    return False
