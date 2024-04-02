@@ -442,7 +442,7 @@ def is_noise(node: BaseDocumentNode, threshold: float = 0.8):
         and the average text recognition confidence score of its
         children is below `threshold`.
     """
-    if node.children and all(child.is_line() for child in node):
+    if node.children and all(child.text for child in node):
         conf = sum(child.get("text_result").top_score() for child in node) / len(node.children)
         return conf < threshold
     return False
