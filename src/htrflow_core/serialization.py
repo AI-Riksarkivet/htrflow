@@ -87,7 +87,7 @@ class AltoXML(Serializer):
         # if a node corresponds to a TextBlock element, i.e. if its
         # children contains text and not other regions.
         def is_text_block(node):
-            return bool(node.children) and all(child.is_line() for child in node.children)
+            return node.is_region() and all(child.text for child in node)
 
         return self.template.render(
             page=page, metadata=metadata(page), labels=label_nodes(page), is_text_block=is_text_block
@@ -110,10 +110,14 @@ class PageXML(Serializer):
         if page.is_leaf():
             raise ValueError("Cannot serialize unsegmented page to Page XML")
 
+        def is_text_line(node):
+            return node.text and (node.parent is None or node.parent.is_region())
+
         return self.template.render(
             page=page,
             metadata=metadata(page),
             labels=label_nodes(page),
+            is_text_line=is_text_line,
         )
 
     def validate(self, doc: str):

@@ -19,7 +19,7 @@
             </OrderedGroup>
         </ReadingOrder>
         {%- for node in [page] recursive %}
-        {%- if node.is_line() %}
+        {%- if is_text_line(node) %}
             <TextLine id="{{ labels[node] }}">
             <Coords points="{% for point in node.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}" />
             {%- if node.children %}

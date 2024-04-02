@@ -197,14 +197,6 @@ class BaseDocumentNode(Node, ABC):
     def is_region(self) -> bool:
         return bool(self.children) and not self.text
 
-    def is_word(self) -> bool:
-        """True if this node represents a word"""
-        return self.text is not None and len(self.text.split()) == 1
-
-    def is_line(self):
-        """True if this node represents a text line"""
-        return self.text is not None and len(self.text.split()) > 1
-
 
 class RegionNode(BaseDocumentNode):
     """A node representing a segment of a page"""
