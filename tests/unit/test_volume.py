@@ -2,8 +2,8 @@ import pickle
 
 import pytest
 
-from htrflow_core import volume
 from htrflow_core.dummies.dummy_models import RecognitionModel, SegmentationModel
+from htrflow_core.volume import node, postprocess, volume
 
 
 @pytest.fixture
@@ -66,16 +66,16 @@ def demo_volume_with_text(demo_image):
 
 
 def one_layer_tree(n_children=3):
-    root = volume.Node()
-    root.children = [volume.Node(root) for _ in range(n_children)]
+    root = node.Node()
+    root.children = [node.Node(root) for _ in range(n_children)]
     return root
 
 
 def two_layer_tree(n_children=3):
-    root = volume.Node()
-    root.children = [volume.Node(root) for _ in range(n_children)]
+    root = node.Node()
+    root.children = [node.Node(root) for _ in range(n_children)]
     for child in root.children:
-        child.children = [volume.Node(child) for _ in range(n_children)]
+        child.children = [node.Node(child) for _ in range(n_children)]
     return root
 
 
@@ -268,5 +268,5 @@ def test_save_and_load_pickle(tmpdir, demo_volume_segmented_nested):
 
 @pytest.mark.parametrize("threshold", [0.3, 0.6, 0.9, 0.99])
 def test_remove_noise_regions(demo_volume_segmented_nested_with_text, threshold):
-    pruned = volume.remove_noise_regions(demo_volume_segmented_nested_with_text, threshold)
-    assert not any(volume.is_noise(node, threshold) for node in pruned.traverse())
+    pruned = postprocess.remove_noise_regions(demo_volume_segmented_nested_with_text, threshold)
+    assert not any(postprocess.is_noise(node, threshold) for node in pruned.traverse())

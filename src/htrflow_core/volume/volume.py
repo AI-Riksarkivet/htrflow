@@ -5,119 +5,19 @@ This module holds the base data structures
 import logging
 import os
 import pickle
-from abc import ABC, abstractproperty
-from copy import deepcopy
-from typing import Any, Callable, Iterable, Optional, Sequence
+from typing import Iterable, Optional, Sequence
 
 from htrflow_core import serialization
-from htrflow_core.results import RecognizedText, Result, Segment
-from htrflow_core.serialization import Serializer
+from htrflow_core.results import Result, Segment
 from htrflow_core.utils import imgproc
 from htrflow_core.utils.geometry import Bbox, Point, Polygon
+from htrflow_core.volume import node
 
 
 logger = logging.getLogger(__name__)
 
 
-class Node:
-    """Node class"""
-
-    parent: Optional["Node"]
-    children: Sequence["Node"]
-    data: dict[str, Any]
-
-    def __init__(self, parent: Optional["Node"] = None):
-        self.parent = parent
-        self.children = []
-        self.data = {}
-
-    def __getitem__(self, i):
-        if isinstance(i, int):
-            return self.children[i]
-        i, *rest = i
-        return self.children[i][rest] if rest else self.children[i]
-
-    def __iter__(self):
-        return iter(self.children)
-
-    def depth(self):
-        if self.parent is None:
-            return 0
-        return self.parent.depth() + 1
-
-    def add_data(self, **data):
-        self.data |= data
-
-    def get(self, key: str, default=None):
-        return self.data.get(key, default)
-
-    def leaves(self):  # -> Sequence[Self]:
-        """Return the leaf nodes attached to this node"""
-        return self.traverse(filter=lambda node: node.is_leaf())
-
-    def traverse(self, filter: Optional[Callable[["Node"], bool]] = None) -> Sequence["Node"]:
-        """Return all nodes attached to this node"""
-        nodes = [self] if (filter is None or filter(self)) else []
-        for child in self.children:
-            nodes.extend(child.traverse(filter=filter))
-        return nodes
-
-    def tree2str(self, sep: str = "", is_last: bool = True) -> str:
-        """Return a string representation of this node and its decendants"""
-        lines = [sep + ("└──" if is_last else "├──") + str(self)]
-        sep += "    " if is_last else "│   "
-        for child in self.children:
-            lines.append(child.tree2str(sep, child == self.children[-1]))
-        return "\n".join(lines).strip("└──")
-
-    def is_leaf(self) -> bool:
-        """True if this node does not have any children"""
-        return not self.children
-
-    def asdict(self):
-        """This node's and its decendents' data as a dictionary"""
-        if self.is_leaf():
-            return self.data
-        return self.data | {"contains": [child.asdict() for child in self.children]}
-
-    def detach(self):
-        """Detach node from tree
-
-        Removes the node from its parent's children and sets its parent
-        to None, effectively removing it from the tree.
-        """
-        if self.parent:
-            siblings = self.parent.children
-            self.parent.children = [child for child in siblings if child != self]
-        self.parent = None
-
-    def prune(self, condition: Callable[["Node"], bool], include_starting_node=True):
-        """Prune the tree
-
-        Removes (detaches) all nodes starting from this node that
-        fulfil the given condition. Any decendents of a node that
-        fulfils the condition are also removed.
-
-        Arguments:
-            condition: A function `f` where `f(node) == True` if `node`
-                should be removed from the tree.
-            include_starting_node: Whether to include the starting node
-                or not. If False, the starting node will not be
-                detached from its parent even though it fulfils the
-                given condition. Defaults to True.
-
-        Example: To remove all nodes at depth 2, use
-            node.prune(lambda node: node.depth() == 2)
-        """
-        nodes = self.traverse(filter=condition)
-        for node in nodes:
-            if not include_starting_node and node == self:
-                continue
-            node.detach()
-        logger.info("Removed %d nodes from the tree", len(nodes))
-
-
-class BaseDocumentNode(Node, ABC):
+class BaseDocumentNode(node.Node):
     """Extension of Node class with functionality related to documents"""
 
     def __str__(self) -> str:
@@ -126,9 +26,9 @@ class BaseDocumentNode(Node, ABC):
             s += f": {self.text}"
         return s
 
-    @abstractproperty
     def image(self):
         """Image of the region this node represents"""
+        return None
 
     @property
     def text(self) -> str | None:
@@ -249,7 +149,7 @@ class PageNode(BaseDocumentNode):
         return self._image
 
 
-class Volume(Node):
+class Volume(BaseDocumentNode):
 
     """Class representing a collection of input images
 
@@ -275,7 +175,6 @@ class Volume(Node):
         super().__init__()
         self.children = [PageNode(path) for path in paths]
         self.add_data(label=label)
-        self.label = label
         logger.info("Initialized volume '%s' with %d pages", label, len(self.children))
 
     @classmethod
@@ -372,7 +271,7 @@ class Volume(Node):
                 for new_leaf, data in zip(leaf.leaves(), result.data):
                     new_leaf.add_data(**data)
 
-    def save(self, directory: str = "outputs", serializer: str | Serializer = "alto") -> None:
+    def save(self, directory: str = "outputs", serializer: str | serialization.Serializer = "alto") -> None:
         """Save volume
 
         Arguments:
@@ -393,7 +292,7 @@ class ImageGenerator:
     is known beforehand (which is typically not the case), which is
     handy in some cases, e.g., when using tqdm progress bars.
     """
-    def __init__(self, nodes: Sequence[Node]):
+    def __init__(self, nodes: Sequence[node.Node]):
         self._nodes = list(nodes)
 
     def __iter__(self):
@@ -402,45 +301,3 @@ class ImageGenerator:
 
     def __len__(self):
         return len(self._nodes)
-
-
-def remove_noise_regions(volume: Volume, threshold: float = 0.8):
-    """Remove noise regions from volume
-
-    Makes a copy of the given volume where noisy regions are removed.
-    Uses the heuristic defined in `is_noise`.
-
-    Arguments:
-        volume: Input volume with text and regions
-        threshold: The confidence score threshold, default 0.8.
-
-    Returns:
-        A copy of `volume` where all regions have an average text
-        recognition confidence score above the given threshold.
-    """
-    volume = deepcopy(volume)
-    volume.prune(lambda node: is_noise(node, threshold), include_starting_node=False)
-    return volume
-
-
-def is_noise(node: BaseDocumentNode, threshold: float = 0.8):
-    """Heuristically determine if region is noise
-
-    Assumes that a region is noise if the average text recognition
-    confidence score is lower than the given threshold.
-
-    Arguments:
-        node: Which node to check
-        threshold: Threshold for the average text recognition
-            confidence score. Defaults to 0.8, i.e., any region with
-            avg. confidence lower than 0.8 is regarded as noise.
-
-    Returns:
-        True if `node` is a region (i.e. parent to nodes with text lines)
-        and the average text recognition confidence score of its
-        children is below `threshold`.
-    """
-    if node.children and all(child.text for child in node):
-        conf = sum(child.get("text_result").top_score() for child in node) / len(node.children)
-        return conf < threshold
-    return False

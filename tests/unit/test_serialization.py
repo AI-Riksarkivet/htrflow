@@ -1,8 +1,8 @@
 import pytest
 
-import htrflow_core.serialization as serialization
-import htrflow_core.volume as volume
+from htrflow_core import serialization
 from htrflow_core.dummies.dummy_models import RecognitionModel, SegmentationModel
+from htrflow_core.volume import volume
 
 
 @pytest.fixture
