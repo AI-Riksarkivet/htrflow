@@ -183,8 +183,7 @@ def test_update_region_text(demo_volume_segmented):
     demo_volume_segmented.update(result)
     page = demo_volume_segmented[0]
     node = page[0]
-    texts = result[0].texts[0]
-    assert node.get("text_result") == texts
+    assert node.get("text_result") == result[0].data[0].get("text_result")
 
 
 def test_polygon_nested(demo_volume_segmented_nested):

@@ -58,6 +58,13 @@ class RecognitionModel(BaseModel):
         ]
 
 
+class ClassificationModel(BaseModel):
+    """Model that classifies input images as potato dishes"""
+    def _predict(self, images: list[np.ndarray]) -> list[Result]:
+        classes = ["baked potato", "french fry", "raggmunk"]
+        return [Result(image, metadata={"model": "Potato classifier 2000"}, data=[{"classification": random.choice(classes)}]) for image in images]
+
+
 def generate_metadata(model: SegmentationModel | RecognitionModel) -> dict:
     """Generates metadata for a given model."""
     model_name = model.__class__.__name__

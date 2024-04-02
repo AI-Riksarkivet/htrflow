@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Literal, Optional, Sequence, TypeAlias
+from typing import Any, Literal, Optional, Sequence, TypeAlias
 
 import numpy as np
 
@@ -177,9 +177,9 @@ class Result:
     """
 
     image: np.ndarray
-    metadata: dict
+    metadata: dict[str, str]
     segments: Sequence[Segment] = field(default_factory=list)
-    texts: Sequence[RecognizedText] = field(default_factory=list)
+    data: Sequence[dict[str, Any]] = field(default_factory=list)
 
     def __post_init__(self):
         for segment in self.segments:
@@ -222,7 +222,7 @@ class Result:
         Returns:
             A Result instance with the specified data and no segments.
         """
-        return cls(image, metadata, texts=[text])
+        return cls(image, metadata, data=[{"text_result": text}])
 
     @classmethod
     def segmentation_result(cls, image: np.ndarray, metadata: dict, segments: Sequence[Segment]) -> "Result":
@@ -260,7 +260,10 @@ class Result:
         """
         match labels:
             case "text":
-                labels = [text.top_candidate() for text in self.texts]
+                if texts := self.data.get("text_result", None):
+                    labels = [text.top_candidate() for text in texts]
+                else:
+                    labels = []
             case "class":
                 labels = self.class_labels
             case "conf":
@@ -286,8 +289,8 @@ class Result:
         """
         if self.segments:
             self.segments = [self.segments[i] for i in index]
-        if self.texts:
-            self.texts = [self.texts[i] for i in index]
+        if self.data:
+            self.data = [self.data[i] for i in index]
 
     def drop(self, index: Sequence[int]) -> None:
         """Drop segments from result
@@ -302,5 +305,5 @@ class Result:
 
         if self.segments:
             self.segments = [self.segments[i] for i in keep]
-        if self.texts:
-            self.texts = [self.texts[i] for i in keep]
+        if self.data:
+            self.data = [self.data[i] for i in keep]

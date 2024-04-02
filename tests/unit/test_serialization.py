@@ -25,8 +25,7 @@ def demo_page_unsegmented(demo_image):
     node = volume.PageNode(demo_image)
     model = RecognitionModel()
     result = model([node.image])
-    recognized_text = result[0].texts[0]
-    node.add_text(recognized_text)
+    node.add_data(**result[0].data[0])
     return node
 
 
@@ -40,7 +39,7 @@ def demo_page_segmented_once(demo_image):
     model = RecognitionModel()
     results = model(node.segments())
     for result, leaf in zip(results, node.leaves()):
-        leaf.add_text(result.texts[0])
+        leaf.add_data(**result.data[0])
     return node
 
 
@@ -55,7 +54,7 @@ def demo_page_segmented_twice(demo_image):
     model = RecognitionModel()
     results = model(node.segments())
     for result, leaf in zip(results, node.leaves()):
-        leaf.add_text(result.texts[0])
+        leaf.add_data(**result.data[0])
     return node
 
 
@@ -70,7 +69,7 @@ def demo_page_segmented_thrice(demo_image):
     model = RecognitionModel()
     results = model(node.segments())
     for result, leaf in zip(results, node.leaves()):
-        leaf.add_text(result.texts[0])
+        leaf.add_data(**result.data[0])
     return node
 
 

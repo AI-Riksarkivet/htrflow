@@ -174,9 +174,6 @@ class BaseDocumentNode(Node, ABC):
         x, y = self.coord
         return Bbox(x, y, x + self.width, y + self.height)
 
-    def add_text(self, text: RecognizedText):
-        self.add_data(text_result = text)
-
     @property
     def label(self):
         return self.get("label", "node")
@@ -368,11 +365,12 @@ class Volume(Node):
             if result.segments:
                 leaf.segment(result.segments)
 
-            # If the result has texts, add them to the new leaves (which
-            # may be other than `leaves` if the result also had a segmentation)
-            if result.texts:
-                for new_leaf, text in zip(leaf.leaves(), result.texts):
-                    new_leaf.add_text(text)
+            # If the result has other data (e.g. texts), add it to the
+            # new leaves (which may be other than `leaves` if the result
+            # also had a segmentation)
+            if result.data:
+                for new_leaf, data in zip(leaf.leaves(), result.data):
+                    new_leaf.add_data(**data)
 
     def save(self, directory: str = "outputs", serializer: str | Serializer = "alto") -> None:
         """Save volume
