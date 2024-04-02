@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import datetime
 import json
+import logging
 import os
 from typing import TYPE_CHECKING, Iterable, Sequence, Union
 
@@ -14,6 +15,8 @@ import htrflow_core
 if TYPE_CHECKING:
     from htrflow_core.volume import PageNode, RegionNode, Volume
 
+
+logger = logging.getLogger(__name__)
 
 _TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "templates")
 _SCHEMA_DIR = os.path.join(os.path.dirname(__file__), "templates/schema")
@@ -208,13 +211,14 @@ def save_volume(volume: Volume, serializer: str | Serializer, dest: str) -> Iter
 
     if isinstance(serializer, str):
         serializer = _get_serializer(serializer)
+        logger.info("Using %s serializer with default settings", serializer.__class__.__name__)
 
     for doc, filename in serializer.serialize_volume(volume):
         filename = os.path.join(dest, filename)
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         with open(filename, "w") as f:
             f.write(doc)
-
+        logger.info("Wrote document to %s", filename)
 
 def label_nodes(node: PageNode | RegionNode, template="%s") -> dict[PageNode | RegionNode, str]:
     """Assign labels to node and its descendants

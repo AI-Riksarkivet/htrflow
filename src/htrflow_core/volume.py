@@ -2,6 +2,7 @@
 This module holds the base data structures
 """
 
+import logging
 import os
 import pickle
 from abc import ABC, abstractproperty
@@ -13,6 +14,9 @@ from htrflow_core.results import RecognizedText, Result, Segment
 from htrflow_core.serialization import Serializer
 from htrflow_core.utils import imgproc
 from htrflow_core.utils.geometry import Bbox, Point, Polygon
+
+
+logger = logging.getLogger(__name__)
 
 
 class Node:
@@ -110,6 +114,7 @@ class Node:
             if not include_starting_node and node == self:
                 continue
             node.detach()
+        logger.info("Removed %d nodes from the tree", len(nodes))
 
 
 class BaseDocumentNode(Node, ABC):
@@ -182,6 +187,7 @@ class BaseDocumentNode(Node, ABC):
         for segment in segments:
             children.append(RegionNode(segment, self))
         self.children = children
+        logger.info("Created %d new nodes", len(children))
 
     def contains_text(self) -> bool:
         if self.text is not None:
@@ -273,6 +279,7 @@ class Volume(Node):
         self.children = [PageNode(path) for path in paths]
         self.add_data(label=label)
         self.label = label
+        logger.info("Initialized volume '%s' with %d pages", label, len(self.children))
 
     @classmethod
     def from_directory(cls, path: str) -> "Volume":
@@ -300,6 +307,7 @@ class Volume(Node):
         if not isinstance(vol, Volume):
             raise pickle.UnpicklingError(f"Unpickling {path} did not return a Volume instance.")
 
+        logger.info("Loaded volume '%s' from %s", vol.label, path)
         return vol
 
     def pickle(self, directory: str = ".cache", filename: Optional[str] = None):
@@ -318,6 +326,7 @@ class Volume(Node):
         path = os.path.join(directory, filename)
         with open(path, "wb") as f:
             pickle.dump(self, f)
+        logger.info("Wrote pickled volume '%s' to %s", self.label, path)
         return path
 
     def __str__(self):
