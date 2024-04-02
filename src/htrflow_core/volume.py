@@ -74,7 +74,7 @@ class Node:
         """This node's and its decendents' data as a dictionary"""
         if self.is_leaf():
             return self.data
-        return self.data | {"children": [child.asdict() for child in self.children]}
+        return self.data | {"contains": [child.asdict() for child in self.children]}
 
     def detach(self):
         """Detach node from tree
@@ -279,6 +279,7 @@ class Volume(Node):
         """
         super().__init__()
         self.children = [PageNode(path) for path in paths]
+        self.add_data(label=label)
         self.label = label
 
     @classmethod
