@@ -124,9 +124,9 @@ class Bbox:
         """Return a polygon representation of the bounding box"""
         return Polygon([
             Point(self.xmin, self.ymin),
-            Point(self.xmin, self.ymax),
             Point(self.xmax, self.ymin),
             Point(self.xmax, self.ymax),
+            Point(self.xmin, self.ymax),
         ])
 
     def move(self, dest: Point | tuple[int, int]) -> "Bbox":
