@@ -49,7 +49,7 @@ def draw_bboxes(
     Returns:
         A copy of the input image with the bounding boxes drawn.
     """
-    polygons = [bbox.as_polygon() for bbox in bboxes]
+    polygons = [bbox.polygon() for bbox in bboxes]
     return draw_polygons(image, polygons, color, thickness, alpha, labels)
 
 
