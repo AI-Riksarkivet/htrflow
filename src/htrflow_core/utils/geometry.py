@@ -118,7 +118,7 @@ class Bbox:
     @property
     def center(self) -> Point:
         """Center of bounding box rounded down to closest integer"""
-        return Point((self.xmax - self.xmin) // 2, (self.ymax - self.ymin) // 2)
+        return Point(int((self.xmax + self.xmin) / 2), int((self.ymax + self.ymin) / 2))
 
     def polygon(self) -> "Polygon":
         """Return a polygon representation of the bounding box"""
@@ -140,7 +140,7 @@ class Bbox:
             `dx` and `dy` in the x- and y-axis, respectively.
         """
         dx, dy = dest
-        return Bbox(self.xmin + dx, self.xmax + dx, self.ymin + dy, self.ymax + dy)
+        return Bbox(self.xmin + dx, self.ymin + dy, self.xmax + dx, self.ymax + dy)
 
     def __iter__(self):
         # Enables tuple-like iteration and unpacking
