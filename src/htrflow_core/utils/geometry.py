@@ -363,3 +363,29 @@ def is_twopage(img, strip_width=0.1, threshold=0.2):
     if np.min(strip) < np.sort(levels)[int(w * threshold)]:
         return middle - half_strip + np.argmin(strip)
     return None
+
+
+class RegionLocation:
+    PRINTSPACE = "printspace"
+    MARGIN_LEFT = "margin_left"
+    MARGIN_RIGHT = "margin_right"
+    MARGIN_TOP = "margin_top"
+    MARGIN_BOTTOM = "margin_bottom"
+
+
+def get_region_location(printspace: Bbox, region: Bbox) -> RegionLocation:
+    """Get location of `region` relative to `printspace`
+
+    The side margins extends to the top and bottom of the page. If the
+    region is located in a corner, it will be assigned to the left or
+    right margin and not the top or bottom margin.
+    """
+    if region.center.x < printspace.xmin:
+        return RegionLocation.MARGIN_LEFT
+    elif region.center.x > printspace.xmax:
+        return RegionLocation.MARGIN_RIGHT
+    elif region.center.y > printspace.ymax:
+        return RegionLocation.MARGIN_TOP
+    elif region.center.y < printspace.ymin:
+        return RegionLocation.MARGIN_BOTTOM
+    return RegionLocation.PRINTSPACE
