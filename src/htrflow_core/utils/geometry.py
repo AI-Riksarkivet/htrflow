@@ -385,7 +385,7 @@ def get_region_location(printspace: Bbox, region: Bbox) -> RegionLocation:
     elif region.center.x > printspace.xmax:
         return RegionLocation.MARGIN_RIGHT
     elif region.center.y > printspace.ymax:
-        return RegionLocation.MARGIN_TOP
-    elif region.center.y < printspace.ymin:
         return RegionLocation.MARGIN_BOTTOM
+    elif region.center.y < printspace.ymin:
+        return RegionLocation.MARGIN_TOP
     return RegionLocation.PRINTSPACE
