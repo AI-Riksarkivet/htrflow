@@ -54,17 +54,29 @@ def order_segments_marginalia(result: Result, histogram_bins=50, histogram_dip_r
     return index
 
 
-def order_lines(result: Result, line_spacing_factor=0.5) -> Sequence[int]:
-    # Adapted from htrflow_core/src/transformations/order_segments.py
+def left_right_top_down(bboxes: Sequence[Bbox], line_spacing: float | None = 1.0):
+    """Order bounding boxes left-right top-down
 
-    xs = [bbox.center.x for bbox in result.bboxes]
-    ys = [bbox.center.y for bbox in result.bboxes]
+    This function orders the input boxes after their top left corner,
+    i.e., their minimum x and y coordinates. The y coordinates are
+    discretized based on the `line_spacing` parameter.
 
-    # Calculate the threshold distance
-    average_line_height = sum(bbox.height for bbox in result.bboxes) / len(result.segments)
-    threshold_distance = average_line_height * line_spacing_factor
+    Arguments:
+        bboxes: Input bounding boxes
+        line_spacing: A parameter that controls the discretization of
+            the y coordinates. A higher value will move the boxes more
+            along the y axis before ordering. If None, the boxes will
+            not be moved at all.
 
-    # Sort the indices based on vertical center points and horizontal positions
-    index = list(range(len(result.segments)))
-    index.sort(key=lambda i: (xs[i] // threshold_distance, ys[i]))
-    return index
+    Returns:
+        A sorted index.
+    """
+    xs = [bbox.xmin for bbox in bboxes]
+    ys = [bbox.ymin for bbox in bboxes]
+
+    if line_spacing:
+        average_height = sum(bbox.height for bbox in bboxes) / len(bboxes)
+        threshold = average_height * line_spacing
+        ys = [y // threshold for y in ys]
+
+    return sorted(range(len(bboxes)), key=lambda i: (ys[i], xs[i]))
