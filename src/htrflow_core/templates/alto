@@ -1,3 +1,30 @@
+{%- macro render(nodes) -%}
+    {% for node in nodes  %}
+                <TextBlock ID="{{ labels[node] }}" HPOS="{{ node.coord.x }}" VPOS="{{ node.coord.y }}" HEIGHT="{{ node.height}}" WIDTH="{{ node.width }}">
+                    {%- if node.polygon|length > 4 %}
+                    <Shape>
+                        <Polygon POINTS="{% for point in node.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}"/>
+                    </Shape>
+                    {% endif %}
+                    {%- for line in node.children %}
+                    <TextLine ID="{{ labels[line] }}"  HPOS="{{ line.coord.x }}" VPOS="{{ line.coord.y }}" HEIGHT="{{ line.height}}" WIDTH="{{ line.width }}">
+                        {%- if node.polygon|length > 4 %}
+                        <Shape>
+                            <Polygon POINTS="{% for point in node.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}"/>
+                        </Shape>
+                        {% endif %}
+                        {%- if line.children %}
+                        {%- for word in line.children %}
+                        <String ID="{{ labels[word] }}"  HPOS="{{ word.coord.x }}" VPOS="{{ word.coord.y }}" HEIGHT="{{ word.height}}" WIDTH="{{ word.width }}" CONTENT="{{ word.text }}" />
+                        {%- endfor %}
+                        {%- else %}
+                        <String HPOS="{{ line.coord.x }}" VPOS="{{ line.coord.y }}" HEIGHT="{{ line.height}}" WIDTH="{{ line.width }}" CONTENT="{{ line.text }}"/>
+                        {%- endif %}
+                    </TextLine>
+                    {%- endfor %}
+                </TextBlock>
+    {% endfor %}
+{%- endmacro -%}
 <?xml version="1.0" encoding="UTF-8"?>
 <alto xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.loc.gov/standards/alto/ns-v4#" xsi:schemaLocation="http://www.loc.gov/standards/alto/ns-v4# http://www.loc.gov/standards/alto/v4/alto-4-4.xsd">
     <Description>
@@ -33,39 +60,41 @@
     </ReadingOrder>
     <Layout>
         <Page WIDTH="{{ page.width }}" HEIGHT="{{ page.height }}" PHYSICAL_IMG_NR="0" ID="page">
+            {%- if text_blocks['margin_top'] | length > 0 %}
+            <TopMargin>
+                {{ render(text_blocks['margin_top']) }}
+            </TopMargin>
+            {%- else %}
             <TopMargin />
+            {%- endif -%}
+            {%- if text_blocks['margin_left'] | length > 0 %}
+            <LeftMargin>
+                {{ render(text_blocks['margin_left']) }}
+            </LeftMargin>
+            {%- else %}
             <LeftMargin />
+            {%- endif -%}
+            {%- if text_blocks['margin_right'] | length > 0 %}
+            <RightMargin>
+                {{ render(text_blocks['margin_right']) }}
+            </RightMargin>
+            {%- else %}
             <RightMargin />
+            {%- endif -%}
+            {%- if text_blocks['margin_bottom'] | length > 0 %}
+            <BottomMargin>
+                {{ render(text_blocks['margin_bottom']) }}
+            </BottomMargin>
+            {%- else %}
             <BottomMargin />
+            {%- endif -%}
+            {%- if text_blocks['printspace'] | length > 0 %}
             <PrintSpace>
-                {%- for node in page.traverse() %}
-                {%- if is_text_block(node) %}
-                <TextBlock ID="{{ labels[node] }}" HPOS="{{ node.coord.x }}" VPOS="{{ node.coord.y }}" HEIGHT="{{ node.height}}" WIDTH="{{ node.width }}">
-                    {%- if node.polygon|length > 4 %}
-                    <Shape>
-                        <Polygon POINTS="{% for point in node.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}"/>
-                    </Shape>
-                    {% endif %}
-                    {%- for line in node.children %}
-                    <TextLine ID="{{ labels[line] }}"  HPOS="{{ line.coord.x }}" VPOS="{{ line.coord.y }}" HEIGHT="{{ line.height}}" WIDTH="{{ line.width }}">
-                        {%- if node.polygon|length > 4 %}
-                        <Shape>
-                            <Polygon POINTS="{% for point in node.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}"/>
-                        </Shape>
-                        {% endif %}
-                        {%- if line.children %}
-                        {%- for word in line.children %}
-                        <String ID="{{ labels[word] }}"  HPOS="{{ word.coord.x }}" VPOS="{{ word.coord.y }}" HEIGHT="{{ word.height}}" WIDTH="{{ word.width }}" CONTENT="{{ word.text }}" />
-                        {%- endfor %}
-                        {%- else %}
-                        <String HPOS="{{ line.coord.x }}" VPOS="{{ line.coord.y }}" HEIGHT="{{ line.height}}" WIDTH="{{ line.width }}" CONTENT="{{ line.text }}"/>
-                        {%- endif %}
-                    </TextLine>
-                    {%- endfor %}
-                </TextBlock>
-                {%- endif %}
-                {%- endfor %}
+                {{ render(text_blocks['printspace']) }}
             </PrintSpace>
+            {%- else %}
+            <PrintSpace />
+            {%- endif %}
         </Page>
     </Layout>
 </alto>

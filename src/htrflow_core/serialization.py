@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import defaultdict
 import datetime
 import json
 import logging
@@ -10,6 +11,7 @@ import xmlschema
 from jinja2 import Environment, FileSystemLoader
 
 import htrflow_core
+from htrflow_core.utils.layout import RegionLocation
 
 
 if TYPE_CHECKING:
@@ -85,15 +87,19 @@ class AltoXML(Serializer):
         if page.is_leaf():
             raise ValueError("Cannot serialize unsegmented page to Alto XML")
 
-        # ALTO doesn't support nesting of regions ("TextBlock" elements)
-        # This function is called from within the jinja template to tell
-        # if a node corresponds to a TextBlock element, i.e. if its
-        # children contains text and not other regions.
-        def is_text_block(node):
-            return node.is_region() and all(child.text for child in node)
+        # Find all nodes that correspond to Alto TextBlock elements and
+        # their location (if available). A TextBlock is a region whose
+        # children are text lines (and not other regions). If the node's
+        # `region_location` attribute is set, it will be rendered in the
+        # corresponding Alto group, otherwise it will be rendered in the
+        # printspace group.
+        text_blocks = defaultdict(list)
+        for node in page.traverse():
+            if node.is_region() and all(child.text for child in node):
+                text_blocks[node.get("region_location", RegionLocation.PRINTSPACE)].append(node)
 
         return self.template.render(
-            page=page, metadata=metadata(page), labels=label_nodes(page), is_text_block=is_text_block
+            page=page, text_blocks=text_blocks, metadata=metadata(page), labels=label_nodes(page)
         )
 
     def validate(self, doc: str):
