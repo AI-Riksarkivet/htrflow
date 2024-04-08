@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from collections import defaultdict
 import datetime
 import json
 import logging
 import os
+from collections import defaultdict
 from typing import TYPE_CHECKING, Iterable, Sequence, Union
 
 import xmlschema

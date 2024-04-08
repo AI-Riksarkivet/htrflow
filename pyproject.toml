@@ -111,6 +111,7 @@ exclude_lines = [
 [tool.ruff]
 line-length = 119
 target-version = "py310"
+extend-include = ["*.ipynb"]
 
 [tool.ruff.lint]
 ignore = ["C901", "E741", "W605"]
