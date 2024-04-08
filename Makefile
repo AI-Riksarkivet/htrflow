@@ -59,3 +59,7 @@ gpu_monitor: ## gpu_monitor - check gpu usage (pip install gpustat and bash: gpu
 publish_docs: ## publish_docs - Deploy docs manually and removes site folder locally
 	poetry run mkdocs gh-deploy --force
 	rm -rf site
+
+scp_help: ## scp_help - just echos how to scp
+	@echo file - scp /path/to/file username@a:/path/to/destination
+	@echo folder - scp -r /path/to/file username@a:/path/to/destination

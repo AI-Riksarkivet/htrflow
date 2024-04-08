@@ -28,6 +28,9 @@ version = "0.0.1"
 from = "src"
 include = "htrflow_core"
 
+[tool.poetry.scripts]
+openmmlab_install = "scripts.openmmlab_install:main"
+
 # Dependencies
 [tool.poetry.dependencies]
 # python
@@ -62,13 +65,11 @@ ultralytics = {version = "^8.0.225", optional = true}
 
 [tool.poetry.extras]
 huggingface = ["transformers", "huggingface-hub", "datasets", "torch"]
-huggingface-llm = ["transformers", "huggingface-hub", "datasets", "torch","accelerate", "bitsandbytes"]
+llm = ["transformers", "huggingface-hub", "datasets", "torch","accelerate", "bitsandbytes"]
 openmmlab = ["mmcv", "mmdet", "mmengine", "mmocr", "huggingface-hub", "yapf", "torch"]
 pytorch = ["torch"]
 ultralytics = ["ultralytics", "huggingface-hub"]
-
-[tool.poetry.scripts]
-openmmlab_install = "scripts.openmmlab_install:main"
+local_models = ["transformers", "huggingface-hub", "datasets", "torch", "ultralytics"]
 
 [tool.poetry.group.test.dependencies]
 mypy = "^1.8.0"
@@ -82,10 +83,7 @@ ruff = "^0.2.2"
 [tool.poetry.group.docs.dependencies]
 mkdocs-jupyter = "^0.24.6"
 mkdocs-material = "^9.5.10"
-
-[tool.poetry.group.docs.dependencies.mkdocstrings]
-extras = ["python"]
-version = ">=0.20"
+mkdocstrings = {extras = ["python"], version = ">=0.20"}
 
 # Test
 [tool.pytest.ini_options]
