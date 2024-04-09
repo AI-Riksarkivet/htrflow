@@ -32,6 +32,7 @@ class Point:
     True
     ```
     """
+
     x: int
     y: int
 
@@ -124,12 +125,14 @@ class Bbox:
 
     def polygon(self) -> "Polygon":
         """Return a polygon representation of the bounding box"""
-        return Polygon([
-            Point(self.xmin, self.ymin),
-            Point(self.xmax, self.ymin),
-            Point(self.xmax, self.ymax),
-            Point(self.xmin, self.ymax),
-        ])
+        return Polygon(
+            [
+                Point(self.xmin, self.ymin),
+                Point(self.xmax, self.ymin),
+                Point(self.xmax, self.ymax),
+                Point(self.xmin, self.ymax),
+            ]
+        )
 
     def move(self, dest: Point | tuple[int, int]) -> "Bbox":
         """Move bounding box to `dest`
@@ -188,7 +191,7 @@ class Polygon:
         ys = [y for _, y in self]
         return Bbox(min(xs), min(ys), max(xs), max(ys))
 
-    def as_nparray(self):   # -> n x 2 numpy array of integers
+    def as_nparray(self):  # -> n x 2 numpy array of integers
         """A np array version of the polygon"""
         return np.array([[x, y] for x, y in self])
 
@@ -240,3 +243,14 @@ def mask2bbox(mask: Mask) -> Bbox:
     """Convert mask to bounding box"""
     y, x = np.where(mask != 0)
     return Bbox(np.min(x).item(), np.min(y).item(), np.max(x).item(), np.max(y).item())
+
+
+def polygons2masks(mask: Mask, polygons: Iterable[Polygon]) -> Iterable[Mask]:
+    mask_height, mask_width = mask.shape[:2]
+    masks = []
+    for point in polygons:
+        polygon = np.round(point).astype(np.int32)
+        temp_mask = np.zeros((mask_height, mask_width), dtype=np.uint8)
+        cv2.fillPoly(temp_mask, [polygon], color=255)
+        masks.append(temp_mask)
+    return masks

@@ -1,7 +1,6 @@
 from pathlib import Path
 from typing import Optional
 
-import cv2
 import numpy as np
 from ultralytics import YOLO as UltralyticsYOLO
 from ultralytics.engine.results import Results as UltralyticsResults
@@ -9,6 +8,7 @@ from ultralytics.engine.results import Results as UltralyticsResults
 from htrflow_core.models.base_model import BaseModel
 from htrflow_core.models.ultralytics.ultralytics_downloader import UltralyticsDownloader
 from htrflow_core.results import Result, Segment
+from htrflow_core.utils.geometry import polygons2masks
 
 
 class YOLO(BaseModel):
@@ -36,7 +36,7 @@ class YOLO(BaseModel):
             scores = output.boxes.conf.tolist()
             class_labels = [output.names[label] for label in output.boxes.cls.tolist()]
         if output.masks is not None:
-            masks = self._create_masks_from_polygons(image, output.masks.xy)
+            masks = polygons2masks(image, output.masks.xy)
         else:
             masks = [None] * len(boxes)
 
@@ -46,15 +46,3 @@ class YOLO(BaseModel):
         ]
 
         return Result.segmentation_result(image, self.metadata, segments)
-
-    def _create_masks_from_polygons(self, image, polygons_xy):
-        image_height, image_width = image.shape[:2]
-        masks = []
-
-        for xy in polygons_xy:
-            polygon = np.round(xy).astype(np.int32)
-            mask = np.zeros((image_height, image_width), dtype=np.uint8)
-            cv2.fillPoly(mask, [polygon], color=255)
-            masks.append(mask)
-
-        return masks

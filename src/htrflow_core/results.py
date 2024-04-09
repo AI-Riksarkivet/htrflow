@@ -37,13 +37,13 @@ class Segment:
     orig_shape: tuple[int, int] | None
 
     def __init__(
-            self,
-            bbox: tuple[int, int, int, int] | Bbox | None = None,
-            mask: Mask | None = None,
-            score: float | None = None,
-            class_label: str | None = None,
-            polygon: Polygon | Sequence[tuple[int, int]] | None = None,
-            orig_shape: tuple[int, int] | None = None
+        self,
+        bbox: tuple[int, int, int, int] | Bbox | None = None,
+        mask: Mask | None = None,
+        score: float | None = None,
+        class_label: str | None = None,
+        polygon: Polygon | Sequence[tuple[int, int]] | None = None,
+        orig_shape: tuple[int, int] | None = None,
     ):
         """Create a `Segment` instance
 
@@ -73,9 +73,7 @@ class Segment:
         if bbox is not None:
             bbox = geometry.Bbox(*bbox)
 
-
         match (bbox, mask, polygon):
-
             case (None, None, None):
                 raise ValueError("Cannot create a Segment without bbox, mask or polygon")
 
@@ -113,6 +111,9 @@ class Segment:
         self.score = score
         self.class_label = class_label
         self.orig_shape = orig_shape
+
+    def __str__(self):
+        return f"Segment(class_label={self.class_label}, score={self.score}, bbox={self.bbox}, polygon={self.polygon}, mask={self.mask})"
 
     def global_mask(self, orig_shape: tuple[int, int] | None = None) -> Optional[Mask]:
         """

@@ -31,14 +31,10 @@ class SegmentationModel(BaseModel):
 
                 if self.segment_type == "mask":
                     mask = randommask(h, w)
-                    segments.append(
-                        Segment(mask=mask, score=score, class_label=label if label else randomlabel())
-                    )
+                    segments.append(Segment(mask=mask, score=score, class_label=label if label else randomlabel()))
                 else:
                     bbox = randombox(h, w)
-                    segments.append(
-                        Segment(bbox=bbox, score=score, class_label=label if label else randomlabel())
-                    )
+                    segments.append(Segment(bbox=bbox, score=score, class_label=label if label else randomlabel()))
 
             results.append(Result(image, metadata, segments, []))
         return results
@@ -60,9 +56,15 @@ class RecognitionModel(BaseModel):
 
 class ClassificationModel(BaseModel):
     """Model that classifies input images as potato dishes"""
+
     def _predict(self, images: list[np.ndarray]) -> list[Result]:
         classes = ["baked potato", "french fry", "raggmunk"]
-        return [Result(image, metadata={"model": "Potato classifier 2000"}, data=[{"classification": random.choice(classes)}]) for image in images]
+        return [
+            Result(
+                image, metadata={"model": "Potato classifier 2000"}, data=[{"classification": random.choice(classes)}]
+            )
+            for image in images
+        ]
 
 
 def generate_metadata(model: SegmentationModel | RecognitionModel) -> dict:
