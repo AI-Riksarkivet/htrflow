@@ -108,7 +108,7 @@ def _simple_word_segmentation(image, text):
         bboxes.append((x1, 0, height, x2))
         x1 = x2 + pixels_per_char  # add a "whitespace"
 
-    segments = [Segment.from_bbox(bbox, class_label="word") for bbox in bboxes]
+    segments = [Segment(bbox=bbox, class_label="word") for bbox in bboxes]
     texts = [RecognizedText([word], [0]) for word in words]
-    r = Result(image, {"model": "simple word segmentation"}, segments, texts)
+    r = Result(image, {"model": "simple word segmentation"}, segments, [{"text_result": text} for text in texts])
     return r
