@@ -39,7 +39,6 @@ def mask(
     return image
 
 
-
 def binarize(image: np.ndarray) -> np.ndarray:
     """Binarize image"""
     # Moved from binarize.py
@@ -51,6 +50,26 @@ def binarize(image: np.ndarray) -> np.ndarray:
     threshold = cv2.adaptiveThreshold(img_blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
     img_binarized = cv2.cvtColor(threshold, cv2.COLOR_BGR2RGB)
     return img_binarized
+
+
+def pillow2opencv(image: np.ndarray) -> np.ndarray:
+    """PIL to OpenCV"""
+    from PIL import Image
+
+    if isinstance(image, Image.Image):
+        return cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+    else:
+        raise ValueError("Input must be a PIL Image")
+
+
+def opencv2pillow(image: np.ndarray) -> "Image":
+    """OpenCV to PIL"""
+    from PIL import Image
+
+    if isinstance(image, np.ndarray):
+        return Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    else:
+        raise ValueError("Input must be an OpenCV image")
 
 
 def read(source: str) -> np.ndarray:

@@ -6,24 +6,25 @@ from ultralytics import YOLO as UltralyticsYOLO
 from ultralytics.engine.results import Results as UltralyticsResults
 
 from htrflow_core.models.base_model import BaseModel
+from htrflow_core.models.torch_mixin import PytorchDeviceMixin
 from htrflow_core.models.ultralytics.ultralytics_downloader import UltralyticsDownloader
 from htrflow_core.results import Result, Segment
 from htrflow_core.utils.geometry import polygons2masks
 
 
-class YOLO(BaseModel):
+class YOLO(BaseModel, PytorchDeviceMixin):
     def __init__(
         self,
         model: str | Path = "yolov8n.pt",
-        device: str = "cuda",
+        device: Optional[str] = None,
         cache_dir: str = "./.cache",
         hf_token: Optional[str] = None,
         *args,
     ) -> None:
-        super().__init__(device=device)
         self.cache_dir = cache_dir
+
         model_file = UltralyticsDownloader.from_pretrained(model, cache_dir, hf_token)
-        self.model = UltralyticsYOLO(model_file, *args).to(self.device)
+        self.model = UltralyticsYOLO(model_file, *args).to(self.set_device(device))
         self.metadata = {"model": str(model)}
 
     def _predict(self, images: list[np.ndarray], **kwargs) -> list[Result]:
@@ -46,3 +47,19 @@ class YOLO(BaseModel):
         ]
 
         return Result.segmentation_result(image, self.metadata, segments)
+
+
+if __name__ == "__main__":
+    import requests
+    from PIL import Image
+
+    from htrflow_core.utils.imgproc import pillow2opencv
+
+    url = "https://github.com/Swedish-National-Archives-AI-lab/htrflow_core/blob/a1b4b31f9a8b7c658a26e0e665eb536a0d757c45/data/demo_image.jpg?raw=true"
+    image = Image.open(requests.get(url, stream=True).raw).convert("RGB")
+
+    model = YOLO(model="/home/adm.margabo@RA-ACC.INT/repo/htrflow_core/.cache/yolov8n-seg.pt")
+
+    results = model([pillow2opencv(image)])
+
+    print(results[0].segments[0])

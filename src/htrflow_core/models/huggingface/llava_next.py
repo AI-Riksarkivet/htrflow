@@ -24,12 +24,10 @@ class LLavaNext(BaseModel):
         self,
         model: str | Path = "llava-hf/llava-v1.6-mistral-7b-hf",
         processor: str = "llava-hf/llava-v1.6-mistral-7b-hf",
-        device: str = "cuda",
+        device: Optional[str] = None,
         cache_dir: str = "./.cache",
         hf_token: Optional[str] = None,
     ):
-        super().__init__(device=device)
-
         self.cache_dir = cache_dir
 
         nf4_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4")
@@ -41,8 +39,7 @@ class LLavaNext(BaseModel):
             quantization_config=nf4_config,
             torch_dtype=torch.float32,
             low_cpu_mem_usage=True,
-            device_map="auto",
-        )
+        ).to(self.set_device(device))
 
         if processor is None:
             processor = model
@@ -60,11 +57,9 @@ class LLavaNext(BaseModel):
 
         prompt = "[INST] <image>\Transcribe the text in the image [/INST]"
 
-        # Run inference
         model_inputs = self.processor(prompt, images, return_tensors="pt").pixel_values
         model_outputs = self.model.generate(model_inputs.to(self.model.device), **generation_kwargs)
 
-        # Prepare output
         texts = self.processor.batch_decode(model_outputs.sequences, skip_special_tokens=True)
 
         scores = model_outputs.sequences_scores.tolist()

@@ -1,36 +1,14 @@
 from abc import ABC, abstractmethod
 from itertools import islice
-from typing import Iterable, Optional
+from typing import Iterable
 
 import numpy as np
-import torch
 from tqdm import tqdm
 
 from htrflow_core.results import Result
 
 
 class BaseModel(ABC):
-    def __init__(self, device: Optional[str] = None):
-        self.model = None
-        self._initialize_device(device)
-
-    def _initialize_device(self, device: Optional[str]):
-        """Private method to initialize the device."""
-        self._device = torch.device(device if device else "cuda" if torch.cuda.is_available() else "cpu")
-        if self.model:
-            self.model.to(self._device)
-
-    @property
-    def device(self) -> torch.device:
-        return self._device
-
-    @device.setter
-    def device(self, value: Optional[str]):
-        self._initialize_device(value)
-
-    def to(self, device: Optional[str]):
-        self.device = device
-
     def predict(self, images: Iterable[np.ndarray], batch_size: int, *args, **kwargs) -> Iterable[Result]:
         """Perform inference on images with a progress bar.
 
@@ -73,15 +51,6 @@ class BaseModel(ABC):
         it = iter(images)
         while batch := list(islice(it, batch_size)):
             yield batch
-
-    def to_numpy(self, tensor):
-        """
-        Convert a PyTorch tensor to a NumPy array.
-        Moves the tensor to CPU if it's on a GPU.
-        """
-        if tensor.is_cuda:
-            tensor = tensor.cpu()
-        return tensor.numpy()
 
     def __call__(
         self,

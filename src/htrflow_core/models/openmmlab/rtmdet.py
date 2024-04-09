@@ -8,25 +8,28 @@ from mmengine.structures import InstanceData
 
 from htrflow_core.models.base_model import BaseModel
 from htrflow_core.models.openmmlab.openmmlab_utils import SuppressOutput
+from htrflow_core.models.torch_mixin import PytorchDeviceMixin
 from htrflow_core.results import Result, Segment
 
 
-class RTMDet(BaseModel):
+# TODO: Add downloader of model
+
+
+class RTMDet(BaseModel, PytorchDeviceMixin):
     def __init__(
         self,
         model: str | Path = "model.pth",
         config: str | Path = "config.py",
-        device: str = "cuda",
+        device: Optional[str] = None,
         cache_dir: str = "./.cache",
         hf_token: Optional[str] = None,
         *args,
     ) -> None:
-        super().__init__(device=device)
-
         self.cache_dir = cache_dir
-        # config_py, weights = OpenmmlabDownloader.from_pretrained(model, cache_dir, hf_token)
         with SuppressOutput():
-            self.model = DetInferencer(model=config, weights=model, device=self.device, show_progress=False, *args)
+            self.model = DetInferencer(
+                model=config, weights=model, device=self.set_device(device), show_progress=False, *args
+            )
 
         self.metadata = {"model": str(model)}
 

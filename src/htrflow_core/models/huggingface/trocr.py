@@ -5,10 +5,11 @@ import numpy as np
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 
 from htrflow_core.models.base_model import BaseModel
+from htrflow_core.models.torch_mixin import PytorchDeviceMixin
 from htrflow_core.results import RecognizedText, Result
 
 
-class TrOCR(BaseModel):
+class TrOCR(BaseModel, PytorchDeviceMixin):
     default_generation_kwargs = {
         "num_beams": 4,
     }
@@ -17,7 +18,7 @@ class TrOCR(BaseModel):
         self,
         model: str | Path = "microsoft/trocr-base-handwritten",
         processor: str = "microsoft/trocr-base-handwritten",
-        device: str = "cuda",
+        device: Optional[str] = None,
         cache_dir: str = "./.cache",
         hf_token: Optional[str] = None,
     ):
@@ -30,11 +31,9 @@ class TrOCR(BaseModel):
                 Defaults to 'microsoft/trocr-base-handwritten'.
         """
 
-        super().__init__(device=device)
-
         self.cache_dir = cache_dir
         self.model = VisionEncoderDecoderModel.from_pretrained(model, cache_dir=cache_dir, token=hf_token).to(
-            self.device
+            self.set_device(device)
         )
 
         if processor is None:
@@ -64,11 +63,9 @@ class TrOCR(BaseModel):
         generation_kwargs = self._prepare_generation_kwargs(**generation_kwargs)
         metadata = self.metadata | {"generation_args": generation_kwargs}
 
-        # Run inference
         model_inputs = self.processor(images, return_tensors="pt").pixel_values
         model_outputs = self.model.generate(model_inputs.to(self.model.device), **generation_kwargs)
 
-        # Prepare output
         texts = self.processor.batch_decode(model_outputs.sequences, skip_special_tokens=True)
 
         scores = model_outputs.sequences_scores.tolist()
