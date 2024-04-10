@@ -6,6 +6,7 @@ import numpy as np
 from tqdm import tqdm
 
 from htrflow_core.results import Result
+from htrflow_core.utils import imgproc
 
 
 class BaseModel(ABC):
@@ -60,4 +61,5 @@ class BaseModel(ABC):
         **kwargs,
     ) -> Iterable[Result]:
         """Alias for BaseModel.predict(...)"""
-        return self.predict(images, batch_size, *args, **kwargs)
+        img_array = [imgproc.read(img) for img in images]
+        return self.predict(img_array, batch_size, *args, **kwargs)

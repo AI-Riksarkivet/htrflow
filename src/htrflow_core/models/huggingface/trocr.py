@@ -71,9 +71,9 @@ class TrOCR(BaseModel, PytorchDeviceMixin):
         scores = model_outputs.sequences_scores.tolist()
         step = generation_kwargs["num_return_sequences"]
 
-        return self._create_text_result(images, texts, scores, metadata, step)
+        return self._create_text_results(images, texts, scores, metadata, step)
 
-    def _create_text_result(
+    def _create_text_results(
         self, images: list[np.ndarray], texts: list[str], scores: list[float], metadata: dict, step: int
     ) -> list[Result]:
         """Assemble and return a list of Result objects from the prediction outputs.

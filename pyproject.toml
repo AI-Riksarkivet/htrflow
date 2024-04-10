@@ -62,6 +62,8 @@ accelerate = {version = "^0.28.0", optional = true}
 bitsandbytes = {version = "^0.43.0", optional = true} 
 # ultralytics
 ultralytics = {version = "^8.0.225", optional = true}
+requests = "^2.31.0"
+pillow = "^10.3.0"
 
 [tool.poetry.extras]
 huggingface = ["transformers", "huggingface-hub", "datasets", "torch"]

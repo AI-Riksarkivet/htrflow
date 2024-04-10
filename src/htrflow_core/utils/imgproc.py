@@ -2,8 +2,13 @@
 Image processing utilities
 """
 
+import re
+from pathlib import Path
+
 import cv2
 import numpy as np
+import requests
+from PIL import Image
 
 from htrflow_core.utils.geometry import Bbox, Mask
 
@@ -52,32 +57,82 @@ def binarize(image: np.ndarray) -> np.ndarray:
     return img_binarized
 
 
+def url2pillow(url: str) -> Image:
+    """Url to PIL"""
+    if _is_valid_url:
+        return Image.open(requests.get(url, stream=True).raw).convert("RGB")
+    else:
+        raise ValueError("Input is not a valid URL")
+
+
 def pillow2opencv(image: np.ndarray) -> np.ndarray:
     """PIL to OpenCV"""
-    from PIL import Image
-
     if isinstance(image, Image.Image):
         return cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
     else:
         raise ValueError("Input must be a PIL Image")
 
 
-def opencv2pillow(image: np.ndarray) -> "Image":
+def opencv2pillow(image: np.ndarray) -> Image:
     """OpenCV to PIL"""
-    from PIL import Image
-
     if isinstance(image, np.ndarray):
         return Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
     else:
         raise ValueError("Input must be an OpenCV image")
 
 
-def read(source: str) -> np.ndarray:
-    img = cv2.imread(source)
-    if img is None:
-        raise RuntimeError(f"Could not load {source}")
-    return img
+def is_http_url(string: str) -> bool:
+    """Check if the string is a valid HTTP URL."""
+    return re.match(r"^https?://", string, re.IGNORECASE) is not None
+
+
+def _is_valid_url(url: str) -> bool:
+    try:
+        response = requests.head(url, timeout=5, allow_redirects=True)
+        response.raise_for_status()
+        return True
+    except requests.RequestException:
+        return False
+
+
+def read(source: str | np.ndarray | Path) -> np.ndarray:
+    """Read an image from a URL, a local path, or directly use a numpy array as an OpenCV image.
+
+    Args:
+        source (Union[str, np.ndarray, Path]): The source can be a URL, a local filesystem path,
+                                               or a numpy array representing an image.
+
+    Returns:
+        np.ndarray: Image in OpenCV format.
+
+    Raises:
+        RuntimeError: If the image cannot be loaded from the given source.
+        ValueError: If the source type is unsupported.
+    """
+    if isinstance(source, (np.ndarray)):
+        return source
+    elif isinstance(source, str):
+        if isinstance(source, str) and is_http_url(source):
+            pil_img = url2pillow(source)
+            return pillow2opencv(pil_img)
+        else:
+            img = cv2.imread(str(source))
+            if img is not None:
+                return img
+            else:
+                raise RuntimeError(f"Could not load the image from {source}")
+
+    else:
+        raise ValueError("Source must be a string URL, np.ndarray or a filesystem path")
 
 
 def write(dest: str, image: np.ndarray) -> None:
     cv2.imwrite(dest, image)
+
+
+if __name__ == "__main__":
+    url = "http://www.example.com"
+    if _is_valid_url(url):
+        print("This URL is reachable and valid.")
+    else:
+        print("This URL is not valid or reachable.")

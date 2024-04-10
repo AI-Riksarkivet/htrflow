@@ -50,16 +50,10 @@ class YOLO(BaseModel, PytorchDeviceMixin):
 
 
 if __name__ == "__main__":
-    import requests
-    from PIL import Image
-
-    from htrflow_core.utils.imgproc import pillow2opencv
-
     url = "https://github.com/Swedish-National-Archives-AI-lab/htrflow_core/blob/a1b4b31f9a8b7c658a26e0e665eb536a0d757c45/data/demo_image.jpg?raw=true"
-    image = Image.open(requests.get(url, stream=True).raw).convert("RGB")
 
     model = YOLO(model="/home/adm.margabo@RA-ACC.INT/repo/htrflow_core/.cache/yolov8n-seg.pt")
 
-    results = model([pillow2opencv(image)])
+    results = model([url])
 
     print(results[0].segments[0])

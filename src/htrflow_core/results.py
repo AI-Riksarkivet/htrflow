@@ -174,7 +174,7 @@ class Result:
         image: The original imaage
         metadata: Metadata associated with the result
         segments: Segments (may be empty)
-        texts: Texts (may be empty)
+        data: Dict (may be empty)
     """
 
     image: np.ndarray
