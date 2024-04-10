@@ -55,16 +55,6 @@ class WordSegmentation(PipelineStep):
         return volume
 
 
-class ExportStep(PipelineStep):
-    def __init__(self, dest, serializer):
-        self.dest = dest
-        self.serializer = serializer
-
-    def run(self, volume):
-        volume.save(self.dest, self.serializer)
-        return volume
-
-
 def auto_import(source) -> Volume:
     """Import volume from `source`
 
