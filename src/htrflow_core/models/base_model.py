@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from itertools import islice
-from typing import Iterable
+from pathlib import Path
+from typing import Iterable, Union
 
 import numpy as np
 from tqdm import tqdm
@@ -16,8 +17,7 @@ class BaseModel(ABC):
         Arguments:
             images: Input images
             batch_size: The inference batch size. Default = 1, Will pass all input images one by one to the model.
-            *args and **kwargs: Optional arguments that are passed to
-                the model specific prediction method.
+            *args and **kwargs: Optional arguments that are passed to the model specific prediction method.
         """
         out = []
 
@@ -55,11 +55,25 @@ class BaseModel(ABC):
 
     def __call__(
         self,
-        images: Iterable[np.ndarray],
+        images: Iterable[Union[np.ndarray, str, Path]],
         batch_size: int = 1,
+        images_are_nparray: bool = True,
         *args,
         **kwargs,
     ) -> Iterable[Result]:
-        """Alias for BaseModel.predict(...)"""
-        img_array = [imgproc.read(img) for img in images]
+        """Alias for BaseModel.predict(...). Processes a batch of images and predicts results.
+
+        Args:
+            images (Iterable[np.ndarray]): An iterable of numpy arrays, each representing an image.
+            batch_size (int): Number of images to process in a single batch.
+            images_are_nparray (bool): No need to check for types in the list.
+            *args, **kwargs: Additional arguments for the predict method.
+
+        Returns:
+            Iterable[Result]: The predicted results for the given images.
+        """
+        if images_are_nparray:
+            img_array = images
+        else:
+            img_array = [imgproc.read(img) if not isinstance(img, np.ndarray) else img for img in images]
         return self.predict(img_array, batch_size, *args, **kwargs)
