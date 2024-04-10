@@ -196,11 +196,11 @@ def supported_formats():
     return [cls.format_name for cls in Serializer.__subclasses__()]
 
 
-def _get_serializer(format_name):
+def get_serializer(serializer_name, **serializer_args):
     for cls in Serializer.__subclasses__():
-        if cls.format_name.lower() == format_name.lower():
-            return cls()
-    msg = f"Format '{format_name}' is not among the supported formats: {supported_formats()}"
+        if cls.format_name.lower() == serializer_name.lower():
+            return cls(**serializer_args)
+    msg = f"Format '{serializer_name}' is not among the supported formats: {supported_formats()}"
     raise ValueError(msg)
 
 
@@ -216,7 +216,7 @@ def save_volume(volume: Volume, serializer: str | Serializer, dest: str) -> Iter
     """
 
     if isinstance(serializer, str):
-        serializer = _get_serializer(serializer)
+        serializer = get_serializer(serializer)
         logger.info("Using %s serializer with default settings", serializer.__class__.__name__)
 
     for doc, filename in serializer.serialize_volume(volume):
