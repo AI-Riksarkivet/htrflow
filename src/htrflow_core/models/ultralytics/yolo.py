@@ -15,7 +15,7 @@ from htrflow_core.utils.geometry import polygons2masks
 class YOLO(BaseModel, PytorchDeviceMixin):
     def __init__(
         self,
-        model: str | Path = "yolov8n.pt",
+        model: str | Path = "ultralyticsplus/yolov8s",
         device: Optional[str] = None,
         cache_dir: str = "./.cache",
         hf_token: Optional[str] = None,

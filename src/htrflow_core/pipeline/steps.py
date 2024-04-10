@@ -1,8 +1,13 @@
 import logging
 import os
 
-from htrflow_core.dummies.dummy_models import RecognitionModel, SegmentationModel, simple_word_segmentation
+# Imported-but-unused models are needed here in order for
+# `all_subclasses` to find them
+from htrflow_core.dummies.dummy_models import RecognitionModel, SegmentationModel, simple_word_segmentation  # noqa: F401
 from htrflow_core.volume.volume import Volume
+from htrflow_core.models.base_model import BaseModel
+from htrflow_core.models.huggingface.trocr import TrOCR  # noqa: F401
+from htrflow_core.models.ultralytics.yolo import YOLO  # noqa: F401
 
 
 logger = logging.getLogger(__name__)
@@ -17,6 +22,10 @@ class PipelineStep:
 
     requires = []
 
+    @classmethod
+    def from_config(cls, config):
+        return cls(**config)
+
     def run(self, volume: Volume) -> Volume:
         """Run step"""
 
@@ -26,23 +35,30 @@ class PipelineStep:
 
 class Inference(PipelineStep):
 
-    def __init__(self, model):
+    def __init__(self, model, generation_kwargs):
         self.model = model
+        self.generation_kwargs = generation_kwargs
+
+    @classmethod
+    def from_config(cls, config):
+        name = config["model"].lower()
+        init_kwargs = config.get("model_settings", {})
+        model = MODELS[name](**init_kwargs)
+        generation_kwargs = config.get("generation_settings", {})
+        return cls(model, generation_kwargs)
 
     def run(self, volume):
-        result = self.model(volume.segments())
+        result = self.model(volume.segments(), **self.generation_kwargs)
         volume.update(result)
         return volume
 
 
 class Segmentation(Inference):
-    def __init__(self):
-        super().__init__(SegmentationModel())
+    pass
 
 
 class TextRecognition(Inference):
-    def __init__(self):
-        super().__init__(RecognitionModel())
+    pass
 
 
 class WordSegmentation(PipelineStep):
@@ -77,9 +93,10 @@ def all_subclasses(cls):
 # Mapping class name -> class
 # Ex. {segmentation: `steps.Segmentation`}
 STEPS = {cls_.__name__.lower(): cls_ for cls_ in all_subclasses(PipelineStep)}
+MODELS = {cls_.__name__.lower(): cls_ for cls_ in all_subclasses(BaseModel)}
 
 
 def init_step(step):
     name = step["step"].lower()
-    kwargs = step.get("settings", {})
-    return STEPS[name](**kwargs)
+    config = step.get("settings", {})
+    return STEPS[name].from_config(config)
