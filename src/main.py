@@ -22,4 +22,4 @@ if __name__ == '__main__':
         config = yaml.safe_load(f)
 
     pipe = Pipeline.from_config(config)
-    pipe.run("data/demo_images/A0068699")
+    pipe.run(sys.argv[2])
