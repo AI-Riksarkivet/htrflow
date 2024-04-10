@@ -1,0 +1,3 @@
+steps:
+- step: Segmentation
+- step: TextRecognition
