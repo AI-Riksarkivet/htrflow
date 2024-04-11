@@ -31,7 +31,7 @@ class RTMDet(BaseModel, PytorchDeviceMixin):
                 model=config, weights=model, device=self.set_device(device), show_progress=False, *args
             )
 
-        self.metadata = {"model": str(model)}
+        self.metadata = {"model": str(model), "config": str(config)}
 
     def _predict(self, images: list[np.ndarray], **kwargs) -> list[Result]:
         if len(images) > 1:

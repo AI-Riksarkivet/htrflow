@@ -57,7 +57,7 @@ class BaseModel(ABC):
         self,
         images: Iterable[Union[np.ndarray, str, Path]],
         batch_size: int = 1,
-        images_are_nparray: bool = True,
+        images_are_nparray: bool = False,
         *args,
         **kwargs,
     ) -> Iterable[Result]:

@@ -23,11 +23,9 @@ class Satrn(BaseModel, PytorchDeviceMixin):
     ) -> None:
         self.cache_dir = cache_dir
         with SuppressOutput():
-            self.model = TextRecInferencer(
-                model=config, weights=model, device=self.set_device(device), show_progress=False, *args
-            )
+            self.model = TextRecInferencer(model=config, weights=model, device=self.set_device(device))
 
-        self.metadata = {"model": str(model)}
+        self.metadata = {"model": str(model), "config": str(config)}
 
     def _predict(self, images: list[np.ndarray], **kwargs) -> list[Result]:
         if len(images) > 1:
@@ -36,18 +34,34 @@ class Satrn(BaseModel, PytorchDeviceMixin):
             batch_size = 1
 
         outputs: TextRecogDataSample = self.model(
-            images, batch_size=batch_size, draw_pred=False, return_datasample=True, **kwargs
+            images, batch_size=batch_size, return_datasamples=False, progress_bar=False, **kwargs
         )
 
         return [self._create_text_result(image, output) for image, output in zip(images, outputs["predictions"])]
 
-    def _create_text_result(self, image: np.ndarray, output: TextRecogDataSample) -> Result:
-        results = []
-        for i in range(0, len(texts), step):
-            texts_chunk = texts[i : i + step]
-            scores_chunk = scores[i : i + step]
-            image_chunk = images[i // step]
-            recognized_text = RecognizedText(texts=texts_chunk, scores=scores_chunk)
-            result = Result.text_recognition_result(image=image_chunk, metadata=metadata, text=recognized_text)
-            results.append(result)
-        return results
+    def _create_text_result(self, image: np.ndarray, output: list) -> Result:
+        print(output)
+        recognized_text = RecognizedText(texts=output["text"], scores=output["scores"])
+        return Result.text_recognition_result(image=image, metadata=self.metadata, text=recognized_text)
+
+
+if __name__ == "__main__":
+    img = "/home/adm.margabo@RA-ACC.INT/repo/htrflow_core/data/demo_images/trocr_demo_image.png"
+
+    # from huggingface_hub import hf_hub_download
+
+    # model_path = hf_hub_download(
+    #     repo_id="Riksarkivet/satrn_htr",
+    #     filename="model.pth",
+    #     repo_type="model",
+    #     cache_dir=".cache",
+    # )
+
+    model = Satrn(
+        model="/home/adm.margabo@RA-ACC.INT/repo/htrflow_core/.cache/models--Riksarkivet--satrn_htr/snapshots/27812c88be2706696b0283c51ee68ceb7b969301/model.pth",
+        config="/home/adm.margabo@RA-ACC.INT/repo/htrflow_core/.cache/models--Riksarkivet--satrn_htr/snapshots/27812c88be2706696b0283c51ee68ceb7b969301/config.py",
+    )
+
+    results = model([img] * 2, batch_size=2)
+
+    print(results)

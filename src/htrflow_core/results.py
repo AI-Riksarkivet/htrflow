@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, Literal, Optional, Sequence, TypeAlias
+from typing import Any, Callable, Literal, Optional, Sequence, TypeAlias
 
 import numpy as np
 
@@ -288,12 +288,9 @@ class Result:
         Arguments:
             index: A list of indices representing the new ordering.
         """
-        if self.segments:
-            self.segments = [self.segments[i] for i in index]
-        if self.data:
-            self.data = [self.data[i] for i in index]
+        self._rearrange_or_keep_on_id(index)
 
-    def drop(self, index: Sequence[int]) -> None:
+    def drop_indices(self, index: Sequence[int]) -> None:
         """Drop segments from result
 
         Example: Given a `Result` with three segments s0, s1 and s2,
@@ -302,9 +299,34 @@ class Result:
         Arguments:
             index: Indices of segments to drop
         """
-        keep = [i for i in range(len(self.segments)) if i not in index]
+        keep = [i for i, seg in enumerate(self.segments) if i not in index]
 
+        self._rearrange_or_keep_on_id(keep)
+
+    def filter(self, key: str, predicate: Callable[[Any], bool]) -> None:
+        """Filter segments and data based on a predicate applied to a specified key.
+
+        Args:
+            key: The key in the data dictionary to test the predicate against.
+            predicate [Callable]: A function that takes a value associated with the key
+            and returns True if the segment should be kept.
+
+        Example:
+        ```
+        >>> def remove_certain_text(text_results):
+        >>>    return text_results != 'lorem'
+        >>> result.filter('text_results', remove_certain_text)
+        True
+        ```
+        """
+
+        keep = [i for i, item in enumerate(self.data) if predicate(item.get(key, None))]
+
+        self._rearrange_or_keep_on_id(keep)
+
+    def _rearrange_or_keep_on_id(self, index):
+        """Rearrange or filters segments and data based on index"""
         if self.segments:
-            self.segments = [self.segments[i] for i in keep]
+            self.segments = [self.segments[i] for i in index]
         if self.data:
-            self.data = [self.data[i] for i in keep]
+            self.data = [self.data[i] for i in index]

@@ -136,19 +136,19 @@ class PageNode(BaseDocumentNode):
         name = os.path.basename(image_path).split(".")[0]
         height, width = self.image.shape[:2]
         self.add_data(
-            image_path = image_path,
-            image_name = name,
-            height = height,
-            width = width,
-            polygon = Bbox(0, 0, width, height).polygon(),
-            label = name
+            image_path=image_path,
+            image_name=name,
+            height=height,
+            width=width,
+            polygon=Bbox(0, 0, width, height).polygon(),
+            label=name,
         )
 
     @property
     def image(self):
         return self._image
 
-    def visualize(self, dest: Optional[str]=None, labels: str="label", max_levels: int=2):
+    def visualize(self, dest: Optional[str] = None, labels: str = "label", max_levels: int = 2):
         """Visualize the page
 
         Draws the page's regions on its image.
@@ -322,12 +322,13 @@ class ImageGenerator:
     is known beforehand (which is typically not the case), which is
     handy in some cases, e.g., when using tqdm progress bars.
     """
+
     def __init__(self, nodes: Sequence[node.Node]):
         self._nodes = list(nodes)
 
     def __iter__(self):
-        for node in self._nodes:
-            yield node.image
+        for _node in self._nodes:
+            yield _node.image
 
     def __len__(self):
         return len(self._nodes)
