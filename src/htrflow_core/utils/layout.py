@@ -1,11 +1,13 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+
 import logging
+from typing import TYPE_CHECKING
 
 import cv2
 import numpy as np
 
 from htrflow_core.utils.geometry import Bbox
+
 
 if TYPE_CHECKING:
     from htrflow_core.volume.volume import Volume

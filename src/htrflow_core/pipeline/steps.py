@@ -3,11 +3,15 @@ import os
 
 # Imported-but-unused models are needed here in order for
 # `all_subclasses` to find them
-from htrflow_core.dummies.dummy_models import RecognitionModel, SegmentationModel, simple_word_segmentation  # noqa: F401
-from htrflow_core.volume.volume import Volume
+from htrflow_core.dummies.dummy_models import (  # noqa: F401
+    RecognitionModel,
+    SegmentationModel,
+    simple_word_segmentation,
+)
 from htrflow_core.models.base_model import BaseModel
 from htrflow_core.models.huggingface.trocr import TrOCR  # noqa: F401
 from htrflow_core.models.ultralytics.yolo import YOLO  # noqa: F401
+from htrflow_core.volume.volume import Volume
 
 
 logger = logging.getLogger(__name__)

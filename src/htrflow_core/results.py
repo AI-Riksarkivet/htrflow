@@ -113,7 +113,7 @@ class Segment:
         self.orig_shape = orig_shape
 
     def __str__(self):
-        return f"Segment(class_label={self.class_label}, score={self.score}, bbox={self.bbox}, polygon={self.polygon}, mask={self.mask})"
+        return f"Segment(class_label={self.class_label}, score={self.score}, bbox={self.bbox}, polygon={self.polygon}, mask={self.mask})"  # noqa: E501
 
     def global_mask(self, orig_shape: tuple[int, int] | None = None) -> Optional[Mask]:
         """
