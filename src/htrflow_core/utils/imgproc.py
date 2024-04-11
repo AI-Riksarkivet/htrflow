@@ -2,8 +2,8 @@
 Image processing utilities
 """
 
+import os
 import re
-from pathlib import Path
 
 import cv2
 import numpy as np
@@ -95,12 +95,11 @@ def _is_valid_url(url: str) -> bool:
         return False
 
 
-def read(source: str | np.ndarray | Path) -> np.ndarray:
+def read(source: str | np.ndarray | os.PathLike) -> np.ndarray:
     """Read an image from a URL, a local path, or directly use a numpy array as an OpenCV image.
 
     Args:
-        source (Union[str, np.ndarray, Path]): The source can be a URL, a local filesystem path,
-                                               or a numpy array representing an image.
+        source: The source can be a URL, a local filesystem path, or a numpy array representing an image.
 
     Returns:
         np.ndarray: Image in OpenCV format.
@@ -128,11 +127,3 @@ def read(source: str | np.ndarray | Path) -> np.ndarray:
 
 def write(dest: str, image: np.ndarray) -> None:
     cv2.imwrite(dest, image)
-
-
-if __name__ == "__main__":
-    url = "http://www.example.com"
-    if _is_valid_url(url):
-        print("This URL is reachable and valid.")
-    else:
-        print("This URL is not valid or reachable.")

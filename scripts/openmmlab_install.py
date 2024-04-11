@@ -19,6 +19,7 @@ def install_packages():
         subprocess.check_call(["pip", "install", "-U", "mmdet==3.1.0"])
         subprocess.check_call(["pip", "install", "-U", "mmengine==0.7.2"])
         subprocess.check_call(["pip", "install", "-U", "mmocr==1.0.1"])
+        subprocess.check_call(["pip", "install", "-U", "yapf==0.40.1"])
 
     except subprocess.CalledProcessError as e:
         print(f"Failed to execute installation commands: {e}")

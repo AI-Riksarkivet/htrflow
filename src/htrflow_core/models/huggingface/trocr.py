@@ -1,4 +1,4 @@
-from pathlib import Path
+from os import PathLike
 from typing import Optional
 
 import numpy as np
@@ -16,8 +16,8 @@ class TrOCR(BaseModel, PytorchDeviceMixin):
 
     def __init__(
         self,
-        model: str | Path = "microsoft/trocr-base-handwritten",
-        processor: str = "microsoft/trocr-base-handwritten",
+        model: str | PathLike = "microsoft/trocr-base-handwritten",
+        processor: str | PathLike = "microsoft/trocr-base-handwritten",
         device: Optional[str] = None,
         cache_dir: str = "./.cache",
         hf_token: Optional[str] = None,
@@ -32,9 +32,8 @@ class TrOCR(BaseModel, PytorchDeviceMixin):
         """
 
         self.cache_dir = cache_dir
-        self.model = VisionEncoderDecoderModel.from_pretrained(model, cache_dir=cache_dir, token=hf_token).to(
-            self.set_device(device)
-        )
+        self.model = VisionEncoderDecoderModel.from_pretrained(model, cache_dir=cache_dir, token=hf_token)
+        self.model.to(self.set_device(device))
 
         if processor is None:
             processor = model

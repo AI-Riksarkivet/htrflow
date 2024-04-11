@@ -1,4 +1,4 @@
-from pathlib import Path
+from os import PathLike
 from typing import Optional
 
 import numpy as np
@@ -7,7 +7,7 @@ from ultralytics.engine.results import Results as UltralyticsResults
 
 from htrflow_core.models.base_model import BaseModel
 from htrflow_core.models.torch_mixin import PytorchDeviceMixin
-from htrflow_core.models.ultralytics.ultralytics_downloader import UltralyticsDownloader
+from htrflow_core.models.ultralytics import ultralytics_downloader
 from htrflow_core.results import Result, Segment
 from htrflow_core.utils.geometry import polygons2masks
 
@@ -15,7 +15,7 @@ from htrflow_core.utils.geometry import polygons2masks
 class YOLO(BaseModel, PytorchDeviceMixin):
     def __init__(
         self,
-        model: str | Path = "ultralyticsplus/yolov8s",
+        model: str | PathLike = "ultralyticsplus/yolov8s",
         device: Optional[str] = None,
         cache_dir: str = "./.cache",
         hf_token: Optional[str] = None,
@@ -23,7 +23,7 @@ class YOLO(BaseModel, PytorchDeviceMixin):
     ) -> None:
         self.cache_dir = cache_dir
 
-        model_file = UltralyticsDownloader.from_pretrained(model, cache_dir, hf_token)
+        model_file = ultralytics_downloader.load_from_hf(model, cache_dir, hf_token)
         self.model = UltralyticsYOLO(model_file, *args).to(self.set_device(device))
         self.metadata = {"model": str(model)}
 

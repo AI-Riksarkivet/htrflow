@@ -1,4 +1,4 @@
-from pathlib import Path
+from os import PathLike
 from typing import Optional
 
 import numpy as np
@@ -12,8 +12,8 @@ from htrflow_core.results import Result
 class DiT(BaseModel, PytorchDeviceMixin):
     def __init__(
         self,
-        model: str | Path = "microsoft/dit-base-finetuned-rvlcdip",
-        processor: str = "microsoft/dit-base-finetuned-rvlcdip",
+        model: str | PathLike = "microsoft/dit-base-finetuned-rvlcdip",
+        processor: str | PathLike = "microsoft/dit-base-finetuned-rvlcdip",
         device: Optional[str] = None,
         cache_dir: str = "./.cache",
         hf_token: Optional[str] = None,
@@ -45,10 +45,6 @@ class DiT(BaseModel, PytorchDeviceMixin):
 
 
 if __name__ == "__main__":
-    import warnings
-
-    warnings.filterwarnings("ignore")
-
     url = "https://github.com/Swedish-National-Archives-AI-lab/htrflow_core/blob/a1b4b31f9a8b7c658a26e0e665eb536a0d757c45/data/demo_image.jpg?raw=true"
 
     model = DiT()

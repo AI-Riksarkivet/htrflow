@@ -1,6 +1,6 @@
 import re
 import time
-from pathlib import Path
+from os import PathLike
 from threading import Thread
 from typing import Optional, Union
 
@@ -19,12 +19,13 @@ class LLavaNext(BaseModel, PytorchDeviceMixin):
 
     def __init__(
         self,
-        model: str | Path = "llava-hf/llava-v1.6-mistral-7b-hf",
-        processor: str = "llava-hf/llava-v1.6-mistral-7b-hf",
+        model: str | PathLike = "llava-hf/llava-v1.6-mistral-7b-hf",
+        processor: str | PathLike = "llava-hf/llava-v1.6-mistral-7b-hf",
         prompt: str = "[INST] <image>\Please transcribe the handwritten English text displayed in the image [/INST]",
         device: Optional[str] = None,
         cache_dir: str = "./.cache",
         hf_token: Optional[str] = None,
+        *model_args,
     ):
         self.cache_dir = cache_dir
 
@@ -37,6 +38,7 @@ class LLavaNext(BaseModel, PytorchDeviceMixin):
             # quantization_config=nf4_config,
             torch_dtype=torch.float16,
             low_cpu_mem_usage=True,
+            *model_args,
         )
 
         self.model.to(self.set_device(device))
@@ -67,7 +69,7 @@ class LLavaNext(BaseModel, PytorchDeviceMixin):
 
     def stream_predict(
         self,
-        image: Union[np.ndarray, str, Path],
+        image: Union[np.ndarray, str, PathLike],
         prompt: Optional[str] = None,
         iterator: bool = False,
         **generation_kwargs,

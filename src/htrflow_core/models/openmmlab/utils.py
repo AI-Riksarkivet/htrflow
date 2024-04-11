@@ -3,15 +3,13 @@ import sys
 import warnings
 
 
-warnings.filterwarnings("ignore")
-
-
 class SuppressOutput:
     def __init__(self, show_mmengine_warnings: bool = True) -> None:
         self.show_mmengine_warnings = show_mmengine_warnings
 
     def __enter__(self):
         if self.show_mmengine_warnings:
+            warnings.filterwarnings("ignore")
             self._original_stdout = sys.stdout
             self._original_stderr = sys.stderr
             sys.stdout = open(os.devnull, "w")

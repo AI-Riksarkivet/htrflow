@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from itertools import islice
-from pathlib import Path
+from os import PathLike
 from typing import Iterable, Union
 
 import numpy as np
@@ -55,7 +55,7 @@ class BaseModel(ABC):
 
     def __call__(
         self,
-        images: Iterable[Union[np.ndarray, str, Path]],
+        images: Iterable[Union[np.ndarray, str, PathLike]],
         batch_size: int = 1,
         images_are_nparray: bool = False,
         *args,
