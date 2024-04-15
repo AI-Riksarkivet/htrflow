@@ -46,7 +46,7 @@ class Satrn(BaseModel, PytorchDeviceMixin):
         return [self._create_text_result(image, output) for image, output in zip(images, outputs["predictions"])]
 
     def _create_text_result(self, image: np.ndarray, output: list) -> Result:
-        recognized_text = RecognizedText(texts=output["text"], scores=output["scores"])
+        recognized_text = RecognizedText(texts=[output["text"]], scores=[output["scores"]])
         return Result.text_recognition_result(image=image, metadata=self.metadata, text=recognized_text)
 
 
