@@ -3,6 +3,7 @@ import os
 
 from htrflow_core.dummies.dummy_models import simple_word_segmentation
 from htrflow_core.models.importer import all_models
+from htrflow_core.utils.imgproc import binarize
 from htrflow_core.volume.volume import Volume
 
 
@@ -59,6 +60,13 @@ class Segmentation(Inference):
 
 class TextRecognition(Inference):
     pass
+
+
+class Binarization(PipelineStep):
+    def run(self, volume):
+        for page in volume:
+            page.image = binarize(page.image)
+        return volume
 
 
 class WordSegmentation(PipelineStep):

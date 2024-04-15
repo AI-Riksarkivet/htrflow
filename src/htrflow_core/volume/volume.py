@@ -26,6 +26,7 @@ class BaseDocumentNode(node.Node):
             s += f": {self.text}"
         return s
 
+    @property
     def image(self):
         """Image of the region this node represents"""
         return None
@@ -147,6 +148,10 @@ class PageNode(BaseDocumentNode):
     @property
     def image(self):
         return self._image
+
+    @image.setter
+    def image(self, image):
+        self._image = image
 
     def visualize(self, dest: Optional[str] = None, labels: str = "label", max_levels: int = 2):
         """Visualize the page

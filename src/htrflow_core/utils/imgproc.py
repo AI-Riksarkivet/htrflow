@@ -46,15 +46,11 @@ def mask(
 
 def binarize(image: np.ndarray) -> np.ndarray:
     """Binarize image"""
-    # Moved from binarize.py
-    # TODO: Double check color space conversions (other functions in this module operate on BGR)
-    img_ori = cv2.cvtColor(image.astype("uint8"), cv2.COLOR_RGB2BGR)
-    img_gray = cv2.cvtColor(img_ori, cv2.COLOR_BGR2GRAY)
+    img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     dst = cv2.fastNlMeansDenoising(img_gray, h=31, templateWindowSize=7, searchWindowSize=21)
-    img_blur = cv2.medianBlur(dst, 3).astype("uint8")
-    threshold = cv2.adaptiveThreshold(img_blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
-    img_binarized = cv2.cvtColor(threshold, cv2.COLOR_BGR2RGB)
-    return img_binarized
+    img_gray = cv2.medianBlur(dst, 3).astype("uint8")
+    threshold = cv2.adaptiveThreshold(img_gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+    return cv2.cvtColor(threshold, cv2.COLOR_GRAY2BGR)
 
 
 def url2pillow(url: str) -> Image:
