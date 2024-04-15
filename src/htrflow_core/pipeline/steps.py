@@ -1,16 +1,8 @@
 import logging
 import os
 
-# Imported-but-unused models are needed here in order for
-# `all_subclasses` to find them
-from htrflow_core.dummies.dummy_models import (  # noqa: F401
-    RecognitionModel,
-    SegmentationModel,
-    simple_word_segmentation,
-)
-from htrflow_core.models.base_model import BaseModel
-from htrflow_core.models.huggingface.trocr import TrOCR  # noqa: F401
-from htrflow_core.models.ultralytics.yolo import YOLO  # noqa: F401
+from htrflow_core.dummies.dummy_models import simple_word_segmentation
+from htrflow_core.models.importer import all_models
 from htrflow_core.volume.volume import Volume
 
 
@@ -46,6 +38,10 @@ class Inference(PipelineStep):
     @classmethod
     def from_config(cls, config):
         name = config["model"].lower()
+        if name not in MODELS:
+            model_names = [model.__name__ for model in all_models()]
+            msg = f"Model {name} is not supported. The available models are: {', '.join(model_names)}."
+            raise NotImplementedError(msg)
         init_kwargs = config.get("model_settings", {})
         model = MODELS[name](**init_kwargs)
         generation_kwargs = config.get("generation_settings", {})
@@ -80,10 +76,14 @@ def auto_import(source) -> Volume:
 
     Automatically detects import type from the input. Supported types
     are:
-        - directories with images
+        - A path to a directory with images
+        - A list of paths to images
+        - A volume instance (returns itself)
     """
     if isinstance(source, Volume):
         return source
+    elif isinstance(source, list):
+        return Volume(source)
     elif isinstance(source, str):
         if os.path.isdir(source):
             logger.info("Loading volume from directory %s", source)
@@ -97,7 +97,7 @@ def all_subclasses(cls):
 # Mapping class name -> class
 # Ex. {segmentation: `steps.Segmentation`}
 STEPS = {cls_.__name__.lower(): cls_ for cls_ in all_subclasses(PipelineStep)}
-MODELS = {cls_.__name__.lower(): cls_ for cls_ in all_subclasses(BaseModel)}
+MODELS = {model.__name__.lower(): model for model in all_models()}
 
 
 def init_step(step):
