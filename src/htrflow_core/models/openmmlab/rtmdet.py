@@ -10,6 +10,7 @@ from htrflow_core.models.base_model import BaseModel
 from htrflow_core.models.enums import Framework, Task
 from htrflow_core.models.openmmlab.utils import SuppressOutput
 from htrflow_core.models.torch_mixin import PytorchMixin
+from htrflow_core.postprocess.mask_nms import multiclass_mask_nms
 from htrflow_core.results import Result, Segment
 
 
@@ -69,7 +70,7 @@ class RTMDet(BaseModel, PytorchMixin):
         ]
 
         result = Result.segmentation_result(image, self.metadata, segments)
-        # indices_to_drop = multiclass_mask_nms(result)
-        # result.drop_indices(indices_to_drop)
+        indices_to_drop = multiclass_mask_nms(result)
+        result.drop_indices(indices_to_drop)
 
         return result
