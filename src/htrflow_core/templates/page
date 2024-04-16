@@ -18,7 +18,11 @@
             {%- endfor %}
             </OrderedGroup>
         </ReadingOrder>
-        {%- for node in [page] recursive %}
+        {% if not page.has_regions() %} {# Page has no regions - put all lines in a big region that covers the entire page #}
+        <TextRegion id="{{ labels[page] }}">
+            <Coords points="{% for point in page.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}" />
+        {% endif %}
+        {%- for node in page recursive %}
         {%- if is_text_line(node) %}
             <TextLine id="{{ labels[node] }}">
             <Coords points="{% for point in node.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}" />
@@ -43,5 +47,6 @@
         </TextRegion>
         {%- endif %}
         {%- endfor %}
+    {% if not page.has_regions() %}</TextRegion>{% endif %}  {# Closing tag for lines 21-24 #}
     </Page>
 </PcGts>
