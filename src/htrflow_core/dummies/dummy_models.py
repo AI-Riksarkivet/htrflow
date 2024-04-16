@@ -7,6 +7,7 @@ import numpy as np
 
 from htrflow_core.models.base_model import BaseModel
 from htrflow_core.results import RecognizedText, Result, Segment
+from htrflow_core.utils.imgproc import crop
 
 
 """
@@ -93,13 +94,10 @@ def randommask(h: int, w: int) -> np.ndarray:
 
 
 def simple_word_segmentation(nodes) -> list[Result]:
-    return [_simple_word_segmentation(node.image, node.text) for node in nodes]
+    return [_simple_word_segmentation(node.image, node.text, node.mask) for node in nodes]
 
 
-def _simple_word_segmentation(image, text):
-    if random.random() < 0:
-        return Result(image, {})
-
+def _simple_word_segmentation(image, text, mask=None):
     height, width = image.shape[:2]
     pixels_per_char = width // len(text)
     bboxes = []
@@ -108,9 +106,12 @@ def _simple_word_segmentation(image, text):
     for word in words:
         x2 = min(x1 + pixels_per_char * len(word), width)
         bboxes.append((x1, 0, height, x2))
-        x1 = x2 + pixels_per_char  # add a "whitespace"
+        x1 = x2 + int(pixels_per_char * 0.2)  # add a "whitespace"
 
-    segments = [Segment(bbox=bbox, class_label="word") for bbox in bboxes]
+    if mask:
+        segments = [Segment(bbox=bbox, mask=crop(mask, bbox), class_label="word") for bbox in bboxes]
+    else:
+        segments = [Segment(bbox=bbox, class_label="word") for bbox in bboxes]
     texts = [RecognizedText([word], [0]) for word in words]
     r = Result(image, {"model": "simple word segmentation"}, segments, [{"text_result": text} for text in texts])
     return r
