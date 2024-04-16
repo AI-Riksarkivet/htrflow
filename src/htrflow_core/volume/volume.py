@@ -222,7 +222,7 @@ class Volume(BaseDocumentNode):
             path: A path to a directory of images.
         """
         files = (os.path.join(path, file) for file in sorted(os.listdir(path)))
-        label = os.path.basename(path)
+        label = os.path.basename(path.strip("/"))
         return cls(files, label)
 
     @classmethod
