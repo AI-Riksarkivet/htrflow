@@ -29,13 +29,15 @@ class Satrn(BaseModel, PytorchMixin):
                 model=model_config, weights=model_weights, device=self.set_device(self.device), *model_args
             )
 
-        self.metadata = {
-            "model": str(model),
-            "config": str(config),
-            "framework": Framework.Openmmlab.value,
-            "task": Task.Image2Text.value,
-            "device": self.device,
-        }
+        self.metadata.update(
+            {
+                "model": str(model),
+                "config": str(config),
+                "framework": Framework.Openmmlab.value,
+                "task": Task.Image2Text.value,
+                "device": self.device,
+            }
+        )
 
     def _predict(self, images: list[np.ndarray], **kwargs) -> list[Result]:
         if len(images) > 1:
@@ -50,5 +52,5 @@ class Satrn(BaseModel, PytorchMixin):
         return [self._create_text_result(image, output) for image, output in zip(images, outputs["predictions"])]
 
     def _create_text_result(self, image: np.ndarray, output: list) -> Result:
-        recognized_text = RecognizedText(texts=output["text"], scores=output["scores"])
+        recognized_text = RecognizedText(texts=[output["text"]], scores=[output["scores"]])
         return Result.text_recognition_result(image=image, metadata=self.metadata, text=recognized_text)
