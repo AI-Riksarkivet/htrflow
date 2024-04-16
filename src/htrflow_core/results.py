@@ -115,6 +115,7 @@ class Segment:
     def __str__(self):
         return f"Segment(class_label={self.class_label}, score={self.score}, bbox={self.bbox}, polygon={self.polygon}, mask={self.mask})"  # noqa: E501
 
+    @property
     def global_mask(self, orig_shape: tuple[int, int] | None = None) -> Optional[Mask]:
         """
         The segment mask relative to the original input image.
@@ -132,7 +133,7 @@ class Segment:
 
         x1, y1, x2, y2 = self.bbox
         mask = np.zeros(orig_shape, dtype=np.uint8)
-        mask[y1:y2, x1:x2] = self.mask
+        mask[y1 : y2 + 1, x1 : x2 + 1] = self.mask
         return mask
 
     @property

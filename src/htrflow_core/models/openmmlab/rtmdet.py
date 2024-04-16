@@ -1,38 +1,48 @@
 from os import PathLike
-from typing import Optional
 
 import numpy as np
 from mmdet.apis import DetInferencer
 from mmdet.structures import DetDataSample
 from mmengine.structures import InstanceData
 
+from htrflow_core.models import hf_utils
 from htrflow_core.models.base_model import BaseModel
-from htrflow_core.models.openmmlab import openmmlab_downloader
+from htrflow_core.models.enums import Framework, Task
 from htrflow_core.models.openmmlab.utils import SuppressOutput
-from htrflow_core.models.torch_mixin import PytorchDeviceMixin
+from htrflow_core.models.torch_mixin import PytorchMixin
 from htrflow_core.results import Result, Segment
 
 
-class RTMDet(BaseModel, PytorchDeviceMixin):
+class RTMDet(BaseModel, PytorchMixin):
     def __init__(
         self,
         model: str | PathLike = "Riksarkivet/rtmdet_regions",
         config: str | PathLike = "Riksarkivet/rtmdet_regions",
-        device: Optional[str] = None,
-        cache_dir: str = "./.cache",
-        hf_token: Optional[str] = None,
-        *args,
+        *model_args,
+        **kwargs,
     ) -> None:
-        self.cache_dir = cache_dir
+        super().__init__(**kwargs)
 
-        model_weights, model_config = openmmlab_downloader.load_from_hf(model, config, cache_dir, hf_token)
+        model_weights, model_config = hf_utils.mmlabs_from_hf(model, config, self.cache_dir, self.hf_token)
 
         with SuppressOutput():
             self.model = DetInferencer(
-                model=model_config, weights=model_weights, device=self.set_device(device), show_progress=False, *args
+                model=model_config,
+                weights=model_weights,
+                device=self.set_device(self.device),
+                show_progress=False,
+                *model_args,
             )
 
-        self.metadata = {"model": str(model), "config": str(config)}
+        self.metadata.update(
+            {
+                "model": str(model),
+                "config": str(config),
+                "framework": Framework.Openmmlab.value,
+                "task": Task.ObjectDetection.value,
+                "device": self.device,
+            }
+        )
 
     def _predict(self, images: list[np.ndarray], **kwargs) -> list[Result]:
         if len(images) > 1:
@@ -58,14 +68,8 @@ class RTMDet(BaseModel, PytorchDeviceMixin):
             for box, mask, score, class_label in zip(boxes, masks, scores, class_labels)
         ]
 
-        return Result.segmentation_result(image, self.metadata, segments)
+        result = Result.segmentation_result(image, self.metadata, segments)
+        # indices_to_drop = multiclass_mask_nms(result)
+        # result.drop_indices(indices_to_drop)
 
-
-if __name__ == "__main__":
-    img = "/home/adm.margabo@RA-ACC.INT/repo/htrflow_core/data/demo_images/trocr_demo_image.png"
-
-    model = RTMDet(
-        model="Riksarkivet/rtmdet_regions",
-    )
-
-    results = model([img] * 2, batch_size=2)
+        return result

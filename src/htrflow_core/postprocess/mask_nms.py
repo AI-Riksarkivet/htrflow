@@ -27,11 +27,14 @@ def multiclass_mask_nms(result: Result, containments_threshold: float = 0.5) -> 
         List[int]: Indices of masks that should be removed after applying NMS.
     """
 
+    remove_indices_global = []
+
+    if len(result.segments) < 2:
+        return remove_indices_global
+
     masks_by_class: Dict[str, Sequence[Mask]] = defaultdict(list)
     for segment in result.segments:
         masks_by_class[segment.class_label].append(segment.global_mask)
-
-    remove_indices_global = []
 
     for class_label, masks in masks_by_class.items():
         remove_indices = mask_nms(masks, containments_threshold)
@@ -53,6 +56,7 @@ def mask_nms(masks: Sequence[Mask], containments_threshold: float = 0.5) -> List
     Returns:
         List[int]: Indices of masks to be removed.
     """
+
     stacked_masks = np.stack(masks, axis=0)
 
     containments_score = np.array([_calculate_containment_score(stacked_masks, mask) for mask in stacked_masks])

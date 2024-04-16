@@ -238,7 +238,7 @@ def helper_plot_for_segment(
             ax.add_patch(rect)
 
         if polygencolor is not None:
-            poly_patch = patches.Polygon(polygon, linewidth=1, edgecolor=polygencolor, facecolor="none")
+            poly_patch = patches.Polygon(polygon.as_nparray(), linewidth=1, edgecolor=polygencolor, facecolor="none")
             ax.add_patch(poly_patch)
 
         if fontcolor is not None:
@@ -256,7 +256,8 @@ def helper_plot_for_segment(
                 bbox={"facecolor": "black", "alpha": 0.4, "pad": 0, "edgecolor": "none"},
             )
 
-    plt.show()
+    plt.savefig("bar.png")
+    # plt.show()
 
 
 def mask_to_rgba(mask: Mask, point: Point, image_shape: Tuple[int, int], maskcolor: Color, alpha: float) -> np.ndarray:

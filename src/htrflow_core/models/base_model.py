@@ -6,11 +6,18 @@ from typing import Iterable, Union
 import numpy as np
 from tqdm import tqdm
 
+from htrflow_core.models.meta_mixin import MetadataMixin
 from htrflow_core.results import Result
 from htrflow_core.utils import imgproc
 
 
-class BaseModel(ABC):
+class BaseModel(ABC, MetadataMixin):
+    def __init__(self, **kwargs) -> None:
+        self.device = kwargs.get("device", None)
+        self.cache_dir = kwargs.get("cache_dir", "./.cache")
+        self.hf_token = kwargs.get("hf_token", None)
+        self.metadata = self.default_metadata()
+
     def predict(self, images: Iterable[np.ndarray], batch_size: int, *args, **kwargs) -> Iterable[Result]:
         """Perform inference on images with a progress bar.
 

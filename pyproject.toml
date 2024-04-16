@@ -31,6 +31,7 @@ include = "htrflow_core"
 [tool.poetry.scripts]
 openmmlab_install = "scripts.openmmlab_install:main"
 
+
 # Dependencies
 [tool.poetry.dependencies]
 # python
@@ -64,6 +65,7 @@ bitsandbytes = {version = "^0.43.0", optional = true}
 ultralytics = {version = "^8.0.225", optional = true}
 requests = "^2.31.0"
 pillow = "^10.3.0"
+pydantic = "^2.7.0"
 
 [tool.poetry.extras]
 huggingface = ["transformers", "huggingface-hub", "datasets", "torch"]

@@ -1,15 +1,15 @@
 from os import PathLike
-from typing import Optional
 
 import numpy as np
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 
 from htrflow_core.models.base_model import BaseModel
-from htrflow_core.models.torch_mixin import PytorchDeviceMixin
+from htrflow_core.models.enums import Framework, Task
+from htrflow_core.models.torch_mixin import PytorchMixin
 from htrflow_core.results import RecognizedText, Result
 
 
-class TrOCR(BaseModel, PytorchDeviceMixin):
+class TrOCR(BaseModel, PytorchMixin):
     default_generation_kwargs = {
         "num_beams": 4,
     }
@@ -18,9 +18,8 @@ class TrOCR(BaseModel, PytorchDeviceMixin):
         self,
         model: str | PathLike = "microsoft/trocr-base-handwritten",
         processor: str | PathLike = "microsoft/trocr-base-handwritten",
-        device: Optional[str] = None,
-        cache_dir: str = "./.cache",
-        hf_token: Optional[str] = None,
+        *model_args,
+        **kwargs,
     ):
         """Initialize a TrOCR model
 
@@ -30,19 +29,31 @@ class TrOCR(BaseModel, PytorchDeviceMixin):
             processor: Path or name of pretrained TrOCRProcessor.
                 Defaults to 'microsoft/trocr-base-handwritten'.
         """
+        super().__init__(**kwargs)
 
-        self.cache_dir = cache_dir
-        self.model = VisionEncoderDecoderModel.from_pretrained(model, cache_dir=cache_dir, token=hf_token)
-        self.model.to(self.set_device(device))
+        self.model = VisionEncoderDecoderModel.from_pretrained(
+            model, cache_dir=self.cache_dir, token=self.hf_token, *model_args
+        )
+        self.model.to(self.set_device(self.device))
 
-        if processor is None:
-            processor = model
-        self.processor = TrOCRProcessor.from_pretrained(processor, cache_dir=cache_dir, token=hf_token)
+        processor = processor or model
 
-        self.metadata = {
-            "model": str(model),
-            "processor": str(processor),
-        }
+        self.processor = TrOCRProcessor.from_pretrained(processor, cache_dir=self.cache_dir, token=self.hf_token)
+
+        self.metadata.update(
+            {
+                "model": str(model),
+                "processor": str(processor),
+                "framework": Framework.HuggingFace.value,
+                "task": Task.Image2Text.value,
+                "device": self.device,
+            }
+        )
+
+    def filter_text_on_thresh():
+        # TODO: Should add **kwargs: that also filter output.
+        # For instance pred_threshold = 0.7 should filter conf score.
+        pass
 
     def _predict(self, images: list[np.ndarray], **generation_kwargs) -> list[Result]:
         """Perform inference on `images`
@@ -60,7 +71,7 @@ class TrOCR(BaseModel, PytorchDeviceMixin):
         """
         # Prepare generation keyword arguments
         generation_kwargs = self._prepare_generation_kwargs(**generation_kwargs)
-        metadata = self.metadata | {"generation_args": generation_kwargs}
+        metadata = self.metadata | ({"generation_args": generation_kwargs} if generation_kwargs else {})
 
         model_inputs = self.processor(images, return_tensors="pt").pixel_values
         model_outputs = self.model.generate(model_inputs.to(self.model.device), **generation_kwargs)

@@ -9,12 +9,13 @@ import torch
 from transformers import LlavaNextForConditionalGeneration, LlavaNextProcessor, TextIteratorStreamer, TextStreamer
 
 from htrflow_core.models.base_model import BaseModel
-from htrflow_core.models.torch_mixin import PytorchDeviceMixin
+from htrflow_core.models.enums import Framework, Task
+from htrflow_core.models.torch_mixin import PytorchMixin
 from htrflow_core.results import RecognizedText, Result
 from htrflow_core.utils import imgproc
 
 
-class LLavaNext(BaseModel, PytorchDeviceMixin):
+class LLavaNext(BaseModel, PytorchMixin):
     default_generation_kwargs = {"num_beams": 1, "max_new_tokens": 200}
 
     def __init__(
@@ -22,38 +23,45 @@ class LLavaNext(BaseModel, PytorchDeviceMixin):
         model: str | PathLike = "llava-hf/llava-v1.6-mistral-7b-hf",
         processor: str | PathLike = "llava-hf/llava-v1.6-mistral-7b-hf",
         prompt: str = "[INST] <image>\Please transcribe the handwritten English text displayed in the image [/INST]",
-        device: Optional[str] = None,
-        cache_dir: str = "./.cache",
-        hf_token: Optional[str] = None,
         *model_args,
+        **kwargs,
     ):
-        self.cache_dir = cache_dir
+        super().__init__(**kwargs)
 
         # nf4_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4")
 
         self.model = LlavaNextForConditionalGeneration.from_pretrained(
             model,
-            cache_dir=cache_dir,
-            token=hf_token,
+            cache_dir=self.cache_dir,
+            token=self.hf_token,
             # quantization_config=nf4_config,
             torch_dtype=torch.float16,
             low_cpu_mem_usage=True,
             *model_args,
         )
 
-        self.model.to(self.set_device(device))
+        self.model.to(self.set_device(self.device))
 
-        if processor is None:
-            processor = model
-        self.processor = LlavaNextProcessor.from_pretrained(processor, cache_dir=cache_dir, token=hf_token)
+        processor = processor or model
+
+        self.processor = LlavaNextProcessor.from_pretrained(processor, cache_dir=self.cache_dir, token=self.hf_token)
 
         self.prompt = prompt
 
-        self.metadata = {"model": str(model), "processor": str(processor), "prompt": str(prompt)}
+        self.metadata.update(
+            {
+                "model": str(model),
+                "processor": str(processor),
+                "prompt": str(prompt),
+                "framework": Framework.HuggingFace.value,
+                "task": Task.Image2Text.value,
+                "device": self.device,
+            }
+        )
 
     def _predict(self, images: list[np.ndarray], **generation_kwargs) -> list[Result]:
         generation_kwargs = self._prepare_generation_kwargs(**generation_kwargs)
-        metadata = self.metadata | {"generation_args": generation_kwargs}
+        metadata = self.metadata | ({"generation_args": generation_kwargs} if generation_kwargs else {})
 
         prompts = [self.prompt] * len(images)
 
