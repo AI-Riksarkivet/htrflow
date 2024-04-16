@@ -26,7 +26,7 @@ if __name__ == "__main__":
     parser.add_argument("--loglevel", choices=["debug", "info", "warning", "error"], default="info")
     args = parser.parse_args()
 
-    logging.basicConfig(filename=args.logfile, level=args.loglevel, filemode="w")
+    logging.basicConfig(filename=args.logfile, level=args.loglevel.upper(), filemode="w")
 
     with open(args.pipeline, "r") as f:
         config = yaml.safe_load(f)
