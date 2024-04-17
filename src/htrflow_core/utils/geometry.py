@@ -147,6 +147,12 @@ class Bbox:
         dx, dy = dest
         return Bbox(self.xmin + dx, self.ymin + dy, self.xmax + dx, self.ymax + dy)
 
+    def intersects(self, other: "Bbox") -> bool:
+        """Check if two bounding boxes intersect."""
+        return not (
+            self.xmax < other.xmin or self.xmin > other.xmax or self.ymax < other.ymin or self.ymin > other.ymax
+        )
+
     def __iter__(self):
         # Enables tuple-like iteration and unpacking
         return iter(astuple(self))

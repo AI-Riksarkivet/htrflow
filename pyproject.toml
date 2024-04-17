@@ -66,11 +66,12 @@ ultralytics = {version = "^8.0.225", optional = true}
 requests = "^2.31.0"
 pillow = "^10.3.0"
 pydantic = "^2.7.0"
+typer = "^0.12.3"
 
 [tool.poetry.extras]
 huggingface = ["transformers", "huggingface-hub", "datasets", "torch"]
 llm = ["transformers", "huggingface-hub", "datasets", "torch","accelerate", "bitsandbytes"]
-openmmlab = ["mmcv", "mmdet", "mmengine", "mmocr", "huggingface-hub", "yapf", "torch"]
+openmmlab = [ "yapf","torch","mmcv", "mmdet", "mmengine", "mmocr", "huggingface-hub"]
 pytorch = ["torch"]
 ultralytics = ["ultralytics", "huggingface-hub"]
 local_models = ["transformers", "huggingface-hub", "datasets", "torch", "ultralytics"]
