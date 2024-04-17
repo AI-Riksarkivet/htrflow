@@ -14,7 +14,6 @@ import yaml
 
 from htrflow_core.pipeline.pipeline import Pipeline
 from htrflow_core.pipeline.steps import auto_import
-from htrflow_core.serialization import get_serializer
 
 
 if __name__ == "__main__":
@@ -34,6 +33,3 @@ if __name__ == "__main__":
     pipe = Pipeline.from_config(config)
     volume = auto_import(args.input)
     volume = pipe.run(volume)
-    volume.save(
-        args.output, serializer=get_serializer(config["export"]["format"], **config["export"].get("settings", {}))
-    )

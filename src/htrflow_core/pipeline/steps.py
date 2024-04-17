@@ -3,6 +3,7 @@ import os
 
 from htrflow_core.dummies.dummy_models import simple_word_segmentation
 from htrflow_core.models.importer import all_models
+from htrflow_core.serialization import get_serializer
 from htrflow_core.utils.imgproc import binarize
 from htrflow_core.volume.volume import Volume
 
@@ -76,6 +77,16 @@ class WordSegmentation(PipelineStep):
     def run(self, volume):
         results = simple_word_segmentation(volume.leaves())
         volume.update(results)
+        return volume
+
+
+class Export(PipelineStep):
+    def __init__(self, dest, format, **serializer_kwargs):
+        self.serializer = get_serializer(format, **serializer_kwargs)
+        self.dest = dest
+
+    def run(self, volume):
+        volume.save(self.dest, self.serializer)
         return volume
 
 
