@@ -123,7 +123,7 @@ def fix_mmlab_dict_file(config_path: str, dictionary_path: str) -> None:
     cfg.dump(config_path)
 
 
-ULTRALYTICS_SUPPORTED_MODEL_TYPES = (".pt", ".yaml")
+ULTRALYTICS_SUPPORTED_MODEL_TYPES = (".pt",)  # ".yaml"
 
 
 def ultralytics_from_hf(

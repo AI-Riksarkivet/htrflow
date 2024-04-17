@@ -40,7 +40,7 @@ class RTMDet(BaseModel, PytorchMixin):
                 "model": str(model),
                 "config": str(config),
                 "framework": Framework.Openmmlab.value,
-                "task": Task.ObjectDetection.value,
+                "task": [Task.ObjectDetection.value, Task.InstanceSegmentation.value],
                 "device": self.device,
             }
         )

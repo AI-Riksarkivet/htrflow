@@ -23,7 +23,7 @@ class YOLO(BaseModel, PytorchMixin):
             {
                 "model": str(model),
                 "framework": Framework.Ultralytics.value,
-                "task": Task.ObjectDetection.value,
+                "task": [Task.ObjectDetection.value, Task.InstanceSegmentation.value],
                 "device": self.device,
             }
         )

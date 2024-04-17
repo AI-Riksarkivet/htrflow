@@ -21,6 +21,14 @@ configure_startup: ## configure_startup - Configuring poetry for venv + Installi
 	poetry install
 	poetry shell
 
+end2end_startup_gpu: ## end2end_startup_gpu - Configuring poetry for venv + Installing project dependencies with all extras + "FulHack" openmmlab.
+	pip install --quiet --upgrade pip poetry
+	poetry config --local virtualenvs.in-project true
+	poetry install --extras local_models
+	poetry shell
+	poetry run openmmlab_install
+
+
 magic: connect_to_repo configure_startup ## runs connect_to_repo & configure_startup
 
 pre_commit: ## pre_commit - Setup pre-commit hooks

@@ -170,6 +170,7 @@ def helper_plot_for_segment(
     fontcolor: Optional[str] = "white",
     fontsize: Optional[int] = None,
     figsize: Optional[tuple] = (10, 8),
+    save_fig: Optional[str] = "foo.png",
 ) -> None:
     """
     Displays an image with mask overlays, bounding boxes, polygons,
@@ -201,6 +202,7 @@ def helper_plot_for_segment(
             determined based on the average bounding box size.
         figsize: Optional; tuple specifying the figure size in inches.
             The default is (10, 8).
+        save_fig: Save image locally
     """
 
     if image is None:
@@ -256,8 +258,14 @@ def helper_plot_for_segment(
                 bbox={"facecolor": "black", "alpha": 0.4, "pad": 0, "edgecolor": "none"},
             )
 
-    plt.savefig("bar.png")
-    # plt.show()
+    if save_fig:
+        import os
+
+        cache_dir = ".cache"
+        os.makedirs(cache_dir, exist_ok=True)
+        plt.savefig(os.path.join(cache_dir, save_fig))
+    else:
+        plt.show()
 
 
 def mask_to_rgba(mask: Mask, point: Point, image_shape: Tuple[int, int], maskcolor: Color, alpha: float) -> np.ndarray:

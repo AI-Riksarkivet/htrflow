@@ -21,7 +21,7 @@ def crop(image: np.ndarray, bbox: Bbox) -> np.ndarray:
         bbox: The bounding box
     """
     x1, y1, x2, y2 = bbox
-    return image[y1:y2+1, x1:x2+1]
+    return image[y1 : y2 + 1, x1 : x2 + 1]
 
 
 def mask(
@@ -111,10 +111,10 @@ def read(source: str | np.ndarray | os.PathLike) -> np.ndarray:
             pil_img = url2pillow(source)
             return pillow2opencv(pil_img)
         else:
-            img = cv2.imread(str(source))
-            if img is not None:
-                return img
-            else:
+            try:
+                pil_img = Image.open(str(source)).convert("RGB")
+                return pillow2opencv(pil_img)
+            except IOError:
                 raise RuntimeError(f"Could not load the image from {source}")
 
     else:

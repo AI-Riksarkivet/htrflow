@@ -127,3 +127,11 @@ class TrOCR(BaseModel, PytorchMixin):
         kwargs["output_scores"] = True
         kwargs["return_dict_in_generate"] = True
         return kwargs
+
+
+if __name__ == "__main__":
+    from transformers import TrOCRProcessor, VisionEncoderDecoderModel
+
+    model = VisionEncoderDecoderModel.from_pretrained()
+
+    processor = TrOCRProcessor.from_pretrained()

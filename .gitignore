@@ -3,6 +3,18 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Ignore all JPEG and PNG images
+*.jpg
+*.jpeg
+*.png
+
+# Ignore a specific directory of images
+images/
+
+# Ignore TIFF images
+*.tiff
+*.tif
+
 # C extensions
 *.so
 
@@ -152,3 +164,5 @@ cython_debug/
 .ruff_cache/
 todo.txt
 src/htrflow_core/dummies/img.jpg
+foo.png
+foo.png

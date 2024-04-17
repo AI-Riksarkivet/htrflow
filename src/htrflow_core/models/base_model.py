@@ -60,6 +60,15 @@ class BaseModel(ABC, MetadataMixin):
         while batch := list(islice(it, batch_size)):
             yield batch
 
+    def validate_input_before_call(self, images, images_are_nparray):
+        if not isinstance(images, Iterable) or isinstance(images, (str, PathLike)):
+            images = [images]
+        if images_are_nparray:
+            img_array = images
+        else:
+            img_array = [imgproc.read(img) if not isinstance(img, np.ndarray) else img for img in images]
+        return img_array
+
     def __call__(
         self,
         images: Iterable[Union[np.ndarray, str, PathLike]],
@@ -79,8 +88,6 @@ class BaseModel(ABC, MetadataMixin):
         Returns:
             Iterable[Result]: The predicted results for the given images.
         """
-        if images_are_nparray:
-            img_array = images
-        else:
-            img_array = [imgproc.read(img) if not isinstance(img, np.ndarray) else img for img in images]
+        img_array = self.validate_input_before_call(images, images_are_nparray)
+
         return self.predict(img_array, batch_size, *args, **kwargs)
