@@ -1,17 +1,27 @@
 steps:
+
 - step: Segmentation
   settings:
     model: yolo
+
 - step: Segmentation
   settings:
-    model: segmentationmodel
+    model: yolo
+
 - step: TextRecognition
   settings:
     model: trocr
     generation_settings:
       num_beams: 4
 
-export:
-  format: Json
+- step: Export
   settings:
+    dest: outputs
+    format: Json
+    one_file: True
+
+- step: Export
+  settings:
+    dest: outputs2
+    format: Json
     one_file: True
