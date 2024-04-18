@@ -21,11 +21,14 @@ if __name__ == "__main__":
     parser.add_argument("pipeline")
     parser.add_argument("input")
     parser.add_argument("-o", "--output", default="outputs")
-    parser.add_argument("--logfile", default="htrflow.log")
+    parser.add_argument("--logfile")
     parser.add_argument("--loglevel", choices=["debug", "info", "warning", "error"], default="info")
     args = parser.parse_args()
 
-    logging.basicConfig(filename=args.logfile, level=args.loglevel.upper(), filemode="w")
+    logger = logging.getLogger()
+    logger.setLevel(args.loglevel.upper())
+    hdlr = logging.FileHandler(args.logfile, mode="w") if args.logfile else logging.StreamHandler()
+    logger.addHandler(hdlr)
 
     with open(args.pipeline, "r") as f:
         config = yaml.safe_load(f)
