@@ -10,9 +10,7 @@ from htrflow_core.models.base_model import BaseModel
 from htrflow_core.models.enums import Framework, Task
 from htrflow_core.models.openmmlab.utils import SuppressOutput
 from htrflow_core.models.torch_mixin import PytorchMixin
-from htrflow_core.postprocess.torch_mask_nms import mask_drop_indices, torch_mask_nms
-
-# from htrflow_core.postprocess.multiclass_mask_nms import multiclass_mask_nms
+from htrflow_core.postprocess.mask_nms import multiclass_mask_nms
 from htrflow_core.results import Result, Segment
 
 
@@ -54,20 +52,14 @@ class RTMDet(BaseModel, PytorchMixin):
             batch_size = 1
 
         outputs = self.model(images, batch_size=batch_size, draw_pred=False, return_datasample=True, **kwargs)
-
         return [
             self._create_segmentation_result(image, output) for image, output in zip(images, outputs["predictions"])
         ]
 
     def _create_segmentation_result(self, image: np.ndarray, output: DetDataSample) -> Result:
         sample: InstanceData = output.pred_instances
-        boxes = [[x1, y1, x2, y2] for x1, y1, x2, y2 in sample.bboxes.int().tolist()]
-
-        drop_indices = torch_mask_nms(sample.masks)
-        torch_mask = mask_drop_indices(sample.masks, drop_indices)
-
-        masks = self.to_numpy(torch_mask).astype(np.uint8)
-
+        boxes = sample.bboxes.int().tolist()
+        masks = self.to_numpy(sample.masks).astype(np.uint8)
         scores = sample.scores.tolist()
         class_labels = sample.labels.tolist()
 
@@ -77,17 +69,21 @@ class RTMDet(BaseModel, PytorchMixin):
         ]
 
         result = Result.segmentation_result(image, self.metadata, segments)
-        # indices_to_drop = multiclass_mask_nms(result)
-        # result.drop_indices(indices_to_drop)
+        indices_to_drop = multiclass_mask_nms(result)
+        result.drop_indices(indices_to_drop)
 
         return result
 
 
 if __name__ == "__main__":
-    model = RTMDet()
+    from htrflow_core.utils.draw import helper_plot_for_segment
 
-    img = "/workspaces/htrflow_core/data/demo_images/trocr_demo_image.png"
+    model = RTMDet("Riksarkivet/rtmdet_lines")
 
-    results = model([img] * 5)
+    img = "/home/adm.margabo@RA-ACC.INT/repo/htrflow_core/data/demo_images/demo_image.jpg"
 
-    print(results)
+    results = model([img] * 100, batch_size=16)
+
+    print(results[0])
+
+    helper_plot_for_segment(results[0].segments, results[0].image)

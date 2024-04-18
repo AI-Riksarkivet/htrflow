@@ -1,3 +1,5 @@
+import random
+
 import numpy as np
 import pytest
 
@@ -22,6 +24,37 @@ def results_with_mask():
     segment_c = Segment(mask=mask_c, class_label="class_1", orig_shape=orig_shape)
 
     return Result(image=image, metadata={}, segments=[segment_a, segment_b, segment_c])
+
+
+def generate_random_masks(num_masks, image_size=(200, 200), num_classes=3):
+    random.seed(42)
+    np.random.seed(42)
+    masks = []
+    classes = [f"class_{i+1}" for i in range(num_classes)]
+    for _ in range(num_masks):
+        w, h = random.randint(20, 100), random.randint(20, 40)  # Random width and height
+        x, y = random.randint(0, image_size[0] - w), random.randint(0, image_size[1] - h)  # Random position
+        mask = np.zeros(image_size, dtype=np.uint8)
+        mask[y : y + h, x : x + w] = 1
+        class_label = random.choice(classes)
+        masks.append(Segment(mask=mask, class_label=class_label, orig_shape=image_size))
+    return masks
+
+
+def simulate_large_dataset():
+    num_masks = 100  # Simulating a large number of masks
+    image = np.zeros((200, 200), dtype=np.uint8)
+    segments = generate_random_masks(num_masks)
+    return Result(image=image, metadata={}, segments=segments)
+
+
+# TODO: add expected_list... to assert with
+
+
+@pytest.fixture
+def large_dataset():
+    # Assuming this function generates the dataset you're using to test
+    return simulate_large_dataset(100)  # Adjust the number to match your dataset size
 
 
 def test_multiclass_mask_nms(results_with_mask):
