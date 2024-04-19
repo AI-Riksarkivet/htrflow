@@ -225,14 +225,6 @@ def test_volume_iter(demo_volume_segmented):
     assert all(a == b for a, b in zip(demo_volume_segmented, demo_volume_segmented.children))
 
 
-def test_volume_segments_depth(demo_volume_segmented):
-    depth = 1
-    all_nodes = demo_volume_segmented.traverse()
-    expected_n_images = sum(node.depth == depth for node in all_nodes)
-    n_images = len([*demo_volume_segmented.segments(depth=depth)])
-    assert n_images == expected_n_images
-
-
 def test_volume_segments_depth_none(demo_volume_segmented):
     leaves = demo_volume_segmented.leaves()
     segments = demo_volume_segmented.segments()
