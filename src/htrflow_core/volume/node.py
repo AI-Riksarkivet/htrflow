@@ -101,3 +101,7 @@ class Node:
                 continue
             node.detach()
         logger.info("Removed %d nodes from the tree", len(nodes))
+
+    def max_depth(self):
+        """Return the max depth of the tree starting at this node"""
+        return max(node.depth() for node in self.leaves())

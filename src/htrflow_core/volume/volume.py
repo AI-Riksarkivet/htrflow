@@ -267,33 +267,38 @@ class Volume(BaseDocumentNode):
     def __str__(self):
         return f"Volume label: {self.get('label')}\nVolume tree:\n" + "\n".join(child.tree2str() for child in self)
 
-    def images(self):  # -> Generator[np.ndarray]:
+    def images(self) -> "ImageGenerator":
         """Yields the volume's original input images"""
         return ImageGenerator(self.children)
 
-    def segments(self, depth: Optional[int] = None):  # -> Iterable[np.ndarray]:
-        """Yields the volume's segments at `depth`
+    def segments(self) -> "ImageGenerator":
+        """Yield the active segments' images"""
+        return ImageGenerator(self.active_leaves())
 
-        Args:
-            depth (int | None): Which depth segments to yield. Defaults to None, which
-                returns the leaf nodes (maximum depth).
+    def active_leaves(self):
+        """Yield the volume's active leaves
+
+        Here, an "active leaf" is a leaf node whose depth is equal to
+        the maximum depth of the tree. In practice, this means that the
+        node was segmented in the previous step (or is a fresh PageNode).
+        Inactive leaves are leaves that weren't segmented in the
+        previous step, and thus are higher up in the tree than the
+        other leaves. These should typically not updated in the next
+        steps.
         """
-        if depth is None:
-            return ImageGenerator(self.leaves())
-
-        else:
-            filtered_nodes = (node for node in self.traverse() if node.depth == depth)
-            return ImageGenerator(filtered_nodes)
+        max_depth = self.max_depth()
+        for leaf in self.leaves():
+            if leaf.depth() == max_depth:
+                yield leaf
 
     def update(self, results: list[Result]) -> None:
-        """
-        Update the volume with model results
+        """Update the volume with model results
 
         Arguments:
-            results: A list of results where the i:th result corresponds
-                to the volume's i:th leaf node.
+            results: A list of results where the i:th result
+                corresponds to the volume's i:th active leaf node.
         """
-        leaves = list(self.leaves())
+        leaves = list(self.active_leaves())
         if len(leaves) != len(results):
             raise ValueError(f"Size of input ({len(results)}) does not match " f"the size of the tree ({len(leaves)})")
 
