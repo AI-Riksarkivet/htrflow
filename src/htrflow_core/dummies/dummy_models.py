@@ -7,7 +7,8 @@ import numpy as np
 
 from htrflow_core.models.base_model import BaseModel
 from htrflow_core.results import RecognizedText, Result, Segment
-from htrflow_core.utils.imgproc import crop
+from htrflow_core.utils import imgproc
+from htrflow_core.utils.geometry import bbox2mask
 
 
 """
@@ -106,10 +107,11 @@ def _simple_word_segmentation(image, text, mask=None):
     for word in words:
         x2 = min(x1 + pixels_per_char * len(word), width)
         bboxes.append((x1, 0, x2, height))
-        x1 = x2 + int(pixels_per_char * 0.2)  # add a "whitespace"
+        x1 = x2
 
     if mask is not None:
-        segments = [Segment(bbox=bbox, mask=crop(mask, bbox), class_label="word") for bbox in bboxes]
+        masks = [imgproc.mask(mask, bbox2mask(bbox, mask.shape), fill=0) for bbox in bboxes]
+        segments = [Segment(mask=mask, class_label="word") for mask in masks]
     else:
         segments = [Segment(bbox=bbox, class_label="word") for bbox in bboxes]
     texts = [RecognizedText([word], [0]) for word in words]

@@ -9,7 +9,6 @@ from htrflow_core.utils.geometry import Bbox, Mask, Polygon
 
 LabelType: TypeAlias = Literal["text", "class", "conf"] | None
 
-
 class Segment:
     """Segment class
 
@@ -54,10 +53,9 @@ class Segment:
             bbox: The segment's bounding box, as either a `geometry.Bbox`
                 instance or as a (xmin, ymin, xmax, ymax) tuple. Required
                 if `mask` and `polygon` are None. Defaults to None.
-            mask: The segment's mask, either relative to the bounding box
-                or relative to the original input image. If both `bbox`
-                and `polygon` are None, `mask` is required and must be the
-                same shape as the original input image. Defaults to None.
+            mask: The segment's mask relative to the original input image.
+                Required if both `polygon` and `bbox` are None. Defaults
+                to None.
             score: Segment confidence score. Defaults to None.
             class_label: Segment class label. Defaults to None.
             polygon: A polygon defining the segment, relative to the input
@@ -81,12 +79,11 @@ class Segment:
                 # Only bbox is given: Leave the polygon and mask as None.
                 pass
 
-            case (None, _, None):
-                # Only mask is given: In this case, the mask is assumed to be aligned
-                # with the original image, i.e., it has the same height and width as
-                # the input image. The other attributes (bbox and polygon) can in such
-                # case be inferred from the mask. After computing them, the mask is
-                # converted to a local mask.
+            case (_, _, None):
+                # Mask (and possibly bbox) is given: The mask is assumed to be aligned
+                # with the original image. The bounding box is discarded (if given) and
+                # recomputed from the mask. A polygon is also inferred from the mask.
+                # The mask is then converted to a local mask.
                 bbox = geometry.mask2bbox(mask)
                 polygon = geometry.mask2polygon(mask)
                 mask = imgproc.crop(mask, bbox)
@@ -95,14 +92,6 @@ class Segment:
                 # Only polygon is given: Create a bounding box from the polygon and
                 # leave the mask as None.
                 bbox = geometry.Polygon(polygon).bbox()
-
-            case (_, _, None):
-                # Both bbox and mask are given: Create a polygon from the mask.
-                polygon = geometry.mask2polygon(mask)
-                if mask.shape[:2] == (bbox.height, bbox.width):
-                    polygon = polygon.move(bbox.p1)
-                else:
-                    mask = imgproc.crop(mask, bbox)
 
         self.bbox = bbox
         self.polygon = polygon
@@ -132,7 +121,7 @@ class Segment:
 
         x1, y1, x2, y2 = self.bbox
         mask = np.zeros(orig_shape, dtype=np.uint8)
-        mask[y1 : y2 + 1, x1 : x2 + 1] = self.mask
+        mask[y1:y2, x1:x2] = self.mask
         return mask
 
     @property

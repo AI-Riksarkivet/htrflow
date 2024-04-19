@@ -261,7 +261,20 @@ def masks2polygons(masks: Iterable[Mask], epsilon=0.005) -> Iterable[Polygon]:
 def mask2bbox(mask: Mask) -> Bbox:
     """Convert mask to bounding box"""
     y, x = np.where(mask != 0)
-    return Bbox(np.min(x).item(), np.min(y).item(), np.max(x).item(), np.max(y).item())
+    return Bbox(np.min(x).item(), np.min(y).item(), np.max(x).item()+1, np.max(y).item()+1)
+
+
+def bbox2mask(bbox: Bbox, shape: tuple[int, int]) -> Mask:
+    """Create a mask from a bounding box
+
+    Arguments:
+        bbox: Intput bounding box
+        shape: Shape of the desired mask as a (h, w) tuple
+    """
+    mask = np.zeros(shape)
+    x1, y1, x2, y2 = bbox
+    mask[y1:y2, x1:x2] = 1
+    return mask
 
 
 def polygons2masks(mask: Mask, polygons: Iterable[Polygon]) -> Iterable[Mask]:

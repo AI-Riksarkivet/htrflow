@@ -2,6 +2,7 @@
 Image processing utilities
 """
 
+import logging
 import os
 import re
 
@@ -12,6 +13,8 @@ import requests
 from htrflow_core.utils.geometry import Bbox, Mask
 
 
+logger = logging.getLogger(__name__)
+
 def crop(image: np.ndarray, bbox: Bbox) -> np.ndarray:
     """Crop image
 
@@ -20,7 +23,15 @@ def crop(image: np.ndarray, bbox: Bbox) -> np.ndarray:
         bbox: The bounding box
     """
     x1, y1, x2, y2 = bbox
-    return image[y1 : y2 + 1, x1 : x2 + 1]
+    cropped = image[y1:y2, x1:x2]
+    h, w = cropped.shape[:2]
+    if h < bbox.height or w < bbox.width:
+        pad_y = bbox.height - h
+        pad_x = bbox.width - w
+        cropped = np.pad(cropped, ((0, pad_y), (0, pad_x)), mode="constant", constant_values=0)
+        logger.warning(
+            "Padding the cropped image with %d and %d pixels (x, y) to match size of bounding box", pad_x, pad_y)
+    return cropped
 
 
 def mask(
