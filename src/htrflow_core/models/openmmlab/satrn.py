@@ -4,9 +4,9 @@ import numpy as np
 from mmocr.apis import TextRecInferencer
 from mmocr.structures import TextRecogDataSample
 
-from htrflow_core.models import hf_utils
 from htrflow_core.models.base_model import BaseModel
 from htrflow_core.models.enums import Framework, Task
+from htrflow_core.models.hf_utils import MMLabsDownloader
 from htrflow_core.models.openmmlab.utils import SuppressOutput
 from htrflow_core.models.torch_mixin import PytorchMixin
 from htrflow_core.results import RecognizedText, Result
@@ -22,7 +22,7 @@ class Satrn(BaseModel, PytorchMixin):
     ) -> None:
         super().__init__(**kwargs)
 
-        model_weights, model_config = hf_utils.mmlabs_from_hf(model, config, self.cache_dir, self.hf_token)
+        model_weights, model_config = MMLabsDownloader.from_pretrained(model, config, self.cache_dir, self.hf_token)
 
         with SuppressOutput():
             self.model = TextRecInferencer(

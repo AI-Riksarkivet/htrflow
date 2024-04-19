@@ -1,4 +1,4 @@
-from os import PathLike
+import logging
 from typing import Literal
 
 import numpy as np
@@ -11,30 +11,34 @@ from htrflow_core.models.torch_mixin import PytorchMixin
 from htrflow_core.results import Result
 
 
-# TODO: change model to model_path?
+logger = logging.getLogger(__name__)
 
 
 class DiT(BaseModel, PytorchMixin):
     def __init__(
         self,
-        model: str | PathLike = "microsoft/dit-base-finetuned-rvlcdip",
-        processor: str | PathLike = "microsoft/dit-base-finetuned-rvlcdip",
+        model: str = "microsoft/dit-base-finetuned-rvlcdip",
+        processor: str = "microsoft/dit-base-finetuned-rvlcdip",
         return_format: Literal["argmax", "softmax"] = "softmax",
         *model_args,
         **kwargs,
     ):
         super().__init__(**kwargs)
+
+        self.return_format = return_format
+
         self.model = AutoModelForImageClassification.from_pretrained(
             model, cache_dir=self.cache_dir, token=self.hf_token, *model_args
         )
 
-        self.return_format = return_format
-
         self.model.to(self.set_device(self.device))
+        logger.info(f"Model loaded ({self.device}) from {model}.")
 
         processor = processor or model
 
         self.processor = AutoImageProcessor.from_pretrained(processor, cache_dir=self.cache_dir, token=self.hf_token)
+
+        logger.info(f"Processor loaded from {processor}.")
 
         self.metadata.update(
             {
@@ -64,6 +68,8 @@ class DiT(BaseModel, PytorchMixin):
             }
 
             classification_label = label_probabilities
+
+        logger.info(f"Prediction complete. {self.return_format}: classification: {classification_label}.")
 
         return [
             Result(image, metadata=self.metadata, data=[{"classification": classification_label}]) for image in images

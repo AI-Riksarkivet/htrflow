@@ -1,4 +1,4 @@
-from os import PathLike
+import logging
 
 import numpy as np
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel
@@ -9,6 +9,9 @@ from htrflow_core.models.torch_mixin import PytorchMixin
 from htrflow_core.results import RecognizedText, Result
 
 
+logger = logging.getLogger(__name__)
+
+
 class TrOCR(BaseModel, PytorchMixin):
     default_generation_kwargs = {
         "num_beams": 4,
@@ -16,8 +19,8 @@ class TrOCR(BaseModel, PytorchMixin):
 
     def __init__(
         self,
-        model: str | PathLike = "microsoft/trocr-base-handwritten",
-        processor: str | PathLike = "microsoft/trocr-base-handwritten",
+        model: str = "microsoft/trocr-base-handwritten",
+        processor: str = "microsoft/trocr-base-handwritten",
         *model_args,
         **kwargs,
     ):
@@ -127,11 +130,3 @@ class TrOCR(BaseModel, PytorchMixin):
         kwargs["output_scores"] = True
         kwargs["return_dict_in_generate"] = True
         return kwargs
-
-
-if __name__ == "__main__":
-    from transformers import TrOCRProcessor, VisionEncoderDecoderModel
-
-    model = VisionEncoderDecoderModel.from_pretrained()
-
-    processor = TrOCRProcessor.from_pretrained()
