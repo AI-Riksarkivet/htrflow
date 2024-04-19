@@ -41,12 +41,12 @@ class BaseDocumentNode(node.Node):
     @property
     def height(self) -> int:
         """Height of the region this node represents"""
-        return self.get("height")
+        return self._height
 
     @property
     def width(self) -> int:
         """Width of the region this node represents"""
-        return self.get("width")
+        return self._width
 
     @property
     def coord(self) -> Point:
@@ -54,7 +54,9 @@ class BaseDocumentNode(node.Node):
         Position of the region this node represents relative to the
         original input image (root node of the tree).
         """
-        return self.get("coord", Point(0, 0))
+        if self.parent:
+            return self._coord.move(self.parent.coord)
+        return Point(0, 0)
 
     @property
     def polygon(self) -> Polygon:
@@ -64,7 +66,7 @@ class BaseDocumentNode(node.Node):
         If no mask is available, this attribute defaults to a polygon
         representation of the region's bounding box.
         """
-        return self.get("polygon")
+        return self.bbox.polygon()
 
     @property
     def bbox(self) -> Bbox:
@@ -107,20 +109,23 @@ class RegionNode(BaseDocumentNode):
 
     def __init__(self, segment: Segment, parent: BaseDocumentNode):
         super().__init__(parent=parent)
+        self._segment = segment
+        self._height = segment.bbox.height
+        self._width = segment.bbox.width
+        self._coord = segment.bbox.p1
         self.add_data(
-            height=segment.bbox.height,
-            width=segment.bbox.width,
-            polygon=segment.polygon.move(parent.coord),
-            coord=segment.bbox.p1.move(parent.coord),
             segment=segment,
         )
 
     @property
+    def polygon(self):
+        return self._segment.polygon.move(self.parent.coord) or self.bbox.polygon()
+
+    @property
     def image(self):
         """The image this node represents"""
-        segment = self.get("segment")
-        bbox = segment.bbox
-        mask = segment.mask
+        bbox = self._segment.bbox
+        mask = self._segment.mask
         img = imgproc.crop(self.parent.image, bbox)
         if mask is not None:
             img = imgproc.mask(img, mask)
@@ -136,12 +141,11 @@ class PageNode(BaseDocumentNode):
         # Extract image name and remove file extension (`path/to/image.jpg` -> `image`)
         name = os.path.basename(image_path).split(".")[0]
         height, width = self.image.shape[:2]
+        self._height = height
+        self._width = width
         self.add_data(
             image_path=image_path,
             image_name=name,
-            height=height,
-            width=width,
-            polygon=Bbox(0, 0, width, height).polygon(),
             label=name,
         )
 
