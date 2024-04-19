@@ -78,9 +78,8 @@ class Segment:
                 raise ValueError("Cannot create a Segment without bbox, mask or polygon")
 
             case (_, None, None):
-                # Only bbox is given: Create a polygon from the bbox and leave the
-                # mask as None.
-                polygon = bbox.polygon()
+                # Only bbox is given: Leave the polygon and mask as None.
+                pass
 
             case (None, _, None):
                 # Only mask is given: In this case, the mask is assumed to be aligned
