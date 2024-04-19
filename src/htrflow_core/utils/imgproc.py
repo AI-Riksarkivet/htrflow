@@ -8,7 +8,6 @@ import re
 import cv2
 import numpy as np
 import requests
-from PIL import Image
 
 from htrflow_core.utils.geometry import Bbox, Mask
 
@@ -53,30 +52,6 @@ def binarize(image: np.ndarray) -> np.ndarray:
     return cv2.cvtColor(threshold, cv2.COLOR_GRAY2BGR)
 
 
-def url2pillow(url: str) -> Image:
-    """Url to PIL"""
-    if _is_valid_url:
-        return Image.open(requests.get(url, stream=True).raw).convert("RGB")
-    else:
-        raise ValueError("Input is not a valid URL")
-
-
-def pillow2opencv(image: np.ndarray) -> np.ndarray:
-    """PIL to OpenCV"""
-    if isinstance(image, Image.Image):
-        return cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
-    else:
-        raise ValueError("Input must be a PIL Image")
-
-
-def opencv2pillow(image: np.ndarray) -> Image:
-    """OpenCV to PIL"""
-    if isinstance(image, np.ndarray):
-        return Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-    else:
-        raise ValueError("Input must be an OpenCV image")
-
-
 def is_http_url(string: str) -> bool:
     """Check if the string is a valid HTTP URL."""
     return re.match(r"^https?://", string, re.IGNORECASE) is not None
@@ -104,21 +79,25 @@ def read(source: str | np.ndarray | os.PathLike) -> np.ndarray:
         RuntimeError: If the image cannot be loaded from the given source.
         ValueError: If the source type is unsupported.
     """
-    if isinstance(source, (np.ndarray)):
+    if isinstance(source, np.ndarray):
         return source
     elif isinstance(source, str):
-        if isinstance(source, str) and is_http_url(source):
-            pil_img = url2pillow(source)
-            return pillow2opencv(pil_img)
-        else:
-            try:
-                pil_img = Image.open(str(source)).convert("RGB")
-                return pillow2opencv(pil_img)
-            except IOError:
+        if is_http_url(source):
+            if not _is_valid_url(source):
+                raise ValueError("The URL is invalid or unreachable.")
+            resp = requests.get(source, stream=True).raw
+            image_arr = np.asarray(bytearray(resp.read()), dtype=np.uint8)
+            img = cv2.imdecode(image_arr, cv2.IMREAD_COLOR)
+            if img is None:
                 raise RuntimeError(f"Could not load the image from {source}")
-
+            return img
+        else:
+            img = cv2.imread(source, cv2.IMREAD_COLOR)
+            if img is None:
+                raise RuntimeError(f"Could not load the image from {source}")
+            return img
     else:
-        raise ValueError("Source must be a string URL, np.ndarray or a filesystem path")
+        raise ValueError("Source must be a string URL, np.ndarray, or a filesystem path")
 
 
 def write(dest: str, image: np.ndarray) -> None:

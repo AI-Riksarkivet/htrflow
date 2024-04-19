@@ -73,17 +73,3 @@ class RTMDet(BaseModel, PytorchMixin):
         result.drop_indices(indices_to_drop)
 
         return result
-
-
-if __name__ == "__main__":
-    from htrflow_core.utils.draw import helper_plot_for_segment
-
-    model = RTMDet("Riksarkivet/rtmdet_lines")
-
-    img = "/home/adm.margabo@RA-ACC.INT/repo/htrflow_core/data/demo_images/demo_image.jpg"
-
-    results = model([img] * 100, batch_size=16)
-
-    print(results[0])
-
-    helper_plot_for_segment(results[0].segments, results[0].image)
