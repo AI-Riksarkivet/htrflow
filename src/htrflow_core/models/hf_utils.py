@@ -8,6 +8,8 @@ from huggingface_hub.utils import RepositoryNotFoundError
 
 # TODO: add pytest
 
+logger = logging.getLogger(__name__)
+
 
 class HFBaseDownloader:
     META_MODEL_TYPE = "model"
@@ -77,9 +79,9 @@ class MMLabsDownloader(HFBaseDownloader):
     def from_pretrained(
         cls,
         model_id: str,
+        config_id: Optional[str] = None,
         cache_dir: str = "./.cache",
         hf_token: Optional[str] = None,
-        config_id: Optional[str] = None,
     ) -> Tuple[str, str]:
         """Download and load config and model from Openmmlabs using the HuggingFace Hub."""
 
@@ -88,6 +90,7 @@ class MMLabsDownloader(HFBaseDownloader):
         existing_model = downloader._mmlab_try_load_from_local_files(model_id, config_id)
 
         if existing_model:
+            logging.info(f"Loaded existing model from '{existing_model}'")
             return existing_model
 
         repo_files = downloader.list_files_from_repo(model_id)
@@ -105,6 +108,8 @@ class MMLabsDownloader(HFBaseDownloader):
             dictionary_path = downloader.wrapper_hf_hub_download(model_id, dict_file)
             downloader._fix_mmlab_dict_file(config_path, dictionary_path)
 
+        logging.info(f"Downloaded model '{model_id}' from HF and loaded it from folder: '{cache_dir}'")
+
         return model_path, config_path
 
     def _mmlab_try_load_from_local_files(self, model_id, config_id) -> Optional[Tuple[str, str]]:
@@ -112,7 +117,7 @@ class MMLabsDownloader(HFBaseDownloader):
         config_path = Path(config_id)
         if model_path.exists() and model_path.suffix in self.MMLABS_SUPPORTED_MODEL_TYPES:
             if config_path.exists() and config_path.suffix == self.PY_EXTENSION:
-                return model_id, config_id
+                return str(model_id), str(config_id)
             elif config_path.exists() and config_path.suffix != self.PY_EXTENSION:
                 raise ValueError(f"Please provide config of type: {self.MMLABS_CONFIG_FILE}")
         return None
@@ -135,12 +140,15 @@ class UltralyticsDownloader(HFBaseDownloader):
         downloader = cls(cache_dir=cache_dir, hf_token=hf_token)
         existing_model = downloader._ultralytics_try_load_from_local_files(model_id)
         if existing_model:
-            return f"Loaded existing model from {existing_model}"
+            logging.info(f"Loaded existing model from '{existing_model}'")
+            return existing_model
 
         repo_files = downloader.list_files_from_repo(model_id)
-        return downloader._download_file_from_hf(
+        cache_model_path = downloader._download_file_from_hf(
             model_id, cls.ULTRALYTICS_SUPPORTED_MODEL_TYPES, cls.META_MODEL_TYPE, repo_files
         )
+        logging.info(f"Downloaded model '{model_id}' from HF and loaded it from folder: '{cache_dir}'")
+        return cache_model_path
 
     def _ultralytics_try_load_from_local_files(self, model_id: str) -> Optional[str]:
         """Check for an existing local file for the model."""
