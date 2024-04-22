@@ -123,6 +123,11 @@ class Bbox:
         """Center of bounding box rounded down to closest integer"""
         return Point(int((self.xmax + self.xmin) / 2), int((self.ymax + self.ymin) / 2))
 
+    @property
+    def area(self) -> int:
+        """Area of bounding box"""
+        return self.height * self.width
+
     def polygon(self) -> "Polygon":
         """Return a polygon representation of the bounding box"""
         return Polygon(
@@ -233,11 +238,18 @@ def mask2polygon(mask: Mask, epsilon: float = 0.005) -> Polygon:
     # `contours` is a high-resolution contour, but we need a simple polygon, so
     # we approximate it with the DP algorithm, which removes as many points as
     # possible while still keeping the original shape.
+    polygons = []
+    for contour in contours:
+        # Adjust the tolerance parameter `epsilon` relative to the size of the mask
+        epsilon *= cv2.arcLength(contour, closed=True)
+        approx = cv2.approxPolyDP(contour, epsilon, closed=True)
+        polygons.append(Polygon(np.squeeze(approx).tolist()))
 
-    # Adjust the tolerance parameter `epsilon` relative to the size of the mask
-    epsilon *= cv2.arcLength(contours[0], closed=True)
-    approx = cv2.approxPolyDP(contours[0], epsilon, closed=True)
-    return Polygon(np.squeeze(approx).tolist())
+    if len(polygons) > 1:
+        logger.warning("Mask is not connected. Using the largest connected component")
+        polygons.sort(key=lambda pol: pol.bbox().area, reverse=True)
+
+    return polygons[0]
 
 
 def masks2polygons(masks: Iterable[Mask], epsilon=0.005) -> Iterable[Polygon]:
