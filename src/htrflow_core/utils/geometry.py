@@ -240,9 +240,10 @@ def mask2polygon(mask: Mask, epsilon: float = 0.005) -> Polygon:
     # possible while still keeping the original shape.
     polygons = []
     for contour in contours:
-        # Adjust the tolerance parameter `epsilon` relative to the size of the mask
-        epsilon *= cv2.arcLength(contour, closed=True)
-        approx = cv2.approxPolyDP(contour, epsilon, closed=True)
+        # `contour_epsilon` is the tolerance parameter `epsilon` adjusted
+        # relative to the size of the mask
+        contour_epsilon = epsilon * cv2.arcLength(contour, closed=True)
+        approx = cv2.approxPolyDP(contour, contour_epsilon, closed=True)
         polygons.append(Polygon(np.squeeze(approx).tolist()))
 
     if len(polygons) > 1:
