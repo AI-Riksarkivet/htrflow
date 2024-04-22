@@ -105,7 +105,7 @@ def _simple_word_segmentation(image, text, mask=None):
     x1, x2 = 0, 0
     words = text.split()
     for word in words:
-        x2 = min(x1 + pixels_per_char * len(word), width)
+        x2 = min(x1 + pixels_per_char * (len(word) + 1), width)
         bboxes.append((x1, 0, x2, height))
         x1 = x2
 
