@@ -90,7 +90,7 @@ class Export(PipelineStep):
         return volume
 
 
-def auto_import(source) -> Volume:
+def auto_import(source: Volume | list[str] | str) -> Volume:
     """Import volume from `source`
 
     Automatically detects import type from the input. Supported types
@@ -101,12 +101,31 @@ def auto_import(source) -> Volume:
     """
     if isinstance(source, Volume):
         return source
-    elif isinstance(source, list):
-        return Volume(source)
-    elif isinstance(source, str):
-        if os.path.isdir(source):
-            logger.info("Loading volume from directory %s", source)
-            return Volume.from_directory(source)
+
+    # If source is a single string, treat it as a single-item list
+    # and continue
+    if isinstance(source, str):
+        source = [source]
+
+    if isinstance(source, list):
+        # Input is a single directory
+        if len(source) == 1 and os.path.isdir(source[0]):
+            logger.info("Loading volume from directory %s", source[0])
+            return Volume.from_directory(source[0])
+
+        # Input is a list of (potential) file paths, check each and
+        # keep only the ones that refers to files
+        paths = []
+        for path in source:
+            if not os.path.isfile(path):
+                logger.info("Skipping %s, not a regular file", path)
+                continue
+            paths.append(path)
+
+        if paths:
+            logger.info("Loading volume from %d file(s)", len(paths))
+            return Volume(paths)
+
     raise ValueError(f"Could not infer import type for '{source}'")
 
 
