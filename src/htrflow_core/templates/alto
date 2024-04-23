@@ -15,10 +15,10 @@
                         {% endif %}
                         {%- if line.children %}
                         {%- for word in line.children %}
-                        <String ID="{{ labels[word] }}"  HPOS="{{ word.coord.x }}" VPOS="{{ word.coord.y }}" HEIGHT="{{ word.height}}" WIDTH="{{ word.width }}" CONTENT="{{ word.text }}" />
+                        <String ID="{{ labels[word] }}"  HPOS="{{ word.coord.x }}" VPOS="{{ word.coord.y }}" HEIGHT="{{ word.height}}" WIDTH="{{ word.width }}" CONTENT="{{ xmlescape(word.text) }}" />
                         {%- endfor %}
                         {%- else %}
-                        <String HPOS="{{ line.coord.x }}" VPOS="{{ line.coord.y }}" HEIGHT="{{ line.height}}" WIDTH="{{ line.width }}" CONTENT="{{ line.text }}"/>
+                        <String HPOS="{{ line.coord.x }}" VPOS="{{ line.coord.y }}" HEIGHT="{{ line.height}}" WIDTH="{{ line.width }}" CONTENT="{{ xmlescape(line.text) }}"/>
                         {%- endif %}
                     </TextLine>
                     {%- endfor %}

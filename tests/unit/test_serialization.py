@@ -2,6 +2,7 @@ import pytest
 
 from htrflow_core import serialization
 from htrflow_core.dummies.dummy_models import RecognitionModel, SegmentationModel
+from htrflow_core.results import RecognizedText
 from htrflow_core.volume import volume
 
 
@@ -89,6 +90,14 @@ def test_alto_segmented_twice(demo_page_segmented_twice, alto):
 
 
 def test_alto_segmented_thrice(demo_page_segmented_thrice, alto):
+    doc = alto.serialize(demo_page_segmented_thrice)
+    alto.validate(doc)
+
+
+def test_alto_escape_characters(demo_page_segmented_thrice, alto):
+    node, *_ = demo_page_segmented_thrice.leaves()
+    to_be_escaped = "\"'&<>"  # these characters may not appear in the xml
+    node.add_data(text_result=RecognizedText([to_be_escaped], [1]))
     doc = alto.serialize(demo_page_segmented_thrice)
     alto.validate(doc)
 

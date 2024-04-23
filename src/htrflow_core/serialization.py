@@ -99,7 +99,7 @@ class AltoXML(Serializer):
                 text_blocks[node.get("region_location", RegionLocation.PRINTSPACE)].append(node)
 
         return self.template.render(
-            page=page, text_blocks=text_blocks, metadata=metadata(page), labels=label_nodes(page)
+            page=page, text_blocks=text_blocks, metadata=metadata(page), labels=label_nodes(page), xmlescape=xmlescape
         )
 
     def validate(self, doc: str):
@@ -238,3 +238,17 @@ def label_nodes(node: PageNode | RegionNode, template="%s") -> dict[PageNode | R
     for i, child in enumerate(node.children):
         labels |= label_nodes(child, f"{labels[node]}_%s{i}")
     return labels
+
+
+def xmlescape(s: str) -> str:
+    """Escape special characters in XML strings
+
+    Replaces the characters &, ", ', < and > with their corresponding
+    character entity references.
+    """
+    s = s.replace("&", "&amp;")
+    s = s.replace('"', "&quot;")
+    s = s.replace("'", "&apos;")
+    s = s.replace("<", "&lt;")
+    s = s.replace(">", "&gt;")
+    return s
