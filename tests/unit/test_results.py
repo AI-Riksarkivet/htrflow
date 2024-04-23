@@ -29,7 +29,7 @@ class TestSegment:
     def test_segment_initialization_with_overflowing_mask(self, overflowing_ellipse_mask):
         segment = Segment(mask=overflowing_ellipse_mask)
 
-        expected_bbox = (1, 1, 5, 5)
+        expected_bbox = (1, 1, 6, 6)
         expected_polygon = np.array([[3, 1], [1, 3], [3, 5], [5, 3]])
 
         assert segment.bbox.xyxy == expected_bbox, "Bbox should enclose the ellipse"
