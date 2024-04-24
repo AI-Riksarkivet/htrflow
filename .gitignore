@@ -10,6 +10,7 @@ __pycache__/
 
 # Ignore a specific directory of images
 images/
+outputs/
 
 # Ignore TIFF images
 *.tiff
@@ -83,9 +84,6 @@ instance/
 
 # Scrapy stuff:
 .scrapy
-
-# vscode settings
-.vscode/
 
 # Sphinx documentation
 docs/_build/

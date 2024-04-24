@@ -1,0 +1,25 @@
+// this goes in ${workspaceFolder}/.vscode/settings.json
+{
+  // List of extensions which should be recommended for users of this workspace.
+  "recommendations": [
+    // formatting (replaces black), linting (replaces flake8), sorting imports!
+    "charliermarsh.ruff",
+    "samuelcolvin.jinjahtml",
+    "BracketPairColorDLW.bracket-pair-color-dlw",
+    "ms-azuretools.vscode-docker",
+    "github.vscode-github-actions",
+    "oderwat.indent-rainbow",
+    "ms-toolsai.jupyter",
+    "ms-vsliveshare.vsliveshare",
+    "ms-vscode.makefile-tools",
+    "bierner.markdown-preview-github-styles",
+    "christian-kohler.path-intellisense",
+    "esbenp.prettier-vscode",
+    "ms-python.python",
+    "ms-toolsai.tensorboard",
+    "gruntfuggly.todo-tree",
+    "redhat.vscode-yaml"
+  ],
+  // List of extensions recommended by VS Code that should not be recommended for users of this workspace.
+  "unwantedRecommendations": []
+}
