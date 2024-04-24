@@ -87,7 +87,7 @@ def read(source: str | np.ndarray | os.PathLike) -> np.ndarray:
         np.ndarray: Image in OpenCV format.
 
     Raises:
-        RuntimeError: If the image cannot be loaded from the given source.
+        ImageImportError: If the image cannot be loaded from the given source.
         ValueError: If the source type is unsupported.
     """
     if isinstance(source, np.ndarray):
@@ -100,12 +100,12 @@ def read(source: str | np.ndarray | os.PathLike) -> np.ndarray:
             image_arr = np.asarray(bytearray(resp.read()), dtype=np.uint8)
             img = cv2.imdecode(image_arr, cv2.IMREAD_COLOR)
             if img is None:
-                raise RuntimeError(f"Could not load the image from {source}")
+                raise ImageImportError(f"Could not load the image from {source}")
             return img
         else:
             img = cv2.imread(source, cv2.IMREAD_COLOR)
             if img is None:
-                raise RuntimeError(f"Could not load the image from {source}")
+                raise ImageImportError(f"Could not load the image from {source}")
             return img
     else:
         raise ValueError("Source must be a string URL, np.ndarray, or a filesystem path")
@@ -113,3 +113,6 @@ def read(source: str | np.ndarray | os.PathLike) -> np.ndarray:
 
 def write(dest: str, image: np.ndarray) -> None:
     cv2.imwrite(dest, image)
+
+class ImageImportError(RuntimeError):
+    pass
