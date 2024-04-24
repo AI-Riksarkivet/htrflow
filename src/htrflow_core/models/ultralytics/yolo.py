@@ -55,3 +55,16 @@ class YOLO(BaseModel, PytorchMixin):
         ]
 
         return Result.segmentation_result(image, self.metadata, segments)
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, filename="rtmdet.log", filemode="w")
+    from htrflow_core.utils.draw import helper_plot_for_segment
+
+    model = YOLO(".cache/yolov8n-seg.pt")
+
+    img = "/home/adm.margabo@RA-ACC.INT/repo/htrflow_core/data/demo_images/lines_demo_bild.PNG"
+
+    results = model([img] * 1000, batch_size=1)
+
+    helper_plot_for_segment(results[0].segments, results[0].image)

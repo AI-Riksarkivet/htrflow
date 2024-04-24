@@ -1,0 +1,19 @@
+steps:
+  - step: Segmentation
+    settings:
+      model: YOLO
+      model_settings:
+        model: path/to/model
+        hf_token: .......
+
+  - step: TextRecognition
+    settings:
+      model: Trocr
+      model_settings:
+        model: path/to/model
+        hf_token: ........
+
+  - step: Export
+    settings:
+      format: Json
+      one_file: True

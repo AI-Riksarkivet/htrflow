@@ -3,10 +3,12 @@ from typing import Dict, List, Sequence
 
 import numpy as np
 
+from htrflow_core.logging.line_profiler import profile_performance
 from htrflow_core.results import Result
 from htrflow_core.utils.geometry import Mask
 
 
+@profile_performance
 def multiclass_mask_nms(result: Result, containments_threshold: float = 0.5) -> List[int]:
     """
     Perform Non-Maximum Suppression (NMS) on masks across multiple classes based on containment scores.
@@ -43,6 +45,7 @@ def multiclass_mask_nms(result: Result, containments_threshold: float = 0.5) -> 
     return remove_indices_global
 
 
+@profile_performance
 def mask_nms(masks: Sequence[Mask], containments_threshold: float = 0.5) -> List[int]:
     """
     Identify masks that should be removed based on containment scores and area comparisons.
@@ -124,7 +127,7 @@ if __name__ == "__main__":
         return masks
 
     def simulate_large_dataset():
-        num_masks = 100  # Simulating a large number of masks
+        num_masks = 1000  # Simulating a large number of masks
         image = np.zeros((200, 200), dtype=np.uint8)
         segments = generate_random_masks(num_masks)
         return Result(image=image, metadata={}, segments=segments)

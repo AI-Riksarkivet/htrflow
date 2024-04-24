@@ -1,3 +1,4 @@
+import logging
 from abc import ABC, abstractmethod
 from itertools import islice
 from os import PathLike
@@ -9,6 +10,9 @@ from tqdm import tqdm
 from htrflow_core.models.meta_mixin import MetadataMixin
 from htrflow_core.results import Result
 from htrflow_core.utils import imgproc
+
+
+logger = logging.getLogger(__name__)
 
 
 class BaseModel(ABC, MetadataMixin):
@@ -26,10 +30,12 @@ class BaseModel(ABC, MetadataMixin):
             batch_size: The inference batch size. Default = 1, Will pass all input images one by one to the model.
             *args and **kwargs: Optional arguments that are passed to the model specific prediction method.
         """
-        out = []
+        results_from_model = []
 
         tqdm_kwargs = kwargs.pop("tqdm_kwargs", {})
         tqdm_kwargs.setdefault("disable", False)
+
+        logger.info(f"Number of images for inference: {len(images)}")
 
         for batch in tqdm(
             self._batch_input(images, batch_size),
@@ -37,8 +43,10 @@ class BaseModel(ABC, MetadataMixin):
             desc=self._tqdm_description(batch_size),
             **tqdm_kwargs,
         ):
-            out.extend(self._predict(batch, *args, **kwargs))
-        return out
+            logger.info(f"Batch size: {batch_size}")
+            results_from_model.extend(self._predict(batch, *args, **kwargs))
+
+        return results_from_model
 
     @abstractmethod
     def _predict(self, images: list[np.ndarray], *args, **kwargs) -> list[np.ndarray]:

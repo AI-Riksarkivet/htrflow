@@ -10,6 +10,7 @@ __pycache__/
 
 # Ignore a specific directory of images
 images/
+outputs/
 
 # Ignore TIFF images
 *.tiff

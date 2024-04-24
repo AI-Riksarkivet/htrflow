@@ -1,0 +1,35 @@
+steps:
+
+#- step: Binarization
+
+- step: Segmentation
+  settings:
+    model: rtmdet
+    model_settings:
+       model: Riksarkivet/rtmdet_regions
+
+- step: Segmentation
+  settings:
+    model: rtmdet
+    model_settings:
+       model: Riksarkivet/rtmdet_lines
+
+- step: TextRecognition
+  settings:
+    model: trocr
+    model_settings:
+       model: Riksarkivet/trocr-base-handwritten-swe
+    generation_settings:
+       batch_size: 64
+
+- step: WordSegmentation
+
+- step: Export
+  settings:
+    dest: outputs/alto
+    format: alto
+
+- step: Export
+  settings:
+    dest: outputs/page
+    format: page

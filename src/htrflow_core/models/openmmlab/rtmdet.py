@@ -57,6 +57,7 @@ class RTMDet(BaseModel, PytorchMixin):
             batch_size = 1
 
         outputs = self.model(images, batch_size=batch_size, draw_pred=False, return_datasample=True, **kwargs)
+
         return [
             self._create_segmentation_result(image, output) for image, output in zip(images, outputs["predictions"])
         ]
@@ -69,7 +70,7 @@ class RTMDet(BaseModel, PytorchMixin):
 
         masks = self.to_numpy(sample.masks).astype(np.uint8)
 
-        logger.info(f"Extracted {len(masks)} boxes.")
+        logger.info(f"Extracted {len(masks)} masks.")
 
         scores = sample.scores.tolist()
         class_labels = sample.labels.tolist()
@@ -87,10 +88,15 @@ class RTMDet(BaseModel, PytorchMixin):
 
 
 if __name__ == "__main__":
-    model = RTMDet("Riksarkivet/rtmdet_lines")
+    logging.basicConfig(level=logging.INFO, filename="rtmdet.log", filemode="w")
+    # from htrflow_core.utils.draw import helper_plot_for_segment
+
+    model = RTMDet("Riksarkivet/rtmdet_lines", device="cuda")
+
+    print(model.device)
 
     img = "/home/adm.margabo@RA-ACC.INT/repo/htrflow_core/data/demo_images/demo_image.jpg"
 
-    results = model([img] * 1, batch_size=1)
+    results = model([img] * 100, batch_size=1)
 
-    print(results[0])
+    # helper_plot_for_segment(results[0].segments, results[0].image)
