@@ -212,7 +212,14 @@ class Volume(BaseDocumentNode):
             label: A label describing the volume (optional)
         """
         super().__init__()
-        self.children = [PageNode(path) for path in paths]
+        for path in paths:
+            try:
+                page = PageNode(path)
+            except imgproc.ImageImportError:
+                logger.warn("Skipping %s (file format not supported)", path)
+                continue
+            self.children.append(page)
+
         self.add_data(label=label)
         logger.info("Initialized volume '%s' with %d pages", label, len(self.children))
 
