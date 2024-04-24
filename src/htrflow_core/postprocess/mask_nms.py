@@ -7,7 +7,7 @@ from htrflow_core.results import Result
 from htrflow_core.utils.geometry import Mask
 
 
-def multiclass_mask_nms(result: Result, containments_threshold: float = 0.5) -> List[int]:
+def multiclass_mask_nms(result: Result, containments_threshold: float = 0.5, downscale: float = 0.25) -> List[int]:
     """
     Perform Non-Maximum Suppression (NMS) on masks across multiple classes based on containment scores.
 
@@ -21,6 +21,10 @@ def multiclass_mask_nms(result: Result, containments_threshold: float = 0.5) -> 
     Args:
         result (Result): A Result object containing a sequence of masks and their associated class labels.
         containments_threshold (float): The threshold for deciding significant containment.
+        downscale (float): If < 1, NMS will be performed on lower resolution versions of the masks,
+            downscaled to this factor. Example: downscale=0.5 means that the masks are halved in size
+            (number of pixels). This speeds up the computation for larger masks, at the expense of NMS
+            accuracy.
 
     Returns:
         List[int]: Indices of masks that should be removed after applying NMS.
@@ -28,11 +32,13 @@ def multiclass_mask_nms(result: Result, containments_threshold: float = 0.5) -> 
     if len(result.segments) < 2:
         return []
 
+    downscale = min(downscale, 1)  # Set downscale factor to at most 1
+
     remove_indices_global = []
 
     masks_by_class: Dict[str, Sequence[Mask]] = defaultdict(list)
     for segment in result.segments:
-        masks_by_class[segment.class_label].append(segment.global_mask)
+        masks_by_class[segment.class_label].append(segment.approximate_mask(downscale))
 
     for class_label, masks in masks_by_class.items():
         remove_indices = mask_nms(masks, containments_threshold)

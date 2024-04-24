@@ -65,6 +65,25 @@ def resize(image: np.ndarray, shape: tuple[int, int]) -> np.ndarray:
     return cv2.resize(image, (x, y), interpolation=cv2.INTER_NEAREST)
 
 
+def rescale(image: np.ndarray, ratio: float):
+    """Rescale image
+
+    Rescales the image while keeping the aspect ratio as far as
+    possible. Uses nearest-neighbour interpolation.
+
+    Arguments:
+        image: Input image
+        ratio: Ratio of size of rescaled image to its original size in
+            pixels. For example, with ratio=0.25 a 20x10 image would be
+            resized to 10x5.
+    """
+    if ratio == 1:
+        return image
+    factor = np.sqrt(ratio)  # area scaling factor -> length scaling factor
+    h, w = image.shape[:2]
+    return resize(image, (int(h*factor), int(w*factor)))
+
+
 def binarize(image: np.ndarray) -> np.ndarray:
     """Binarize image"""
     img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)

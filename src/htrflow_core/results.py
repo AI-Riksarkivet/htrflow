@@ -124,6 +124,14 @@ class Segment:
         mask[y1:y2, x1:x2] = self.mask
         return mask
 
+    def approximate_mask(self, ratio):
+        """A lower resolution version of the global mask
+
+        Arguments:
+            downscale: Size of approximate mask relative to the original.
+        """
+        return imgproc.rescale(self.global_mask, ratio)
+
     @property
     def local_mask(self):
         """The segment mask relative to the bounding box (alias for self.mask)"""
