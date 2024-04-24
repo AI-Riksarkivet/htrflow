@@ -12,6 +12,7 @@ from htrflow_core.models.openmmlab.utils import SuppressOutput
 from htrflow_core.models.torch_mixin import PytorchMixin
 from htrflow_core.postprocess.mask_nms import multiclass_mask_nms
 from htrflow_core.results import Result, Segment
+from htrflow_core.utils.imgproc import resize
 
 
 logger = logging.getLogger(__name__)
@@ -68,8 +69,13 @@ class RTMDet(BaseModel, PytorchMixin):
         logger.info(f"Extracted {len(boxes)} boxes.")
 
         masks = self.to_numpy(sample.masks).astype(np.uint8)
+        _, *mask_size = masks.shape  # n_masks, (height, width)
+        *image_size, _ = image.shape  # (height, width), n_channels
+        if mask_size != image_size:
+            msg = "Mask and image shape not equal (masks %d-by-%d, image %d-by-%d). Resizing masks."
+            logger.warning(msg, *mask_size, *image_size)
+            masks = [resize(mask, image_size) for mask in masks]
 
-        logger.info(f"Extracted {len(masks)} boxes.")
 
         scores = sample.scores.tolist()
         class_labels = sample.labels.tolist()

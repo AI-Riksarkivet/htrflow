@@ -54,6 +54,17 @@ def mask(
     return image
 
 
+def resize(image: np.ndarray, shape: tuple[int, int]) -> np.ndarray:
+    """Resize image using nearest-neighbour interpolation
+
+    Arguments:
+        image: Input image
+        shape: Desired shape as a (height, width) tuple
+    """
+    y, x = shape
+    return cv2.resize(image, (x, y), interpolation=cv2.INTER_NEAREST)
+
+
 def binarize(image: np.ndarray) -> np.ndarray:
     """Binarize image"""
     img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
