@@ -2,6 +2,7 @@ import logging
 
 import numpy as np
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel
+from transformers.generation import BeamSearchEncoderDecoderOutput
 
 from htrflow_core.models.base_model import BaseModel
 from htrflow_core.models.enums import Framework, Task
@@ -81,7 +82,7 @@ class TrOCR(BaseModel, PytorchMixin):
 
         texts = self.processor.batch_decode(model_outputs.sequences, skip_special_tokens=True)
 
-        scores = model_outputs.sequences_scores.tolist()
+        scores = self.compute_seuqence_scores(model_outputs)
         step = generation_kwargs["num_return_sequences"]
 
         return self._create_text_results(images, texts, scores, metadata, step)
@@ -130,3 +131,19 @@ class TrOCR(BaseModel, PytorchMixin):
         kwargs["output_scores"] = True
         kwargs["return_dict_in_generate"] = True
         return kwargs
+
+    def compute_seuqence_scores(self, outputs: BeamSearchEncoderDecoderOutput):
+        """Compute normalized prediction score for each output sequence
+
+        This function computes the normalized sequence scores from the output.
+        (Contrary to sequence_scores, which returns unnormalized scores)
+        It follows example #1 found here:
+        https://discuss.huggingface.co/t/announcement-generation-get-probabilities-for-generated-output/30075
+        """
+        transition_scores = self.model.decoder.compute_transition_scores(
+            outputs.sequences, outputs.scores, outputs.beam_indices, normalize_logits=True
+        ).cpu()
+        length_penalty = self.model.generation_config.length_penalty
+        output_length = np.sum(transition_scores.numpy() < 0, axis=1)
+        scores = transition_scores.sum(axis=1) / (output_length**length_penalty)
+        return np.exp(scores).tolist()
