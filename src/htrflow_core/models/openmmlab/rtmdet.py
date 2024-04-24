@@ -51,18 +51,19 @@ class RTMDet(BaseModel, PytorchMixin):
             }
         )
 
-    def _predict(self, images: list[np.ndarray], **kwargs) -> list[Result]:
+    def _predict(self, images: list[np.ndarray], nms_downscale=1, **kwargs) -> list[Result]:
         if len(images) > 1:
             batch_size = len(images)
         else:
             batch_size = 1
 
         outputs = self.model(images, batch_size=batch_size, draw_pred=False, return_datasample=True, **kwargs)
-        return [
-            self._create_segmentation_result(image, output) for image, output in zip(images, outputs["predictions"])
-        ]
+        results = []
+        for image, output in zip(images, outputs["predictions"]):
+            results.append(self._create_segmentation_result(image, output, nms_downscale))
+        return results
 
-    def _create_segmentation_result(self, image: np.ndarray, output: DetDataSample) -> Result:
+    def _create_segmentation_result(self, image: np.ndarray, output: DetDataSample, nms_downscale: float) -> Result:
         sample: InstanceData = output.pred_instances
         boxes = sample.bboxes.int().tolist()
 
@@ -77,7 +78,7 @@ class RTMDet(BaseModel, PytorchMixin):
         ]
 
         result = Result.segmentation_result(image, self.metadata, segments)
-        indices_to_drop = multiclass_mask_nms(result)
+        indices_to_drop = multiclass_mask_nms(result, downscale=nms_downscale)
         result.drop_indices(indices_to_drop)
 
         logger.info("Found %d segments, dropped %d", len(scores), len(indices_to_drop))
