@@ -18,7 +18,8 @@
     "ms-python.python",
     "ms-toolsai.tensorboard",
     "gruntfuggly.todo-tree",
-    "redhat.vscode-yaml"
+    "redhat.vscode-yaml",
+    "pkief.material-icon-theme"
   ],
   // List of extensions recommended by VS Code that should not be recommended for users of this workspace.
   "unwantedRecommendations": []
