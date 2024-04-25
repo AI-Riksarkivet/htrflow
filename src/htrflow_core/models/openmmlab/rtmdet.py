@@ -28,7 +28,7 @@ class RTMDet(BaseModel, PytorchMixin):
     ) -> None:
         super().__init__(**kwargs)
 
-        model_weights, model_config = MMLabsDownloader.from_pretrained(model, config, self.cache_dir, self.hf_token)
+        model_weights, model_config = MMLabsDownloader.from_pretrained(model, config, self.cache_dir)
 
         with SuppressOutput():
             self.model = DetInferencer(

@@ -33,7 +33,7 @@ class LLavaNext(BaseModel, PytorchMixin):
         self.model = LlavaNextForConditionalGeneration.from_pretrained(
             model,
             cache_dir=self.cache_dir,
-            token=self.hf_token,
+            token=True,
             # quantization_config=nf4_config,
             torch_dtype=torch.float16,
             low_cpu_mem_usage=True,
@@ -44,7 +44,7 @@ class LLavaNext(BaseModel, PytorchMixin):
 
         processor = processor or model
 
-        self.processor = LlavaNextProcessor.from_pretrained(processor, cache_dir=self.cache_dir, token=self.hf_token)
+        self.processor = LlavaNextProcessor.from_pretrained(processor, cache_dir=self.cache_dir, token=True)
 
         self.prompt = prompt
 

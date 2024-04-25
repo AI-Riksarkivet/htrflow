@@ -28,7 +28,7 @@ class DiT(BaseModel, PytorchMixin):
         self.return_format = return_format
 
         self.model = AutoModelForImageClassification.from_pretrained(
-            model, cache_dir=self.cache_dir, token=self.hf_token, *model_args
+            model, cache_dir=self.cache_dir, token=True, *model_args
         )
 
         self.model.to(self.set_device(self.device))
@@ -36,7 +36,7 @@ class DiT(BaseModel, PytorchMixin):
 
         processor = processor or model
 
-        self.processor = AutoImageProcessor.from_pretrained(processor, cache_dir=self.cache_dir, token=self.hf_token)
+        self.processor = AutoImageProcessor.from_pretrained(processor, cache_dir=self.cache_dir, token=True)
 
         logger.info(f"Processor loaded from {processor}.")
 

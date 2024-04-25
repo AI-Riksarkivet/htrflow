@@ -36,13 +36,13 @@ class TrOCR(BaseModel, PytorchMixin):
         super().__init__(**kwargs)
 
         self.model = VisionEncoderDecoderModel.from_pretrained(
-            model, cache_dir=self.cache_dir, token=self.hf_token, *model_args
+            model, cache_dir=self.cache_dir, token=True, *model_args
         )
         self.model.to(self.set_device(self.device))
 
         processor = processor or model
 
-        self.processor = TrOCRProcessor.from_pretrained(processor, cache_dir=self.cache_dir, token=self.hf_token)
+        self.processor = TrOCRProcessor.from_pretrained(processor, cache_dir=self.cache_dir, token=True)
 
         self.metadata.update(
             {

@@ -21,14 +21,13 @@ class HFBaseDownloader:
 
     ULTRALYTICS_SUPPORTED_MODEL_TYPES = (".pt",)  # ".yaml"
 
-    def __init__(self, cache_dir: str = "./.cache", hf_token: Optional[str] = None):
+    def __init__(self, cache_dir: str = "./.cache"):
         self.cache_dir = cache_dir
-        self.hf_token = hf_token
 
     def list_files_from_repo(self, repo_id: str) -> List[str]:
         """List files available in a Hugging Face Hub repository."""
         try:
-            repo_files = list_repo_files(repo_id=repo_id, repo_type=self.META_MODEL_TYPE, token=self.hf_token)
+            repo_files = list_repo_files(repo_id=repo_id, repo_type=self.META_MODEL_TYPE, token=True)
             _ = self._hf_download_counter(repo_id, repo_files)
             return repo_files
         except RepositoryNotFoundError as e:
@@ -42,14 +41,14 @@ class HFBaseDownloader:
                 filename=self.CONFIG_JSON,
                 repo_type=self.META_MODEL_TYPE,
                 cache_dir=self.cache_dir,
-                token=self.hf_token,
+                token=True,
             )
 
     def wrapper_hf_hub_download(self, repo_id: str, filename: str, repo_type: str = META_MODEL_TYPE) -> str:
         """Download a file from the Hugging Face Hub."""
         try:
             return hf_hub_download(
-                repo_id=repo_id, filename=filename, repo_type=repo_type, cache_dir=self.cache_dir, token=self.hf_token
+                repo_id=repo_id, filename=filename, repo_type=repo_type, cache_dir=self.cache_dir, token=True
             )
         except Exception as e:
             logging.error(f"Failed to download {filename} from {repo_id}: {e}")
@@ -81,11 +80,10 @@ class MMLabsDownloader(HFBaseDownloader):
         model_id: str,
         config_id: Optional[str] = None,
         cache_dir: str = "./.cache",
-        hf_token: Optional[str] = None,
     ) -> Tuple[str, str]:
         """Download and load config and model from Openmmlabs using the HuggingFace Hub."""
 
-        downloader = cls(cache_dir=cache_dir, hf_token=hf_token)
+        downloader = cls(cache_dir=cache_dir)
         config_id = config_id or model_id
         existing_model = downloader._mmlab_try_load_from_local_files(model_id, config_id)
 
@@ -135,9 +133,9 @@ class UltralyticsDownloader(HFBaseDownloader):
     ULTRALYTICS_SUPPORTED_MODEL_TYPES = (".pt",)
 
     @classmethod
-    def from_pretrained(cls, model_id: str, cache_dir: str = "./.cache", hf_token: Optional[str] = None) -> str:
+    def from_pretrained(cls, model_id: str, cache_dir: str = "./.cache") -> str:
         """Download and load model from Ultralytics using the HuggingFace Hub."""
-        downloader = cls(cache_dir=cache_dir, hf_token=hf_token)
+        downloader = cls(cache_dir=cache_dir)
         existing_model = downloader._ultralytics_try_load_from_local_files(model_id)
         if existing_model:
             logging.info(f"Loaded existing model from '{existing_model}'")

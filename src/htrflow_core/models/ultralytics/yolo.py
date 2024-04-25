@@ -20,7 +20,7 @@ class YOLO(BaseModel, PytorchMixin):
     def __init__(self, model: str | PathLike = "ultralyticsplus/yolov8s", *model_args, **kwargs) -> None:
         super().__init__(**kwargs)
 
-        model_file = UltralyticsDownloader.from_pretrained(model, self.cache_dir, self.hf_token)
+        model_file = UltralyticsDownloader.from_pretrained(model, self.cache_dir)
         self.model = UltralyticsYOLO(model_file, *model_args).to(self.set_device(self.device))
 
         logger.info(f"Model loaded ({self.device}) from {model}.")
