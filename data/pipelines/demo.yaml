@@ -1,27 +1,43 @@
+# Demo pipeline for running text
+# Run with python3 main.py demo.yaml <input directory>
+
 steps:
 
+# Region segmentation
 - step: Segmentation
   settings:
-    model: yolo
+    model: rtmdet
+    model_settings:
+       model: Riksarkivet/rtmdet_regions
 
+# Line segmentation
 - step: Segmentation
   settings:
-    model: yolo
+    model: rtmdet
+    model_settings:
+       model: Riksarkivet/rtmdet_lines
+    generation_settings:
+       nms_downscale: 0.25  # Run NMS on lower-resolution masks
 
+# Text recognition (line-based)
 - step: TextRecognition
   settings:
     model: trocr
+    model_settings:
+       model: Riksarkivet/trocr-base-handwritten-swe
     generation_settings:
-      num_beams: 4
+       batch_size: 32
+
+# Optional word segmentation
+- step: WordSegmentation
+
+# Export to Alto and Page XML 
+- step: Export
+  settings:
+    dest: outputs/alto
+    format: alto
 
 - step: Export
   settings:
-    dest: outputs
-    format: Json
-    one_file: True
-
-- step: Export
-  settings:
-    dest: outputs2
-    format: Json
-    one_file: True
+    dest: outputs/page
+    format: page
