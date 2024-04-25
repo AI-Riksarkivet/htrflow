@@ -13,6 +13,12 @@ from htrflow_core.results import Result
 
 logger = logging.getLogger(__name__)
 
+# TODO:  Verbose should change the warnings so they are not ..
+# add database ... ---> states and add metrics from Erik
+# Fix logs... seperate logs...
+# Fix möteningsinbjudan fråga David
+# Fix logs... så dem hamnar nånstans...
+
 
 class DiT(BaseModel, PytorchMixin):
     def __init__(
@@ -52,25 +58,42 @@ class DiT(BaseModel, PytorchMixin):
         )
 
     def _predict(self, images: list[np.ndarray]) -> list[Result]:
-        inputs = self.processor(images, return_tensors="pt").to(self.model.device)
+        inputs = self.processor(images, return_tensors="pt").pixel_values
 
         with torch.no_grad():
-            logits = self.model(**inputs).logits
+            batch_logits = self.model(inputs.to(self.model.device)).logits
 
-        if self.return_format == "argmax":
-            predicted_class_idx = logits.argmax(-1).item()
-            classification_label = self.model.config.id2label[predicted_class_idx]
-        else:
-            probabilities = torch.nn.functional.softmax(logits, dim=-1)
+        return self._create_classification_results(images, batch_logits)
 
-            label_probabilities = {
-                self.model.config.id2label[i]: probabilities[0][i].item() for i in range(len(probabilities[0]))
-            }
-
-            classification_label = label_probabilities
-
-        logger.info(f"Prediction complete. {self.return_format}: classification: {classification_label}.")
+    def _create_classification_results(self, images, batch_logits):
+        classification_labels = [self._label_based_on_return_format(logits) for logits in batch_logits]
 
         return [
-            Result(image, metadata=self.metadata, data=[{"classification": classification_label}]) for image in images
+            Result(image, metadata=self.metadata, data=[{"classification": label}])
+            for image, label in zip(images, classification_labels)
         ]
+
+    def _label_based_on_return_format(self, logits):
+        if self.return_format == "argmax":
+            predicted_class_idx = logits.argmax(-1).item()
+            label_ = self.model.config.id2label[predicted_class_idx]
+
+        else:
+            probabilities = torch.nn.functional.softmax(logits, dim=-1)
+            label_ = {self.model.config.id2label[id]: prob.item() for id, prob in enumerate(probabilities)}
+
+        logger.info(f"Prediction complete. Return format: {self.return_format},  label: {label_}.")
+        return label_
+
+
+if __name__ == "__main__":
+    model = DiT(model="Riksarkivet/DiT-im", hf_token="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", return_format="softmax")
+
+    img1 = "/home/adm.margabo@RA-ACC.INT/repo/htrflow_core/data/demo_images/demo_image.jpg"
+    img2 = "/home/adm.margabo@RA-ACC.INT/repo/htrflow_core/data/demo_images/trocr_demo_image.png"
+
+    outputs = model([img1, img2] * 10, batch_size=5)
+
+    for output in outputs:
+        print(output.data)
+        print()

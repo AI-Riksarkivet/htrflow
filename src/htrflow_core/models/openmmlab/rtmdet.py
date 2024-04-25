@@ -51,30 +51,22 @@ class RTMDet(BaseModel, PytorchMixin):
             }
         )
 
-    def _predict(self, images: list[np.ndarray], nms_downscale=1, **kwargs) -> list[Result]:
+    def _predict(self, images: list[np.ndarray], **kwargs) -> list[Result]:
         if len(images) > 1:
             batch_size = len(images)
         else:
             batch_size = 1
 
         outputs = self.model(images, batch_size=batch_size, draw_pred=False, return_datasample=True, **kwargs)
-        results = []
-        for image, output in zip(images, outputs["predictions"]):
-            results.append(self._create_segmentation_result(image, output, nms_downscale))
-        return results
+        return [
+            self._create_segmentation_result(image, output) for image, output in zip(images, outputs["predictions"])
+        ]
 
-    def _create_segmentation_result(self, image: np.ndarray, output: DetDataSample, nms_downscale: float) -> Result:
+    def _create_segmentation_result(self, image: np.ndarray, output: DetDataSample) -> Result:
         sample: InstanceData = output.pred_instances
         boxes = sample.bboxes.int().tolist()
 
-        masks = self.to_numpy(sample.masks).astype(np.uint8)
-        _, *mask_size = masks.shape  # n_masks, (height, width)
-        *image_size, _ = image.shape  # (height, width), n_channels
-        if mask_size != image_size:
-            msg = "Mask and image shape not equal (masks %d-by-%d, image %d-by-%d). Resizing masks."
-            logger.warning(msg, *mask_size, *image_size)
-            masks = [resize(mask, image_size) for mask in masks]
-
+        masks = self._create_masks_and_test_alignment(image, sample)
 
         scores = sample.scores.tolist()
         class_labels = sample.labels.tolist()
@@ -85,11 +77,21 @@ class RTMDet(BaseModel, PytorchMixin):
         ]
 
         result = Result.segmentation_result(image, self.metadata, segments)
-        indices_to_drop = multiclass_mask_nms(result, downscale=nms_downscale)
+        indices_to_drop = multiclass_mask_nms(result)
         result.drop_indices(indices_to_drop)
 
         logger.info("Found %d segments, dropped %d", len(scores), len(indices_to_drop))
         return result
+
+    def _create_masks_and_test_alignment(self, image, sample):
+        masks = self.to_numpy(sample.masks).astype(np.uint8)
+        _, *mask_size = masks.shape  # n_masks, (height, width)
+        *image_size, _ = image.shape  # (height, width), n_channels
+        if mask_size != image_size:
+            msg = "Mask and image shape not equal (masks %d-by-%d, image %d-by-%d). Resizing masks."
+            logger.warning(msg, *mask_size, *image_size)
+            masks = [resize(mask, image_size) for mask in masks]
+        return masks
 
 
 if __name__ == "__main__":

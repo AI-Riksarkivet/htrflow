@@ -18,14 +18,14 @@ connect_to_repo: ## connect_to_repo - Connects local repo to github repo with th
 configure_startup: ## configure_startup - Configuring poetry for venv + Installing project dependencies with poetry + Activate venv
 	pip install --quiet --upgrade pip poetry
 	poetry config --local virtualenvs.in-project true
-	poetry install
 	poetry shell
+	poetry install
 
 end2end_startup_gpu: ## end2end_startup_gpu - Configuring poetry for venv + Installing project dependencies with all extras + "FulHack" openmmlab.
 	pip install --quiet --upgrade pip poetry
 	poetry config --local virtualenvs.in-project true
-	poetry install --extras local_models
 	poetry shell
+	poetry install --extras local_models
 	poetry run openmmlab_install
 
 
