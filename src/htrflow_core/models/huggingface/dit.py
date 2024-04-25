@@ -13,12 +13,6 @@ from htrflow_core.results import Result
 
 logger = logging.getLogger(__name__)
 
-# TODO:  Verbose should change the warnings so they are not ..
-# add database ... ---> states and add metrics from Erik
-# Fix logs... seperate logs...
-# Fix möteningsinbjudan fråga David
-# Fix logs... så dem hamnar nånstans...
-
 
 class DiT(BaseModel, PytorchMixin):
     def __init__(
@@ -84,16 +78,3 @@ class DiT(BaseModel, PytorchMixin):
 
         logger.info(f"Prediction complete. Return format: {self.return_format},  label: {label_}.")
         return label_
-
-
-if __name__ == "__main__":
-    model = DiT(model="Riksarkivet/DiT-im", hf_token="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", return_format="softmax")
-
-    img1 = "/home/adm.margabo@RA-ACC.INT/repo/htrflow_core/data/demo_images/demo_image.jpg"
-    img2 = "/home/adm.margabo@RA-ACC.INT/repo/htrflow_core/data/demo_images/trocr_demo_image.png"
-
-    outputs = model([img1, img2] * 10, batch_size=5)
-
-    for output in outputs:
-        print(output.data)
-        print()
