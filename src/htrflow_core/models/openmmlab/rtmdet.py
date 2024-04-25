@@ -66,8 +66,6 @@ class RTMDet(BaseModel, PytorchMixin):
         sample: InstanceData = output.pred_instances
         boxes = sample.bboxes.int().tolist()
 
-        logger.info(f"Extracted {len(boxes)} boxes.")
-
         masks = self.to_numpy(sample.masks).astype(np.uint8)
         _, *mask_size = masks.shape  # n_masks, (height, width)
         *image_size, _ = image.shape  # (height, width), n_channels
@@ -89,6 +87,7 @@ class RTMDet(BaseModel, PytorchMixin):
         indices_to_drop = multiclass_mask_nms(result)
         result.drop_indices(indices_to_drop)
 
+        logger.info("Found %d segments, dropped %d", len(scores), len(indices_to_drop))
         return result
 
 

@@ -87,7 +87,6 @@ class BaseDocumentNode(node.Node):
         for segment in segments:
             children.append(RegionNode(segment, self))
         self.children = children
-        logger.info("Created %d new nodes", len(children))
 
     def contains_text(self) -> bool:
         if self.text is not None:
