@@ -15,7 +15,6 @@ class BaseModel(ABC, MetadataMixin):
     def __init__(self, **kwargs) -> None:
         self.device = kwargs.get("device", None)
         self.cache_dir = kwargs.get("cache_dir", "./.cache")
-        self.hf_token = kwargs.get("hf_token", None)
         self.metadata = self.default_metadata()
 
     def predict(self, images: Iterable[np.ndarray], batch_size: int, *args, **kwargs) -> Iterable[Result]:
