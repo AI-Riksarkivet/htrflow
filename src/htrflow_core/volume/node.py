@@ -107,10 +107,10 @@ class Node:
             unnumbered_label = full_label.format(label=label, number="X")
             number = next(_counter[unnumbered_label])
             numbered_label = full_label.format(label=label, number=number)
-            child.add_data(unique_label=numbered_label, label=template.format(label=label, number=number))
+            child.add_data(long_label=numbered_label, label=template.format(label=label, number=number))
             child.relabel(label_func, template, sep, numbered_label, _counter)
 
-    def relabel_levels(self, level_labels: list[str], default: str = "node", **kwargs):
+    def relabel_levels(self, level_labels: list[str] | None = None, default: str = "node", **kwargs):
         """Relabel nodes level-by-level
 
         A simple way to assign labels whenever all nodes at the same
@@ -136,6 +136,9 @@ class Node:
                 forwarded to node.relabel(). See node.relabel() for
                 details.
         """
+        if level_labels is None:
+            self.relabel(lambda _: default)
+            return
 
         def label_func(node: "Node") -> str:
             depth = node.depth()
@@ -144,6 +147,10 @@ class Node:
             return level_labels[depth - 1]
 
         self.relabel(label_func, **kwargs)
+
+    def has_unique_labels(self):
+        labels = [node.get("long_label") for node in self.traverse()]
+        return len(labels) == len(set(labels))
 
     def depth(self):
         """Depth of node

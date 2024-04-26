@@ -203,7 +203,7 @@ class Volume(BaseDocumentNode):
 
     """
 
-    def __init__(self, paths: Iterable[str], label: str = "untitled_volume"):
+    def __init__(self, paths: Iterable[str], label: str = "untitled_volume", label_format={}):
         """Initialize volume
 
         Arguments:
@@ -219,6 +219,7 @@ class Volume(BaseDocumentNode):
                 continue
             self.children.append(page)
 
+        self._label_format = label_format
         self.add_data(label=label)
         logger.info("Initialized volume '%s' with %d pages", label, len(self.children))
 
@@ -321,6 +322,8 @@ class Volume(BaseDocumentNode):
                 for new_leaf, data in zip(leaf.leaves(), result.data):
                     new_leaf.add_data(**data)
 
+        self.relabel()
+
     def save(self, directory: str = "outputs", serializer: str | serialization.Serializer = "alto") -> None:
         """Save volume
 
@@ -331,6 +334,13 @@ class Volume(BaseDocumentNode):
                 for available string options.
         """
         serialization.save_volume(self, serializer, directory)
+
+    def set_label_format(self, **kwargs):
+        self._label_format = kwargs
+
+    def relabel(self):
+        for page in self:
+            page.relabel_levels(**self._label_format)
 
 
 class ImageGenerator:

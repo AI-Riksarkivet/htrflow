@@ -1,13 +1,13 @@
 {%- macro render(nodes) -%}
     {% for node in nodes  %}
-                <TextBlock ID="{{ labels[node] }}" HPOS="{{ node.coord.x }}" VPOS="{{ node.coord.y }}" HEIGHT="{{ node.height}}" WIDTH="{{ node.width }}">
+                <TextBlock ID="{{ node.get('long_label', 'block') }}" HPOS="{{ node.coord.x }}" VPOS="{{ node.coord.y }}" HEIGHT="{{ node.height}}" WIDTH="{{ node.width }}">
                     {%- if node.polygon|length > 4 %}
                     <Shape>
                         <Polygon POINTS="{% for point in node.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}"/>
                     </Shape>
                     {% endif %}
                     {%- for line in node.children %}
-                    <TextLine ID="{{ labels[line] }}"  HPOS="{{ line.coord.x }}" VPOS="{{ line.coord.y }}" HEIGHT="{{ line.height}}" WIDTH="{{ line.width }}">
+                    <TextLine ID="{{ line.get('long_label') }}"  HPOS="{{ line.coord.x }}" VPOS="{{ line.coord.y }}" HEIGHT="{{ line.height}}" WIDTH="{{ line.width }}">
                         {%- if node.polygon|length > 4 %}
                         <Shape>
                             <Polygon POINTS="{% for point in node.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}"/>
@@ -15,7 +15,7 @@
                         {% endif %}
                         {%- if line.children %}
                         {%- for word in line.children %}
-                        <String ID="{{ labels[word] }}"  HPOS="{{ word.coord.x }}" VPOS="{{ word.coord.y }}" HEIGHT="{{ word.height}}" WIDTH="{{ word.width }}" CONTENT="{{ xmlescape(word.text) }}" />
+                        <String ID="{{ word.get('long_label') }}"  HPOS="{{ word.coord.x }}" VPOS="{{ word.coord.y }}" HEIGHT="{{ word.height}}" WIDTH="{{ word.width }}" CONTENT="{{ xmlescape(word.text) }}" />
                         {%- endfor %}
                         {%- else %}
                         <String HPOS="{{ line.coord.x }}" VPOS="{{ line.coord.y }}" HEIGHT="{{ line.height}}" WIDTH="{{ line.width }}" CONTENT="{{ xmlescape(line.text) }}"/>
@@ -50,9 +50,9 @@
         <OrderedGroup ID="ro">
         {%- for node in page recursive %}
             {%- if node.text %}
-            <ElementRef ID="ro_{{ labels[node] }}" REF="{{ labels[node] }}" />
+            <ElementRef ID="ro_{{ node.get('long_label') }}" REF="{{ node.get('long_label') }}" />
             {%- else %}
-            <OrderedGroup ID="ro_{{ labels[node] }}">{{ loop(node.children) }}
+            <OrderedGroup ID="ro_{{ node.get('long_label') }}">{{ loop(node.children) }}
             </OrderedGroup>
         {%- endif %}
         {%- endfor %}

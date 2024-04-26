@@ -15,7 +15,7 @@ from htrflow_core.utils.layout import RegionLocation
 
 
 if TYPE_CHECKING:
-    from htrflow_core.volume import PageNode, RegionNode, Volume
+    from htrflow_core.volume import PageNode, Volume
 
 
 logger = logging.getLogger(__name__)
@@ -38,14 +38,22 @@ class Serializer:
     extension: str
     format_name: str
 
-    def serialize(self, page: PageNode) -> str:
+    def serialize(self, page: PageNode, validate=False) -> str:
         """Serialize page
 
         Arguments:
             page: Input page
+            validate: If True, the generated document is passed through
+                valiadation before return.
 
         Returns:
             A string"""
+        if not page.has_unique_labels():
+            page.relabel()
+        doc = self._serialize(page)
+        if validate:
+            self.validate(doc)
+        return doc
 
     def serialize_volume(self, volume: Volume) -> Sequence[tuple[str, str]]:
         """Serialize volume
@@ -71,6 +79,9 @@ class Serializer:
     def validate(self, doc: str):
         """Validate document"""
 
+    def _serialize(self, page: PageNode) -> str:
+        """Format-specific seralization method"""
+
 
 class AltoXML(Serializer):
     """Alto XML serializer"""
@@ -83,7 +94,7 @@ class AltoXML(Serializer):
         self.template = env.get_template("alto")
         self.schema = os.path.join(_SCHEMA_DIR, "alto-4-4.xsd")
 
-    def serialize(self, page: PageNode) -> str:
+    def _serialize(self, page: PageNode) -> str:
         if page.is_leaf():
             raise ValueError("Cannot serialize unsegmented page to Alto XML")
 
@@ -98,9 +109,7 @@ class AltoXML(Serializer):
             if node.is_region() and all(child.text for child in node):
                 text_blocks[node.get("region_location", RegionLocation.PRINTSPACE)].append(node)
 
-        return self.template.render(
-            page=page, text_blocks=text_blocks, metadata=metadata(page), labels=label_nodes(page), xmlescape=xmlescape
-        )
+        return self.template.render(page=page, text_blocks=text_blocks, metadata=metadata(page), xmlescape=xmlescape)
 
     def validate(self, doc: str):
         xmlschema.validate(doc, self.schema)
@@ -115,7 +124,7 @@ class PageXML(Serializer):
         self.template = env.get_template("page")
         self.schema = os.path.join(_SCHEMA_DIR, "pagecontent.xsd")
 
-    def serialize(self, page: PageNode):
+    def _serialize(self, page: PageNode):
         if page.is_leaf():
             raise ValueError("Cannot serialize unsegmented page to Page XML")
 
@@ -125,7 +134,6 @@ class PageXML(Serializer):
         return self.template.render(
             page=page,
             metadata=metadata(page),
-            labels=label_nodes(page),
             is_text_line=is_text_line,
         )
 
@@ -148,10 +156,11 @@ class Json(Serializer):
         """
         self.one_file = one_file
 
-    def serialize(self, page: PageNode):
-        def _serialize(obj):
+    def _serialize(self, page: PageNode):
+        def default(obj):
             return {k: v for k, v in obj.__dict__.items() if k not in ["mask", "_image", "parent"]}
-        return json.dumps(page.asdict(), default=_serialize, indent=4)
+
+        return json.dumps(page.asdict(), default=default, indent=4)
 
     def serialize_volume(self, volume: Volume):
         if self.one_file:
@@ -225,19 +234,6 @@ def save_volume(volume: Volume, serializer: str | Serializer, dest: str) -> Iter
         with open(filename, "w") as f:
             f.write(doc)
         logger.info("Wrote document to %s", filename)
-
-def label_nodes(node: PageNode | RegionNode, template="%s") -> dict[PageNode | RegionNode, str]:
-    """Assign labels to node and its descendants
-
-    Arguments:
-        node: Start node
-        template: Label template
-    """
-    labels = {}
-    labels[node] = template % node.label
-    for i, child in enumerate(node.children):
-        labels |= label_nodes(child, f"{labels[node]}_%s{i}")
-    return labels
 
 
 def xmlescape(s: str) -> str:

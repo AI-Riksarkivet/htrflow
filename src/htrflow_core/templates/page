@@ -10,25 +10,25 @@
             <OrderedGroup id='ro'>
             {%- for node in page recursive %}
             {%- if node.text %}
-            <RegionRefIndexed regionRef="{{ labels[node] }}" index="{{ loop.index-1 }}"/>
+            <RegionRefIndexed regionRef="{{ node.get('long_label') }}" index="{{ loop.index-1 }}"/>
             {%- else %}
-            <OrderedGroupIndexed id="ro_{{ labels[node] }}" index="{{ loop.index-1 }}">{{ loop(node.children) }}
+            <OrderedGroupIndexed id="ro_{{ node.get('long_label') }}" index="{{ loop.index-1 }}">{{ loop(node.children) }}
             </OrderedGroupIndexed>
             {%- endif %}
             {%- endfor %}
             </OrderedGroup>
         </ReadingOrder>
         {% if not page.has_regions() %} {# Page has no regions - put all lines in a big region that covers the entire page #}
-        <TextRegion id="{{ labels[page] }}">
+        <TextRegion id="{{ page.get('label') }}">
             <Coords points="{% for point in page.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}" />
         {% endif %}
         {%- for node in page recursive %}
         {%- if is_text_line(node) %}
-            <TextLine id="{{ labels[node] }}">
+            <TextLine id="{{ node.get('long_label') }}">
             <Coords points="{% for point in node.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}" />
             {%- if node.children %}
             {%- for child in node.children %}
-                <Word id="{{ labels[child] }}">
+                <Word id="{{ child.get('long_label') }}">
                     <Coords points="{% for point in child.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}" />
                     <TextEquiv conf="{{ child.get('text_result').top_score() }}">
                         <Unicode>{{ child.text }}</Unicode>
@@ -42,7 +42,7 @@
             {%-endif %}
             </TextLine>
         {%- else %}
-        <TextRegion id="{{ labels[node] }}">
+        <TextRegion id="{{ node.get('long_label') }}">
             <Coords points="{% for point in node.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}" />{{ loop(node.children) }}
         </TextRegion>
         {%- endif %}
