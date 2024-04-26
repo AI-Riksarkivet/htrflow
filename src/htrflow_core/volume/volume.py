@@ -258,13 +258,13 @@ class Volume(BaseDocumentNode):
         Arguments:
             directory: Where to save the pickle file
             filename: Name of pickle file, optional. Defaults to
-                "volume_{volume label}.pickle" if left as None
+                <volume label>.pickle if left as None
 
         Returns:
             The path to the pickled file.
         """
         os.makedirs(directory, exist_ok=True)
-        filename = f"volume_{self.label}.pickle" if filename is None else filename
+        filename = f"{self.label}.pickle" if filename is None else filename
         path = os.path.join(directory, filename)
         with open(path, "wb") as f:
             pickle.dump(self, f)

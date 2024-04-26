@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 class Pipeline:
     def __init__(self, steps: Sequence[PipelineStep]):
         self.steps = steps
+        self.pickle_path = None
         validate(self)
 
     @classmethod
@@ -17,12 +18,18 @@ class Pipeline:
         """Init pipeline from config"""
         return Pipeline([init_step(step) for step in config["steps"]])
 
-    def run(self, volume):
+    def run(self, volume, start=0):
         """Run pipeline on volume"""
         volume = auto_import(volume)
-        for i, step in enumerate(self.steps):
-            logger.info("Running step %s (step %d/%d)", step, i+1, len(self.steps))
-            volume = step.run(volume)
+        for i, step in enumerate(self.steps[start:]):
+            step_name = f"{step} (step {start+i+1} / {len(self.steps)})"
+            logger.info("Running step %s", step_name)
+            try:
+                volume = step.run(volume)
+            except Exception:
+                logger.error("Pipeline failed on step %s. A backup volume is saved at %s", step_name, self.pickle_path)
+                raise
+            self.pickle_path = volume.pickle()
         return volume
 
     def metadata(self):

@@ -32,7 +32,6 @@ class PipelineStep:
 
 
 class Inference(PipelineStep):
-
     def __init__(self, model, generation_kwargs):
         self.model = model
         self.generation_kwargs = generation_kwargs
@@ -71,7 +70,6 @@ class Binarization(PipelineStep):
 
 
 class WordSegmentation(PipelineStep):
-
     requires = [TextRecognition]
 
     def run(self, volume):
@@ -90,6 +88,13 @@ class Export(PipelineStep):
         return volume
 
 
+class Break(PipelineStep):
+    """Break the pipeline! Used for testing."""
+
+    def run(self, volume):
+        raise Exception
+
+
 def auto_import(source: Volume | list[str] | str) -> Volume:
     """Import volume from `source`
 
@@ -97,6 +102,7 @@ def auto_import(source: Volume | list[str] | str) -> Volume:
     are:
         - A path to a directory with images
         - A list of paths to images
+        - A path to a pickled volume
         - A volume instance (returns itself)
     """
     if isinstance(source, Volume):
@@ -109,9 +115,12 @@ def auto_import(source: Volume | list[str] | str) -> Volume:
 
     if isinstance(source, list):
         # Input is a single directory
-        if len(source) == 1 and os.path.isdir(source[0]):
-            logger.info("Loading volume from directory %s", source[0])
-            return Volume.from_directory(source[0])
+        if len(source) == 1:
+            if os.path.isdir(source[0]):
+                logger.info("Loading volume from directory %s", source[0])
+                return Volume.from_directory(source[0])
+            if source[0].endswith("pickle"):
+                return Volume.from_pickle(source[0])
 
         # Input is a list of (potential) file paths, check each and
         # keep only the ones that refers to files
@@ -131,6 +140,7 @@ def auto_import(source: Volume | list[str] | str) -> Volume:
 
 def all_subclasses(cls):
     return set(cls.__subclasses__()).union([s for c in cls.__subclasses__() for s in all_subclasses(c)])
+
 
 # Mapping class name -> class
 # Ex. {segmentation: `steps.Segmentation`}
