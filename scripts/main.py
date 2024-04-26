@@ -38,6 +38,7 @@ def main(pipeline_file, input_dirs, logfile, loglevel):
         config = yaml.safe_load(file)
     pipe = Pipeline.from_config(config)
     volume = auto_import(input_dirs)
+    volume.set_label_format(**config["labels"])
     volume = pipe.run(volume)
 
 
