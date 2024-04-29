@@ -244,7 +244,10 @@ def mask2polygon(mask: Mask, epsilon: float = 0.005) -> Polygon:
         # relative to the size of the mask
         contour_epsilon = epsilon * cv2.arcLength(contour, closed=True)
         approx = cv2.approxPolyDP(contour, contour_epsilon, closed=True)
-        polygons.append(Polygon(np.squeeze(approx).tolist()))
+        squeezed = np.squeeze(approx)
+        if squeezed.ndim == 1:
+            continue
+        polygons.append(Polygon(squeezed.tolist()))
 
     if len(polygons) > 1:
         logger.warning("Mask is not connected. Using the largest connected component")
@@ -261,7 +264,7 @@ def masks2polygons(masks: Iterable[Mask], epsilon=0.005) -> Iterable[Polygon]:
 def mask2bbox(mask: Mask) -> Bbox:
     """Convert mask to bounding box"""
     y, x = np.where(mask != 0)
-    return Bbox(np.min(x).item(), np.min(y).item(), np.max(x).item()+1, np.max(y).item()+1)
+    return Bbox(np.min(x).item(), np.min(y).item(), np.max(x).item() + 1, np.max(y).item() + 1)
 
 
 def bbox2mask(bbox: Bbox, shape: tuple[int, int]) -> Mask:
