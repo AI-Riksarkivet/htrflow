@@ -73,7 +73,7 @@ class WordSegmentation(PipelineStep):
     requires = [TextRecognition]
 
     def run(self, volume):
-        results = simple_word_segmentation(volume.leaves())
+        results = simple_word_segmentation(volume.active_leaves())
         volume.update(results)
         return volume
 
