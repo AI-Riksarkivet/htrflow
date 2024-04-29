@@ -7,6 +7,8 @@ import os
 import pickle
 from typing import Iterable, Optional, Sequence
 
+import numpy as np
+
 from htrflow_core import serialization
 from htrflow_core.results import Result, Segment
 from htrflow_core.utils import draw, imgproc
@@ -128,7 +130,7 @@ class RegionNode(BaseDocumentNode):
         img = imgproc.crop(self.parent.image, bbox)
         if mask is not None:
             img = imgproc.mask(img, mask)
-        return img
+        return NamedImage(img, f"{self.get('long_label')}")
 
 
 class PageNode(BaseDocumentNode):
@@ -139,18 +141,18 @@ class PageNode(BaseDocumentNode):
         self._image = imgproc.read(image_path)
         # Extract image name and remove file extension (`path/to/image.jpg` -> `image`)
         name = os.path.basename(image_path).split(".")[0]
-        height, width = self.image.shape[:2]
-        self._height = height
-        self._width = width
         self.add_data(
             image_path=image_path,
             image_name=name,
             label=name,
         )
+        height, width = self.image.shape[:2]
+        self._height = height
+        self._width = width
 
     @property
     def image(self):
-        return self._image
+        return NamedImage(self._image, self.get("long_label"))
 
     @image.setter
     def image(self, image):
@@ -362,3 +364,22 @@ class ImageGenerator:
 
     def __len__(self):
         return len(self._nodes)
+
+
+class NamedImage(np.ndarray):
+    """An image (numpy array) with a `name` attribute
+
+    This class is a thin wrapper around `np.ndarray` which adds a
+    name attribute. It follows an example found in the numpy docs:
+    https://numpy.org/doc/stable/user/basics.subclassing.html#slightly-more-realistic-example-attribute-added-to-existing-array
+    """
+
+    def __new__(cls, image, name="untitled_image"):
+        obj = np.asarray(image).view(cls)
+        obj.name = name
+        return obj
+
+    def __array_finalize__(self, obj):
+        if obj is None:
+            return
+        self.name = getattr(obj, "name", None)

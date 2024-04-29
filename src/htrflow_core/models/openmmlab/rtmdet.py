@@ -81,7 +81,7 @@ class RTMDet(BaseModel, PytorchMixin):
         indices_to_drop = multiclass_mask_nms(result, downscale=nms_downscale)
         result.drop_indices(indices_to_drop)
 
-        logger.info("Found %d segments, dropped %d", len(scores), len(indices_to_drop))
+        logger.info("%s: Found %d segments, dropped %d", image.name, len(scores), len(indices_to_drop))
         return result
 
     def _create_masks_and_test_alignment(self, image, sample):
