@@ -55,6 +55,10 @@ class Point:
         dx, dy = dest
         return Point(self.x + dx, self.y + dy)
 
+    def rescale(self, factor: float):
+        """Rescale point by multiplying its coordinates with `factor`"""
+        return Point(int(self.x * factor), int(self.y * factor))
+
     def __iter__(self) -> Iterable[int]:
         # Enables tuple-like iteration and unpacking
         return iter(astuple(self))
@@ -127,6 +131,10 @@ class Bbox:
     def area(self) -> int:
         """Area of bounding box"""
         return self.height * self.width
+
+    def rescale(self, factor: float):
+        """Rescale bounding box by multiplying its coordinates with `factor`"""
+        return Bbox(*(int(coord * factor) for coord in self))
 
     def polygon(self) -> "Polygon":
         """Return a polygon representation of the bounding box"""
@@ -205,6 +213,10 @@ class Polygon:
     def as_nparray(self):  # -> n x 2 numpy array of integers
         """A np array version of the polygon"""
         return np.array([[x, y] for x, y in self])
+
+    def rescale(self, factor: float):
+        """Rescale polygon by multiplying its points with `factor`"""
+        return Polygon([p.rescale(factor) for p in self])
 
     def __iter__(self):  # -> Iterable[Point]
         return iter(self.points)
