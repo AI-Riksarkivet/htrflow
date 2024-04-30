@@ -17,7 +17,9 @@ class BaseModel(ABC, MetadataMixin):
         self.cache_dir = kwargs.get("cache_dir", "./.cache")
         self.metadata = self.default_metadata()
 
-    def predict(self, images: Iterable[np.ndarray], batch_size: int, *args, **kwargs) -> Iterable[Result]:
+    def predict(
+        self, images: Iterable[np.ndarray], batch_size: int, image_scaling_factor: int = 1, *args, **kwargs
+    ) -> Iterable[Result]:
         """Perform inference on images with a progress bar.
 
         Arguments:
@@ -25,19 +27,23 @@ class BaseModel(ABC, MetadataMixin):
             batch_size: The inference batch size. Default = 1, Will pass all input images one by one to the model.
             *args and **kwargs: Optional arguments that are passed to the model specific prediction method.
         """
-        out = []
 
         tqdm_kwargs = kwargs.pop("tqdm_kwargs", {})
         tqdm_kwargs.setdefault("disable", False)
 
+        results = []
         for batch in tqdm(
             self._batch_input(images, batch_size),
             total=self._tqdm_total(images, batch_size),
             desc=self._tqdm_description(batch_size),
             **tqdm_kwargs,
         ):
-            out.extend(self._predict(batch, *args, **kwargs))
-        return out
+            scaled_image_batch = [imgproc.rescale_linear(image, image_scaling_factor) for image in batch]
+            batch_results = self._predict(scaled_image_batch, **kwargs)
+            for result in batch_results:
+                result.rescale(1 / image_scaling_factor)
+                results.append(result)
+        return results
 
     @abstractmethod
     def _predict(self, images: list[np.ndarray], *args, **kwargs) -> list[np.ndarray]:
