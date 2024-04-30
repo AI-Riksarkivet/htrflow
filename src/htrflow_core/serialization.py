@@ -72,6 +72,8 @@ class Serializer:
         outputs = []
         for page in volume:
             doc = self.serialize(page)
+            if doc is None:
+                continue
             filename = os.path.join(volume.label, page.label + self.extension)
             outputs.append((doc, filename))
         return outputs
@@ -96,7 +98,7 @@ class AltoXML(Serializer):
 
     def _serialize(self, page: PageNode) -> str:
         if page.is_leaf():
-            raise ValueError("Cannot serialize unsegmented page to Alto XML")
+            return None
 
         # Find all nodes that correspond to Alto TextBlock elements and
         # their location (if available). A TextBlock is a region whose
@@ -126,7 +128,7 @@ class PageXML(Serializer):
 
     def _serialize(self, page: PageNode):
         if page.is_leaf():
-            raise ValueError("Cannot serialize unsegmented page to Page XML")
+            return None
 
         def is_text_line(node):
             return node.text and (node.parent is None or node.parent.is_region())
