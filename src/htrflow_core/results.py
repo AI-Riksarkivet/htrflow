@@ -9,6 +9,7 @@ from htrflow_core.utils.geometry import Bbox, Mask, Polygon
 
 LabelType: TypeAlias = Literal["text", "class", "conf"] | None
 
+
 class Segment:
     """Segment class
 
@@ -137,6 +138,12 @@ class Segment:
         """The segment mask relative to the bounding box (alias for self.mask)"""
         return self.mask
 
+    def rescale(self, factor):
+        if self.mask is not None:
+            self.mask = imgproc.rescale_linear(self.mask, factor)
+        self.bbox = self.bbox.rescale(factor)
+        self.polygon = self.polygon.rescale(factor)
+
 
 @dataclass
 class RecognizedText:
@@ -182,6 +189,10 @@ class Result:
     def __post_init__(self):
         for segment in self.segments:
             segment.orig_shape = self.image.shape[:2]
+
+    def rescale(self, factor):
+        for segment in self.segments:
+            segment.rescale(factor)
 
     @property
     def bboxes(self) -> Sequence[Bbox]:
