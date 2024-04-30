@@ -75,8 +75,8 @@ def demo_page_segmented_thrice(demo_image):
 
 
 def test_alto_unsegmented(demo_page_unsegmented, alto):
-    with pytest.raises(ValueError) as _:
-        alto.serialize(demo_page_unsegmented)
+    doc = alto.serialize(demo_page_unsegmented)
+    assert doc is None
 
 
 def test_alto_segmented(demo_page_segmented_once, alto):
@@ -103,9 +103,8 @@ def test_alto_escape_characters(demo_page_segmented_thrice, alto):
 
 
 def test_page_unsegmented(demo_page_unsegmented, page):
-    with pytest.raises(ValueError) as _:
-        page.serialize(demo_page_unsegmented)
-
+    doc = page.serialize(demo_page_unsegmented)
+    assert doc is None
 
 
 def test_page_segmented(demo_page_segmented_once, page):
