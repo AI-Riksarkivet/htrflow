@@ -15,41 +15,50 @@ from htrflow_core.utils.geometry import Bbox, Mask
 
 logger = logging.getLogger(__name__)
 
-def crop(image: np.ndarray, bbox: Bbox) -> np.ndarray:
+
+def crop(image: np.ndarray, bbox: Bbox, padding: int | None = 0) -> np.ndarray:
     """Crop image
 
     Args:
         image: The input image
         bbox: The bounding box
+        padding: A value to pad the cropped image with if the given bounding
+            box overflows the input image. This ensures that the cropped image
+            has the same size as the bounding box. If None, no padding is used,
+            and the shape of the cropped image may not match the bounding box.
     """
     x1, y1, x2, y2 = bbox
     cropped = image[y1:y2, x1:x2]
     h, w = cropped.shape[:2]
-    if h < bbox.height or w < bbox.width:
+    if padding is not None and (h < bbox.height or w < bbox.width):
         pad_y = bbox.height - h
         pad_x = bbox.width - w
-        cropped = np.pad(cropped, ((0, pad_y), (0, pad_x)), mode="constant", constant_values=0)
-        logger.warning(
-            "Padding the cropped image with %d and %d pixels (x, y) to match size of bounding box", pad_x, pad_y)
+        cropped = np.pad(cropped, ((0, pad_y), (0, pad_x)), mode="constant", constant_values=padding)
     return cropped
 
 
 def mask(
-    image: np.ndarray,
-    mask: Mask,
-    fill: tuple[int, int, int] = (255, 255, 255),
-    inverse: bool = False,
+    image: np.ndarray, mask: Mask, fill: tuple[int, int, int] = (255, 255, 255), inverse: bool = False
 ) -> np.ndarray:
     """Apply mask to image
 
+    Returns a copy of the input image where all pixels such that mask[pixel]
+    is False are filled with the specified color. Uses imgproc.crop to crop
+    (or possibly pad) the mask if necessary.
+
     Args:
         image: The input image
-        mask: The mask, a binary array, of the same shape as `image`
+        mask: The mask, a binary array, of similar shape as `image`
         fill: The color value to fill the masked areas with, default white
-        inverse: Invert the mask before applying
+        inverse: Fill all pixels where mask[pixel] is True instead of False
     """
     image = image.copy()
     idx = (mask != 0) if inverse else (mask == 0)
+    if idx.shape != image.shape[:2]:
+        logger.debug(
+            "Resizing mask to match the input image (mask %d-by-%d, image %d-by-%d)", *idx.shape, *image.shape[:2]
+        )
+        idx = crop(idx, Bbox(0, 0, image.shape[1], image.shape[0]))
     image[idx] = fill
     return image
 
@@ -61,6 +70,8 @@ def resize(image: np.ndarray, shape: tuple[int, int]) -> np.ndarray:
         image: Input image
         shape: Desired shape as a (height, width) tuple
     """
+    if shape == image.shape:
+        return image
     y, x = shape
     return cv2.resize(image, (x, y), interpolation=cv2.INTER_NEAREST)
 
@@ -74,14 +85,35 @@ def rescale(image: np.ndarray, ratio: float):
     Arguments:
         image: Input image
         ratio: Ratio of size of rescaled image to its original size in
-            pixels. For example, with ratio=0.25 a 20x10 image would be
-            resized to 10x5.
+            pixels, i.e.
+                ratio = (pixels in rescaled) / (pixels in original)
+            For example, with ratio=0.25 a 200x100 image would be resized
+            to 100x50.
     """
-    if ratio == 1:
-        return image
-    factor = np.sqrt(ratio)  # area scaling factor -> length scaling factor
+    length_ratio = np.sqrt(ratio)
+    return rescale_linear(image, length_ratio)
+
+
+def rescale_linear(image: np.ndarray, ratio: float):
+    """Rescale image
+
+    Rescales the image while keeping the aspect ratio intact as far as
+    possible. Uses nearest-neighbour interpolation.
+
+    The only difference between this function and imgproc.rescale is that
+    this function applies the rescaling factor on the side lengths and not
+    on the total area. This function thus produces smaller images than
+    imgproc.rescale with the same scaling factor.
+
+    Arguments:
+        image: Input image
+        ratio: Ratio of rescaled side length to original side length, i.e.
+                ratio = (side length rescaled) / (side length originl)
+            For example, with ratio=0.25 a 200x100 image would be resized to
+            50x25.
+    """
     h, w = image.shape[:2]
-    return resize(image, (int(h*factor), int(w*factor)))
+    return resize(image, (int(h * ratio), int(w * ratio)))
 
 
 def binarize(image: np.ndarray) -> np.ndarray:
@@ -143,6 +175,7 @@ def read(source: str | np.ndarray | os.PathLike) -> np.ndarray:
 
 def write(dest: str, image: np.ndarray) -> None:
     cv2.imwrite(dest, image)
+
 
 class ImageImportError(RuntimeError):
     pass
