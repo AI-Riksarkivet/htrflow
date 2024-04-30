@@ -3,6 +3,7 @@ import logging
 import numpy as np
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 from transformers.generation import BeamSearchEncoderDecoderOutput
+from transformers.utils import ModelOutput
 
 from htrflow_core.models.base_model import BaseModel
 from htrflow_core.models.enums import Framework, Task
@@ -110,29 +111,17 @@ class TrOCR(BaseModel, PytorchMixin):
         the model's .generate method. However, to ensure that we
         get the output format we want, some arguments needs to be
         set (and potentially overridden).
-
-        HF defaults to greedy search if the user sets num_beams=1
-        But greedy search doesn't output sequence_scores, which we
-        we want to keep. Instead, we override num_beams to 2, and
-        set the return sequecens to 1.
-
         """
-
         # Add default arguments
         kwargs = TrOCR.default_generation_kwargs | kwargs
-
-        if kwargs.get("num_beams", None) == 1:
-            kwargs["num_beams"] = 2
-            kwargs["num_return_sequences"] = 1
-        else:
-            kwargs["num_return_sequences"] = kwargs["num_beams"]
+        kwargs["num_return_sequences"] = kwargs.get("num_beams", 1)
 
         # Override arguments related to the output format
         kwargs["output_scores"] = True
         kwargs["return_dict_in_generate"] = True
         return kwargs
 
-    def compute_seuqence_scores(self, outputs: BeamSearchEncoderDecoderOutput):
+    def compute_seuqence_scores(self, outputs: ModelOutput):
         """Compute normalized prediction score for each output sequence
 
         This function computes the normalized sequence scores from the output.
@@ -140,9 +129,16 @@ class TrOCR(BaseModel, PytorchMixin):
         It follows example #1 found here:
         https://discuss.huggingface.co/t/announcement-generation-get-probabilities-for-generated-output/30075
         """
-        transition_scores = self.model.decoder.compute_transition_scores(
-            outputs.sequences, outputs.scores, outputs.beam_indices, normalize_logits=True
-        ).cpu()
+
+        if isinstance(outputs, BeamSearchEncoderDecoderOutput):
+            transition_scores = self.model.decoder.compute_transition_scores(
+                outputs.sequences, outputs.scores, outputs.beam_indices, normalize_logits=True
+            )
+        else:
+            transition_scores = self.model.decoder.compute_transition_scores(
+                outputs.sequences, outputs.scores, normalize_logits=True
+            )
+        transition_scores = transition_scores.cpu()
         length_penalty = self.model.generation_config.length_penalty
         output_length = np.sum(transition_scores.numpy() < 0, axis=1)
         scores = transition_scores.sum(axis=1) / (output_length**length_penalty)
