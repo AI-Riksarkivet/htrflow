@@ -9,6 +9,8 @@ steps:
     model: rtmdet
     model_settings:
        model: Riksarkivet/rtmdet_regions
+    generation_settings:
+       image_scaling_factor: 0.5
 
 # Line segmentation
 - step: Segmentation
@@ -17,7 +19,7 @@ steps:
     model_settings:
        model: Riksarkivet/rtmdet_lines
     generation_settings:
-       nms_downscale: 0.25  # Run NMS on lower-resolution masks
+       image_scaling_factor: 0.5
 
 # Text recognition (line-based)
 - step: TextRecognition
@@ -27,6 +29,7 @@ steps:
        model: Riksarkivet/trocr-base-handwritten-swe
     generation_settings:
        batch_size: 32
+       num_beams: 1
 
 # Optional word segmentation
 - step: WordSegmentation
