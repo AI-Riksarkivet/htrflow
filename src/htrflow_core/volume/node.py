@@ -70,15 +70,15 @@ class Node:
         (Example) By calling node.relabel() with the default arguments
         on the root node, the tree would be relabeled as:
 
-        node                         node
-         ├── node                     ├── node0
-         |    └── node                |    └── node0_node0
-         └── node          ->         └── node1
-              ├── node                     ├── node1_node0
-              └── node                     └── node1_node1
+        root                         root
+         ├── node                     ├── root_node0
+         |    └── node                |    └── root_node0_node0
+         └── node          ->         └── root_node1
+              ├── node                     ├── root_node1_node0
+              └── node                     └── root_node1_node1
 
-        Note that this function does not set the label of the starting
-        node. The root node will keep its original label.
+        Note that this function does not change the label of the root
+        node.
 
         Arguments:
             label_func: A function `f(node) -> str` that returns a
@@ -101,6 +101,11 @@ class Node:
         if _counter is None:
             _counter = defaultdict(lambda: count(0))
 
+        if self.get("long_label") is None:
+            label = self.get("label")
+            self.add_data(long_label=label)
+            prefix += label
+
         full_label = f"{prefix}{sep}{template}".strip(sep)
         for child in self:
             label = label_func(child)
@@ -120,11 +125,11 @@ class Node:
         level_labels = ["region", "line"] would yield:
 
         node                         node
-         ├── node                     ├── region0
-         |    └── node                |    └── region0_line0
+         ├── node                     ├── node_region0
+         |    └── node                |    └── node_region0_line0
          └── node          ->         └── region1
-              ├── node                     ├── region1_line0
-              └── node                     └── region1_line1
+              ├── node                     ├── node_region1_line0
+              └── node                     └── node_region1_line1
 
         Arguments:
             level_labels: A list of strings where the i:th element
