@@ -42,6 +42,7 @@ class Inference(PipelineStep):
         if name not in MODELS:
             model_names = [model.__name__ for model in all_models()]
             msg = f"Model {name} is not supported. The available models are: {', '.join(model_names)}."
+            logger.error(msg)
             raise NotImplementedError(msg)
         init_kwargs = config.get("model_settings", {})
         model = MODELS[name](**init_kwargs)

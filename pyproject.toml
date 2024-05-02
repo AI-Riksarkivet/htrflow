@@ -16,7 +16,7 @@ classifiers = [
 ]
 description = "A short description of the project"
 documentation = "https://swedish-national-archives-ai-lab.github.io/htrflow_core/"
-include = ["scripts/openmmlab_install.py", "scripts/main.py", "src/htrflow_core/templates/**/*"]
+include = ["scripts/openmmlab_install.py", "src/htrflow_core/templates/**/*"]
 
 license = "EUPL-1.2"
 name = "htrflow_core"
@@ -30,8 +30,7 @@ include = "htrflow_core"
 
 [tool.poetry.scripts]
 openmmlab_install = "scripts.openmmlab_install:main"
-cli = "scripts.cli:main"
-htrflow-cli = "src/htrflow_core.cli:app"
+htrflow = "htrflow_core.cli:app"
 
 # Dependencies
 [tool.poetry.dependencies]
