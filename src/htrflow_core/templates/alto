@@ -60,37 +60,37 @@
     </ReadingOrder>
     <Layout>
         <Page WIDTH="{{ page.width }}" HEIGHT="{{ page.height }}" PHYSICAL_IMG_NR="0" ID="page">
-            {%- if text_blocks['margin_top'] | length > 0 %}
+            {%- if top_margin | length > 0 %}
             <TopMargin>
-                {{ render(text_blocks['margin_top']) }}
+                {{ render(top_margin) }}
             </TopMargin>
             {%- else %}
             <TopMargin />
             {%- endif -%}
-            {%- if text_blocks['margin_left'] | length > 0 %}
+            {%- if left_margin | length > 0 %}
             <LeftMargin>
-                {{ render(text_blocks['margin_left']) }}
+                {{ render(left_margin) }}
             </LeftMargin>
             {%- else %}
             <LeftMargin />
             {%- endif -%}
-            {%- if text_blocks['margin_right'] | length > 0 %}
+            {%- if right_margin | length > 0 %}
             <RightMargin>
-                {{ render(text_blocks['margin_right']) }}
+                {{ render(right_margin) }}
             </RightMargin>
             {%- else %}
             <RightMargin />
             {%- endif -%}
-            {%- if text_blocks['margin_bottom'] | length > 0 %}
+            {%- if bottom_margin | length > 0 %}
             <BottomMargin>
-                {{ render(text_blocks['margin_bottom']) }}
+                {{ render(bottom_margin) }}
             </BottomMargin>
             {%- else %}
             <BottomMargin />
             {%- endif -%}
-            {%- if text_blocks['printspace'] | length > 0 %}
+            {%- if printspace | length > 0 %}
             <PrintSpace>
-                {{ render(text_blocks['printspace']) }}
+                {{ render(printspace) }}
             </PrintSpace>
             {%- else %}
             <PrintSpace />

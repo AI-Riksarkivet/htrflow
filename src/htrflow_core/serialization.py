@@ -111,7 +111,16 @@ class AltoXML(Serializer):
             if node.is_region() and all(child.text for child in node):
                 text_blocks[node.get("region_location", RegionLocation.PRINTSPACE)].append(node)
 
-        return self.template.render(page=page, text_blocks=text_blocks, metadata=metadata(page), xmlescape=xmlescape)
+        return self.template.render(
+            page=page,
+            printspace=text_blocks[RegionLocation.PRINTSPACE],
+            top_margin=text_blocks[RegionLocation.MARGIN_TOP],
+            bottom_margin=text_blocks[RegionLocation.MARGIN_BOTTOM],
+            left_margin=text_blocks[RegionLocation.MARGIN_LEFT],
+            right_margin=text_blocks[RegionLocation.MARGIN_RIGHT],
+            metadata=metadata(page),
+            xmlescape=xmlescape,
+        )
 
     def validate(self, doc: str):
         xmlschema.validate(doc, self.schema)
