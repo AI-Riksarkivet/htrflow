@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from enum import Enum
 from typing import TYPE_CHECKING
 
 import cv2
@@ -49,12 +50,12 @@ def estimate_printspace(image: np.ndarray, window: int = 50) -> Bbox:
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # Binarize the image
-    _, image = cv2.threshold(image,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+    _, image = cv2.threshold(image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
     # Floodfill the image from the top-left corner. This removes (or
     # reduces) the dark border around the scanned page, which sometimes
     # interferes with the next step.
-    _, image, *_ = cv2.floodFill(image, None, (0,0), (255, 255, 255))
+    _, image, *_ = cv2.floodFill(image, None, (0, 0), (255, 255, 255))
 
     # The bounding box is produced in two steps: First the left-right
     # boundaries are found, then the top-bottom boundaries.
@@ -77,11 +78,11 @@ def estimate_printspace(image: np.ndarray, window: int = 50) -> Bbox:
         # printspace is generally darker than the average gray point.
         # Instead of taking the actual values at row/colum i, the median
         # values over a range ahead is compared with the median value of
-        for i in range(window, len(levels)-window):
+        for i in range(window, len(levels) - window):
             if np.median(levels[i - window : i]) > gray > np.median(levels[i : i + window]):
                 break
 
-        for j in range(len(levels)-window, window, -1):
+        for j in range(len(levels) - window, window, -1):
             if np.median(levels[j - window : j]) < gray < np.median(levels[j : j + window]):
                 break
 
@@ -139,15 +140,15 @@ def is_twopage(img, strip_width=0.1, threshold=0.2):
     return None
 
 
-class RegionLocation:
-    PRINTSPACE = "printspace"
-    MARGIN_LEFT = "margin_left"
-    MARGIN_RIGHT = "margin_right"
-    MARGIN_TOP = "margin_top"
-    MARGIN_BOTTOM = "margin_bottom"
+class RegionLocation(Enum):
+    MARGIN_TOP = 0
+    PRINTSPACE = 1
+    MARGIN_BOTTOM = 2
+    MARGIN_LEFT = 3
+    MARGIN_RIGHT = 4
 
 
-def get_region_location(printspace: Bbox, region: Bbox) -> RegionLocation:
+def get_region_location(printspace: Bbox, region: Bbox) -> str:
     """Get location of `region` relative to `printspace`
 
     The side margins extends to the top and bottom of the page. If the
@@ -165,7 +166,7 @@ def get_region_location(printspace: Bbox, region: Bbox) -> RegionLocation:
     return RegionLocation.PRINTSPACE
 
 
-def label_regions(volume: Volume, key="region_location"):
+def label_regions(volume: Volume):
     """Label volume's regions
 
     Labels each top-level segment of the volume as one of the five
@@ -181,4 +182,7 @@ def label_regions(volume: Volume, key="region_location"):
     for page in volume:
         printspace = estimate_printspace(page.image)
         for node in page:
-            node.add_data(**{key: get_region_location(printspace, node.bbox)})
+            node.add_data(**{REGION_KEY: get_region_location(printspace, node.bbox)})
+
+
+REGION_KEY = "region_location"

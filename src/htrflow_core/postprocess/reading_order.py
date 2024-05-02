@@ -1,57 +1,19 @@
 from typing import Sequence
 
-import numpy as np
-
-from htrflow_core.results import Result
 from htrflow_core.utils.geometry import Bbox
+from htrflow_core.utils.layout import get_region_location
 
 
-def is_margin(region: Bbox, page: Bbox, margin_ratio: float=0.2):
-    """Check if `region` lies in the (left or right) margin of `page`
+def order_region_with_marginalia(printspace: Bbox, bboxes: Sequence[Bbox]):
+    """Order bounding boxes with respect to printspace
 
-    The region is assumed to be marginalia if its center point on the
-    x-axis lies close to the left or right side of the page.
-
-    Arguments:
-        region: The region to check
-        page: The boundaries of the page that the region lies in
-        margin_ratio: Margin to page width ratio. Default is 0.2.
+    This function orders the input boxes after their location relative
+    to the printspace (see layout.RegionLocation) and then their
+    y-coordinate. It is useful whenever a region is undersegmented
+    (there are several "regions" within the region)
     """
-    margin = page.width * margin_ratio
-    left_margin = page.xmin + margin
-    right_margin = page.xmax - margin
-    return (region.center.x < left_margin or region.center.x > right_margin)
-
-
-def is_twopage(segments: Sequence[Bbox], histogram_bins=50, histogram_dip_ratio=0.5):
-    xs = [segment.center.x for segment in segments]
-
-    # Calculate a histogram of the x-coordinates of the centroids
-    histogram, _ = np.histogram(xs, bins=histogram_bins)
-
-    # Determine if there's a significant dip in the histogram, which would suggest a two-page layout
-    return np.min(histogram) < np.max(histogram) * histogram_dip_ratio
-
-
-def order_segments_marginalia(result: Result, histogram_bins=50, histogram_dip_ratio=0.5):
-    # Adapted from htrflow_core/src/transformations/order_segments.py
-
-    xs = [segment.center.x for segment in result.bboxes]
-    ys = [segment.center.y for segment in result.bboxes]
-
-    image_height, image_width = result.image.shape[:2]
-    index = list(range(len(result.segments)))
-
-    if is_twopage(result.bboxes, histogram_bins, histogram_dip_ratio):
-        page_width = int(image_width / 2)
-        pagei = [x < page_width for x in xs]
-        pages = [Bbox(0, 0, page_width, image_height), Bbox(page_width, 0, image_width, image_height)]
-        index.sort(key=lambda i: (pagei[i], is_margin(result.bboxes[i], pages[pagei[i]]), ys[i], xs[i]))
-    else:
-        page = Bbox(0, 0, image_width, image_height)
-        index.sort(key=lambda i: (is_margin(result.bboxes[i], page), ys[i], xs[i]))
-
-    return index
+    locations = [get_region_location(printspace, bbox) for bbox in bboxes]
+    return sorted(range(len(bboxes)), key=lambda i: (locations[i].value, bboxes[i].ymin))
 
 
 def left_right_top_down(bboxes: Sequence[Bbox], line_spacing: float | None = 1.0):
