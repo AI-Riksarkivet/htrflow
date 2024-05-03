@@ -27,6 +27,7 @@ def demo_page_unsegmented(demo_image):
     model = RecognitionModel()
     result = model([node.image])
     node.add_data(**result[0].data[0])
+    node.relabel()
     return node
 
 
@@ -41,6 +42,7 @@ def demo_page_segmented_once(demo_image):
     results = model(node.segments())
     for result, leaf in zip(results, node.leaves()):
         leaf.add_data(**result.data[0])
+    node.relabel()
     return node
 
 
@@ -56,6 +58,7 @@ def demo_page_segmented_twice(demo_image):
     results = model(node.segments())
     for result, leaf in zip(results, node.leaves()):
         leaf.add_data(**result.data[0])
+    node.relabel()
     return node
 
 
@@ -71,12 +74,13 @@ def demo_page_segmented_thrice(demo_image):
     results = model(node.segments())
     for result, leaf in zip(results, node.leaves()):
         leaf.add_data(**result.data[0])
+    node.relabel()
     return node
 
 
 def test_alto_unsegmented(demo_page_unsegmented, alto):
     doc = alto.serialize(demo_page_unsegmented)
-    assert doc is None
+    alto.validate(doc)
 
 
 def test_alto_segmented(demo_page_segmented_once, alto):

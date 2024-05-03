@@ -48,8 +48,6 @@ class Serializer:
 
         Returns:
             A string"""
-        if not page.has_unique_labels():
-            page.relabel()
         doc = self._serialize(page)
         if validate:
             self.validate(doc)
@@ -97,9 +95,6 @@ class AltoXML(Serializer):
         self.schema = os.path.join(_SCHEMA_DIR, "alto-4-4.xsd")
 
     def _serialize(self, page: PageNode) -> str:
-        if page.is_leaf():
-            return None
-
         # Find all nodes that correspond to Alto TextBlock elements and
         # their location (if available). A TextBlock is a region whose
         # children are text lines (and not other regions). If the node's

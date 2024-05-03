@@ -46,6 +46,7 @@
         </Processing>
         {%- endfor %}
     </Description>
+    {%- if not page.is_leaf() %}
     <ReadingOrder>
         <OrderedGroup ID="ro">
         {%- for node in page recursive %}
@@ -58,8 +59,9 @@
         {%- endfor %}
         </OrderedGroup>
     </ReadingOrder>
+    {%- endif %}
     <Layout>
-        <Page WIDTH="{{ page.width }}" HEIGHT="{{ page.height }}" PHYSICAL_IMG_NR="0" ID="page">
+        <Page WIDTH="{{ page.width }}" HEIGHT="{{ page.height }}" PHYSICAL_IMG_NR="0" ID="{{ page.get('page_id') }}">
             {%- if top_margin | length > 0 %}
             <TopMargin>
                 {{ render(top_margin) }}
