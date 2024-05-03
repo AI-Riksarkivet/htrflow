@@ -25,21 +25,23 @@ def setup_pipeline_logging(logfile: str, loglevel: str):
     logger.addHandler(handler)
 
 
-def check_file_exists(file_path: Path):
+def check_file_exists(file_path_str: str):
     """Ensure the path exists and is a file."""
+    file_path = Path(file_path_str)
     if not file_path.exists() or not file_path.is_file():
         typer.echo(f"The file {file_path} does not exist or is not a valid file.")
         raise typer.Exit(code=1)
-    return file_path
+    return file_path_str
 
 
-def check_folder_exists(folder_paths: List[Path]):
+def check_folder_exists(folder_paths_str: List[str]):
     """Check each path exists and is a folder."""
-    for folder_path in folder_paths:
+    for folder_path_str in folder_paths_str:
+        folder_path = Path(folder_path_str)
         if not folder_path.exists() or not folder_path.is_dir():
             typer.echo(f"The path {folder_path} does not exist or is not a folder.")
             raise typer.Exit(code=1)
-    return folder_paths
+    return folder_paths_str
 
 
 def validate_logfile_extension(logfile: str):
@@ -53,10 +55,10 @@ def validate_logfile_extension(logfile: str):
 @app.command("pipeline")
 def main(
     pipeline: Annotated[
-        Path, typer.Argument(..., help="Path to the pipeline config YAML file", callback=check_file_exists)
+        str, typer.Argument(..., help="Path to the pipeline config YAML file", callback=check_file_exists)
     ],
     input_dirs: Annotated[
-        List[Path], typer.Argument(..., help="Input directory or directories", callback=check_folder_exists)
+        List[str], typer.Argument(..., help="Input directory or directories", callback=check_folder_exists)
     ],
     logfile: Annotated[
         str,

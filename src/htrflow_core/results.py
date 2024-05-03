@@ -142,7 +142,8 @@ class Segment:
         if self.mask is not None:
             self.mask = imgproc.rescale_linear(self.mask, factor)
         self.bbox = self.bbox.rescale(factor)
-        self.polygon = self.polygon.rescale(factor)
+        if self.polygon is not None:
+            self.polygon = self.polygon.rescale(factor)
 
 
 @dataclass

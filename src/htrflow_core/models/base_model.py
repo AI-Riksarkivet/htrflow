@@ -41,7 +41,8 @@ class BaseModel(ABC, MetadataMixin):
             scaled_image_batch = [imgproc.rescale_linear(image, image_scaling_factor) for image in batch]
             batch_results = self._predict(scaled_image_batch, **kwargs)
             for result in batch_results:
-                result.rescale(1 / image_scaling_factor)
+                if result:
+                    result.rescale(1 / image_scaling_factor)
                 results.append(result)
         return results
 
