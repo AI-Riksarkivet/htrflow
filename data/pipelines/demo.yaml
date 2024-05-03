@@ -33,6 +33,10 @@ steps:
        batch_size: 32
        num_beams: 1
 
+- step: ExportImages
+  settings:
+    dest: outputs/images
+
 # Optional word segmentation
 - step: WordSegmentation
 

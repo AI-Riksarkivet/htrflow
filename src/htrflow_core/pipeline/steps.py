@@ -5,7 +5,7 @@ from htrflow_core.dummies.dummy_models import simple_word_segmentation
 from htrflow_core.models.importer import all_models
 from htrflow_core.postprocess.reading_order import left_right_top_down, order_region_with_marginalia
 from htrflow_core.serialization import get_serializer
-from htrflow_core.utils.imgproc import binarize
+from htrflow_core.utils.imgproc import binarize, write
 from htrflow_core.utils.layout import estimate_printspace
 from htrflow_core.volume.volume import Volume
 
@@ -115,6 +115,29 @@ class ReadingOrderMarginalia(PipelineStep):
             for region in page:
                 reading_order = order_region_with_marginalia(printspace, [line.bbox for line in region])
                 region.children = [region.children[i] for i in reading_order]
+        return volume
+
+
+class ExportImages(PipelineStep):
+    """Export the Volume's images
+
+    This step writes all existing images (regions, lines, etc.) in the
+    volume to disk.
+    """
+
+    def __init__(self, dest):
+        self.dest = dest
+        os.makedirs(self.dest, exist_ok=True)
+
+    def run(self, volume):
+        for page in volume:
+            directory = os.path.join(self.dest, page.get("image_name"))
+            extension = page.get("image_path").split(".")[-1]
+            os.makedirs(directory, exist_ok=True)
+            for node in page.traverse():
+                if node.image is None:
+                    continue
+                write(os.path.join(directory, f'{node.get("long_label")}.{extension}'), node.image)
         return volume
 
 
