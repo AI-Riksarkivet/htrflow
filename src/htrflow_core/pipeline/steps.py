@@ -3,8 +3,10 @@ import os
 
 from htrflow_core.dummies.dummy_models import simple_word_segmentation
 from htrflow_core.models.importer import all_models
+from htrflow_core.postprocess.reading_order import left_right_top_down, order_region_with_marginalia
 from htrflow_core.serialization import get_serializer
 from htrflow_core.utils.imgproc import binarize
+from htrflow_core.utils.layout import estimate_printspace
 from htrflow_core.volume.volume import Volume
 
 
@@ -86,6 +88,33 @@ class Export(PipelineStep):
 
     def run(self, volume):
         volume.save(self.dest, self.serializer)
+        return volume
+
+
+class ReadingOrderMarginalia(PipelineStep):
+    """Apply reading order
+
+    This step orders the pages' first- and second-level segments
+    (corresponding to regions and lines). The regions are ordered
+    using simple left-right-top-down reading order. The lines within
+    each region are ordered using `order_region_with_marginalia`, which
+    tries to order the lines according to their location on the page.
+    This makes sure that lines within regions with both marginalia and
+    regular text are ordered correctly.
+    """
+
+    def run(self, volume):
+        for page in volume:
+            if page.is_leaf():
+                continue
+
+            reading_order = left_right_top_down([region.bbox for region in page])
+            page.children = [page.children[i] for i in reading_order]
+
+            printspace = estimate_printspace(page.image)
+            for region in page:
+                reading_order = order_region_with_marginalia(printspace, [line.bbox for line in region])
+                region.children = [region.children[i] for i in reading_order]
         return volume
 
 

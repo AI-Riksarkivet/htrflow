@@ -21,6 +21,8 @@ steps:
     generation_settings:
        image_scaling_factor: 0.5
 
+- step: ReadingOrderMarginalia
+
 # Text recognition (line-based)
 - step: TextRecognition
   settings:
