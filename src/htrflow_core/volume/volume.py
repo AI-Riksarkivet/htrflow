@@ -141,7 +141,10 @@ class PageNode(BaseDocumentNode):
         self._image = imgproc.read(image_path)
         # Extract image name and remove file extension (`path/to/image.jpg` -> `image`)
         name = os.path.basename(image_path).split(".")[0]
+        page_id = name.split("_")[-1]
         self.add_data(
+            page_id=page_id,
+            file_name=os.path.basename(image_path),
             image_path=image_path,
             image_name=name,
             label=name,
