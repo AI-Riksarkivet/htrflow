@@ -1,7 +1,8 @@
+import logging
 from abc import ABC, abstractmethod
 from itertools import islice
 from os import PathLike
-from typing import Iterable, Union
+from typing import Iterable, TypeVar, Union
 
 import numpy as np
 from tqdm import tqdm
@@ -9,6 +10,10 @@ from tqdm import tqdm
 from htrflow_core.models.mixins.meta_mixin import MetadataMixin
 from htrflow_core.results import Result
 from htrflow_core.utils import imgproc
+
+
+logger = logging.getLogger(__name__)
+_T = TypeVar("_T")
 
 
 class BaseModel(ABC, MetadataMixin):
@@ -30,14 +35,25 @@ class BaseModel(ABC, MetadataMixin):
 
         tqdm_kwargs = kwargs.pop("tqdm_kwargs", {})
         tqdm_kwargs.setdefault("disable", False)
+        batch_size = max(batch_size, 1)
+
+        n_batches = (len(images) + batch_size - 1) // batch_size
+        model_name = self.__class__.__name__
+        logger.info(
+            "Model '%s' on device '%s' received %d images in batches of %d images per batch (%d batches)",
+            model_name,
+            getattr(self, "device", "<device name not available>"),
+            len(images),
+            batch_size,
+            n_batches,
+        )
 
         results = []
-        for batch in tqdm(
-            self._batch_input(images, batch_size),
-            total=self._tqdm_total(images, batch_size),
-            desc=self._tqdm_description(batch_size),
-            **tqdm_kwargs,
-        ):
+        batches = self._batch_input(images, batch_size)
+        desc = f"{model_name}: Running inference (batch size {batch_size})"
+        progress_bar = tqdm(batches, desc, n_batches, **tqdm_kwargs)
+        for i, batch in enumerate(progress_bar):
+            logger.info("%s: Running inference (batch %d of %d)", model_name, i + 1, n_batches)
             scaled_image_batch = [imgproc.rescale_linear(image, image_scaling_factor) for image in batch]
             batch_results = self._predict(scaled_image_batch, **kwargs)
             for result in batch_results:
@@ -49,16 +65,6 @@ class BaseModel(ABC, MetadataMixin):
     @abstractmethod
     def _predict(self, images: list[np.ndarray], *args, **kwargs) -> list[np.ndarray]:
         """Model specific prediction method"""
-
-    def _tqdm_description(self, batch_size: int) -> str:
-        model_name = self.__class__.__name__
-        tqdm_description = (
-            f"{model_name}: Running batch inference" if batch_size > 1 else f"{model_name}: Running inference"
-        )
-        return tqdm_description
-
-    def _tqdm_total(self, images, batch_size: int) -> int:
-        return (len(images) + batch_size - 1) // batch_size
 
     def _batch_input(self, images: Iterable[np.ndarray], batch_size: int):
         # TODO: Replace this routine with itertools.batch in Python 3.12
