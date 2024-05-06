@@ -148,7 +148,7 @@ class RegionLocation(Enum):
     MARGIN_RIGHT = 4
 
 
-def get_region_location(printspace: Bbox, region: Bbox) -> str:
+def get_region_location(printspace: Bbox, region: Bbox) -> RegionLocation:
     """Get location of `region` relative to `printspace`
 
     The side margins extends to the top and bottom of the page. If the

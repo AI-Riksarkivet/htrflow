@@ -95,10 +95,10 @@ def randommask(h: int, w: int) -> np.ndarray:
 
 
 def simple_word_segmentation(nodes) -> list[Result]:
-    return [_simple_word_segmentation(node.image, node.text, node.get("segment").mask) for node in nodes]
+    return [_simple_word_segmentation(node.image, node.text, node.get("segment")) for node in nodes]
 
 
-def _simple_word_segmentation(image, text, mask=None):
+def _simple_word_segmentation(image, text, segment=None):
     height, width = image.shape[:2]
     pixels_per_char = width // len(text)
     bboxes = []
@@ -109,8 +109,8 @@ def _simple_word_segmentation(image, text, mask=None):
         bboxes.append((x1, 0, x2, height))
         x1 = x2
 
-    if mask is not None:
-        masks = [imgproc.mask(mask, bbox2mask(bbox, mask.shape), fill=0) for bbox in bboxes]
+    if segment and segment.mask is not None:
+        masks = [imgproc.mask(segment.mask, bbox2mask(bbox, segment.mask.shape), fill=0) for bbox in bboxes]
         segments = [Segment(mask=mask, class_label="word") for mask in masks]
     else:
         segments = [Segment(bbox=bbox, class_label="word") for bbox in bboxes]

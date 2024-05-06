@@ -22,6 +22,10 @@ logger = logging.getLogger(__name__)
 class BaseDocumentNode(node.Node):
     """Extension of Node class with functionality related to documents"""
 
+    _height: int
+    _width: int
+    _coord: Point
+
     def __str__(self) -> str:
         s = f"{self.height}x{self.width} node ({self.label}) at ({self.coord.x}, {self.coord.y})"
         if self.text:

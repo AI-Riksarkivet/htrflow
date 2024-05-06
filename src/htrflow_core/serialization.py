@@ -11,11 +11,11 @@ import xmlschema
 from jinja2 import Environment, FileSystemLoader
 
 import htrflow_core
-from htrflow_core.utils.layout import RegionLocation
+from htrflow_core.utils.layout import REGION_KEY, RegionLocation
 
 
 if TYPE_CHECKING:
-    from htrflow_core.volume import PageNode, Volume
+    from htrflow_core.volume.volume import PageNode, Volume
 
 
 logger = logging.getLogger(__name__)
@@ -38,7 +38,7 @@ class Serializer:
     extension: str
     format_name: str
 
-    def serialize(self, page: PageNode, validate=False) -> str:
+    def serialize(self, page: PageNode, validate=False) -> str | None:
         """Serialize page
 
         Arguments:
@@ -47,7 +47,8 @@ class Serializer:
                 valiadation before return.
 
         Returns:
-            A string"""
+            A string if the serialization was succesful, else None
+        """
         doc = self._serialize(page)
         if validate:
             self.validate(doc)
@@ -79,7 +80,7 @@ class Serializer:
     def validate(self, doc: str):
         """Validate document"""
 
-    def _serialize(self, page: PageNode) -> str:
+    def _serialize(self, page: PageNode) -> str | None:
         """Format-specific seralization method"""
 
 
@@ -104,7 +105,7 @@ class AltoXML(Serializer):
         text_blocks = defaultdict(list)
         for node in page.traverse():
             if node.is_region() and all(child.text for child in node):
-                text_blocks[node.get("region_location", RegionLocation.PRINTSPACE)].append(node)
+                text_blocks[node.get(REGION_KEY, RegionLocation.PRINTSPACE)].append(node)
 
         return self.template.render(
             page=page,
@@ -162,7 +163,7 @@ class Json(Serializer):
         """
         self.one_file = one_file
 
-    def _serialize(self, page: PageNode):
+    def _serialize(self, page: PageNode | Volume):
         def default(obj):
             return {k: v for k, v in obj.__dict__.items() if k not in ["mask", "_image", "parent"]}
 
@@ -171,7 +172,7 @@ class Json(Serializer):
     def serialize_volume(self, volume: Volume):
         if self.one_file:
             filename = volume.label + self.extension
-            doc = self.serialize(volume)
+            doc = self._serialize(volume)
             return [(doc, filename)]
         return super().serialize_volume(volume)
 
@@ -180,7 +181,7 @@ class PlainText(Serializer):
     extension = ".txt"
     format_name = "txt"
 
-    def serialize(self, page: PageNode) -> str:
+    def _serialize(self, page: PageNode) -> str:
         lines = page.traverse(lambda node: node.is_leaf())
         return "\n".join(line.text for line in lines)
 
@@ -211,7 +212,7 @@ def supported_formats():
     return [cls.format_name for cls in Serializer.__subclasses__()]
 
 
-def get_serializer(serializer_name, **serializer_args):
+def get_serializer(serializer_name: str, **serializer_args) -> Serializer:
     for cls in Serializer.__subclasses__():
         if cls.format_name.lower() == serializer_name.lower():
             return cls(**serializer_args)
