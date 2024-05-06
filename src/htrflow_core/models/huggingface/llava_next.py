@@ -1,6 +1,6 @@
+import logging
 import re
 import time
-from os import PathLike
 from threading import Thread
 from typing import Optional, Union
 
@@ -10,9 +10,12 @@ from transformers import LlavaNextForConditionalGeneration, LlavaNextProcessor, 
 
 from htrflow_core.models.base_model import BaseModel
 from htrflow_core.models.enums import Framework, Task
-from htrflow_core.models.torch_mixin import PytorchMixin
+from htrflow_core.models.mixins.torch_mixin import PytorchMixin
 from htrflow_core.results import RecognizedText, Result
 from htrflow_core.utils import imgproc
+
+
+logger = logging.getLogger(__name__)
 
 
 class LLavaNext(BaseModel, PytorchMixin):
@@ -20,8 +23,8 @@ class LLavaNext(BaseModel, PytorchMixin):
 
     def __init__(
         self,
-        model: str | PathLike = "llava-hf/llava-v1.6-mistral-7b-hf",
-        processor: str | PathLike = "llava-hf/llava-v1.6-mistral-7b-hf",
+        model: str = "llava-hf/llava-v1.6-mistral-7b-hf",
+        processor: str = "llava-hf/llava-v1.6-mistral-7b-hf",
         prompt: str = "[INST] <image>\Please transcribe the handwritten English text displayed in the image [/INST]",
         *model_args,
         **kwargs,
@@ -48,6 +51,10 @@ class LLavaNext(BaseModel, PytorchMixin):
 
         self.prompt = prompt
 
+        logger.info(f"Model loaded on ({self.device_id}) from {model}.")
+
+        logger.info(f"Processor loaded from {processor}.")
+
         self.metadata.update(
             {
                 "model": str(model),
@@ -55,7 +62,7 @@ class LLavaNext(BaseModel, PytorchMixin):
                 "prompt": str(prompt),
                 "framework": Framework.HuggingFace.value,
                 "task": Task.Image2Text.value,
-                "device": self.device,
+                "device": self.device_id,
             }
         )
 
@@ -77,7 +84,7 @@ class LLavaNext(BaseModel, PytorchMixin):
 
     def stream_predict(
         self,
-        image: Union[np.ndarray, str, PathLike],
+        image: Union[np.ndarray, str],
         prompt: Optional[str] = None,
         iterator: bool = False,
         **generation_kwargs,
@@ -152,16 +159,3 @@ class LLavaNext(BaseModel, PytorchMixin):
         kwargs["output_scores"] = True
         kwargs["return_dict_in_generate"] = True
         return kwargs
-
-
-if __name__ == "__main__":
-    model = LLavaNext(model="llava-hf/llava-v1.6-mistral-7b-hf")
-
-    url = "https://github.com/Swedish-National-Archives-AI-lab/htrflow_core/blob/main/data/demo_images/trocr_demo_image.png?raw=true"
-
-    output = model.stream_predict(
-        image=url,
-        prompt="[INST] <image>\Please transcribe the handwritten English text displayed in the image [/INST]",
-        iterator=False,
-        max_new_tokens=100,
-    )

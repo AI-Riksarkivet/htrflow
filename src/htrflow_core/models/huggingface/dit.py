@@ -7,7 +7,7 @@ from transformers import AutoImageProcessor, AutoModelForImageClassification
 
 from htrflow_core.models.base_model import BaseModel
 from htrflow_core.models.enums import Framework, Task
-from htrflow_core.models.torch_mixin import PytorchMixin
+from htrflow_core.models.mixins.torch_mixin import PytorchMixin
 from htrflow_core.results import Result
 
 
@@ -32,7 +32,7 @@ class DiT(BaseModel, PytorchMixin):
         )
 
         self.model.to(self.set_device(self.device))
-        logger.info(f"Model loaded ({self.device}) from {model}.")
+        logger.info(f"Model loaded ({self.device_id}) from {model}.")
 
         processor = processor or model
 
@@ -46,7 +46,7 @@ class DiT(BaseModel, PytorchMixin):
                 "processor": str(processor),
                 "framework": Framework.HuggingFace.value,
                 "task": Task.ImageClassification.value,
-                "device": self.device,
+                "device": self.device_id,
                 "return_format": self.return_format,
             }
         )

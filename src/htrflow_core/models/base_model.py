@@ -6,7 +6,7 @@ from typing import Iterable, Union
 import numpy as np
 from tqdm import tqdm
 
-from htrflow_core.models.meta_mixin import MetadataMixin
+from htrflow_core.models.mixins.meta_mixin import MetadataMixin
 from htrflow_core.results import Result
 from htrflow_core.utils import imgproc
 

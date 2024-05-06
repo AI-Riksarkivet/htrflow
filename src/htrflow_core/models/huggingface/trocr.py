@@ -7,7 +7,7 @@ from transformers.utils import ModelOutput
 
 from htrflow_core.models.base_model import BaseModel
 from htrflow_core.models.enums import Framework, Task
-from htrflow_core.models.torch_mixin import PytorchMixin
+from htrflow_core.models.mixins.torch_mixin import PytorchMixin
 from htrflow_core.results import RecognizedText, Result
 
 
@@ -45,13 +45,16 @@ class TrOCR(BaseModel, PytorchMixin):
 
         self.processor = TrOCRProcessor.from_pretrained(processor, cache_dir=self.cache_dir, token=True)
 
+        logger.info(f"Model loaded on ({self.device_id}) from {model}.")
+        logger.info(f"Processor loaded from {processor}.")
+
         self.metadata.update(
             {
                 "model": str(model),
                 "processor": str(processor),
                 "framework": Framework.HuggingFace.value,
                 "task": Task.Image2Text.value,
-                "device": self.device,
+                "device": self.device_id,
             }
         )
 

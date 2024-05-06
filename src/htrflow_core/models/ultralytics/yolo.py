@@ -8,7 +8,7 @@ from ultralytics.engine.results import Results as UltralyticsResults
 from htrflow_core.models.base_model import BaseModel
 from htrflow_core.models.enums import Framework, Task
 from htrflow_core.models.hf_utils import UltralyticsDownloader
-from htrflow_core.models.torch_mixin import PytorchMixin
+from htrflow_core.models.mixins.torch_mixin import PytorchMixin
 from htrflow_core.results import Result, Segment
 from htrflow_core.utils.geometry import polygons2masks
 
@@ -23,14 +23,14 @@ class YOLO(BaseModel, PytorchMixin):
         model_file = UltralyticsDownloader.from_pretrained(model, self.cache_dir)
         self.model = UltralyticsYOLO(model_file, *model_args).to(self.set_device(self.device))
 
-        logger.info(f"Model loaded ({self.device}) from {model}.")
+        logger.info(f"Model loaded on ({self.device_id}) from {model}.")
 
         self.metadata.update(
             {
                 "model": str(model),
                 "framework": Framework.Ultralytics.value,
                 "task": [Task.ObjectDetection.value, Task.InstanceSegmentation.value],
-                "device": self.device,
+                "device": self.device_id,
             }
         )
 

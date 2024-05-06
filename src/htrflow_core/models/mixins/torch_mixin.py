@@ -12,7 +12,13 @@ class PytorchMixin:
         if device is None:
             device = "cuda" if torch.cuda.is_available() else "cpu"
 
+        if device == "cuda":
+            device_id = torch.cuda.current_device()
+        else:
+            device_id = "cpu"
+
         self.device = device
+        self.device_id = device_id
         return torch.device(device)
 
     def to(self, device: Optional[str]) -> None:

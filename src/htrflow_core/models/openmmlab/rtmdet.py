@@ -8,8 +8,8 @@ from mmengine.structures import InstanceData
 from htrflow_core.models.base_model import BaseModel
 from htrflow_core.models.enums import Framework, Task
 from htrflow_core.models.hf_utils import MMLabsDownloader
+from htrflow_core.models.mixins.torch_mixin import PytorchMixin
 from htrflow_core.models.openmmlab.utils import SuppressOutput
-from htrflow_core.models.torch_mixin import PytorchMixin
 from htrflow_core.postprocess.mask_nms import multiclass_mask_nms
 from htrflow_core.results import Result, Segment
 from htrflow_core.utils.imgproc import resize
@@ -39,7 +39,7 @@ class RTMDet(BaseModel, PytorchMixin):
                 *model_args,
             )
 
-        logger.info(f"Model loaded ({self.device}) from {model}.")
+        logger.info(f"Model loaded on ({self.device_id}) from {model}.")
 
         self.metadata.update(
             {
@@ -47,7 +47,7 @@ class RTMDet(BaseModel, PytorchMixin):
                 "config": str(config),
                 "framework": Framework.Openmmlab.value,
                 "task": [Task.ObjectDetection.value, Task.InstanceSegmentation.value],
-                "device": self.device,
+                "device": self.device_id,
             }
         )
 
