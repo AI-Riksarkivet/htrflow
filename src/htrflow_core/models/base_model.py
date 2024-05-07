@@ -53,7 +53,9 @@ class BaseModel(ABC, MetadataMixin):
         desc = f"{model_name}: Running inference (batch size {batch_size})"
         progress_bar = tqdm(batches, desc, n_batches, **tqdm_kwargs)
         for i, batch in enumerate(progress_bar):
-            logger.info("%s: Running inference (batch %d of %d)", model_name, i + 1, n_batches)
+            logger.info(
+                "%s: Running inference on %d images (batch %d of %d)", model_name, len(batch), i + 1, n_batches
+            )
             scaled_image_batch = [imgproc.rescale_linear(image, image_scaling_factor) for image in batch]
             batch_results = self._predict(scaled_image_batch, **kwargs)
             for result in batch_results:
