@@ -23,7 +23,7 @@ class YOLO(BaseModel, PytorchMixin):
         model_file = UltralyticsDownloader.from_pretrained(model, self.cache_dir)
         self.model = UltralyticsYOLO(model_file, *model_args).to(self.set_device(self.device))
 
-        logger.info(f"Model loaded on ({self.device_id}) from {model}.")
+        logger.info("Initialized YOLO model from %s on device %s", model, self.model.device)
 
         self.metadata.update(
             {
@@ -53,5 +53,10 @@ class YOLO(BaseModel, PytorchMixin):
             Segment(bbox=box, mask=mask, score=score, class_label=class_label)
             for box, mask, score, class_label in zip(boxes, masks, scores, class_labels)
         ]
-
+        logger.info(
+            "%d x %d image: YOLO found %d segment(s) with processing times (ms): %s",
+            *image.shape[:2],
+            len(segments),
+            output.speed,
+        )
         return Result.segmentation_result(image, self.metadata, segments)
