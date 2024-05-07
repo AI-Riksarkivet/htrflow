@@ -78,6 +78,4 @@ class DiT(BaseModel, PytorchMixin):
         else:
             probabilities = torch.nn.functional.softmax(logits, dim=-1)
             label_ = {self.model.config.id2label[id]: prob.item() for id, prob in enumerate(probabilities)}
-
-        logger.info(f"Prediction complete. Return format: {self.return_format},  label: {label_}.")
         return label_
