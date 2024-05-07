@@ -19,7 +19,6 @@ _T = TypeVar("_T")
 class BaseModel(ABC, MetadataMixin):
     def __init__(self, **kwargs) -> None:
         self.device = kwargs.get("device", None)
-        self.cache_dir = kwargs.get("cache_dir", "./.cache")
         self.metadata = self.default_metadata()
 
     def predict(

@@ -7,6 +7,7 @@ import typer
 import yaml
 from typing_extensions import Annotated
 
+from htrflow_core.models import hf_utils
 from htrflow_core.pipeline.pipeline import Pipeline
 from htrflow_core.pipeline.steps import auto_import
 
@@ -74,7 +75,7 @@ def main(
     try:
         with open(pipeline, "r") as file:
             config = yaml.safe_load(file)
-
+        hf_utils.HF_CONFIG |= config.get("huggingface_config", {})
         pipe = Pipeline.from_config(config)
 
         volume = auto_import(input_dirs)

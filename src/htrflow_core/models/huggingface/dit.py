@@ -7,6 +7,7 @@ from transformers import AutoImageProcessor, AutoModelForImageClassification
 
 from htrflow_core.models.base_model import BaseModel
 from htrflow_core.models.enums import Framework, Task
+from htrflow_core.models.hf_utils import HF_CONFIG
 from htrflow_core.models.mixins.torch_mixin import PytorchMixin
 from htrflow_core.results import Result
 
@@ -27,9 +28,7 @@ class DiT(BaseModel, PytorchMixin):
 
         self.return_format = return_format
 
-        self.model = AutoModelForImageClassification.from_pretrained(
-            model, cache_dir=self.cache_dir, token=True, *model_args
-        )
+        self.model = AutoModelForImageClassification.from_pretrained(model, *model_args, **HF_CONFIG)
 
         self.model.to(self.set_device(self.device))
         logger.info(
@@ -40,7 +39,7 @@ class DiT(BaseModel, PytorchMixin):
 
         processor = processor or model
 
-        self.processor = AutoImageProcessor.from_pretrained(processor, cache_dir=self.cache_dir, token=True)
+        self.processor = AutoImageProcessor.from_pretrained(processor, **HF_CONFIG)
 
         logger.info("Initialized DiT processor from %s", processor)
 
