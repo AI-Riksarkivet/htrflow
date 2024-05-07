@@ -76,7 +76,7 @@ llm = ["transformers", "huggingface-hub", "datasets", "torch","accelerate", "bit
 openmmlab = [ "yapf","torch","mmcv", "mmdet", "mmengine", "mmocr", "huggingface-hub"]
 pytorch = ["torch"]
 ultralytics = ["ultralytics", "huggingface-hub"]
-local_models = ["transformers", "huggingface-hub", "datasets", "torch", "ultralytics"]
+local_models = ["transformers", "huggingface-hub", "datasets", "ultralytics"]
 cli = ["typer", "rich", "cowsay"]
 
 [tool.poetry.group.test.dependencies]

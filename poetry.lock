@@ -5253,7 +5253,7 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 cli = ["cowsay", "rich", "typer"]
 huggingface = ["datasets", "huggingface-hub", "transformers"]
 llm = ["accelerate", "bitsandbytes", "datasets", "huggingface-hub", "torch", "transformers"]
-local-models = ["datasets", "huggingface-hub", "torch", "transformers", "ultralytics"]
+local-models = ["datasets", "huggingface-hub", "transformers", "ultralytics"]
 openmmlab = ["huggingface-hub", "mmcv", "mmdet", "mmengine", "mmocr", "torch", "yapf"]
 pytorch = ["torch"]
 ultralytics = ["huggingface-hub", "ultralytics"]
@@ -5261,4 +5261,4 @@ ultralytics = ["huggingface-hub", "ultralytics"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10, <4.0"
-content-hash = "360d639a4fddbe4e742d5fe7bd7954e60d04f3c44b27641ee556dee065831768"
+content-hash = "f43e4cf657a19f12d444e20c77c4e01eebd45ce228ebbfc70911d74a85c86ce0"
