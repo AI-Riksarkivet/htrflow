@@ -1,4 +1,5 @@
 import logging
+import socket
 from pathlib import Path
 from typing import List
 
@@ -18,7 +19,10 @@ app = typer.Typer(name="htrflow_core", add_completion=False, help="CLI inferface
 def setup_pipeline_logging(logfile: str, loglevel: str):
     logging.getLogger("transformers").setLevel(logging.ERROR)
     time_format = "%Y-%m-%d %H:%M:%S"
-    formatter = logging.Formatter(fmt="%(asctime)s - %(levelname)s - %(message)s", datefmt=time_format)
+    formatter = logging.Formatter(
+        fmt="{hostname} - %(asctime)s - %(levelname)s - %(message)s".format(hostname=socket.gethostname()),
+        datefmt=time_format,
+    )
     logger = logging.getLogger()
     logger.setLevel(loglevel.upper())
     handler = logging.FileHandler(logfile, mode="w") if logfile else logging.StreamHandler()
