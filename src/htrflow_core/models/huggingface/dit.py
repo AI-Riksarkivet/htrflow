@@ -32,13 +32,17 @@ class DiT(BaseModel, PytorchMixin):
         )
 
         self.model.to(self.set_device(self.device))
-        logger.info(f"Model loaded ({self.device_id}) from {model}.")
+        logger.info(
+            "Initialized DiT model from %s on device %s",
+            model,
+            getattr(self.model, "device", "<device name unavailable>"),
+        )
 
         processor = processor or model
 
         self.processor = AutoImageProcessor.from_pretrained(processor, cache_dir=self.cache_dir, token=True)
 
-        logger.info(f"Processor loaded from {processor}.")
+        logger.info("Initialized DiT processor from %s", processor)
 
         self.metadata.update(
             {
