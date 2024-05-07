@@ -40,13 +40,12 @@ class TrOCR(BaseModel, PytorchMixin):
             model, cache_dir=self.cache_dir, token=True, *model_args
         )
         self.model.to(self.set_device(self.device))
+        logger.info("Initialized TrOCR model from %s on device %s", model, self.model.device)
 
         processor = processor or model
 
         self.processor = TrOCRProcessor.from_pretrained(processor, cache_dir=self.cache_dir, token=True)
-
-        logger.info(f"Model loaded on ({self.device_id}) from {model}.")
-        logger.info(f"Processor loaded from {processor}.")
+        logger.info("Initialized TrOCR processor from %s", processor)
 
         self.metadata.update(
             {
