@@ -24,7 +24,8 @@ class TrOCR(BaseModel, PytorchMixin):
         self,
         model: str = "microsoft/trocr-base-handwritten",
         processor: str = "microsoft/trocr-base-handwritten",
-        *model_args,
+        model_kwargs: dict | None = None,
+        processor_kwargs: dict | None = None,
         **kwargs,
     ):
         """Initialize a TrOCR model
@@ -36,15 +37,20 @@ class TrOCR(BaseModel, PytorchMixin):
                 Defaults to 'microsoft/trocr-base-handwritten'.
         """
         super().__init__(**kwargs)
-
-        self.model = VisionEncoderDecoderModel.from_pretrained(model, *model_args, **HF_CONFIG)
+        model_kwargs = HF_CONFIG | (model_kwargs or {})
+        self.model = VisionEncoderDecoderModel.from_pretrained(model, **model_kwargs)
         self.model.to(self.set_device(self.device))
-        logger.info("Initialized TrOCR model from %s on device %s", model, self.model.device)
+        logger.info(
+            "Initialized TrOCR model from %s on device %s. Initialization parameters: %s",
+            model,
+            self.model.device,
+            model_kwargs,
+        )
 
         processor = processor or model
-
-        self.processor = TrOCRProcessor.from_pretrained(processor, **HF_CONFIG)
-        logger.info("Initialized TrOCR processor from %s", processor)
+        processor_kwargs = HF_CONFIG | (processor_kwargs or {})
+        self.processor = TrOCRProcessor.from_pretrained(processor, **processor_kwargs)
+        logger.info("Initialized TrOCR processor from %s. Initialization parameters: %s", processor, processor_kwargs)
 
         self.metadata.update(
             {

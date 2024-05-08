@@ -19,29 +19,33 @@ class DiT(BaseModel, PytorchMixin):
     def __init__(
         self,
         model: str = "microsoft/dit-base-finetuned-rvlcdip",
-        processor: str = "microsoft/dit-base-finetuned-rvlcdip",
+        processor: str | None = None,
         return_format: Literal["argmax", "softmax"] = "softmax",
-        *model_args,
+        model_kwargs: dict | None = None,
+        processor_kwargs: dict | None = None,
         **kwargs,
     ):
         super().__init__(**kwargs)
 
+        model_kwargs = HF_CONFIG | (model_kwargs or {})
+        processor_kwargs = HF_CONFIG | (processor_kwargs or {})
+
         self.return_format = return_format
 
-        self.model = AutoModelForImageClassification.from_pretrained(model, *model_args, **HF_CONFIG)
+        self.model = AutoModelForImageClassification.from_pretrained(model, **model_kwargs)
 
         self.model.to(self.set_device(self.device))
         logger.info(
-            "Initialized DiT model from %s on device %s",
+            "Initialized DiT model from %s on device %s. Initialization parameters: %s",
             model,
             getattr(self.model, "device", "<device name unavailable>"),
+            model_kwargs,
         )
 
         processor = processor or model
+        self.processor = AutoImageProcessor.from_pretrained(processor, **processor_kwargs)
 
-        self.processor = AutoImageProcessor.from_pretrained(processor, **HF_CONFIG)
-
-        logger.info("Initialized DiT processor from %s", processor)
+        logger.info("Initialized DiT processor from %s. Initialization parameters: %s", processor, processor_kwargs)
 
         self.metadata.update(
             {
