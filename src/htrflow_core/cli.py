@@ -1,5 +1,6 @@
 import logging
 import socket
+import time
 from pathlib import Path
 from typing import List
 
@@ -16,17 +17,24 @@ from htrflow_core.pipeline.steps import auto_import
 app = typer.Typer(name="htrflow_core", add_completion=False, help="CLI inferface for htrflow_core's pipeline")
 
 
+class HTRFLOWLoggingFormatter(logging.Formatter):
+    """Logging formatter for HTRFLOW"""
+
+    converter = time.gmtime
+
+    def __init__(self):
+        datefmt = "%Y-%m-%d %H:%M:%S"
+        hostname = socket.gethostname()
+        fmt = f"{hostname} - %(asctime)s UTC - %(levelname)s - %(message)s"
+        super().__init__(fmt, datefmt)
+
+
 def setup_pipeline_logging(logfile: str, loglevel: str):
     logging.getLogger("transformers").setLevel(logging.ERROR)
-    time_format = "%Y-%m-%d %H:%M:%S"
-    formatter = logging.Formatter(
-        fmt="{hostname} - %(asctime)s - %(levelname)s - %(message)s".format(hostname=socket.gethostname()),
-        datefmt=time_format,
-    )
     logger = logging.getLogger()
     logger.setLevel(loglevel.upper())
     handler = logging.FileHandler(logfile, mode="w") if logfile else logging.StreamHandler()
-    handler.setFormatter(formatter)
+    handler.setFormatter(HTRFLOWLoggingFormatter())
     logger.addHandler(handler)
 
 
