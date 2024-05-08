@@ -1,3 +1,10 @@
+"""
+Serialization module
+
+This module contains functions for exporting a `Volume` or `PageNode`
+instance to different formats.
+"""
+
 from __future__ import annotations
 
 import datetime
@@ -38,7 +45,7 @@ class Serializer:
     extension: str
     format_name: str
 
-    def serialize(self, page: PageNode, validate=False) -> str | None:
+    def serialize(self, page: PageNode, validate: bool = False) -> str | None:
         """Serialize page
 
         Arguments:
@@ -77,15 +84,33 @@ class Serializer:
             outputs.append((doc, filename))
         return outputs
 
-    def validate(self, doc: str):
+    def validate(self, doc: str) -> None:
         """Validate document"""
 
     def _serialize(self, page: PageNode) -> str | None:
-        """Format-specific seralization method"""
+        """Format-specific seralization method
+
+        Arguments:
+            page: Input page
+        """
+        pass
 
 
 class AltoXML(Serializer):
-    """Alto XML serializer"""
+    """Alto XML serializer
+
+    This serializer uses a jinja template to produce alto XML files
+    according to version 4.4 of the alto standard.
+
+    Alto files require one level of segmentation. Pages with nested
+    segmentation (regions within regions) will be flattened so that
+    only the outermost regions are rendered. Pages without segmentation
+    will result in an empty alto file.
+
+    This format supports rendering of region locations (printspace and
+    margins). To enable this, call layout.label_regions(...) before
+    serialization.
+    """
 
     extension = ".xml"
     format_name = "alto"
@@ -118,11 +143,29 @@ class AltoXML(Serializer):
             xmlescape=xmlescape,
         )
 
-    def validate(self, doc: str):
+    def validate(self, doc: str) -> None:
+        """Validate `doc` against the current schema
+
+        Arguments:
+            doc: Input document
+
+        Raises:
+            xmlschema.XMLSchemaValidationError if the document violates
+            the current schema.
+        """
         xmlschema.validate(doc, self.schema)
 
 
 class PageXML(Serializer):
+    """Page XML serializer
+
+    This serializer uses a jinja template to produce page XML files.
+
+    Page files require at least one level of segmentation. Pages without
+    segmentation will not result in an output file (since Page XML cannot
+    be empty).
+    """
+
     extension = ".xml"
     format_name = "page"
 
@@ -144,7 +187,16 @@ class PageXML(Serializer):
             is_text_line=is_text_line,
         )
 
-    def validate(self, doc: str):
+    def validate(self, doc: str) -> None:
+        """Validate `doc` against the current schema
+
+        Arguments:
+            doc: Input document
+
+        Raises:
+            xmlschema.XMLSchemaValidationError if the document violates
+            the current schema.
+        """
         xmlschema.validate(doc, self.schema)
 
 
@@ -207,7 +259,7 @@ def metadata(page: PageNode) -> dict[str, Union[str, list[dict[str, str]]]]:
     }
 
 
-def supported_formats():
+def supported_formats() -> list[str]:
     """The supported formats"""
     return [cls.format_name for cls in Serializer.__subclasses__()]
 
