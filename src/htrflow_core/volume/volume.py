@@ -11,7 +11,7 @@ import numpy as np
 
 from htrflow_core import serialization
 from htrflow_core.results import Result, Segment
-from htrflow_core.utils import draw, imgproc
+from htrflow_core.utils import imgproc
 from htrflow_core.utils.geometry import Bbox, Point, Polygon
 from htrflow_core.volume import node
 
@@ -161,36 +161,6 @@ class PageNode(BaseDocumentNode):
     @image.setter
     def image(self, image):
         self._image = image
-
-    def visualize(self, dest: Optional[str] = None, labels: str = "label", max_levels: int = 2):
-        """Visualize the page
-
-        Draws the page's regions on its image.
-
-        Arguments:
-            dest: An optional path where to save the resulting image.
-            labels: Labels to annotate the drawn regions. Defaults to
-                "label", i.e. the node's label.
-            max_levels: How many levels of segmentation to draw.
-                Defaults to 2.
-
-        Returns:
-            An annotated image.
-        """
-        regions = self.traverse(lambda node: node != self)
-        depths = {region.depth() for region in regions}
-        colors = [draw.Colors.GREEN, draw.Colors.RED, draw.Colors.BLUE]
-
-        image = self.image
-        for depth in sorted(depths)[:max_levels]:
-            group = [region for region in regions if region.depth() == depth]
-            labels_ = [region.get(labels, "") for region in group]
-            polygons = [region.polygon for region in group]
-            image = draw.draw_polygons(image, polygons, labels=labels_, color=colors[depth % 3])
-
-        if dest is not None:
-            imgproc.write(dest, image)
-        return image
 
 
 class Volume(BaseDocumentNode):
