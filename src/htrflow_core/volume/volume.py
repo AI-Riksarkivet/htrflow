@@ -83,10 +83,6 @@ class BaseDocumentNode(node.Node):
         x, y = self.coord
         return Bbox(x, y, x + self.width, y + self.height)
 
-    @property
-    def label(self):
-        return self.get("label", "node")
-
     def segment(self, segments: Sequence[Segment]):
         """Segment this node"""
         children = []
@@ -134,7 +130,7 @@ class RegionNode(BaseDocumentNode):
         img = imgproc.crop(self.parent.image, bbox)
         if mask is not None:
             img = imgproc.mask(img, mask)
-        return NamedImage(img, f"{self.get('long_label')}")
+        return NamedImage(img, self.label)
 
 
 class PageNode(BaseDocumentNode):
@@ -160,7 +156,7 @@ class PageNode(BaseDocumentNode):
     @property
     @lru_cache(maxsize=1)
     def image(self):
-        return NamedImage(imgproc.read(self.path), self.get("long_label"))
+        return NamedImage(imgproc.read(self.path), self.label)
 
     @image.setter
     def image(self, image):
