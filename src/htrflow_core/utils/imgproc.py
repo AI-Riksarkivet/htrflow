@@ -28,7 +28,7 @@ def crop(image: np.ndarray, bbox: Bbox, padding: int | None = 0) -> np.ndarray:
             and the shape of the cropped image may not match the bounding box.
     """
     x1, y1, x2, y2 = bbox
-    cropped = image[y1:y2, x1:x2]
+    cropped = image[y1:y2, x1:x2].copy()
     h, w = cropped.shape[:2]
     if padding is not None and (h < bbox.height or w < bbox.width):
         pad_y = bbox.height - h
@@ -70,7 +70,7 @@ def resize(image: np.ndarray, shape: tuple[int, int]) -> np.ndarray:
         image: Input image
         shape: Desired shape as a (height, width) tuple
     """
-    if shape == image.shape:
+    if shape == image.shape[:2]:
         return image
     y, x = shape
     return cv2.resize(image, (x, y), interpolation=cv2.INTER_NEAREST)
