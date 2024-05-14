@@ -19,12 +19,24 @@ from htrflow_core.volume import node
 logger = logging.getLogger(__name__)
 
 
-class BaseDocumentNode(node.Node):
-    """Extension of Node class with functionality related to documents"""
+class ImageNode(node.Node):
+    parent: "ImageNode | None"
+    children: list["ImageNode"]
 
-    _height: int
-    _width: int
-    _coord: Point
+    def __init__(
+        self,
+        height: int,
+        width: int,
+        coord: Point = Point(0, 0),
+        polygon: Polygon | None = None,
+        parent: "ImageNode | None" = None,
+        label: str | None = None,
+    ):
+        super().__init__(parent=parent, label=label)
+        self.height = height
+        self.width = width
+        self.coord = coord
+        self._polygon = polygon
 
     def __str__(self) -> str:
         s = f"{self.height}x{self.width} node ({self.label}) at ({self.coord.x}, {self.coord.y})"
@@ -45,26 +57,6 @@ class BaseDocumentNode(node.Node):
         return None
 
     @property
-    def height(self) -> int:
-        """Height of the region this node represents"""
-        return self._height
-
-    @property
-    def width(self) -> int:
-        """Width of the region this node represents"""
-        return self._width
-
-    @property
-    def coord(self) -> Point:
-        """
-        Position of the region this node represents relative to the
-        original input image (root node of the tree).
-        """
-        if self.parent:
-            return self._coord.move(self.parent.coord)
-        return Point(0, 0)
-
-    @property
     def polygon(self) -> Polygon:
         """
         Approximation of the mask of the region this node represents
@@ -72,7 +64,7 @@ class BaseDocumentNode(node.Node):
         If no mask is available, this attribute defaults to a polygon
         representation of the region's bounding box.
         """
-        return self.bbox.polygon()
+        return self._polygon or self.bbox.polygon()
 
     @property
     def bbox(self) -> Bbox:
@@ -83,12 +75,9 @@ class BaseDocumentNode(node.Node):
         x, y = self.coord
         return Bbox(x, y, x + self.width, y + self.height)
 
-    def segment(self, segments: Sequence[Segment]):
+    def create_segments(self, segments: Sequence[Segment]):
         """Segment this node"""
-        children = []
-        for segment in segments:
-            children.append(RegionNode(segment, self))
-        self.children = children
+        self.children = [SegmentNode(segment, self) for segment in segments]
 
     def contains_text(self) -> bool:
         if self.text is not None:
@@ -105,65 +94,52 @@ class BaseDocumentNode(node.Node):
         return bool(self.children) and not self.text
 
 
-class RegionNode(BaseDocumentNode):
+class SegmentNode(ImageNode):
     """A node representing a segment of a page"""
 
-    def __init__(self, segment: Segment, parent: BaseDocumentNode):
-        super().__init__(parent=parent)
-        self._segment = segment
-        self._height = segment.bbox.height
-        self._width = segment.bbox.width
-        self._coord = segment.bbox.p1
-        self.add_data(
-            segment=segment,
-        )
+    segment: Segment
+    parent: ImageNode
+
+    def __init__(self, segment: Segment, parent: ImageNode):
+        bbox = segment.bbox.move(parent.coord)
+        super().__init__(bbox.height, bbox.width, bbox.p1, segment.polygon, parent)
+        self.add_data(segment=segment)
+        self.segment = segment
 
     @property
-    def polygon(self):
-        return self._segment.polygon.move(self.parent.coord) or self.bbox.polygon()
-
-    @property
-    def image(self):
+    def image(self) -> "NamedImage":
         """The image this node represents"""
-        bbox = self._segment.bbox
-        mask = self._segment.mask
+        bbox = self.segment.bbox
+        mask = self.segment.mask
         img = imgproc.crop(self.parent.image, bbox)
         if mask is not None:
             img = imgproc.mask(img, mask)
         return NamedImage(img, self.label)
 
 
-class PageNode(BaseDocumentNode):
+class PageNode(ImageNode):
     """A node representing a page / input image"""
 
     def __init__(self, image_path: str):
-        super().__init__()
         self.path = image_path
-        # Extract image name and remove file extension (`path/to/image.jpg` -> `image`)
-        name = os.path.basename(image_path).split(".")[0]
-        page_id = name.split("_")[-1]
+        label = os.path.basename(image_path).split(".")[0]
+        height, width = self.image.shape[:2]
+        super().__init__(height, width, label=label)
+        page_id = label.split("_")[-1]
         self.add_data(
             page_id=page_id,
             file_name=os.path.basename(image_path),
             image_path=image_path,
-            image_name=name,
-            label=name,
+            image_name=label,
         )
-        height, width = self.image.shape[:2]
-        self._height = height
-        self._width = width
 
     @property
     @lru_cache(maxsize=1)
     def image(self):
         return NamedImage(imgproc.read(self.path), self.label)
 
-    @image.setter
-    def image(self, image):
-        self._image = image
 
-
-class Volume(BaseDocumentNode):
+class Volume(node.Node):
 
     """Class representing a collection of input images
 
@@ -179,7 +155,10 @@ class Volume(BaseDocumentNode):
 
     """
 
-    def __init__(self, paths: Iterable[str], label: str = "untitled_volume", label_format={}):
+    children: list[PageNode]
+    parent: None
+
+    def __init__(self, paths: Iterable[str], label: str = "untitled_volume", label_format=None):
         """Initialize volume
 
         Arguments:
@@ -191,11 +170,11 @@ class Volume(BaseDocumentNode):
             try:
                 page = PageNode(path)
             except imgproc.ImageImportError:
-                logger.warn("Skipping %s (file format not supported)", path)
+                logger.warning("Skipping %s (file format not supported)", path)
                 continue
             self.children.append(page)
 
-        self._label_format = label_format
+        self._label_format = label_format or {}
         self.add_data(label=label)
         logger.info("Initialized volume '%s' with %d pages", label, len(self.children))
 
@@ -289,7 +268,7 @@ class Volume(BaseDocumentNode):
         for leaf, result in zip(leaves, results):
             # If the result has segments, segment the leaf
             if result.segments:
-                leaf.segment(result.segments)
+                leaf.create_segments(result.segments)
 
             # If the result has other data (e.g. texts), add it to the
             # new leaves (which may be other than `leaves` if the result
@@ -329,7 +308,7 @@ class ImageGenerator:
     handy in some cases, e.g., when using tqdm progress bars.
     """
 
-    def __init__(self, nodes: Sequence[node.Node]):
+    def __init__(self, nodes: Sequence[ImageNode]):
         self._nodes = list(nodes)
 
     def __iter__(self):

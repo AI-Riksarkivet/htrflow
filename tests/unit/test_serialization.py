@@ -37,7 +37,7 @@ def demo_page_segmented_once(demo_image):
     model = SegmentationModel()
     results = model(node.segments())
     for result, leaf in zip(results, node.leaves()):
-        node.segment(result.segments)
+        node.create_segments(result.segments)
     model = RecognitionModel()
     results = model(node.segments())
     for result, leaf in zip(results, node.leaves()):
@@ -53,7 +53,7 @@ def demo_page_segmented_twice(demo_image):
     for _ in range(2):
         results = model(node.segments())
         for result, leaf in zip(results, node.leaves()):
-            leaf.segment(result.segments)
+            leaf.create_segments(result.segments)
     model = RecognitionModel()
     results = model(node.segments())
     for result, leaf in zip(results, node.leaves()):
@@ -69,7 +69,7 @@ def demo_page_segmented_thrice(demo_image):
     for _ in range(3):
         results = model(node.segments())
         for result, leaf in zip(results, node.leaves()):
-            leaf.segment(result.segments)
+            leaf.create_segments(result.segments)
     model = RecognitionModel()
     results = model(node.segments())
     for result, leaf in zip(results, node.leaves()):

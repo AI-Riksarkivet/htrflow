@@ -121,8 +121,10 @@ def test_node_detach():
 def test_node_prune():
     n_children = 3
     root = two_layer_tree(n_children)
+
     def filter_(node):
         return node.depth() > 1
+
     root.prune(filter_)
     assert not any(filter_(node) for node in root.traverse())
 
@@ -137,7 +139,7 @@ def test_update_segmentation(demo_image):
     segmentation_model = SegmentationModel("mask")
     node = volume.PageNode(demo_image)
     result, *_ = segmentation_model([node.image])
-    node.segment(result.segments)
+    node.create_segments(result.segments)
     assert len(node.children) == len(result.segments)
 
 
@@ -156,7 +158,7 @@ def test_update_segmentation_width_height(demo_image):
     segmentation_model = SegmentationModel("mask")
     node = volume.PageNode(demo_image)
     result, *_ = segmentation_model([node.image])
-    node.segment(result.segments)
+    node.create_segments(result.segments)
     segment_index = 0
     x1, y1, x2, y2 = result.segments[segment_index].bbox
     assert x2 - x1 == node[segment_index].width
@@ -168,12 +170,12 @@ def test_update_nested_segmentation_coordinates(demo_volume_segmented_nested):
     segment = page[0]
     nested_segment = page[0, 0]
     parent_x = segment.coord.x
-    nested_segment_x_relative_to_parent = nested_segment.get("segment").bbox[0]
+    nested_segment_x_relative_to_parent = nested_segment.segment.bbox[0]
     assert nested_segment.coord.x == parent_x + nested_segment_x_relative_to_parent
 
     parent_y = segment.coord.y
     nested_segment = page[0, 0]
-    nested_segment_y_relative_to_parent = nested_segment.get("segment").bbox[1]
+    nested_segment_y_relative_to_parent = nested_segment.segment.bbox[1]
     assert nested_segment.coord.y == parent_y + nested_segment_y_relative_to_parent
 
 
@@ -192,7 +194,7 @@ def test_polygon_nested(demo_volume_segmented_nested):
     nested_node = page[0, 0]
     # .polygon attribute should be relative to original image
     # but segment.polygon should be relative to parent
-    expected_polygon = [(node.coord.x + x, node.coord.y + y) for x, y in nested_node.get("segment").polygon]
+    expected_polygon = [(node.coord.x + x, node.coord.y + y) for x, y in nested_node.segment.polygon]
     assert all(p1[0] == p2[0] for p1, p2 in zip(nested_node.polygon, expected_polygon))
 
 

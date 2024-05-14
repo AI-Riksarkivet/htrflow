@@ -3,6 +3,8 @@ from collections import defaultdict
 from itertools import count
 from typing import Any, Callable, Iterable, Iterator, Sequence
 
+from typing_extensions import Self
+
 
 logger = logging.getLogger(__name__)
 
@@ -25,18 +27,18 @@ class Node:
             tree.
     """
 
-    parent: "Node | None"
-    children: list["Node"]
+    parent: Self | None
+    children: list[Self]
     data: dict[str, Any]
 
-    def __init__(self, parent: "Node | None" = None, label: str | None = None):
+    def __init__(self, parent: Self | None = None, label: str | None = None):
         self.parent = parent
         self.children = []
         self.data = {}
 
         self._id = f"node{id(self)}"  # A unique ID to fall back on if labels are not set
         self._local_label = label  # A local label, may not be unique within the tree
-        self._global_label = None  # A global label created by chaining the ancestors local labels
+        self._global_label: str | None = None  # A global label created by chaining the ancestors' local labels
 
     @property
     def label(self) -> str:
@@ -67,7 +69,7 @@ class Node:
         sep: str = "_",
         prefix: str = "",
         _counter=None,
-    ):
+    ) -> None:
         """Relabel the children of this node
 
         Assigns unique labels to the nodes of the tree. The nodes gets
@@ -195,11 +197,11 @@ class Node:
         """
         return self.data.get(key, default)
 
-    def leaves(self) -> Sequence["Node"]:
+    def leaves(self) -> Sequence[Self]:
         """Return the leaf nodes of the tree"""
         return self.traverse(filter=lambda node: node.is_leaf())
 
-    def traverse(self, filter: "Callable[[Node], bool] | None" = None) -> Sequence["Node"]:
+    def traverse(self, filter: "Callable[[Node], bool] | None" = None) -> Sequence[Self]:
         """Return all nodes attached to this node, including self
 
         Arguments:
@@ -269,6 +271,3 @@ class Node:
     def max_depth(self) -> int:
         """Return the max depth of the tree starting at this node"""
         return max(node.depth() for node in self.leaves())
-
-    def __str__(self):
-        return str(self.label)

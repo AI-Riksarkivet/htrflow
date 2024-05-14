@@ -22,7 +22,7 @@ def remove_noise_regions(volume: volume.Volume, threshold: float = 0.8):
     return volume
 
 
-def is_noise(node: volume.BaseDocumentNode, threshold: float = 0.8):
+def is_noise(node: volume.ImageNode, threshold: float = 0.8):
     """Heuristically determine if region is noise
 
     Assumes that a region is noise if the average text recognition
