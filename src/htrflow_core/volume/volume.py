@@ -4,9 +4,10 @@ This module holds the base data structures
 import logging
 import os
 import pickle
+from abc import ABC, abstractmethod
 from functools import lru_cache
 from itertools import chain
-from typing import Iterable, Iterator, Optional, Sequence
+from typing import Generator, Iterable, Iterator, Optional, Sequence
 
 import numpy as np
 
@@ -20,7 +21,7 @@ from htrflow_core.volume import node
 logger = logging.getLogger(__name__)
 
 
-class ImageNode(node.Node):
+class ImageNode(node.Node, ABC):
     parent: "ImageNode | None"
     children: list["ImageNode"]
 
@@ -49,9 +50,9 @@ class ImageNode(node.Node):
         return s
 
     @property
-    def image(self):
+    @abstractmethod
+    def image(self) -> np.ndarray:
         """Image of the region this node represents"""
-        return None
 
     @property
     def text(self) -> str | None:
@@ -60,11 +61,12 @@ class ImageNode(node.Node):
             return text_result.top_candidate()
         return None
 
-    def create_segments(self, segments: Sequence[Segment]):
+    def create_segments(self, segments: Sequence[Segment]) -> None:
         """Segment this node"""
         self.children = [SegmentNode(segment, self) for segment in segments]
 
     def contains_text(self) -> bool:
+        """Return True if this"""
         if self.text is not None:
             return True
         return any(child.contains_text() for child in self.children)
@@ -72,7 +74,7 @@ class ImageNode(node.Node):
     def has_regions(self) -> bool:
         return all(not child.is_leaf() for child in self.children)
 
-    def segments(self):
+    def segments(self) -> "ImageGenerator":
         return ImageGenerator(self.leaves())
 
     def is_region(self) -> bool:
@@ -219,7 +221,7 @@ class Volume:
 
     def images(self) -> "ImageGenerator":
         """Yields the volume's original input images"""
-        return ImageGenerator(self)
+        return ImageGenerator(page for page in self.pages)
 
     def segments(self) -> "ImageGenerator":
         """Yield the active segments' images"""
@@ -228,7 +230,7 @@ class Volume:
     def leaves(self) -> Iterator[ImageNode]:
         yield from chain(page.leaves() for page in self)
 
-    def active_leaves(self):
+    def active_leaves(self) -> Generator[ImageNode, None, None]:
         """Yield the volume's active leaves
 
         Here, an "active leaf" is a leaf node whose depth is equal to
@@ -299,14 +301,14 @@ class ImageGenerator:
     handy in some cases, e.g., when using tqdm progress bars.
     """
 
-    def __init__(self, nodes: Sequence[ImageNode]):
+    def __init__(self, nodes: Iterable[ImageNode]):
         self._nodes = list(nodes)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[np.ndarray]:
         for _node in self._nodes:
             yield _node.image
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._nodes)
 
 
@@ -318,7 +320,7 @@ class NamedImage(np.ndarray):
     https://numpy.org/doc/stable/user/basics.subclassing.html#slightly-more-realistic-example-attribute-added-to-existing-array
     """
 
-    def __new__(cls, image, name="untitled_image"):
+    def __new__(cls, image: np.ndarray, name: str = "untitled_image"):
         obj = np.asarray(image).view(cls)
         obj.name = name
         return obj
