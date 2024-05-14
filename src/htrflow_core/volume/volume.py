@@ -142,7 +142,7 @@ class PageNode(BaseDocumentNode):
 
     def __init__(self, image_path: str):
         super().__init__()
-        self._image = imgproc.read(image_path)
+        self.path = image_path
         # Extract image name and remove file extension (`path/to/image.jpg` -> `image`)
         name = os.path.basename(image_path).split(".")[0]
         page_id = name.split("_")[-1]
@@ -159,7 +159,7 @@ class PageNode(BaseDocumentNode):
 
     @property
     def image(self):
-        return NamedImage(self._image, self.get("long_label"))
+        return NamedImage(imgproc.read(self.path), self.get("long_label"))
 
     @image.setter
     def image(self, image):
