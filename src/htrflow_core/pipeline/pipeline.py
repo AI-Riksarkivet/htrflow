@@ -2,6 +2,7 @@ import logging
 from typing import Sequence
 
 from htrflow_core.pipeline.steps import PipelineStep, auto_import, init_step
+from htrflow_core.serialization import pickle_volume
 
 
 logger = logging.getLogger(__name__)
@@ -29,7 +30,7 @@ class Pipeline:
             except Exception:
                 logger.error("Pipeline failed on step %s. A backup volume is saved at %s", step_name, self.pickle_path)
                 raise
-            self.pickle_path = volume.pickle()
+            self.pickle_path = pickle_volume(volume)
         return volume
 
     def metadata(self):

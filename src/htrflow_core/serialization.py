@@ -11,8 +11,9 @@ import datetime
 import json
 import logging
 import os
+import pickle
 from collections import defaultdict
-from typing import TYPE_CHECKING, Iterable, Sequence, Union
+from typing import TYPE_CHECKING, Iterable, Optional, Sequence, Union
 
 import xmlschema
 from jinja2 import Environment, FileSystemLoader
@@ -270,6 +271,27 @@ def get_serializer(serializer_name: str, **serializer_args) -> Serializer:
             return cls(**serializer_args)
     msg = f"Format '{serializer_name}' is not among the supported formats: {supported_formats()}"
     raise ValueError(msg)
+
+
+def pickle_volume(volume: Volume, directory: str = ".cache", filename: Optional[str] = None):
+    """Pickle volume
+
+    Arguments:
+        volume: Input volume
+        directory: Where to save the pickle file
+        filename: Name of pickle file, optional. Defaults to
+            <volume label>.pickle if left as None
+
+    Returns:
+        The path to the pickled file.
+    """
+    os.makedirs(directory, exist_ok=True)
+    filename = f"{volume.label}.pickle" if filename is None else filename
+    path = os.path.join(directory, filename)
+    with open(path, "wb") as f:
+        pickle.dump(volume, f)
+    logger.info("Wrote pickled volume '%s' to %s", volume.label, path)
+    return path
 
 
 def save_volume(volume: Volume, serializer: str | Serializer, dest: str) -> Iterable[tuple[str, str]]:

@@ -7,7 +7,7 @@ import pickle
 from abc import ABC, abstractmethod
 from functools import lru_cache
 from itertools import chain
-from typing import Generator, Iterable, Iterator, Optional, Sequence
+from typing import Generator, Iterable, Iterator, Sequence
 
 import numpy as np
 
@@ -196,25 +196,6 @@ class Volume:
 
         logger.info("Loaded volume '%s' from %s", vol.label, path)
         return vol
-
-    def pickle(self, directory: str = ".cache", filename: Optional[str] = None):
-        """Pickle volume
-
-        Arguments:
-            directory: Where to save the pickle file
-            filename: Name of pickle file, optional. Defaults to
-                <volume label>.pickle if left as None
-
-        Returns:
-            The path to the pickled file.
-        """
-        os.makedirs(directory, exist_ok=True)
-        filename = f"{self.label}.pickle" if filename is None else filename
-        path = os.path.join(directory, filename)
-        with open(path, "wb") as f:
-            pickle.dump(self, f)
-        logger.info("Wrote pickled volume '%s' to %s", self.label, path)
-        return path
 
     def __str__(self):
         return f"Volume label: {self.label}\nVolume tree:\n" + "\n".join(child.tree2str() for child in self)
