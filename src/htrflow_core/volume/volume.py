@@ -5,14 +5,15 @@ import logging
 import os
 import pickle
 from functools import lru_cache
-from typing import Iterable, Optional, Sequence
+from itertools import chain
+from typing import Iterable, Iterator, Optional, Sequence
 
 import numpy as np
 
 from htrflow_core import serialization
 from htrflow_core.results import Result, Segment
 from htrflow_core.utils import imgproc
-from htrflow_core.utils.geometry import Bbox, Point, Polygon
+from htrflow_core.utils.geometry import Bbox, Mask, Point, Polygon
 from htrflow_core.volume import node
 
 
@@ -29,6 +30,7 @@ class ImageNode(node.Node):
         width: int,
         coord: Point = Point(0, 0),
         polygon: Polygon | None = None,
+        mask: Mask | None = None,
         parent: "ImageNode | None" = None,
         label: str | None = None,
     ):
@@ -36,7 +38,9 @@ class ImageNode(node.Node):
         self.height = height
         self.width = width
         self.coord = coord
-        self._polygon = polygon
+        self.bbox = Bbox(0, 0, width, height).move(coord)
+        self.polygon = polygon or self.bbox.polygon()
+        self.mask = mask
 
     def __str__(self) -> str:
         s = f"{self.height}x{self.width} node ({self.label}) at ({self.coord.x}, {self.coord.y})"
@@ -55,25 +59,6 @@ class ImageNode(node.Node):
         if text_result := self.get("text_result"):
             return text_result.top_candidate()
         return None
-
-    @property
-    def polygon(self) -> Polygon:
-        """
-        Approximation of the mask of the region this node represents
-        relative to the original input image (root node of the tree).
-        If no mask is available, this attribute defaults to a polygon
-        representation of the region's bounding box.
-        """
-        return self._polygon or self.bbox.polygon()
-
-    @property
-    def bbox(self) -> Bbox:
-        """
-        Bounding box of the region this node represents relative to
-        the original input image (root node of the tree).
-        """
-        x, y = self.coord
-        return Bbox(x, y, x + self.width, y + self.height)
 
     def create_segments(self, segments: Sequence[Segment]):
         """Segment this node"""
@@ -102,7 +87,7 @@ class SegmentNode(ImageNode):
 
     def __init__(self, segment: Segment, parent: ImageNode):
         bbox = segment.bbox.move(parent.coord)
-        super().__init__(bbox.height, bbox.width, bbox.p1, segment.polygon, parent)
+        super().__init__(bbox.height, bbox.width, bbox.p1, segment.polygon, segment.mask, parent)
         self.add_data(segment=segment)
         self.segment = segment
 
@@ -139,7 +124,7 @@ class PageNode(ImageNode):
         return NamedImage(imgproc.read(self.path), self.label)
 
 
-class Volume(node.Node):
+class Volume:
 
     """Class representing a collection of input images
 
@@ -155,8 +140,7 @@ class Volume(node.Node):
 
     """
 
-    children: list[PageNode]
-    parent: None
+    pages: list[PageNode]
 
     def __init__(self, paths: Iterable[str], label: str = "untitled_volume", label_format=None):
         """Initialize volume
@@ -165,18 +149,22 @@ class Volume(node.Node):
             paths: A list of paths to images
             label: A label describing the volume (optional)
         """
-        super().__init__()
+        pages = []
         for path in paths:
             try:
                 page = PageNode(path)
             except imgproc.ImageImportError:
                 logger.warning("Skipping %s (file format not supported)", path)
                 continue
-            self.children.append(page)
+            pages.append(page)
 
+        self.pages = pages
+        self.label = label
         self._label_format = label_format or {}
-        self.add_data(label=label)
-        logger.info("Initialized volume '%s' with %d pages", label, len(self.children))
+        logger.info("Initialized volume '%s' with %d pages", label, len(pages))
+
+    def __iter__(self) -> Iterator[PageNode]:
+        return iter(self.pages)
 
     @classmethod
     def from_directory(cls, path: str) -> "Volume":
@@ -227,15 +215,18 @@ class Volume(node.Node):
         return path
 
     def __str__(self):
-        return f"Volume label: {self.get('label')}\nVolume tree:\n" + "\n".join(child.tree2str() for child in self)
+        return f"Volume label: {self.label}\nVolume tree:\n" + "\n".join(child.tree2str() for child in self)
 
     def images(self) -> "ImageGenerator":
         """Yields the volume's original input images"""
-        return ImageGenerator(self.children)
+        return ImageGenerator(self)
 
     def segments(self) -> "ImageGenerator":
         """Yield the active segments' images"""
         return ImageGenerator(self.active_leaves())
+
+    def leaves(self) -> Iterator[ImageNode]:
+        yield from chain(page.leaves() for page in self)
 
     def active_leaves(self):
         """Yield the volume's active leaves
@@ -248,7 +239,7 @@ class Volume(node.Node):
         other leaves. These should typically not updated in the next
         steps.
         """
-        max_depth = self.max_depth()
+        max_depth = max(page.max_depth() for page in self)
         for leaf in self.leaves():
             if leaf.depth() == max_depth:
                 yield leaf
@@ -262,7 +253,7 @@ class Volume(node.Node):
         """
         leaves = list(self.active_leaves())
         if len(leaves) != len(results):
-            raise ValueError(f"Size of input ({len(results)}) does not match " f"the size of the tree ({len(leaves)})")
+            raise ValueError(f"Size of input ({len(results)}) does not match the size of the tree ({len(leaves)})")
 
         # Update the leaves of the tree
         for leaf, result in zip(leaves, results):
