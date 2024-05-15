@@ -54,8 +54,8 @@ class Satrn(BaseModel, PytorchMixin):
             images, batch_size=batch_size, return_datasamples=False, progress_bar=False, **kwargs
         )
 
-        return [self._create_text_result(image, output) for image, output in zip(images, outputs["predictions"])]
+        return [self._create_text_result(output) for output in outputs["predictions"]]
 
-    def _create_text_result(self, image: np.ndarray, output: list) -> Result:
+    def _create_text_result(self, output: list) -> Result:
         recognized_text = RecognizedText(texts=[output["text"]], scores=[output["scores"]])
-        return Result.text_recognition_result(image=image, metadata=self.metadata, text=recognized_text)
+        return Result.text_recognition_result(metadata=self.metadata, text=recognized_text)

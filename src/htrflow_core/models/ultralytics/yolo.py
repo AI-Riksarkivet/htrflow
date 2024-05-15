@@ -59,4 +59,4 @@ class YOLO(BaseModel, PytorchMixin):
             len(segments),
             output.speed,
         )
-        return Result.segmentation_result(image, self.metadata, segments)
+        return Result.segmentation_result(image.shape[:2], self.metadata, segments)

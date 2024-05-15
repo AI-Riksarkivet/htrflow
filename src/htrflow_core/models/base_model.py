@@ -1,8 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
 from itertools import islice
-from os import PathLike
-from typing import Iterable, TypeVar, Union
+from typing import Iterable, TypeVar
 
 import numpy as np
 from tqdm import tqdm
@@ -22,7 +21,7 @@ class BaseModel(ABC, MetadataMixin):
         self.metadata = self.default_metadata()
 
     def predict(
-        self, images: Iterable[np.ndarray], batch_size: int, image_scaling_factor: int = 1, *args, **kwargs
+        self, images: Iterable[np.ndarray], batch_size: int = 1, image_scaling_factor: int = 1, **kwargs
     ) -> Iterable[Result]:
         """Perform inference on images with a progress bar.
 
@@ -73,34 +72,6 @@ class BaseModel(ABC, MetadataMixin):
         while batch := list(islice(it, batch_size)):
             yield batch
 
-    def validate_input_before_call(self, images, images_are_nparray):
-        if not isinstance(images, Iterable) or isinstance(images, (str, PathLike)):
-            images = [images]
-        if images_are_nparray:
-            img_array = images
-        else:
-            img_array = [imgproc.read(img) if not isinstance(img, np.ndarray) else img for img in images]
-        return img_array
-
-    def __call__(
-        self,
-        images: Iterable[Union[np.ndarray, str, PathLike]],
-        batch_size: int = 1,
-        images_are_nparray: bool = False,
-        *args,
-        **kwargs,
-    ) -> Iterable[Result]:
-        """Alias for BaseModel.predict(...). Processes a batch of images and predicts results.
-
-        Args:
-            images (Iterable[np.ndarray]): An iterable of numpy arrays, each representing an image.
-            batch_size (int): Number of images to process in a single batch.
-            images_are_nparray (bool): No need to check for types in the list.
-            *args, **kwargs: Additional arguments for the predict method.
-
-        Returns:
-            Iterable[Result]: The predicted results for the given images.
-        """
-        img_array = self.validate_input_before_call(images, images_are_nparray)
-
-        return self.predict(img_array, batch_size, *args, **kwargs)
+    def __call__(self, images: Iterable[np.ndarray], **kwargs) -> Iterable[Result]:
+        """Alias for BaseModel.predict(...)"""
+        return self.predict(images, **kwargs)

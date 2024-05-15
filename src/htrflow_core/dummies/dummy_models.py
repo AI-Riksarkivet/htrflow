@@ -38,7 +38,7 @@ class SegmentationModel(BaseModel):
                     bbox = randombox(h, w)
                     segments.append(Segment(bbox=bbox, score=score, class_label=label if label else randomlabel()))
 
-            results.append(Result(image, metadata, segments, []))
+            results.append(Result(image.shape[:2], metadata, segments, []))
         return results
 
 
@@ -48,11 +48,10 @@ class RecognitionModel(BaseModel):
         n = 2
         return [
             Result.text_recognition_result(
-                image,
                 metadata,
                 RecognizedText(texts=[lorem.sentence() for _ in range(n)], scores=[random.random() for _ in range(n)]),
             )
-            for image in images
+            for _ in images
         ]
 
 
@@ -62,10 +61,8 @@ class ClassificationModel(BaseModel):
     def _predict(self, images: list[np.ndarray]) -> list[Result]:
         classes = ["baked potato", "french fry", "raggmunk"]
         return [
-            Result(
-                image, metadata={"model": "Potato classifier 2000"}, data=[{"classification": random.choice(classes)}]
-            )
-            for image in images
+            Result(metadata={"model": "Potato classifier 2000"}, data=[{"classification": random.choice(classes)}])
+            for _ in images
         ]
 
 

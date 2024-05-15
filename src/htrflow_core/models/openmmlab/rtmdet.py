@@ -77,7 +77,7 @@ class RTMDet(BaseModel, PytorchMixin):
             for box, mask, score, class_label in zip(boxes, masks, scores, class_labels)
         ]
 
-        result = Result.segmentation_result(image, self.metadata, segments)
+        result = Result.segmentation_result(image.shape[:2], self.metadata, segments)
         indices_to_drop = multiclass_mask_nms(result, downscale=nms_downscale)
         result.drop_indices(indices_to_drop)
 

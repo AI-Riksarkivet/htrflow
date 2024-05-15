@@ -93,11 +93,9 @@ class TrOCR(BaseModel, PytorchMixin):
         scores = self.compute_seuqence_scores(model_outputs)
         step = generation_kwargs["num_return_sequences"]
 
-        return self._create_text_results(images, texts, scores, metadata, step)
+        return self._create_text_results(texts, scores, metadata, step)
 
-    def _create_text_results(
-        self, images: list[np.ndarray], texts: list[str], scores: list[float], metadata: dict, step: int
-    ) -> list[Result]:
+    def _create_text_results(self, texts: list[str], scores: list[float], metadata: dict, step: int) -> list[Result]:
         """Assemble and return a list of Result objects from the prediction outputs.
         `texts` and `scores` are flattened lists so we need to iterate over them in steps.
         This is done to ensure that the list of results correspond 1-to-1 with the list of images.
@@ -106,9 +104,8 @@ class TrOCR(BaseModel, PytorchMixin):
         for i in range(0, len(texts), step):
             texts_chunk = texts[i : i + step]
             scores_chunk = scores[i : i + step]
-            image_chunk = images[i // step]
             recognized_text = RecognizedText(texts=texts_chunk, scores=scores_chunk)
-            result = Result.text_recognition_result(image=image_chunk, metadata=metadata, text=recognized_text)
+            result = Result.text_recognition_result(metadata=metadata, text=recognized_text)
             results.append(result)
         return results
 

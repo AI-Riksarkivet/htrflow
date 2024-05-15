@@ -23,7 +23,7 @@ def results_with_mask():
     segment_b = Segment(mask=mask_b, class_label="class_2", orig_shape=orig_shape)
     segment_c = Segment(mask=mask_c, class_label="class_1", orig_shape=orig_shape)
 
-    return Result(image=image, metadata={}, segments=[segment_a, segment_b, segment_c])
+    return Result(image.shape[:2], metadata={}, segments=[segment_a, segment_b, segment_c])
 
 
 def generate_random_masks(num_masks, image_size=(200, 200), num_classes=3):
@@ -45,7 +45,7 @@ def simulate_large_dataset():
     num_masks = 100  # Simulating a large number of masks
     image = np.zeros((200, 200), dtype=np.uint8)
     segments = generate_random_masks(num_masks)
-    return Result(image=image, metadata={}, segments=segments)
+    return Result(image.shape[:2], metadata={}, segments=segments)
 
 
 # TODO: add expected_list... to assert with

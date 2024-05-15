@@ -1,13 +1,10 @@
 from dataclasses import dataclass, field
-from typing import Any, Callable, Literal, Optional, Sequence, TypeAlias
+from typing import Any, Callable, Optional, Sequence
 
 import numpy as np
 
-from htrflow_core.utils import draw, geometry, imgproc
+from htrflow_core.utils import geometry, imgproc
 from htrflow_core.utils.geometry import Bbox, Mask, Polygon
-
-
-LabelType: TypeAlias = Literal["text", "class", "conf"] | None
 
 
 class Segment:
@@ -182,14 +179,14 @@ class Result:
         data: Dict (may be empty)
     """
 
-    image: np.ndarray
-    metadata: dict[str, str]
+    orig_shape: tuple[int, int] | None = None
+    metadata: dict[str, str] = field(default_factory=dict)
     segments: Sequence[Segment] = field(default_factory=list)
     data: Sequence[dict[str, Any]] = field(default_factory=list)
 
     def __post_init__(self):
         for segment in self.segments:
-            segment.orig_shape = self.image.shape[:2]
+            segment.orig_shape = self.orig_shape
 
     def rescale(self, factor):
         for segment in self.segments:
@@ -221,7 +218,7 @@ class Result:
         return [segment.class_label for segment in self.segments]
 
     @classmethod
-    def text_recognition_result(cls, image: np.ndarray, metadata: dict, text: RecognizedText) -> "Result":
+    def text_recognition_result(cls, metadata: dict, text: RecognizedText) -> "Result":
         """Create a text recognition result
 
         Arguments:
@@ -232,10 +229,10 @@ class Result:
         Returns:
             A Result instance with the specified data and no segments.
         """
-        return cls(image, metadata, data=[{"text_result": text}])
+        return cls(metadata, data=[{"text_result": text}])
 
     @classmethod
-    def segmentation_result(cls, image: np.ndarray, metadata: dict, segments: Sequence[Segment]) -> "Result":
+    def segmentation_result(cls, orig_shape: tuple[int, int], metadata: dict, segments: Sequence[Segment]) -> "Result":
         """Create a segmentation result
 
         Arguments:
@@ -246,47 +243,7 @@ class Result:
         Returns:
             A Result instance with the specified data and no texts.
         """
-        return cls(image, metadata, segments=segments)
-
-    def plot(self, filename: Optional[str] = None, labels: LabelType = None) -> np.ndarray:
-        """Plot results
-
-        Plots the segments on the input image. If the result doesn't
-        have any segments, this method will just return the original
-        input image.
-
-        Arguments:
-            filename: If given, save the plotted results to `filename`
-            labels: If given, plot a label of each segment. Available
-                options for labels are:
-                    "class": the segment class assigned by the
-                        segmentation model
-                    "text": the text associated with the segment
-                    "conf": the segment's confidence score rounded
-                        to four digits
-
-        Returns:
-            An annotated version of the original input image.
-        """
-        match labels:
-            case "text":
-                if texts := self.data.get("text_result", None):
-                    labels = [text.top_candidate() for text in texts]
-                else:
-                    labels = []
-            case "class":
-                labels = self.class_labels
-            case "conf":
-                labels = [f"{segment.score:.4}" for segment in self.segments]
-            case _:
-                labels = []
-
-        img = draw.draw_bboxes(self.image, self.bboxes, labels=labels)
-
-        if filename:
-            imgproc.write(filename, img)
-
-        return img
+        return cls(orig_shape, metadata, segments=segments)
 
     def reorder(self, index: Sequence[int]) -> None:
         """Reorder result

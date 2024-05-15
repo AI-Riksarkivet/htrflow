@@ -138,12 +138,11 @@ class LLavaNext(BaseModel, PytorchMixin):
         for i in range(0, len(texts), step):
             texts_chunk = texts[i : i + step]
             scores_chunk = scores[i : i + step]
-            image_chunk = images[i // step]
 
             without_prompt_texts_chunk = [re.sub(r"\[INST\].*?\[/INST\]", "", text) for text in texts_chunk]
 
             recognized_text = RecognizedText(texts=without_prompt_texts_chunk, scores=scores_chunk)
-            result = Result.text_recognition_result(image=image_chunk, metadata=metadata, text=recognized_text)
+            result = Result.text_recognition_result(metadata=metadata, text=recognized_text)
             results.append(result)
         return results
 

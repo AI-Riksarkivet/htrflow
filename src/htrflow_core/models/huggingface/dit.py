@@ -70,7 +70,7 @@ class DiT(BaseModel, PytorchMixin):
         classification_labels = [self._label_based_on_return_format(logits) for logits in batch_logits]
 
         return [
-            Result(image, metadata=self.metadata, data=[{"classification": label}])
+            Result(image.shape[:2], metadata=self.metadata, data=[{"classification": label}])
             for image, label in zip(images, classification_labels)
         ]
 
