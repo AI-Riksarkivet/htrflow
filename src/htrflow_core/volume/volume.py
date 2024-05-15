@@ -1,10 +1,10 @@
 """
 This module holds the base data structures
 """
-
 import logging
 import os
 import pickle
+from functools import lru_cache
 from typing import Iterable, Optional, Sequence
 
 import numpy as np
@@ -158,6 +158,7 @@ class PageNode(BaseDocumentNode):
         self._width = width
 
     @property
+    @lru_cache(maxsize=1)
     def image(self):
         return NamedImage(imgproc.read(self.path), self.get("long_label"))
 
