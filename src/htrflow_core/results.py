@@ -31,7 +31,7 @@ class Segment:
     mask: Mask | None
     score: float | None
     class_label: str | None
-    polygon: Polygon
+    polygon: Polygon | None
     orig_shape: tuple[int, int] | None
 
     def __init__(
@@ -202,27 +202,27 @@ class Result:
         return [segment.bbox for segment in self.segments]
 
     @property
-    def global_masks(self) -> Sequence[Mask]:
+    def global_masks(self) -> Sequence[Mask | None]:
         """Global masks relative to input image"""
         return [segment.global_mask for segment in self.segments]
 
     @property
-    def local_mask(self) -> Sequence[Mask]:
+    def local_mask(self) -> Sequence[Mask | None]:
         """Local masks relative to bounding boxes"""
         return [segment.local_mask for segment in self.segments]
 
     @property
-    def polygons(self) -> Sequence[Polygon]:
+    def polygons(self) -> Sequence[Polygon | None]:
         """Polygons relative to input image"""
         return [segment.polygon for segment in self.segments]
 
     @property
-    def class_labels(self) -> Sequence[str]:
+    def class_labels(self) -> Sequence[str | None]:
         """Class labels of segments"""
         return [segment.class_label for segment in self.segments]
 
     @classmethod
-    def text_recognition_result(cls, metadata: dict, text: RecognizedText) -> "Result":
+    def text_recognition_result(cls, metadata: dict[str, Any], text: RecognizedText) -> "Result":
         """Create a text recognition result
 
         Arguments:
@@ -238,7 +238,7 @@ class Result:
     def segmentation_result(
         cls,
         orig_shape: tuple[int, int],
-        metadata: dict,
+        metadata: dict[str, Any],
         bboxes: Sequence[Bbox] | np.ndarray = None,
         masks: np.ndarray | None = None,
         polygons: Sequence[Polygon] | None = None,
@@ -307,7 +307,7 @@ class Result:
         self.reorder(keep)
 
 
-def _zip_longest_none(*items: Iterable[Iterable[Any] | None]):
+def _zip_longest_none(*items: Iterable[Any] | None):
     """zip_longest() but treats None as an empty list"""
     return zip_longest(*[[] if item is None else item for item in items])
 
