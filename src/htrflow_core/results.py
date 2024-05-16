@@ -248,11 +248,15 @@ class Result:
 
         Example: Given a `Result` with three segments s0, s1 and s2,
         index = [2, 0, 1] will put the segments in order [s2, s0, s1].
+        Any indices not in `index` will be dropped from the result.
 
         Arguments:
             index: A list of indices representing the new ordering.
         """
-        self._rearrange_or_keep_on_id(index)
+        if self.segments:
+            self.segments = [self.segments[i] for i in index]
+        if self.data:
+            self.data = [self.data[i] for i in index]
 
     def drop_indices(self, index: Sequence[int]) -> None:
         """Drop segments from result
@@ -263,9 +267,8 @@ class Result:
         Arguments:
             index: Indices of segments to drop
         """
-        keep = [i for i, seg in enumerate(self.segments) if i not in index]
-
-        self._rearrange_or_keep_on_id(keep)
+        keep = [i for i in range(len(self.segments)) if i not in index]
+        self.reorder(keep)
 
     def filter(self, key: str, predicate: Callable[[Any], bool]) -> None:
         """Filter segments and data based on a predicate applied to a specified key.
@@ -283,17 +286,8 @@ class Result:
         True
         ```
         """
-
         keep = [i for i, item in enumerate(self.data) if predicate(item.get(key, None))]
-
-        self._rearrange_or_keep_on_id(keep)
-
-    def _rearrange_or_keep_on_id(self, index):
-        """Rearrange or filters segments and data based on index"""
-        if self.segments:
-            self.segments = [self.segments[i] for i in index]
-        if self.data:
-            self.data = [self.data[i] for i in index]
+        self.reorder(keep)
 
 
 def _zip_longest_none(*items: Iterable[Iterable[Any] | None]):
