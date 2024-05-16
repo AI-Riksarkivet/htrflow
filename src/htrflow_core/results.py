@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
-from typing import Any, Callable, Optional, Sequence
+from itertools import zip_longest
+from typing import Any, Callable, Iterable, Optional, Sequence
 
 import numpy as np
 
@@ -168,25 +169,10 @@ class RecognizedText:
 
 @dataclass
 class Result:
-    """Result class
-
-    This class bundles segmentation and text recognition results
-
-    Returns:
-        image: The original imaage
-        metadata: Metadata associated with the result
-        segments: Segments (may be empty)
-        data: Dict (may be empty)
-    """
-
-    orig_shape: tuple[int, int] | None = None
     metadata: dict[str, str] = field(default_factory=dict)
     segments: Sequence[Segment] = field(default_factory=list)
+    texts: Sequence[RecognizedText] = field(default_factory=list)
     data: Sequence[dict[str, Any]] = field(default_factory=list)
-
-    def __post_init__(self):
-        for segment in self.segments:
-            segment.orig_shape = self.orig_shape
 
     def rescale(self, factor):
         for segment in self.segments:
@@ -232,7 +218,16 @@ class Result:
         return cls(metadata, data=[{"text_result": text}])
 
     @classmethod
-    def segmentation_result(cls, orig_shape: tuple[int, int], metadata: dict, segments: Sequence[Segment]) -> "Result":
+    def segmentation_result(
+        cls,
+        orig_shape: tuple[int, int],
+        metadata: dict,
+        bboxes: Sequence[Bbox] | np.ndarray = None,
+        masks: np.ndarray | None = None,
+        polygons: Sequence[Polygon] | None = None,
+        scores: Iterable[float] | None = None,
+        labels: Iterable[str] | None = None,
+    ) -> "Result":
         """Create a segmentation result
 
         Arguments:
@@ -243,7 +238,10 @@ class Result:
         Returns:
             A Result instance with the specified data and no texts.
         """
-        return cls(orig_shape, metadata, segments=segments)
+        segments = []
+        for item in _zip_longest_none(bboxes, masks, scores, labels, polygons):
+            segments.append(Segment(*item, orig_shape=orig_shape))
+        return cls(metadata, segments=segments)
 
     def reorder(self, index: Sequence[int]) -> None:
         """Reorder result
@@ -296,3 +294,8 @@ class Result:
             self.segments = [self.segments[i] for i in index]
         if self.data:
             self.data = [self.data[i] for i in index]
+
+
+def _zip_longest_none(*items: Iterable[Iterable[Any] | None]):
+    """zip_longest() but treats None as an empty list"""
+    return zip_longest(*[[] if item is None else item for item in items])

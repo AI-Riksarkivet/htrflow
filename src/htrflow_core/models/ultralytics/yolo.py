@@ -9,8 +9,7 @@ from htrflow_core.models.base_model import BaseModel
 from htrflow_core.models.enums import Framework, Task
 from htrflow_core.models.hf_utils import UltralyticsDownloader
 from htrflow_core.models.mixins.torch_mixin import PytorchMixin
-from htrflow_core.results import Result, Segment
-from htrflow_core.utils.geometry import polygons2masks
+from htrflow_core.results import Result
 
 
 logger = logging.getLogger(__name__)
@@ -39,24 +38,18 @@ class YOLO(BaseModel, PytorchMixin):
         return [self._create_segmentation_result(image, output) for image, output in zip(images, outputs)]
 
     def _create_segmentation_result(self, image: np.ndarray, output: UltralyticsResults) -> Result:
+        bboxes = scores = class_labels = None
         if output.boxes is not None:
-            boxes = [[x1, y1, x2, y2] for x1, y1, x2, y2 in output.boxes.xyxy.int().tolist()]
+            bboxes = output.boxes.xyxy.int().tolist()
             scores = output.boxes.conf.tolist()
             class_labels = [output.names[label] for label in output.boxes.cls.tolist()]
 
-        if output.masks is not None:
-            masks = polygons2masks(image, output.masks.xy)
-        else:
-            masks = [None] * len(boxes)
-
-        segments = [
-            Segment(bbox=box, mask=mask, score=score, class_label=class_label)
-            for box, mask, score, class_label in zip(boxes, masks, scores, class_labels)
-        ]
-        logger.info(
-            "%d x %d image: YOLO found %d segment(s) with processing times (ms): %s",
-            *image.shape[:2],
-            len(segments),
-            output.speed,
+        polygons = output.masks.xy if output.masks is not None else []
+        return Result.segmentation_result(
+            image.shape[:2],
+            bboxes=bboxes,
+            polygons=polygons,
+            scores=scores,
+            labels=class_labels,
+            metadata=self.metadata,
         )
-        return Result.segmentation_result(image.shape[:2], self.metadata, segments)

@@ -64,17 +64,12 @@ class DiT(BaseModel, PytorchMixin):
         with torch.no_grad():
             batch_logits = self.model(inputs.to(self.model.device)).logits
 
-        return self._create_classification_results(images, batch_logits)
-
-    def _create_classification_results(self, images, batch_logits):
-        classification_labels = [self._label_based_on_return_format(logits) for logits in batch_logits]
-
         return [
-            Result(image.shape[:2], metadata=self.metadata, data=[{"classification": label}])
-            for image, label in zip(images, classification_labels)
+            Result(metadata=self.metadata, data=[{"classification": self._get_label(logits)}])
+            for logits in batch_logits
         ]
 
-    def _label_based_on_return_format(self, logits):
+    def _get_label(self, logits):
         if self.return_format == "argmax":
             predicted_class_idx = logits.argmax(-1).item()
             label_ = self.model.config.id2label[predicted_class_idx]

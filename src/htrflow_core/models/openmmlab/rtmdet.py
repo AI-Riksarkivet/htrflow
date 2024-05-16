@@ -11,7 +11,7 @@ from htrflow_core.models.hf_utils import MMLabsDownloader
 from htrflow_core.models.mixins.torch_mixin import PytorchMixin
 from htrflow_core.models.openmmlab.utils import SuppressOutput
 from htrflow_core.postprocess.mask_nms import multiclass_mask_nms
-from htrflow_core.results import Result, Segment
+from htrflow_core.results import Result
 from htrflow_core.utils.imgproc import resize
 
 
@@ -72,12 +72,9 @@ class RTMDet(BaseModel, PytorchMixin):
         scores = sample.scores.tolist()
         class_labels = sample.labels.tolist()
 
-        segments = [
-            Segment(bbox=box, mask=mask, score=score, class_label=class_label)
-            for box, mask, score, class_label in zip(boxes, masks, scores, class_labels)
-        ]
-
-        result = Result.segmentation_result(image.shape[:2], self.metadata, segments)
+        result = Result.segmentation_result(
+            image.shape[:2], bboxes=boxes, masks=masks, scores=scores, labels=class_labels, metadata=self.metadata
+        )
         indices_to_drop = multiclass_mask_nms(result, downscale=nms_downscale)
         result.drop_indices(indices_to_drop)
 
