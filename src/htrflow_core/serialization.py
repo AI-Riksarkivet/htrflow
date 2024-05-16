@@ -209,25 +209,28 @@ class Json(Serializer):
     extension = ".json"
     format_name = "json"
 
-    def __init__(self, one_file=False):
+    def __init__(self, one_file=False, indent=4):
         """Initialize JSON serializer
 
         Args:
             one_file: Export all pages of the volume to the same file.
                 Defaults to False.
+            indent: The output json file's indentation level
         """
         self.one_file = one_file
+        self.indent = indent
 
-    def _serialize(self, page: PageNode | Volume):
+    def _serialize(self, page: PageNode):
         def default(obj):
             return {k: v for k, v in obj.__dict__.items() if k not in ["mask", "_image", "parent"]}
 
-        return json.dumps(page.asdict(), default=default, indent=4)
+        return json.dumps(page.asdict(), default=default, indent=self.indent)
 
     def serialize_volume(self, volume: Volume):
         if self.one_file:
+            pages = [json.loads(self._serialize(page)) for page in volume]
+            doc = json.dumps({"volume_label": volume.label, "pages": pages}, indent=self.indent)
             filename = volume.label + self.extension
-            doc = self._serialize(volume)
             return [(doc, filename)]
         return super().serialize_volume(volume)
 
