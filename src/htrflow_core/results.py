@@ -123,11 +123,11 @@ class Segment:
         mask[y1:y2, x1:x2] = self.mask
         return mask
 
-    def approximate_mask(self, ratio):
+    def approximate_mask(self, ratio: float):
         """A lower resolution version of the global mask
 
         Arguments:
-            downscale: Size of approximate mask relative to the original.
+            ratio: Size of approximate mask relative to the original.
         """
         return imgproc.rescale(self.global_mask, ratio)
 
@@ -136,7 +136,8 @@ class Segment:
         """The segment mask relative to the bounding box (alias for self.mask)"""
         return self.mask
 
-    def rescale(self, factor):
+    def rescale(self, factor: float) -> None:
+        """Rescale the segment's mask, bounding box and polygon by `factor`"""
         if self.mask is not None:
             self.mask = imgproc.rescale_linear(self.mask, factor)
         self.bbox = self.bbox.rescale(factor)
@@ -169,11 +170,29 @@ class RecognizedText:
 
 @dataclass
 class Result:
+    """
+    A result from an arbitrary model (or process)
+
+    One result instance corresponds to one input image.
+
+    Attributes:
+        metadata: Metadata regarding the result, model-dependent.
+        segments: `Segment` instances representing results from an object
+            detection or instance segmentation model, or similar. May
+            be empty if not applicable.
+        data: Any other data associated with the result, stored as a
+            sequence of dictionaries. Is assumed to correspond one-to-one
+            with `segments` when `segments` is non-empty. If `segments`
+            is empty, the first entry in `data` is assumed to apply for
+            the entire input image.
+    """
+
     metadata: dict[str, str] = field(default_factory=dict)
     segments: Sequence[Segment] = field(default_factory=list)
     data: Sequence[dict[str, Any]] = field(default_factory=list)
 
-    def rescale(self, factor):
+    def rescale(self, factor: float):
+        """Rescale the Result's segments"""
         for segment in self.segments:
             segment.rescale(factor)
 
