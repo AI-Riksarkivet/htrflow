@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  htrflow:
+    image: htrflow-test
+
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+    command:
+      [
+        "/bin/sh",
+        "-c",
+        "htrflow pipeline pipeline/im-pipeline.yaml input/1107 --logfile logs/htrflow/htrflow_core_1107.log",
+      ]
+
+    volumes:
+      - ./input-volume:/app/input
+      - ./output-volume:/app/outputs
+      - ./logs-volume:/app/logs
+      - ./pipeline:/app/pipeline
+      - ./.cache:/app/models
+
+configs:
+  config.yaml:
+    external: false
+    file: im-pipeline.yaml
+
+networks:
+  default:
+    driver: bridge
