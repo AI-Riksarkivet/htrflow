@@ -64,6 +64,13 @@ class ImageNode(node.Node, ABC):
             return text_result.top_candidate()
         return None
 
+    def update(self, result: Result):
+        """Update node with result"""
+        if result.segments:
+            self.create_segments(result.segments)
+        for leaf, data in zip(self.leaves(), result.data):
+            leaf.add_data(**data)
+
     def create_segments(self, segments: Sequence[Segment]) -> None:
         """Segment this node"""
         self.children = [SegmentNode(segment, self) for segment in segments]
@@ -251,19 +258,8 @@ class Volume:
         if len(leaves) != len(results):
             raise ValueError(f"Size of input ({len(results)}) does not match the size of the tree ({len(leaves)})")
 
-        # Update the leaves of the tree
         for leaf, result in zip(leaves, results):
-            # If the result has segments, segment the leaf
-            if result.segments:
-                leaf.create_segments(result.segments)
-
-            # If the result has other data (e.g. texts), add it to the
-            # new leaves (which may be other than `leaves` if the result
-            # also had a segmentation)
-            if result.data:
-                for new_leaf, data in zip(leaf.leaves(), result.data):
-                    new_leaf.add_data(**data)
-
+            leaf.update(result)
         self.relabel()
 
     def save(self, directory: str = "outputs", serializer: str | serialization.Serializer = "alto") -> None:
