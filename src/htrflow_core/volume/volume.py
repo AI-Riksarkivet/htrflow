@@ -40,8 +40,11 @@ class ImageNode(node.Node, ABC):
         self.width = width
         self.coord = coord
         self.bbox = Bbox(0, 0, width, height).move(coord)
-        self.polygon = polygon or self.bbox.polygon()
         self.mask = mask
+
+        if polygon and parent:
+            polygon = polygon.move(parent.coord)
+        self.polygon = polygon or self.bbox.polygon()
 
     def __str__(self) -> str:
         s = f"{self.height}x{self.width} node ({self.label}) at ({self.coord.x}, {self.coord.y})"
@@ -110,7 +113,8 @@ class PageNode(ImageNode):
     def __init__(self, image_path: str):
         self.path = image_path
         label = os.path.basename(image_path).split(".")[0]
-        height, width = self.image.shape[:2]
+        image = imgproc.read(self.path)
+        height, width = image.shape[:2]
         super().__init__(height, width, label=label)
         page_id = label.split("_")[-1]
         self.add_data(
@@ -168,6 +172,15 @@ class Volume:
     def __iter__(self) -> Iterator[PageNode]:
         return iter(self.pages)
 
+    def __getitem__(self, idx) -> ImageNode:
+        if isinstance(idx, tuple):
+            i, *rest = idx
+            return self.pages[i][rest]
+        return self.pages[idx]
+
+    def traverse(self, filter):
+        return chain(*[page.traverse(filter) for page in self])
+
     @classmethod
     def from_directory(cls, path: str) -> "Volume":
         """Initialize a volume from a directory
@@ -209,7 +222,7 @@ class Volume:
         return ImageGenerator(self.active_leaves())
 
     def leaves(self) -> Iterator[ImageNode]:
-        yield from chain(page.leaves() for page in self)
+        yield from chain(*[page.leaves() for page in self])
 
     def active_leaves(self) -> Generator[ImageNode, None, None]:
         """Yield the volume's active leaves

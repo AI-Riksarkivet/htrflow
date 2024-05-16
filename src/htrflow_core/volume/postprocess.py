@@ -3,23 +3,23 @@ from copy import deepcopy
 from htrflow_core.volume import volume
 
 
-def remove_noise_regions(volume: volume.Volume, threshold: float = 0.8):
-    """Remove noise regions from volume
+def remove_noise_regions(page: volume.PageNode, threshold: float = 0.8):
+    """Remove noise regions from page
 
     Makes a copy of the given volume where noisy regions are removed.
     Uses the heuristic defined in `is_noise`.
 
     Arguments:
-        volume: Input volume with text and regions
+        page: Input page with text and regions
         threshold: The confidence score threshold, default 0.8.
 
     Returns:
-        A copy of `volume` where all regions have an average text
+        A copy of `page` where all regions have an average text
         recognition confidence score above the given threshold.
     """
-    volume = deepcopy(volume)
-    volume.prune(lambda node: is_noise(node, threshold), include_starting_node=False)
-    return volume
+    page = deepcopy(page)
+    page.prune(lambda node: is_noise(node, threshold), include_starting_node=False)
+    return page
 
 
 def is_noise(node: volume.ImageNode, threshold: float = 0.8):

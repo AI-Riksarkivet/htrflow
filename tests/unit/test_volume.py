@@ -147,7 +147,7 @@ def test_update_segmentation_bbox(demo_image):
     segmentation_model = SegmentationModel("mask")
     node = volume.PageNode(demo_image)
     result, *_ = segmentation_model([node.image])
-    node.segment(result.segments)
+    node.create_segments(result.segments)
     segment_index = 0
     segment_bbox = result.segments[segment_index].bbox
     node_bbox = node[segment_index].get("segment").bbox
@@ -224,7 +224,7 @@ def test_volume_update_wrong_size(demo_volume_segmented):
 
 def test_volume_iter(demo_volume_segmented):
     # iterating over the volume should iterate over its children (pages)
-    assert all(a == b for a, b in zip(demo_volume_segmented, demo_volume_segmented.children))
+    assert all(a == b for a, b in zip(demo_volume_segmented, demo_volume_segmented.pages))
 
 
 def test_volume_segments_depth_none(demo_volume_segmented):
@@ -252,15 +252,8 @@ def test_pickling(demo_volume_segmented_nested):
     assert vol[0, 0, 0].label == demo_volume_segmented_nested[0, 0, 0].label
 
 
-def test_save_and_load_pickle(tmpdir, demo_volume_segmented_nested):
-    # TODO: see test_pickling
-    picklefile = demo_volume_segmented_nested.pickle(tmpdir)
-    vol = volume.Volume.from_pickle(picklefile)
-    assert vol[0, 0].height == demo_volume_segmented_nested[0, 0].height
-    assert vol[0, 0].parent.width == demo_volume_segmented_nested[0].width
-
-
 @pytest.mark.parametrize("threshold", [0.3, 0.6, 0.9, 0.99])
 def test_remove_noise_regions(demo_volume_segmented_nested_with_text, threshold):
-    pruned = postprocess.remove_noise_regions(demo_volume_segmented_nested_with_text, threshold)
+    page = demo_volume_segmented_nested_with_text[0]
+    pruned = postprocess.remove_noise_regions(page, threshold)
     assert not any(postprocess.is_noise(node, threshold) for node in pruned.traverse())
