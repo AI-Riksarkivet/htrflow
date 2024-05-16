@@ -171,7 +171,6 @@ class RecognizedText:
 class Result:
     metadata: dict[str, str] = field(default_factory=dict)
     segments: Sequence[Segment] = field(default_factory=list)
-    texts: Sequence[RecognizedText] = field(default_factory=list)
     data: Sequence[dict[str, Any]] = field(default_factory=list)
 
     def rescale(self, factor):
@@ -208,14 +207,13 @@ class Result:
         """Create a text recognition result
 
         Arguments:
-            image: The original image
             metadata: Result metadata
             text: The recognized text
 
         Returns:
             A Result instance with the specified data and no segments.
         """
-        return cls(metadata, data=[{"text_result": text}])
+        return cls(metadata, data=[{TEXT_RESULT_KEY: text}])
 
     @classmethod
     def segmentation_result(
@@ -293,3 +291,6 @@ class Result:
 def _zip_longest_none(*items: Iterable[Iterable[Any] | None]):
     """zip_longest() but treats None as an empty list"""
     return zip_longest(*[[] if item is None else item for item in items])
+
+
+TEXT_RESULT_KEY = "text_result"

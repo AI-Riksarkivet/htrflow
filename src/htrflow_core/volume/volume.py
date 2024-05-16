@@ -12,7 +12,7 @@ from typing import Generator, Iterable, Iterator, Sequence
 import numpy as np
 
 from htrflow_core import serialization
-from htrflow_core.results import Result, Segment
+from htrflow_core.results import TEXT_RESULT_KEY, Result, Segment
 from htrflow_core.utils import imgproc
 from htrflow_core.utils.geometry import Bbox, Mask, Point, Polygon
 from htrflow_core.volume import node
@@ -60,7 +60,7 @@ class ImageNode(node.Node, ABC):
     @property
     def text(self) -> str | None:
         """Text of this region, if available"""
-        if text_result := self.get("text_result"):
+        if text_result := self.get(TEXT_RESULT_KEY):
             return text_result.top_candidate()
         return None
 

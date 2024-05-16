@@ -19,6 +19,7 @@ import xmlschema
 from jinja2 import Environment, FileSystemLoader
 
 import htrflow_core
+from htrflow_core.results import TEXT_RESULT_KEY
 from htrflow_core.utils.layout import REGION_KEY, RegionLocation
 
 
@@ -184,6 +185,7 @@ class PageXML(Serializer):
 
         return self.template.render(
             page=page,
+            TEXT_RESULT_KEY=TEXT_RESULT_KEY,
             metadata=metadata(page),
             is_text_line=is_text_line,
         )
