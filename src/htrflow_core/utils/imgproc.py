@@ -5,6 +5,7 @@ Image processing utilities
 import logging
 import os
 import re
+from typing import TypeAlias
 
 import cv2
 import numpy as np
@@ -13,6 +14,7 @@ import requests
 from htrflow_core.utils.geometry import Bbox, Mask
 
 
+NumpyImage: TypeAlias = np.ndarray  # TODO make non-generic
 logger = logging.getLogger(__name__)
 
 
