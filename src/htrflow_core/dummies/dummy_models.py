@@ -18,6 +18,7 @@ This module contains dummy models
 
 class SegmentationModel(BaseModel):
     def __init__(self, segment_type: Literal["mask", "bbox"] = "mask") -> None:
+        super().__init__()
         self.segment_type = segment_type
 
     def _predict(self, images: list[np.ndarray], label: Optional[str] = None) -> list[Result]:
