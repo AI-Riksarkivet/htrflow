@@ -47,16 +47,6 @@ def check_file_exists(file_path_str: str):
     return file_path_str
 
 
-def check_folder_exists(folder_paths_str: List[str]):
-    """Check each path exists and is a folder."""
-    for folder_path_str in folder_paths_str:
-        folder_path = Path(folder_path_str)
-        if not folder_path.exists() or not folder_path.is_dir():
-            typer.echo(f"The path {folder_path} does not exist or is not a folder.")
-            raise typer.Exit(code=1)
-    return folder_paths_str
-
-
 def validate_logfile_extension(logfile: str):
     """Ensure the logfile string has a .log extension."""
     if logfile and not logfile.endswith(".log"):
@@ -70,8 +60,8 @@ def main(
     pipeline: Annotated[
         str, typer.Argument(..., help="Path to the pipeline config YAML file", callback=check_file_exists)
     ],
-    input_dirs: Annotated[
-        List[str], typer.Argument(..., help="Input directory or directories", callback=check_folder_exists)
+    inputs: Annotated[
+        List[str], typer.Argument(..., help="Input path(s) pointing to images or directories contatining images")
     ],
     logfile: Annotated[
         str,
@@ -90,7 +80,7 @@ def main(
         hf_utils.HF_CONFIG |= config.get("huggingface_config", {})
         pipe = Pipeline.from_config(config)
 
-        volume = auto_import(input_dirs)
+        volume = auto_import(inputs)
 
         typer.echo("Running Pipeline")
         volume = pipe.run(volume)
