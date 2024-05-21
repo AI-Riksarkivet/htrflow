@@ -82,6 +82,8 @@ def main(
 
         volume = auto_import(inputs)
 
+        if "labels" in config:
+            volume.set_label_format(**config["labels"])
         typer.echo("Running Pipeline")
         volume = pipe.run(volume)
     except Exception as e:
