@@ -3,12 +3,12 @@ Image processing utilities
 """
 
 import logging
-import os
 import re
-from typing import TypeAlias
+from typing import Any, TypeAlias
 
 import cv2
 import numpy as np
+import numpy.typing as npt
 import requests
 
 from htrflow_core.utils.geometry import Bbox, Mask
@@ -18,7 +18,7 @@ NumpyImage: TypeAlias = np.ndarray  # TODO make non-generic
 logger = logging.getLogger(__name__)
 
 
-def crop(image: np.ndarray, bbox: Bbox, padding: int | None = 0) -> np.ndarray:
+def crop(image: npt.NDArray[Any], bbox: Bbox, padding: int | None = 0) -> npt.NDArray[Any]:
     """Crop image
 
     Args:
@@ -40,8 +40,8 @@ def crop(image: np.ndarray, bbox: Bbox, padding: int | None = 0) -> np.ndarray:
 
 
 def mask(
-    image: np.ndarray, mask: Mask, fill: tuple[int, int, int] = (255, 255, 255), inverse: bool = False
-) -> np.ndarray:
+    image: npt.NDArray[Any], mask: Mask, fill: tuple[int, int, int] = (255, 255, 255), inverse: bool = False
+) -> npt.NDArray[Any]:
     """Apply mask to image
 
     Returns a copy of the input image where all pixels such that mask[pixel]
@@ -65,7 +65,7 @@ def mask(
     return image
 
 
-def resize(image: np.ndarray, shape: tuple[int, int]) -> np.ndarray:
+def resize(image: npt.NDArray[Any], shape: tuple[int, int]) -> npt.NDArray[Any]:
     """Resize image using nearest-neighbour interpolation
 
     Arguments:
@@ -78,7 +78,7 @@ def resize(image: np.ndarray, shape: tuple[int, int]) -> np.ndarray:
     return cv2.resize(image, (x, y), interpolation=cv2.INTER_NEAREST)
 
 
-def rescale(image: np.ndarray, ratio: float):
+def rescale(image: npt.NDArray[Any], ratio: float) -> npt.NDArray[Any]:
     """Rescale image
 
     Rescales the image while keeping the aspect ratio as far as
@@ -96,7 +96,7 @@ def rescale(image: np.ndarray, ratio: float):
     return rescale_linear(image, length_ratio)
 
 
-def rescale_linear(image: np.ndarray, ratio: float):
+def rescale_linear(image: npt.NDArray[Any], ratio: float) -> npt.NDArray[Any]:
     """Rescale image
 
     Rescales the image while keeping the aspect ratio intact as far as
@@ -118,7 +118,7 @@ def rescale_linear(image: np.ndarray, ratio: float):
     return resize(image, (int(h * ratio), int(w * ratio)))
 
 
-def binarize(image: np.ndarray) -> np.ndarray:
+def binarize(image: npt.NDArray[Any]) -> npt.NDArray[Any]:
     """Binarize image"""
     img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     dst = cv2.fastNlMeansDenoising(img_gray, h=31, templateWindowSize=7, searchWindowSize=21)
@@ -141,7 +141,7 @@ def _is_valid_url(url: str) -> bool:
         return False
 
 
-def read(source: str | np.ndarray | os.PathLike) -> np.ndarray:
+def read(source: str | npt.NDArray[Any]) -> npt.NDArray[Any]:
     """Read an image from a URL, a local path, or directly use a numpy array as an OpenCV image.
 
     Args:
@@ -175,7 +175,7 @@ def read(source: str | np.ndarray | os.PathLike) -> np.ndarray:
         raise ValueError("Source must be a string URL, np.ndarray, or a filesystem path")
 
 
-def write(dest: str, image: np.ndarray) -> None:
+def write(dest: str, image: npt.NDArray[Any]) -> None:
     cv2.imwrite(dest, image)
 
 
