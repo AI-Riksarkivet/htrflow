@@ -115,6 +115,7 @@ class ReadingOrderMarginalia(PipelineStep):
             for region in page:
                 reading_order = order_region_with_marginalia(printspace, [line.bbox for line in region])
                 region.children = [region.children[i] for i in reading_order]
+        volume.relabel()
         return volume
 
 
