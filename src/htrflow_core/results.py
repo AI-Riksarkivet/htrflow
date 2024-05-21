@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from itertools import zip_longest
-from typing import Any, Callable, Iterable, Optional, Sequence
+from typing import Any, Callable, Iterable, Sequence
 
 import numpy as np
 
@@ -63,36 +63,26 @@ class Segment:
             orig_shape: The shape of the orginal input image. Defaults to
                 None.
         """
+        if all(item is None for item in (bbox, mask, polygon)):
+            raise ValueError("Cannot create a Segment without bbox, mask or polygon")
 
-        # Convert polygon and bbox to Polygon and Bbox instances
+        # Mask (and possibly bbox) is given: The mask is assumed to be aligned
+        # with the original image. The bounding box is discarded (if given) and
+        # recomputed from the mask. A polygon is also inferred from the mask.
+        # The mask is then converted to a local mask.
+        if mask is not None:
+            bbox = geometry.mask2bbox(mask)
+            polygon = geometry.mask2polygon(mask)
+            mask = imgproc.crop(mask, bbox)
+
         if polygon is not None:
             polygon = geometry.Polygon(polygon)
-        if bbox is not None:
-            bbox = geometry.Bbox(*bbox)
 
-        match (bbox, mask, polygon):
-            case (None, None, None):
-                raise ValueError("Cannot create a Segment without bbox, mask or polygon")
+            # Use the polygon's bounding box if no other bounding box was provided
+            if bbox is None:
+                bbox = polygon.bbox()
 
-            case (_, None, None):
-                # Only bbox is given: Leave the polygon and mask as None.
-                pass
-
-            case (_, _, None):
-                # Mask (and possibly bbox) is given: The mask is assumed to be aligned
-                # with the original image. The bounding box is discarded (if given) and
-                # recomputed from the mask. A polygon is also inferred from the mask.
-                # The mask is then converted to a local mask.
-                bbox = geometry.mask2bbox(mask)
-                polygon = geometry.mask2polygon(mask)
-                mask = imgproc.crop(mask, bbox)
-
-            case (None, None, _):
-                # Only polygon is given: Create a bounding box from the polygon and
-                # leave the mask as None.
-                bbox = geometry.Polygon(polygon).bbox()
-
-        self.bbox = bbox
+        self.bbox = geometry.Bbox(*bbox)
         self.polygon = polygon
         self.mask = mask
         self.score = score
@@ -103,7 +93,7 @@ class Segment:
         return f"Segment(class_label={self.class_label}, score={self.score}, bbox={self.bbox}, polygon={self.polygon}, mask={self.mask})"  # noqa: E501
 
     @property
-    def global_mask(self, orig_shape: tuple[int, int] | None = None) -> Optional[Mask]:
+    def global_mask(self, orig_shape: tuple[int, int] | None = None) -> Mask | None:
         """
         The segment mask relative to the original input image.
 
@@ -123,13 +113,16 @@ class Segment:
         mask[y1:y2, x1:x2] = self.mask
         return mask
 
-    def approximate_mask(self, ratio: float):
+    def approximate_mask(self, ratio: float) -> Mask | None:
         """A lower resolution version of the global mask
 
         Arguments:
             ratio: Size of approximate mask relative to the original.
         """
-        return imgproc.rescale(self.global_mask, ratio)
+        global_mask = self.global_mask
+        if global_mask is None:
+            return None
+        return imgproc.rescale(global_mask, ratio)
 
     @property
     def local_mask(self):
@@ -250,8 +243,8 @@ class Result:
         cls,
         orig_shape: tuple[int, int],
         metadata: dict[str, Any],
-        bboxes: Sequence[Bbox] | np.ndarray = None,
-        masks: np.ndarray | None = None,
+        bboxes: Sequence[Bbox | Iterable[int]] | None = None,
+        masks: Sequence[Mask] | None = None,
         polygons: Sequence[Polygon] | None = None,
         scores: Iterable[float] | None = None,
         labels: Iterable[str] | None = None,
