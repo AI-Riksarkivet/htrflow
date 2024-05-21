@@ -3,15 +3,16 @@ Geometry utilities
 """
 import logging
 from dataclasses import astuple, dataclass
-from typing import Iterable, Sequence, TypeAlias
+from typing import Iterable, Iterator, Sequence, TypeAlias
 
 import cv2
 import numpy as np
+import numpy.typing as npt
 
 
 logger = logging.getLogger(__name__)
 
-Mask: TypeAlias = np.ndarray[np.uint8]
+Mask: TypeAlias = npt.NDArray[np.uint8]
 
 
 @dataclass
@@ -36,6 +37,14 @@ class Point:
     x: int
     y: int
 
+    def __iter__(self) -> Iterator[int]:
+        # Enables tuple-like iteration and unpacking
+        return iter(astuple(self))
+
+    def __getitem__(self, i: int) -> int:
+        # Enables tuple-like indexing
+        return (self.x, self.y)[i]
+
     def move(self, dest: "Point | tuple[int, int]") -> "Point":
         """Move point to `dest`
 
@@ -58,14 +67,6 @@ class Point:
     def rescale(self, factor: float):
         """Rescale point by multiplying its coordinates with `factor`"""
         return Point(int(self.x * factor), int(self.y * factor))
-
-    def __iter__(self) -> Iterable[int]:
-        # Enables tuple-like iteration and unpacking
-        return iter(astuple(self))
-
-    def __getitem__(self, i: int) -> int:
-        # Enables tuple-like indexing
-        return astuple(self)[i]
 
 
 @dataclass
@@ -132,7 +133,7 @@ class Bbox:
         """Area of bounding box"""
         return self.height * self.width
 
-    def rescale(self, factor: float):
+    def rescale(self, factor: float) -> "Bbox":
         """Rescale bounding box by multiplying its coordinates with `factor`"""
         return Bbox(*(int(coord * factor) for coord in self))
 
@@ -166,13 +167,13 @@ class Bbox:
             self.xmax < other.xmin or self.xmin > other.xmax or self.ymax < other.ymin or self.ymin > other.ymax
         )
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[int]:
         # Enables tuple-like iteration and unpacking
-        return iter(astuple(self))
+        return iter(self.xyxy)
 
     def __getitem__(self, i: int) -> int:
         # Enables tuple-like indexing
-        return astuple(self)[i]
+        return self.xyxy[i]
 
 
 class Polygon:
@@ -210,15 +211,15 @@ class Polygon:
         ys = [y for _, y in self]
         return Bbox(min(xs), min(ys), max(xs), max(ys))
 
-    def as_nparray(self):  # -> n x 2 numpy array of integers
+    def as_nparray(self) -> npt.NDArray[np.uint16]:  # -> n x 2 numpy array of integers
         """A np array version of the polygon"""
-        return np.array([[x, y] for x, y in self])
+        return np.array([[x, y] for x, y in self], dtype=np.uint16)
 
-    def rescale(self, factor: float):
+    def rescale(self, factor: float) -> "Polygon":
         """Rescale polygon by multiplying its points with `factor`"""
         return Polygon([p.rescale(factor) for p in self])
 
-    def __iter__(self):  # -> Iterable[Point]
+    def __iter__(self) -> Iterator[Point]:
         return iter(self.points)
 
     def __getitem__(self, i: int) -> Point:
@@ -268,7 +269,7 @@ def mask2polygon(mask: Mask, epsilon: float = 0.005) -> Polygon:
     return polygons[0]
 
 
-def masks2polygons(masks: Iterable[Mask], epsilon=0.005) -> Iterable[Polygon]:
+def masks2polygons(masks: Iterable[Mask], epsilon=0.005) -> list[Polygon]:
     """Convert masks to polygons"""
     return [mask2polygon(mask, epsilon) for mask in masks]
 
@@ -286,13 +287,13 @@ def bbox2mask(bbox: Bbox, shape: tuple[int, int]) -> Mask:
         bbox: Intput bounding box
         shape: Shape of the desired mask as a (h, w) tuple
     """
-    mask = np.zeros(shape)
+    mask = np.zeros(shape, dtype=np.uint8)
     x1, y1, x2, y2 = bbox
     mask[y1:y2, x1:x2] = 1
     return mask
 
 
-def polygons2masks(mask: Mask, polygons: Iterable[Polygon]) -> Iterable[Mask]:
+def polygons2masks(mask: Mask, polygons: Iterable[Polygon]) -> list[Mask]:
     mask_height, mask_width = mask.shape[:2]
     masks = []
     for point in polygons:
