@@ -154,27 +154,25 @@ class Volume:
     """
 
     pages: list[PageNode]
+    _DEFAULT_LABEL = "untitled_volume"
 
-    def __init__(self, paths: Iterable[str], label: str = "untitled_volume", label_format=None):
+    def __init__(self, paths: Sequence[str], label: str | None = None, label_format: dict[str, str] | None = None):
         """Initialize volume
 
         Arguments:
             paths: A list of paths to images
-            label: A label describing the volume (optional)
+            label: An optional label describing the volume. If not given,
+                the label will be set to the input paths' first shared
+                parent directory, and if no such directory exists, it will
+                default to "untitled_volume".
+            label_format: What label format that should be used with this
+                volume, as a dictionary of keyword arguments. See
+                Node.relabel_levels for options.
         """
-        pages = []
-        for path in paths:
-            try:
-                page = PageNode(path)
-            except imgproc.ImageImportError:
-                logger.warning("Skipping %s (file format not supported)", path)
-                continue
-            pages.append(page)
-
-        self.pages = pages
-        self.label = label
+        self.pages = paths2pages(paths)
+        self.label = label or _common_basename(paths) or Volume._DEFAULT_LABEL
         self._label_format = label_format or {}
-        logger.info("Initialized volume '%s' with %d pages", label, len(pages))
+        logger.info("Initialized volume '%s' with %d pages", label, len(self.pages))
 
     def __iter__(self) -> Iterator[PageNode]:
         return iter(self.pages)
@@ -197,9 +195,8 @@ class Volume:
         Arguments:
             path: A path to a directory of images.
         """
-        files = (os.path.join(path, file) for file in sorted(os.listdir(path)))
-        label = os.path.basename(path.strip("/"))
-        return cls(files, label)
+        paths = [os.path.join(path, file) for file in sorted(os.listdir(path))]
+        return cls(paths)
 
     @classmethod
     def from_pickle(cls, path: str) -> "Volume":
@@ -319,3 +316,31 @@ class NamedImage(np.ndarray):
         if obj is None:
             return
         self.name = getattr(obj, "name", None)
+
+
+def paths2pages(paths: Sequence[str]) -> list[PageNode]:
+    """Create PageNodes
+
+    Creates PageNodes from the given paths. Any path pointing to a file
+    that cannot be read or interpreted as an image will be ignored.
+
+    Arguments:
+        paths: A sequence of paths pointing to image files.
+
+    Returns:
+        A list of PageNodes corresponding to the input paths.
+    """
+    pages = []
+    for path in sorted(paths):
+        try:
+            page = PageNode(path)
+        except imgproc.ImageImportError:
+            logger.warning("Skipping %s (file format not supported)", path)
+            continue
+        pages.append(page)
+    return pages
+
+
+def _common_basename(paths: Sequence[str]):
+    """Given a sequence of paths, returns the name of their first shared parent directory"""
+    return os.path.basename(os.path.commonpath(paths))
