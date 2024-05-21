@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from itertools import zip_longest
 from typing import Any, Callable, Iterable, Optional, Sequence
 
@@ -168,7 +168,6 @@ class RecognizedText:
         return max(self.scores)
 
 
-@dataclass
 class Result:
     """
     A result from an arbitrary model (or process)
@@ -187,9 +186,21 @@ class Result:
             the entire input image.
     """
 
-    metadata: dict[str, str] = field(default_factory=dict)
-    segments: Sequence[Segment] = field(default_factory=list)
-    data: Sequence[dict[str, Any]] = field(default_factory=list)
+    def __init__(
+        self,
+        metadata: dict[str, str] | None = None,
+        segments: Sequence[Segment] | None = None,
+        data: Sequence[dict[str, Any]] | None = None,
+        texts: Sequence[RecognizedText] | None = None,
+    ):
+        self.metadata = metadata or {}
+        self.segments = segments or []
+
+        combined_data = []
+        for entry, text in _zip_longest_none(data, texts, fillvalue={}):
+            entry.update({TEXT_RESULT_KEY: text})
+            combined_data.append(entry)
+        self.data = combined_data
 
     def rescale(self, factor: float):
         """Rescale the Result's segments"""
@@ -232,7 +243,7 @@ class Result:
         Returns:
             A Result instance with the specified data and no segments.
         """
-        return cls(metadata, data=[{TEXT_RESULT_KEY: text}])
+        return cls(metadata, texts=[text])
 
     @classmethod
     def segmentation_result(
@@ -307,9 +318,9 @@ class Result:
         self.reorder(keep)
 
 
-def _zip_longest_none(*items: Iterable[Any] | None):
+def _zip_longest_none(*items: Iterable[Any] | None, fillvalue=None):
     """zip_longest() but treats None as an empty list"""
-    return zip_longest(*[[] if item is None else item for item in items])
+    return zip_longest(*[[] if item is None else item for item in items], fillvalue=fillvalue)
 
 
 TEXT_RESULT_KEY = "text_result"

@@ -121,5 +121,5 @@ def _simple_word_segmentation(image, text, segment=None):
     else:
         segments = [Segment(bbox=bbox, class_label="word") for bbox in bboxes]
     texts = [RecognizedText([word], [0]) for word in words]
-    r = Result(image, {"model": "simple word segmentation"}, segments, [{"text_result": text} for text in texts])
-    return r
+    metadata = {"model": "simple word segmentation"}
+    return Result(metadata, segments, texts=texts)
