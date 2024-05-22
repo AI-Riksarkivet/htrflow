@@ -334,8 +334,8 @@ def paths2pages(paths: Sequence[str]) -> list[PageNode]:
     for path in sorted(paths):
         try:
             page = PageNode(path)
-        except imgproc.ImageImportError:
-            logger.warning("Skipping %s (file format not supported)", path)
+        except imgproc.ImageImportError as e:
+            logger.warning(e)
             continue
         pages.append(page)
     return pages

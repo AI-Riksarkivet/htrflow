@@ -152,27 +152,33 @@ def read(source: str | npt.NDArray[Any]) -> npt.NDArray[Any]:
 
     Raises:
         ImageImportError: If the image cannot be loaded from the given source.
-        ValueError: If the source type is unsupported.
+        TypeError: It the type of `source` is not string or numpy array.
     """
+    if not isinstance(source, str):
+        raise TypeError(f"Type of `source` should be string or numpy image, not {type(source)}")
+
+    # Return the image as-is if it already is a numpy array
     if isinstance(source, np.ndarray):
         return source
-    elif isinstance(source, str):
-        if is_http_url(source):
-            if not _is_valid_url(source):
-                raise ValueError("The URL is invalid or unreachable.")
-            resp = requests.get(source, stream=True).raw
-            image_arr = np.asarray(bytearray(resp.read()), dtype=np.uint8)
-            img = cv2.imdecode(image_arr, cv2.IMREAD_COLOR)
-            if img is None:
-                raise ImageImportError(f"Could not load the image from {source}")
-            return img
-        else:
-            img = cv2.imread(source, cv2.IMREAD_COLOR)
-            if img is None:
-                raise ImageImportError(f"Could not load the image from {source}")
-            return img
-    else:
-        raise ValueError("Source must be a string URL, np.ndarray, or a filesystem path")
+
+    error_msg = f"Could not load an image from {source}. "
+
+    # Try to load from URL
+    if is_http_url(source):
+        if not _is_valid_url(source):
+            raise ImageImportError(error_msg + "The URL is invalid or unreachable.")
+        resp = requests.get(source, stream=True).raw
+        image_arr = np.asarray(bytearray(resp.read()), dtype=np.uint8)
+        img = cv2.imdecode(image_arr, cv2.IMREAD_COLOR)
+        if img is None:
+            raise ImageImportError(error_msg + "The URL could not be interpreted as an image.")
+        return img
+
+    # Try to load from filesystem
+    img = cv2.imread(source, cv2.IMREAD_COLOR)
+    if img is None:
+        raise ImageImportError(error_msg + "Check that the path exists and is a valid image.")
+    return img
 
 
 def write(dest: str, image: npt.NDArray[Any]) -> None:
