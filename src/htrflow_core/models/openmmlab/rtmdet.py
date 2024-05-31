@@ -96,13 +96,3 @@ class RTMDet(BaseModel, PytorchMixin):
             logger.warning(msg, *mask_size, *image_size)
             masks = [resize(mask, image_size) for mask in masks]
         return masks
-
-
-if __name__ == "__main__":
-    model = RTMDet("Riksarkivet/rtmdet_lines")
-
-    img = "/home/adm.margabo@RA-ACC.INT/repo/htrflow_core/data/demo_images/demo_image.jpg"
-
-    results = model([img] * 1, batch_size=1)
-
-    print(results[0])
