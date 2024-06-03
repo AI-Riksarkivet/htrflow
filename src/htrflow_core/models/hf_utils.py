@@ -140,16 +140,16 @@ def load_ultralytics(model_id: str) -> str:
     return _hf_hub_download_matching_file(model_id, r".*\.pt")
 
 
-def _hf_hub_download_matching_file(repo_id: str, pattern: str):
+def _hf_hub_download_matching_file(repo_id: str, pattern: str) -> str:
     """Download file from the given repo based on its filename
-    
+
     Uses `hf_hub_download` to download the first file in the given repo
     that matches the given pattern. Only downloads the file if it's
     not already present in local cache.
 
     Arguments:
         repo_id: A huggingface repository ID consisting of a user or
-            organization name and a repo name separated by a `/`. 
+            organization name and a repo name separated by a `/`.
         extensions: A string of a tuple of strings with valid extensions.
 
     Returns:
@@ -171,7 +171,7 @@ def _hf_hub_download_matching_file(repo_id: str, pattern: str):
         ) % (pattern, repo_id, _cached_repo_path(repo_id)))
 
 
-def _cached_repo_path(repo_id: str):
+def _cached_repo_path(repo_id: str) -> str:
     """Returns the path to the cached repository.
 
     Returns the path to the directory where `hf_hub_download` would
@@ -188,7 +188,7 @@ def _list_cached_repo_files(repo_id: str) -> list[str]:
 
     Arguments:
         repo_id: A huggingface repository ID consisting of a user or
-            organization name and a repo name separated by a `/`. 
+            organization name and a repo name separated by a `/`.
 
     Returns:
         A list of names of cached files from the given repo.
@@ -213,7 +213,7 @@ def _list_repo_files(repo_id: str) -> list[str]:
 
     Arguments:
         repo_id: A huggingface repository ID consisting of a user or
-            organization name and a repo name separated by a `/`. 
+            organization name and a repo name separated by a `/`.
 
     Returns:
         A list of all available files in the given repo.
