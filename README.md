@@ -14,7 +14,7 @@
     <a href="https://github.com/Swedish-National-Archives-AI-lab/htrflow_core/releases">
         <img alt="GitHub docs" src="https://img.shields.io/github/docs/Swedish-National-Archives-AI-lab/htrflow_core.svg">
     </a>
-"Add test, ci, build, publish, draft bagdges here.."
+<!-- Add test, ci, build, publish, draft bagdges here... -->
 
 </p>
 
@@ -29,15 +29,11 @@
 # **htrflow_core**
 
 > [!NOTE]  
-> This repo is an work in progress ⚠️
+> This repo is a work in progress ⚠️
 
-htrflow_core is a part of the htrflow suite, which is Riksarkivets open source project for handwritten text recogntion.
+htrflow_core is a part of the htrflow suite, which is the National Archives of Sweden's open source project for handwritten text recogntion.
 
 ## Installation
-
-```sh
-pip install htrflow_core
-```
 
 ## Development
 
