@@ -1,8 +1,11 @@
 import logging
+import os
+import re
 from pathlib import Path
 from typing import List, Optional, Tuple
 
 from huggingface_hub import hf_hub_download, list_repo_files
+from huggingface_hub.file_download import repo_folder_name
 from huggingface_hub.utils import RepositoryNotFoundError
 
 
@@ -125,32 +128,99 @@ class MMLabsDownloader(HFBaseDownloader):
         cfg.dump(config_path)
 
 
-class UltralyticsDownloader(HFBaseDownloader):
-    ULTRALYTICS_SUPPORTED_MODEL_TYPES = (".pt",)
 
-    @classmethod
-    def from_pretrained(cls, model_id: str) -> str:
-        """Download and load model from Ultralytics using the HuggingFace Hub."""
-        downloader = cls()
-        existing_model = downloader._ultralytics_try_load_from_local_files(model_id)
-        if existing_model:
-            logging.info(f"Loaded existing model from '{existing_model}'")
-            return existing_model
+def load_ultralytics(model_id: str) -> str:
+    """Download ultralytics model if it's not present in cache.
 
-        repo_files = downloader.list_files_from_repo(model_id)
-        cache_model_path = downloader._download_file_from_hf(
-            model_id, cls.ULTRALYTICS_SUPPORTED_MODEL_TYPES, cls.META_MODEL_TYPE, repo_files
-        )
-        logging.info(f"Downloaded model '{model_id}' from HF and loaded it from folder: '{HF_CONFIG['cache_dir']}'")
-        return cache_model_path
+    Returns:
+        Path to a .pt model file
+    """
+    if os.path.exists(model_id):
+        return model_id
+    return _hf_hub_download_matching_file(model_id, r".*\.pt")
 
-    @classmethod
-    def _ultralytics_try_load_from_local_files(cls, model_id: str) -> Optional[str]:
-        """Check for an existing local file for the model."""
-        model_path = Path(model_id)
-        if model_path.exists() and model_path.suffix in cls.ULTRALYTICS_SUPPORTED_MODEL_TYPES:
-            return str(model_path)
-        return None
+
+def _hf_hub_download_matching_file(repo_id: str, pattern: str):
+    """Download file from the given repo based on its filename
+    
+    Uses `hf_hub_download` to download the first file in the given repo
+    that matches the given pattern. Only downloads the file if it's
+    not already present in local cache.
+
+    Arguments:
+        repo_id: A huggingface repository ID consisting of a user or
+            organization name and a repo name separated by a `/`. 
+        extensions: A string of a tuple of strings with valid extensions.
+
+    Returns:
+        The local path to the cached or newly downloaded file.
+
+    Raises:
+        FileNotFoundError if no such file exists in the repository,
+        or, if in offline mode, no such file is present in the cache.
+    """
+    repo_files = _list_repo_files(repo_id)
+    for file_ in repo_files:
+        if re.match(pattern, file_):
+            return hf_hub_download(repo_id, file_, **HF_CONFIG)
+    raise FileNotFoundError((
+        "Could not find any file that matches the pattern '%s' in "
+        "the repo '%s'. If the file does exist, make sure that you are "
+        "online and have access to the repo on the huggingface hub or "
+        "that the file is available locally at %s."
+        ) % (pattern, repo_id, _cached_repo_path(repo_id)))
+
+
+def _cached_repo_path(repo_id: str):
+    """Returns the path to the cached repository.
+
+    Returns the path to the directory where `hf_hub_download` would
+    download the given repository to.
+    """
+    return os.path.join(HF_CONFIG["cache_dir"], repo_folder_name(repo_id=repo_id, repo_type="model"))
+
+
+def _list_cached_repo_files(repo_id: str) -> list[str]:
+    """List cached files from a given repo.
+
+    Lists all locally available files from the given repo that have
+    been downloaded by calls to `hf_hub_download`.
+
+    Arguments:
+        repo_id: A huggingface repository ID consisting of a user or
+            organization name and a repo name separated by a `/`. 
+
+    Returns:
+        A list of names of cached files from the given repo.
+    """
+    path = _cached_repo_path(repo_id)
+    files = [file for _, _, files in os.walk(path) for file in files]
+    logger.info(
+        "Found %d cached files associated with model '%s' in %s and its subdirectories",
+        len(files),
+        repo_id,
+        path)
+    return files
+
+
+def _list_repo_files(repo_id: str) -> list[str]:
+    """List files in a given huggingface repo.
+
+    A version of huggingface_hub's `list_repo_files` which works in
+    offline mode. Whenever `local_files_only` is True, this function
+    looks for cached files instead of making a call to the huggingface
+    hub.
+
+    Arguments:
+        repo_id: A huggingface repository ID consisting of a user or
+            organization name and a repo name separated by a `/`. 
+
+    Returns:
+        A list of all available files in the given repo.
+    """
+    if HF_CONFIG["local_files_only"]:
+        return _list_cached_repo_files(repo_id)
+    return list_repo_files(repo_id, token=HF_CONFIG["token"])
 
 
 # Configuration settings for communications with the huggingface hub

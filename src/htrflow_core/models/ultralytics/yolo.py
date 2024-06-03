@@ -7,7 +7,7 @@ from ultralytics.engine.results import Results as UltralyticsResults
 
 from htrflow_core.models.base_model import BaseModel
 from htrflow_core.models.enums import Framework, Task
-from htrflow_core.models.hf_utils import UltralyticsDownloader
+from htrflow_core.models.hf_utils import load_ultralytics
 from htrflow_core.models.mixins.torch_mixin import PytorchMixin
 from htrflow_core.results import Result
 
@@ -19,10 +19,10 @@ class YOLO(BaseModel, PytorchMixin):
     def __init__(self, model: str | PathLike = "ultralyticsplus/yolov8s", *model_args, **kwargs) -> None:
         super().__init__(**kwargs)
 
-        model_file = UltralyticsDownloader.from_pretrained(model)
+        model_file = load_ultralytics(model)
         self.model = UltralyticsYOLO(model_file, *model_args).to(self.set_device(self.device))
 
-        logger.info("Initialized YOLO model from %s on device %s", model, self.model.device)
+        logger.info("Initialized YOLO model '%s' from %s on device %s", model, model_file, self.model.device)
 
         self.metadata.update(
             {
