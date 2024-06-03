@@ -1,6 +1,6 @@
 import logging
 import os
-import re
+import fnmatch
 from pathlib import Path
 from typing import List, Optional, Tuple
 
@@ -137,7 +137,7 @@ def load_ultralytics(model_id: str) -> str:
     """
     if os.path.exists(model_id):
         return model_id
-    return _hf_hub_download_matching_file(model_id, r".*\.pt")
+    return _hf_hub_download_matching_file(model_id, "*.pt")
 
 
 def _hf_hub_download_matching_file(repo_id: str, pattern: str) -> str:
@@ -150,7 +150,8 @@ def _hf_hub_download_matching_file(repo_id: str, pattern: str) -> str:
     Arguments:
         repo_id: A huggingface repository ID consisting of a user or
             organization name and a repo name separated by a `/`.
-        extensions: A string of a tuple of strings with valid extensions.
+        pattern: The requested filename pattern. The pattern matching is
+            based on `fnmatch`.
 
     Returns:
         The local path to the cached or newly downloaded file.
@@ -161,7 +162,7 @@ def _hf_hub_download_matching_file(repo_id: str, pattern: str) -> str:
     """
     repo_files = _list_repo_files(repo_id)
     for file_ in repo_files:
-        if re.match(pattern, file_):
+        if fnmatch.fnmatch(file_, pattern):
             return hf_hub_download(repo_id, file_, **HF_CONFIG)
     raise FileNotFoundError((
         "Could not find any file that matches the pattern '%s' in "
