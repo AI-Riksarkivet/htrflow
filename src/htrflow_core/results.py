@@ -194,12 +194,9 @@ class Result:
     ):
         self.metadata = metadata or {}
         self.segments = segments or []
-
-        combined_data = []
+        self.data = []
         for entry, text in _zip_longest_none(data, texts, fillvalue={}):
-            entry.update({TEXT_RESULT_KEY: text})
-            combined_data.append(entry)
-        self.data = combined_data
+            self.data.append(entry | {TEXT_RESULT_KEY: text})
 
     def rescale(self, factor: float):
         """Rescale the Result's segments"""
