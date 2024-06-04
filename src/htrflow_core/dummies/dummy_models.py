@@ -6,9 +6,7 @@ import lorem  # type: ignore
 import numpy as np
 
 from htrflow_core.models.base_model import BaseModel
-from htrflow_core.results import RecognizedText, Result, Segment
-from htrflow_core.utils import imgproc
-from htrflow_core.utils.geometry import bbox2mask
+from htrflow_core.results import Result, Segment
 
 
 """
@@ -99,28 +97,3 @@ def randommask(h: int, w: int) -> np.ndarray:
     x, y = random.randrange(0, w), random.randrange(0, h)
     cv2.ellipse(mask, (x, y), (w // 8, h // 8), 0, 0, 360, color=(255,), thickness=-1)
     return mask
-
-
-def simple_word_segmentation(nodes) -> list[Result]:
-    return [_simple_word_segmentation(node.image, node.text, node.get("segment")) for node in nodes]
-
-
-def _simple_word_segmentation(image, text, segment=None):
-    height, width = image.shape[:2]
-    pixels_per_char = width // len(text)
-    bboxes = []
-    x1, x2 = 0, 0
-    words = text.split()
-    for word in words:
-        x2 = min(x1 + pixels_per_char * (len(word) + 1), width)
-        bboxes.append((x1, 0, x2, height))
-        x1 = x2
-
-    if segment and segment.mask is not None:
-        masks = [imgproc.mask(segment.mask, bbox2mask(bbox, segment.mask.shape), fill=0) for bbox in bboxes]
-        segments = [Segment(mask=mask, class_label="word") for mask in masks]
-    else:
-        segments = [Segment(bbox=bbox, class_label="word") for bbox in bboxes]
-    texts = [RecognizedText([word], [0]) for word in words]
-    metadata = {"model": "simple word segmentation"}
-    return Result(metadata, segments, texts=texts)

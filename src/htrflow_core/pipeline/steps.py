@@ -1,9 +1,9 @@
 import logging
 import os
 
-from htrflow_core.dummies.dummy_models import simple_word_segmentation
 from htrflow_core.models.importer import all_models
 from htrflow_core.postprocess.reading_order import left_right_top_down, order_region_with_marginalia
+from htrflow_core.postprocess.word_segmentation import simple_word_segmentation
 from htrflow_core.serialization import get_serializer
 from htrflow_core.utils.imgproc import write
 from htrflow_core.utils.layout import estimate_printspace
