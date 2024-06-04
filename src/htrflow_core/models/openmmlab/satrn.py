@@ -25,7 +25,13 @@ class Satrn(BaseModel, PytorchMixin):
                 model=model_config, weights=model_weights, device=self.set_device(self.device)
             )
 
-        logger.info(f"Model loaded on ({self.device_id}) from {model}.")
+        logger.info(
+            "Loaded Satrn model '%s' from %s with config %s on device %s",
+            model,
+            model_weights,
+            model_config,
+            self.device,
+        )
 
         self.metadata.update(
             {
