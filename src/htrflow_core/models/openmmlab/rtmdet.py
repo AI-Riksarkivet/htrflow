@@ -12,15 +12,15 @@ from htrflow_core.models.mixins.torch_mixin import PytorchMixin
 from htrflow_core.models.openmmlab.utils import SuppressOutput
 from htrflow_core.postprocess.mask_nms import multiclass_mask_nms
 from htrflow_core.results import Result
-from htrflow_core.utils.imgproc import resize
+from htrflow_core.utils.imgproc import Mask, NumpyImage, resize
 
 
 logger = logging.getLogger(__name__)
 
 
 class RTMDet(BaseModel, PytorchMixin):
-    def __init__(self, model: str, config: str | None = None, *model_args, **kwargs) -> None:
-        super().__init__(**kwargs)
+    def __init__(self, model: str, config: str | None = None, device: str | None = None) -> None:
+        super().__init__(device)
 
         model_weights, model_config = MMLabsDownloader.from_pretrained(model, config)
 
@@ -30,7 +30,6 @@ class RTMDet(BaseModel, PytorchMixin):
                 weights=model_weights,
                 device=self.set_device(self.device),
                 show_progress=False,
-                *model_args,
             )
 
         logger.info(
@@ -50,7 +49,7 @@ class RTMDet(BaseModel, PytorchMixin):
             }
         )
 
-    def _predict(self, images: list[np.ndarray], nms_downscale=1, **kwargs) -> list[Result]:
+    def _predict(self, images: list[NumpyImage], nms_downscale: float = 1.0, **kwargs) -> list[Result]:
         batch_size = max(1, len(images))
         outputs = self.model(images, batch_size=batch_size, draw_pred=False, return_datasample=True, **kwargs)
         results = []
@@ -58,7 +57,7 @@ class RTMDet(BaseModel, PytorchMixin):
             results.append(self._create_segmentation_result(image, output, nms_downscale))
         return results
 
-    def _create_segmentation_result(self, image: np.ndarray, output: DetDataSample, nms_downscale: float) -> Result:
+    def _create_segmentation_result(self, image: NumpyImage, output: DetDataSample, nms_downscale: float) -> Result:
         sample: InstanceData = output.pred_instances
         boxes = sample.bboxes.int().tolist()
 
@@ -82,7 +81,7 @@ class RTMDet(BaseModel, PytorchMixin):
         )
         return result
 
-    def _create_masks_and_test_alignment(self, image, sample):
+    def _create_masks_and_test_alignment(self, image: NumpyImage, sample: InstanceData) -> list[Mask]:
         masks = self.to_numpy(sample.masks).astype(np.uint8)
         _, *mask_size = masks.shape  # n_masks, (height, width)
         *image_size, _ = image.shape  # (height, width), n_channels
