@@ -34,9 +34,14 @@ class PipelineStep:
 
 
 class Inference(PipelineStep):
-    def __init__(self, model, generation_kwargs):
-        self.model = model
+    def __init__(self, model_class, model_kwargs, generation_kwargs):
+        self.model_class = model_class
+        self.model_kwargs = model_kwargs
         self.generation_kwargs = generation_kwargs
+        self.model = None
+
+    def _init_model(self):
+        self.model = self.model_class(**self.model_kwargs)
 
     @classmethod
     def from_config(cls, config):
@@ -47,11 +52,13 @@ class Inference(PipelineStep):
             logger.error(msg)
             raise NotImplementedError(msg)
         init_kwargs = config.get("model_settings", {})
-        model = MODELS[name](**init_kwargs)
+        model = MODELS[name]
         generation_kwargs = config.get("generation_settings", {})
-        return cls(model, generation_kwargs)
+        return cls(model, init_kwargs, generation_kwargs)
 
     def run(self, volume):
+        if self.model is None:
+            self._init_model()
         result = self.model(volume.segments(), **self.generation_kwargs)
         volume.update(result)
         return volume
