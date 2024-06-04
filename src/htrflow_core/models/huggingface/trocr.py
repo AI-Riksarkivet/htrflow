@@ -9,7 +9,7 @@ from htrflow_core.models.base_model import BaseModel
 from htrflow_core.models.enums import Framework, Task
 from htrflow_core.models.hf_utils import HF_CONFIG
 from htrflow_core.models.mixins.torch_mixin import PytorchMixin
-from htrflow_core.results import RecognizedText, Result
+from htrflow_core.results import Result
 
 
 logger = logging.getLogger(__name__)
@@ -104,8 +104,7 @@ class TrOCR(BaseModel, PytorchMixin):
         for i in range(0, len(texts), step):
             texts_chunk = texts[i : i + step]
             scores_chunk = scores[i : i + step]
-            recognized_text = RecognizedText(texts=texts_chunk, scores=scores_chunk)
-            result = Result.text_recognition_result(metadata=metadata, text=recognized_text)
+            result = Result.text_recognition_result(metadata, texts_chunk, scores_chunk)
             results.append(result)
         return results
 

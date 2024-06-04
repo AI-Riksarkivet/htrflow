@@ -149,8 +149,14 @@ class RecognizedText:
         scores: The scores of the candidate texts
     """
 
-    texts: Sequence[str]
-    scores: Sequence[float]
+    texts: list[str]
+    scores: list[float]
+
+    def __post_init__(self):
+        if not isinstance(self.texts, list):
+            self.texts = [self.texts]
+        if not isinstance(self.scores, list):
+            self.scores = [self.scores]
 
     def top_candidate(self) -> str:
         """The candidate with the highest confidence score"""
@@ -226,7 +232,7 @@ class Result:
         return [segment.class_label for segment in self.segments]
 
     @classmethod
-    def text_recognition_result(cls, metadata: dict[str, Any], text: RecognizedText) -> "Result":
+    def text_recognition_result(cls, metadata: dict[str, Any], texts: list[str], scores: list[float]) -> "Result":
         """Create a text recognition result
 
         Arguments:
@@ -236,7 +242,7 @@ class Result:
         Returns:
             A Result instance with the specified data and no segments.
         """
-        return cls(metadata, texts=[text])
+        return cls(metadata, texts=[RecognizedText(texts, scores)])
 
     @classmethod
     def segmentation_result(

@@ -58,7 +58,8 @@ class RecognitionModel(BaseModel):
         return [
             Result.text_recognition_result(
                 metadata,
-                RecognizedText(texts=[lorem.sentence() for _ in range(n)], scores=[random.random() for _ in range(n)]),
+                texts=[lorem.sentence() for _ in range(n)],
+                scores=[random.random() for _ in range(n)],
             )
             for _ in images
         ]
