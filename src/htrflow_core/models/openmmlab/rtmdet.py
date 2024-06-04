@@ -19,13 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 class RTMDet(BaseModel, PytorchMixin):
-    def __init__(
-        self,
-        model: str = "Riksarkivet/rtmdet_regions",
-        config: str = "Riksarkivet/rtmdet_regions",
-        *model_args,
-        **kwargs,
-    ) -> None:
+    def __init__(self, model: str, config: str | None = None, *model_args, **kwargs) -> None:
         super().__init__(**kwargs)
 
         model_weights, model_config = MMLabsDownloader.from_pretrained(model, config)
@@ -39,7 +33,13 @@ class RTMDet(BaseModel, PytorchMixin):
                 *model_args,
             )
 
-        logger.info(f"Model loaded on ({self.device_id}) from {model}.")
+        logger.info(
+            "Loaded RTMDet model '%s' from %s with config %s on device %s",
+            model,
+            model_weights,
+            model_config,
+            self.device,
+        )
 
         self.metadata.update(
             {
@@ -47,16 +47,11 @@ class RTMDet(BaseModel, PytorchMixin):
                 "config": str(config),
                 "framework": Framework.Openmmlab.value,
                 "task": [Task.ObjectDetection.value, Task.InstanceSegmentation.value],
-                "device": self.device_id,
             }
         )
 
     def _predict(self, images: list[np.ndarray], nms_downscale=1, **kwargs) -> list[Result]:
-        if len(images) > 1:
-            batch_size = len(images)
-        else:
-            batch_size = 1
-
+        batch_size = max(1, len(images))
         outputs = self.model(images, batch_size=batch_size, draw_pred=False, return_datasample=True, **kwargs)
         results = []
         for image, output in zip(images, outputs["predictions"]):
@@ -92,7 +87,10 @@ class RTMDet(BaseModel, PytorchMixin):
         _, *mask_size = masks.shape  # n_masks, (height, width)
         *image_size, _ = image.shape  # (height, width), n_channels
         if mask_size != image_size:
-            msg = "Mask and image shape not equal (masks %d-by-%d, image %d-by-%d). Resizing masks."
-            logger.warning(msg, *mask_size, *image_size)
+            logger.warning(
+                "Mask and image shape not equal (masks %d-by-%d, image %d-by-%d). Resizing masks.",
+                *mask_size,
+                *image_size,
+            )
             masks = [resize(mask, image_size) for mask in masks]
         return masks
