@@ -138,7 +138,7 @@ class ExportImages(PipelineStep):
             for node in page.traverse():
                 if node.image is None:
                     continue
-                write(os.path.join(directory, f'{node.get("long_label")}.{extension}'), node.image)
+                write(os.path.join(directory, f'{node.label}.{extension}'), node.image)
         return volume
 
 
