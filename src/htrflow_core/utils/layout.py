@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def estimate_printspace(image: np.ndarray, window: int = 50) -> Bbox:
+def estimate_printspace(image: np.ndarray, window: int = 150) -> Bbox:
     """Estimate printspace of page
 
     The printspace (borrowed terminology from ALTO XML) is a
@@ -39,7 +39,7 @@ def estimate_printspace(image: np.ndarray, window: int = 50) -> Bbox:
             to produce a result that does not cover the actual
             printspace entirely. A small window is more sensible to
             noise, and more prone to capture marignalia as printspace.
-            Defaults to 50.
+            Defaults to 150.
 
     Returns:
         The estimated printspace as a bounding box. If no printspace is
@@ -151,18 +151,32 @@ class RegionLocation(Enum):
 def get_region_location(printspace: Bbox, region: Bbox) -> RegionLocation:
     """Get location of `region` relative to `printspace`
 
+    The region is considered to be marginalia if more than 50% of it
+    it located outside the printspace.
+
     The side margins extends to the top and bottom of the page. If the
     region is located in a corner, it will be assigned to the left or
     right margin and not the top or bottom margin.
+
+    Arguments:
+        printspace: A bounding box representing the page's printspace.
+        region: The input region.
+
+    Returns:
+        A RegionLocation describing the region's location. Will default
+        to RegionLocation.PRINTSPACE if the location cannot be decided.
     """
-    if region.center.x < printspace.xmin:
-        return RegionLocation.MARGIN_LEFT
-    elif region.center.x > printspace.xmax:
+    overlap = printspace.intersection(region)
+    if overlap is not None and (overlap.area / region.area) > 0.5:
+        return RegionLocation.PRINTSPACE
+    if region.xmax >= printspace.xmax:
         return RegionLocation.MARGIN_RIGHT
-    elif region.center.y > printspace.ymax:
-        return RegionLocation.MARGIN_BOTTOM
-    elif region.center.y < printspace.ymin:
+    if region.xmin <= printspace.xmin:
+        return RegionLocation.MARGIN_LEFT
+    if region.ymin <= printspace.ymin:
         return RegionLocation.MARGIN_TOP
+    if region.ymax >= printspace.ymax:
+        return RegionLocation.MARGIN_BOTTOM
     return RegionLocation.PRINTSPACE
 
 

@@ -88,6 +88,14 @@ class Bbox:
     xmax: int
     ymax: int
 
+    def __post_init__(self):
+
+        # Make sure coordinates are integers
+        self.xmin = int(self.xmin)
+        self.xmax = int(self.xmax)
+        self.ymin = int(self.ymin)
+        self.ymax = int(self.ymax)
+
     @property
     def height(self) -> int:
         """Height of bounding box"""
@@ -165,6 +173,17 @@ class Bbox:
         """Check if two bounding boxes intersect."""
         return not (
             self.xmax < other.xmin or self.xmin > other.xmax or self.ymax < other.ymin or self.ymin > other.ymax
+        )
+
+    def intersection(self, other: "Bbox") -> "Bbox | None":
+        """Return the intersection between this bbox and `other`."""
+        if not self.intersects(other):
+            return None
+        return Bbox(
+            max(self.xmin, other.xmin),
+            max(self.ymin, other.ymin),
+            min(self.xmax, other.xmax),
+            min(self.ymax, other.ymax)
         )
 
     def __iter__(self) -> Iterator[int]:

@@ -1,12 +1,13 @@
 import logging
 import os
+from typing import Literal
 
 from htrflow_core.models.importer import all_models
-from htrflow_core.postprocess.reading_order import left_right_top_down, order_region_with_marginalia
+from htrflow_core.postprocess.reading_order import order_regions
 from htrflow_core.postprocess.word_segmentation import simple_word_segmentation
 from htrflow_core.serialization import get_serializer
 from htrflow_core.utils.imgproc import write
-from htrflow_core.utils.layout import estimate_printspace
+from htrflow_core.utils.layout import estimate_printspace, is_twopage
 from htrflow_core.volume.volume import Volume
 
 
@@ -95,26 +96,36 @@ class ReadingOrderMarginalia(PipelineStep):
     """Apply reading order
 
     This step orders the pages' first- and second-level segments
-    (corresponding to regions and lines). The regions are ordered
-    using simple left-right-top-down reading order. The lines within
-    each region are ordered using `order_region_with_marginalia`, which
-    tries to order the lines according to their location on the page.
-    This makes sure that lines within regions with both marginalia and
-    regular text are ordered correctly.
+    (corresponding to regions and lines). Both the regions and their
+    lines are ordered using `reading_order.order_regions`.
     """
+    def __init__(self, two_page: Literal["auto"] | bool = False):
+        """
+        Arguments:
+            two_page: Whether the page is a two-page spread. Three modes:
+                - 'auto': determine heuristically for each page using
+                    `layout.is_twopage`
+                - True: assume all pages are spreads
+                - False: assume all pages are single pages
+        """
+        self.two_page = two_page
+
+    def is_twopage(self, image):
+        if self.two_page == "auto":
+            return is_twopage(image)
+        return self.two_page
 
     def run(self, volume):
         for page in volume:
             if page.is_leaf():
                 continue
 
-            reading_order = left_right_top_down([region.bbox for region in page])
-            page.children = [page.children[i] for i in reading_order]
+            image = page.image
+            printspace = estimate_printspace(image)
+            page.children = order_regions(page.children, printspace, self.is_twopage(image))
 
-            printspace = estimate_printspace(page.image)
             for region in page:
-                reading_order = order_region_with_marginalia(printspace, [line.bbox for line in region])
-                region.children = [region.children[i] for i in reading_order]
+                region.children = order_regions(region.children, printspace, is_twopage=False)
         volume.relabel()
         return volume
 
