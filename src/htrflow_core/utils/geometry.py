@@ -211,9 +211,9 @@ class Polygon:
         ys = [y for _, y in self]
         return Bbox(min(xs), min(ys), max(xs), max(ys))
 
-    def as_nparray(self) -> npt.NDArray[np.uint16]:  # -> n x 2 numpy array of integers
-        """A np array version of the polygon"""
-        return np.array([[x, y] for x, y in self], dtype=np.uint16)
+    def as_nparray(self) -> npt.NDArray[np.int32]:
+        """The polygon as a [[x1, y1], ..., [xn, yn]] numpy array"""
+        return np.array([[x, y] for x, y in self], dtype=np.int32)
 
     def rescale(self, factor: float) -> "Polygon":
         """Rescale polygon by multiplying its points with `factor`"""
