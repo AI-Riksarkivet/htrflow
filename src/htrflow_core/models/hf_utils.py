@@ -1,6 +1,6 @@
+import fnmatch
 import logging
 import os
-import fnmatch
 from pathlib import Path
 from typing import List, Optional, Tuple
 
