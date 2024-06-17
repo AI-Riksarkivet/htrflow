@@ -10,7 +10,8 @@ steps:
     model_settings:
        model: Riksarkivet/rtmdet_regions
     generation_settings:
-       image_scaling_factor: 0.5
+       image_scaling_factor: 0.3
+       batch_size: 32
 
 # Line segmentation
 - step: Segmentation
@@ -19,23 +20,23 @@ steps:
     model_settings:
        model: Riksarkivet/rtmdet_lines
     generation_settings:
-       image_scaling_factor: 0.5
-
-- step: ReadingOrderMarginalia
+       image_scaling_factor: 0.4
+       batch_size: 16
+       nms_downscale: 0.5
 
 # Text recognition (line-based)
 - step: TextRecognition
   settings:
-    model: trocr
+    model: Trocr
     model_settings:
        model: Riksarkivet/trocr-base-handwritten-swe
     generation_settings:
-       batch_size: 32
+       batch_size: 64
        num_beams: 1
 
-- step: ExportImages
+- step: ReadingOrderMarginalia
   settings:
-    dest: outputs/images
+    two_page: always
 
 # Optional word segmentation
 - step: WordSegmentation
