@@ -16,7 +16,7 @@ classifiers = [
 ]
 description = "A short description of the project"
 documentation = "https://swedish-national-archives-ai-lab.github.io/htrflow_core/"
-include = ["scripts/openmmlab_install.py", "src/htrflow_core/templates/**/*"]
+include = ["scripts/openmmlab_install.py", "src/htrflow_core/serialization/*"]
 
 license = "EUPL-1.2"
 name = "htrflow_core"

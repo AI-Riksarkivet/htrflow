@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 _TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "templates")
-_SCHEMA_DIR = os.path.join(os.path.dirname(__file__), "templates/schema")
+_SCHEMA_DIR = os.path.join(os.path.dirname(__file__), "schemas")
 
 
 class Serializer:
