@@ -1,14 +1,8 @@
 import fnmatch
-import logging
 import os
 
 from huggingface_hub import hf_hub_download, list_repo_files
 from huggingface_hub.file_download import repo_folder_name
-
-
-# TODO: add pytest
-
-logger = logging.getLogger(__name__)
 
 
 def _fix_mmlab_dict_file(config_path: str, dictionary_path: str) -> None:

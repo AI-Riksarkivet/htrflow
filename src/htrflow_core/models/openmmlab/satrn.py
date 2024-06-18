@@ -4,7 +4,7 @@ from mmocr.apis import TextRecInferencer
 
 from htrflow_core.models.base_model import BaseModel
 from htrflow_core.models.enums import Framework, Task
-from htrflow_core.models.hf_utils import MMLabsDownloader
+from htrflow_core.models.hf_utils import load_mmlabs
 from htrflow_core.models.mixins.torch_mixin import PytorchMixin
 from htrflow_core.models.openmmlab.utils import SuppressOutput
 from htrflow_core.results import Result
@@ -18,7 +18,7 @@ class Satrn(BaseModel, PytorchMixin):
     def __init__(self, model: str, config: str | None = None, device: str | None = None) -> None:
         super().__init__(device)
 
-        model_weights, model_config = MMLabsDownloader.from_pretrained(model, config)
+        model_weights, model_config = load_mmlabs(model, config)
 
         with SuppressOutput():
             self.model = TextRecInferencer(
