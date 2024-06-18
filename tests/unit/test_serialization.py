@@ -8,7 +8,7 @@ from htrflow_core.volume import volume
 
 @pytest.fixture
 def demo_image():
-    return "data/demo_images/demo_image.jpg"
+    return "examples/images/A0068699_00021.jpg"
 
 
 @pytest.fixture
