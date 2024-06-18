@@ -2,67 +2,7 @@ import pickle
 
 import pytest
 
-from htrflow_core.dummies.dummy_models import RecognitionModel, SegmentationModel
-from htrflow_core.volume import node, postprocess, volume
-
-
-@pytest.fixture
-def demo_image():
-    return "examples/images/A0068699_00021.jpg"
-
-
-@pytest.fixture
-def demo_volume_unsegmented(demo_image):
-    n_images = 5
-    vol = volume.Volume([demo_image] * n_images)
-    return vol
-
-
-@pytest.fixture
-def demo_volume_segmented(demo_image):
-    n_images = 5
-    vol = volume.Volume([demo_image] * n_images)
-    model = SegmentationModel()
-    result = model(vol.images())
-    vol.update(result)
-    return vol
-
-
-@pytest.fixture
-def demo_volume_segmented_nested(demo_image):
-    n_images = 5
-    vol = volume.Volume([demo_image] * n_images)
-    model = SegmentationModel()
-    result = model(vol.images())
-    vol.update(result)
-    result = model(vol.segments())
-    vol.update(result)
-    return vol
-
-
-@pytest.fixture
-def demo_volume_segmented_nested_with_text(demo_image):
-    n_images = 5
-    vol = volume.Volume([demo_image] * n_images)
-    model = SegmentationModel()
-    result = model(vol.images())
-    vol.update(result)
-    result = model(vol.segments())
-    vol.update(result)
-    model = RecognitionModel()
-    result = model(vol.segments())
-    vol.update(result)
-    return vol
-
-
-@pytest.fixture
-def demo_volume_with_text(demo_image):
-    n_images = 1
-    vol = volume.Volume([demo_image] * n_images)
-    model = RecognitionModel()
-    result = model(vol.images())
-    vol.update(result)
-    return vol
+from htrflow_core.volume import node, volume
 
 
 def one_layer_tree(n_children=3):
@@ -135,36 +75,6 @@ def test_update_wrong_type(demo_image):
         root.update(5)
 
 
-def test_update_segmentation(demo_image):
-    segmentation_model = SegmentationModel("mask")
-    node = volume.PageNode(demo_image)
-    result, *_ = segmentation_model([node.image])
-    node.create_segments(result.segments)
-    assert len(node.children) == len(result.segments)
-
-
-def test_update_segmentation_bbox(demo_image):
-    segmentation_model = SegmentationModel("mask")
-    node = volume.PageNode(demo_image)
-    result, *_ = segmentation_model([node.image])
-    node.create_segments(result.segments)
-    segment_index = 0
-    segment_bbox = result.segments[segment_index].bbox
-    node_bbox = node[segment_index].get("segment").bbox
-    assert node_bbox == segment_bbox
-
-
-def test_update_segmentation_width_height(demo_image):
-    segmentation_model = SegmentationModel("mask")
-    node = volume.PageNode(demo_image)
-    result, *_ = segmentation_model([node.image])
-    node.create_segments(result.segments)
-    segment_index = 0
-    x1, y1, x2, y2 = result.segments[segment_index].bbox
-    assert x2 - x1 == node[segment_index].width
-    assert y2 - y1 == node[segment_index].height
-
-
 def test_update_nested_segmentation_coordinates(demo_volume_segmented_nested):
     page = demo_volume_segmented_nested[0]
     segment = page[0]
@@ -177,15 +87,6 @@ def test_update_nested_segmentation_coordinates(demo_volume_segmented_nested):
     nested_segment = page[0, 0]
     nested_segment_y_relative_to_parent = nested_segment.segment.bbox[1]
     assert nested_segment.coord.y == parent_y + nested_segment_y_relative_to_parent
-
-
-def test_update_region_text(demo_volume_segmented):
-    model = RecognitionModel()
-    result = model(demo_volume_segmented.segments())
-    demo_volume_segmented.update(result)
-    page = demo_volume_segmented[0]
-    node = page[0]
-    assert node.get("text_result") == result[0].data[0].get("text_result")
 
 
 def test_polygon_nested(demo_volume_segmented_nested):
@@ -250,10 +151,3 @@ def test_pickling(demo_volume_segmented_nested):
     assert isinstance(vol, volume.Volume)  # sanity check
     assert all(p1 == p2 for p1, p2 in zip(vol[0, 0].polygon[0], demo_volume_segmented_nested[0, 0].polygon[0]))
     assert vol[0, 0, 0].label == demo_volume_segmented_nested[0, 0, 0].label
-
-
-@pytest.mark.parametrize("threshold", [0.3, 0.6, 0.9, 0.99])
-def test_remove_noise_regions(demo_volume_segmented_nested_with_text, threshold):
-    page = demo_volume_segmented_nested_with_text[0]
-    pruned = postprocess.remove_noise_regions(page, threshold)
-    assert not any(postprocess.is_noise(node, threshold) for node in pruned.traverse())

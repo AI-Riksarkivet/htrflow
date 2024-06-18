@@ -1,9 +1,7 @@
 import pytest
 
 from htrflow_core import serialization
-from htrflow_core.dummies.dummy_models import RecognitionModel, SegmentationModel
 from htrflow_core.results import RecognizedText
-from htrflow_core.volume import volume
 
 
 @pytest.fixture
@@ -19,63 +17,6 @@ def alto():
 @pytest.fixture
 def page():
     return serialization.PageXML()
-
-
-@pytest.fixture
-def demo_page_unsegmented(demo_image):
-    node = volume.PageNode(demo_image)
-    model = RecognitionModel()
-    result = model([node.image])
-    node.add_data(**result[0].data[0])
-    node.relabel()
-    return node
-
-
-@pytest.fixture
-def demo_page_segmented_once(demo_image):
-    node = volume.PageNode(demo_image)
-    model = SegmentationModel()
-    results = model(node.segments())
-    for result, leaf in zip(results, node.leaves()):
-        node.create_segments(result.segments)
-    model = RecognitionModel()
-    results = model(node.segments())
-    for result, leaf in zip(results, node.leaves()):
-        leaf.add_data(**result.data[0])
-    node.relabel()
-    return node
-
-
-@pytest.fixture
-def demo_page_segmented_twice(demo_image):
-    node = volume.PageNode(demo_image)
-    model = SegmentationModel()
-    for _ in range(2):
-        results = model(node.segments())
-        for result, leaf in zip(results, node.leaves()):
-            leaf.create_segments(result.segments)
-    model = RecognitionModel()
-    results = model(node.segments())
-    for result, leaf in zip(results, node.leaves()):
-        leaf.add_data(**result.data[0])
-    node.relabel()
-    return node
-
-
-@pytest.fixture
-def demo_page_segmented_thrice(demo_image):
-    node = volume.PageNode(demo_image)
-    model = SegmentationModel()
-    for _ in range(3):
-        results = model(node.segments())
-        for result, leaf in zip(results, node.leaves()):
-            leaf.create_segments(result.segments)
-    model = RecognitionModel()
-    results = model(node.segments())
-    for result, leaf in zip(results, node.leaves()):
-        leaf.add_data(**result.data[0])
-    node.relabel()
-    return node
 
 
 def test_alto_unsegmented(demo_page_unsegmented, alto):
