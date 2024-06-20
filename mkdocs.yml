@@ -1,6 +1,6 @@
 # Project information
 site_name: "HTRFLOW"
-site_url: https://Swedish-National-Archives-AI-lab.github.io/htrflow_core
+site_url: https://Swedish-National-Archives-AI-lab.github.io/htrflow_core/
 site_author: "Swedish-National-Archives-AI-lab"
 site_description: "A short description of the project"
 repo_url: https://github.com/Swedish-National-Archives-AI-lab/htrflow_core
@@ -14,43 +14,45 @@ copyright: Copyright &copy; 2024  <a href="https://github.com/Swedish-National-A
 
 # Page tree
 nav:
-  - Home: index.md
-  - Core: 
-    - Ecosystem: core/ecosystem.md
-    - Design: core/design.md
+  - 🏡 htrflow-core: index.md
 
-  - Getting Started:
+  - 👋 Getting Started:
     - Quickstart: getting_started/quick_start.md
+    - Design: core/design.md
+    - Ecosystem: core/ecosystem.md
     - Data Structure: getting_started/data_structure.md
     - Models: getting_started/models.md
     - Pipeline: getting_started/pipeline.md
     - Serialization: getting_started/serialization.md
-  - API: 
-      - htrflow_core:
-        - Volume: 
-          - Volume: api/volume/volume.md
-          - Node: api/volume/node.md
-        - Results: api/results/results.md
-        - Image: api/image/image.md
+    - Tutorials:
+        - The internals: "notebooks/demo.ipynb"
 
-  - Tutorials:
-      - The internals: "notebooks/demo.ipynb"  
+  - 👩‍💻 Documentation: 
+      - Volume: 
+        - Volume: api/volume/volume.md
+        - Node: api/volume/node.md
+      - Results: api/results/results.md
+      - Image: api/image/image.md
 
-  - Assets:
-    - Models: assets_hf/models.md
-    - Datasets: assets_hf/datasets.md
-    - Tools: assets_hf/spaces.md
-
+  - 🤗 Open Source:
+    - Contribution: contributing.md
+    - Models: hf/models.md
+    - Datasets: hf/datasets.md
+    - Tools: hf/spaces.md
+  
 
 # Configuration
 theme:
   name: material
+  custom_dir: docs/overrides
+
   features:
     - navigation.tabs
     - navigation.sections
     - navigation.top
     - navigation.tracking
     - navigation.indexes
+    - navigation.footer
     - search.suggest
     - search.highlight
     - content.tabs.link
@@ -64,23 +66,23 @@ theme:
 
   language: en
   palette:
-  - media: "(prefers-color-scheme: light)"
-    primary: custom
-    scheme: black
-    toggle:
-      icon: material/weather-sunny
-      name: Switch to dark mode
-  - media: "(prefers-color-scheme: dark)"
-    scheme: slate
-    primary: black
-    toggle:
-      icon: material/weather-night
-      name: Switch to light mode
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+    - scheme: slate
+      primary: black
+      accent: black
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
   font:
     text: Roboto
     code: Roboto Mono
-  favicon: https://raw.githubusercontent.com/Swedish-National-Archives-AI-lab/package_cookiecutter/main/%7B%7B%20cookiecutter.project_slug%20%7D%7D/docs/assets/favicon.ico
-  logo: https://raw.githubusercontent.com/Swedish-National-Archives-AI-lab/package_cookiecutter/main/%7B%7B%20cookiecutter.project_slug%20%7D%7D/docs/assets/riks.png
+  favicon: https://raw.githubusercontent.com/Swedish-National-Archives-AI-lab/htrflow_core/main/docs/assets/favicon.ico
+  logo: https://raw.githubusercontent.com/Swedish-National-Archives-AI-lab/htrflow_core/main/docs/assets/riks.png
   icon:
     logo: logo
     repo: fontawesome/brands/github
@@ -103,15 +105,32 @@ plugins:
               - "!^_" # exclude all members starting with _
 
   - mkdocs-jupyter:
+      kernel_name: python3
       include_source: True
 
 extra:
+  generator: false
+  version:
+    provider: mike
   social:
+    - icon: boostrap/hf-logo-pirate
+      link: https://huggingface.co/Riksarkivet
+      name: Hugging Face
     - icon: fontawesome/brands/github
       link: https://github.com/Swedish-National-Archives-AI-lab
+      name: Github 
     - icon: fontawesome/brands/linkedin
       link: https://www.linkedin.com/in/Swedish-National-Archives-AI-lab
-  generator: false
+      name: Linkedin 
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/supervision
+      name: PyPi
+    - icon: fontawesome/brands/docker
+      link: https://hub.docker.com/u/roboflow
+      name: Docker Hub 
+
+extra_css:
+  - stylesheets/extra.css
 
 markdown_extensions:
   - abbr

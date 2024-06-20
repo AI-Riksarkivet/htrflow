@@ -21,85 +21,177 @@ hide:
     </a>
 </p>
 
-> [!NOTE]  
-> This repo is an work in progress ⚠️
+
+
 
 htrflow_core is a part of the htrflow suite, which is Riksarkivets open source project for handwritten text recogntion.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
+ 
+## The Swedish National Archives AI-Lab
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
+
+
+## Why should I use htrflow?
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
+
+
+
+## Quick tour
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
+
+
+<div class="grid cards" markdown>
+
+-   :material-clock-fast:{ .lg .middle } __Set up in 5 minutes__
+
+    ---
+
+    Install [`mkdocs-material`](#) with [`pip`](#) and get up
+    and running in minutes
+
+    [:octicons-arrow-right-24: Getting started](#)
+
+-   :fontawesome-brands-markdown:{ .lg .middle } __It's just Markdown__
+
+    ---
+
+    Focus on your content and generate a responsive and searchable static site
+
+    [:octicons-arrow-right-24: Reference](#)
+
+-   :material-format-font:{ .lg .middle } __Made to measure__
+
+    ---
+
+    Change the colors, fonts, language, icons, logo and more with a few lines
+
+    [:octicons-arrow-right-24: Customization](#)
+
+-   :material-scale-balance:{ .lg .middle } __Open Source, MIT__
+
+    ---
+
+    Material for MkDocs is licensed under MIT and available on [GitHub]
+
+    [:octicons-arrow-right-24: License](#)
+
+</div>
 
 ## Usage
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
 
-<div class="grid cards" markdown>
+```python
+from datasets import load_dataset
 
-- :fontawesome-brands-python: __Core__ for serialization and structure
-- :fontawesome-brands-python: __Segmentation__ for Text Segmentation on images
-- :fontawesome-brands-python: __HTR__ for Handwritten Text Recogntion on images
-- :fontawesome-brands-js: __Sandbox__ our demo playground
+dataset = load_dataset("Riksarkivet/Trolldomkomission")["train"]
 
-</div>
+images = dataset["image"]
+```
 
-## Installation
+!!! info inline end "Release Notes"
 
-You can install `htrflow_core` with [pypi](https://pypi.org/project/htrflow_core) in a
-[**Python>=3.10**](https://www.python.org/) environment.
+    [Releases on Github :fontawesome-brands-github:](https://github.com/Swedish-National-Archives-AI-lab/htrflow_core/releases){ .md-button }
 
-!!! example "pip install (recommended)"
 
-    === "core"
-        The core installation of `htrflow_core` install everything you need to get you started with structuring output in your htr workflow.
 
-        ```bash
-        pip install htrflow_core
-        ```
+###  Installation
 
-    === "models"
-        This installation add support för models we have implemented.
+=== "Installation"
 
-        ```bash
-        pip install "htrflow_core[models]"
-        ```
+    You can install `htrflow_core` with [pypi](https://pypi.org/project/htrflow_core) in a
+    [**Python>=3.10**](https://www.python.org/) environment.
 
-## Development
+    !!! tip "pip install (recommended)"
 
-!!! example "git clone (for development)"
+        === "core"
+            The core installation of `htrflow_core` install everything you need to get you started with structuring output in your htr workflow.
 
-    === "virtualenv"
+            ```bash
+            pip install htrflow_core
+            ```
 
-        ```bash
-        # clone repository and navigate to root directory
-        git clone https://github.com/Swedish-National-Archives-AI-lab/htrflow_core
-        cd htrflow_core
+        === "models"
+            This installation add support för models we have implemented.
 
-        # setup python environment and activate it
-        python3 -m venv venv
-        source venv/bin/activate
-        pip install --upgrade pip
+            ```bash
+            pip install "htrflow_core[models]"
+            ```
 
-        # core install
-        pip install -e "."
+=== "Development"
 
-        # all models install
-        pip install -e ".[huggingface, openmmlab, ultralytics]"
-        ```
+    !!! example "git clone (for development)"
 
-    === "poetry"
+        === "virtualenv"
 
-        ```bash
-        # clone repository and navigate to root directory
-        git clone https://github.com/Swedish-National-Archives-AI-lab/htrflow_core
-        cd htrflow_core
+            ```bash
+            # clone repository and navigate to root directory
+            git clone https://github.com/Swedish-National-Archives-AI-lab/htrflow_core
+            cd htrflow_core
 
-        # setup python environment and activate it
-        poetry env use python3.10
-        poetry shell
+            # setup python environment and activate it
+            python3 -m venv venv
+            source venv/bin/activate
+            pip install --upgrade pip
 
-        # core install
-        poetry install
+            # core install
+            pip install -e "."
 
-        # all models install
-        poetry install --all-extras
+            # all models install
+            pip install -e ".[huggingface, openmmlab, ultralytics]"
+            ```
 
-        # or specific framework
-        poetry install --extras huggingface
-        ```
+        === "poetry"
+
+            ```bash
+            # clone repository and navigate to root directory
+            git clone https://github.com/Swedish-National-Archives-AI-lab/htrflow_core
+            cd htrflow_core
+
+            # setup python environment and activate it
+            poetry env use python3.10
+            poetry shell
+
+            # core install
+            poetry install
+
+            # all models install
+            poetry install --all-extras
+
+            # or specific framework
+            poetry install --extras huggingface
+            ```
+
+
+
+## INFO
+
+=== "License"
+
+    ### License
+
+    !!! info "INFO"
+        dsda
+
+
+=== "Contact"
+
+    ### Contact
+
+    !!! info "INFO"
+        dsda
+
+
+=== "Citation"
+
+    ### Citation
+
+    !!! info "INFO"
+        dsda

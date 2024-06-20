@@ -16,3 +16,5 @@ mindmap
       Rest API?
       Infrastructure?
 ```
+
+# HaaS?
