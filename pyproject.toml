@@ -93,6 +93,8 @@ mike = "^2.1.1"
 mkdocs-jupyter = "^0.24.6"
 mkdocs-material = "^9.5.10"
 mkdocstrings = {extras = ["python"], version = ">=0.20"}
+mkdocs-table-reader-plugin = "^2.2.2"
+
 
 # Test
 [tool.pytest.ini_options]

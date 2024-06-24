@@ -2072,6 +2072,23 @@ files = [
 ]
 
 [[package]]
+name = "mkdocs-table-reader-plugin"
+version = "2.2.2"
+description = "MkDocs plugin to directly insert tables from files into markdown."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "mkdocs_table_reader_plugin-2.2.2-py3-none-any.whl", hash = "sha256:fed04dc54ddb1269893171098f3464a5f85f96b8160c065cd4f7e536012611f2"},
+    {file = "mkdocs_table_reader_plugin-2.2.2.tar.gz", hash = "sha256:198e3f556a59b4c66b227bbe3a2714cde8161b2ff33903de8611b89c04e1e014"},
+]
+
+[package.dependencies]
+mkdocs = ">=1.0"
+pandas = ">=1.1"
+PyYAML = ">=5.4.1"
+tabulate = ">=0.8.7"
+
+[[package]]
 name = "mkdocstrings"
 version = "0.25.1"
 description = "Automatic documentation from sources, for MkDocs."
@@ -2793,7 +2810,7 @@ files = [
 name = "pandas"
 version = "2.2.2"
 description = "Powerful data structures for data analysis, time series, and statistics"
-optional = true
+optional = false
 python-versions = ">=3.9"
 files = [
     {file = "pandas-2.2.2-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:90c6fca2acf139569e74e8781709dccb6fe25940488755716d1d354d6bc58bce"},
@@ -3438,7 +3455,7 @@ cli = ["click (>=5.0)"]
 name = "pytz"
 version = "2024.1"
 description = "World timezone definitions, modern and historical"
-optional = true
+optional = false
 python-versions = "*"
 files = [
     {file = "pytz-2024.1-py2.py3-none-any.whl", hash = "sha256:328171f4e3623139da4983451950b28e95ac706e13f3f2630a879749e7a8b319"},
@@ -4395,6 +4412,20 @@ files = [
 mpmath = ">=1.1.0,<1.4.0"
 
 [[package]]
+name = "tabulate"
+version = "0.9.0"
+description = "Pretty-print tabular data"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "tabulate-0.9.0-py3-none-any.whl", hash = "sha256:024ca478df22e9340661486f85298cff5f6dcdba14f3813e8830015b9ed1948f"},
+    {file = "tabulate-0.9.0.tar.gz", hash = "sha256:0095b12bf5966de529c0feb1fa08671671b3368eec77d7ef7ab114be2c068b3c"},
+]
+
+[package.extras]
+widechars = ["wcwidth"]
+
+[[package]]
 name = "termcolor"
 version = "2.4.0"
 description = "ANSI color formatting for output in terminal"
@@ -4869,7 +4900,7 @@ files = [
 name = "tzdata"
 version = "2024.1"
 description = "Provider of IANA time zone data"
-optional = true
+optional = false
 python-versions = ">=2"
 files = [
     {file = "tzdata-2024.1-py2.py3-none-any.whl", hash = "sha256:9068bc196136463f5245e51efda838afa15aaeca9903f49050dfa2679db4d252"},
@@ -5339,4 +5370,4 @@ ultralytics = ["huggingface-hub", "ultralytics"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10, <4.0"
-content-hash = "281f7d793e54d8c1cb9d09af1550f597cba1aafcb08f49a8ee88a51854bddd36"
+content-hash = "54191008cab55e560abbfdc36f4aa3591c65fe07eb54d83ffc2eecb661bdcfd2"

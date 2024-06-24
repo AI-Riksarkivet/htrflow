@@ -122,6 +122,16 @@ plugins:
   - mkdocs-jupyter:
       kernel_name: python3
       include_source: True
+  - table-reader:
+      base_path: "docs_dir"
+      data_path: "."
+      search_page_directory: True
+      allow_missing_files: False
+      select_readers:
+        - read_csv
+        - read_json
+      enabled: True
+
 
 extra:
   generator: false
