@@ -1,4 +1,5 @@
 ---
+icon: material/package-variant-closed 
 hide:
   - navigation
 ---

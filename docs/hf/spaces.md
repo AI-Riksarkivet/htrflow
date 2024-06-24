@@ -13,3 +13,10 @@ All code is open-source, all our models are on [Hugging Face](https://huggingfac
 !!! Note
 
     The backend (src) for the app will be rewritten and packaged to be more optimized under the project name [htrflow_core](https://github.com/Swedish-National-Archives-AI-lab/htrflow_core).
+
+<iframe
+	src="https://riksarkivet-htr-demo.hf.space"
+	frameborder="0"
+	width="850"
+	height="450"
+></iframe>

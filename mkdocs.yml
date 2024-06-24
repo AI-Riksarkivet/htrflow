@@ -1,5 +1,5 @@
 # Project information
-site_name: "HTRFLOW"
+site_name: "Riksarkivet - htrflow"
 site_url: https://Swedish-National-Archives-AI-lab.github.io/htrflow_core/
 site_author: "Swedish-National-Archives-AI-lab"
 site_description: "A short description of the project"
@@ -14,9 +14,10 @@ copyright: Copyright &copy; 2024  <a href="https://github.com/Swedish-National-A
 
 # Page tree
 nav:
-  - 🏡 htrflow-core: index.md
+  - htrflow: index.md
 
-  - 👋 Getting Started:
+  - Getting Started:
+    - getting_started/index.md
     - Quickstart: getting_started/quick_start.md
     - Design: core/design.md
     - Ecosystem: core/ecosystem.md
@@ -27,18 +28,23 @@ nav:
     - Tutorials:
         - The internals: "notebooks/demo.ipynb"
 
-  - 👩‍💻 Documentation: 
-      - Volume: 
-        - Volume: api/volume/volume.md
-        - Node: api/volume/node.md
-      - Results: api/results/results.md
-      - Image: api/image/image.md
+  - API Reference:
+    -  api/index.md
+    - Volume: api/volume/volume.md
+    - Node: api/volume/node.md
+    - Results: api/results/results.md
+    - Image: api/image/image.md
 
-  - 🤗 Open Source:
+  - Integrations:
+    - Dataplatform/IIIF
+    - HaaS
+
+  - Open Source:
     - Contribution: contributing.md
     - Models: hf/models.md
     - Datasets: hf/datasets.md
     - Tools: hf/spaces.md
+
   
 
 # Configuration
@@ -128,6 +134,10 @@ extra:
     - icon: fontawesome/brands/docker
       link: https://hub.docker.com/u/roboflow
       name: Docker Hub 
+  analytics:
+    provider: google
+    property: G-W257CN2VSV
+
 
 extra_css:
   - stylesheets/extra.css
