@@ -14,13 +14,13 @@ copyright: Copyright &copy; 2024  <a href="https://github.com/Swedish-National-A
 
 # Page tree
 nav:
-  - htrflow: index.md
+  - Home: index.md
 
   - Getting Started:
     - getting_started/index.md
     - Quickstart: getting_started/quick_start.md
-    - Design: core/design.md
-    - Ecosystem: core/ecosystem.md
+    - Design: getting_started/core/design.md
+    - Ecosystem: getting_started/core/ecosystem.md
     - Data Structure: getting_started/data_structure.md
     - Models: getting_started/models.md
     - Pipeline: getting_started/pipeline.md
@@ -36,14 +36,23 @@ nav:
     - Image: api/image/image.md
 
   - Integrations:
+    - integrations/index.md
     - Dataplatform/IIIF
     - HaaS
 
   - Open Source:
-    - Contribution: contributing.md
+    - hf/index.md
     - Models: hf/models.md
     - Datasets: hf/datasets.md
     - Tools: hf/spaces.md
+
+  - Help:
+    - help/index.md
+    - FAQ: help/faq.md
+    - Contribution: help/contributing.md
+    - License: help/license.md
+
+
 
   
 

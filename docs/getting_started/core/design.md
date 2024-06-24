@@ -1,7 +1,5 @@
 # Htrflow Design
 
-:octicons-heart-fill-24:{ .heart }
-
 
 ```mermaid
 graph TD

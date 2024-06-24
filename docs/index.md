@@ -1,5 +1,5 @@
 ---
-icon: material/package-variant-closed 
+icon: octicons/home
 hide:
   - navigation
 ---
@@ -27,11 +27,7 @@ hide:
 
 htrflow_core is a part of the htrflow suite, which is Riksarkivets open source project for handwritten text recogntion.
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
- 
-## The Swedish National Archives AI-Lab
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
 
 
 ## Why should I use htrflow?
@@ -39,54 +35,18 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
 
+!!! info inline end "Release Notes"
 
+    [Releases on Github :fontawesome-brands-github:](https://github.com/Swedish-National-Archives-AI-lab/htrflow_core/releases){ .md-button }
 
-## Quick tour
+ 
+
+## Something here..
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
-
-
-<div class="grid cards" markdown>
-
--   :material-clock-fast:{ .lg .middle } __Set up in 5 minutes__
-
-    ---
-
-    Install [`mkdocs-material`](#) with [`pip`](#) and get up
-    and running in minutes
-
-    [:octicons-arrow-right-24: Getting started](#)
-
--   :fontawesome-brands-markdown:{ .lg .middle } __It's just Markdown__
-
-    ---
-
-    Focus on your content and generate a responsive and searchable static site
-
-    [:octicons-arrow-right-24: Reference](#)
-
--   :material-format-font:{ .lg .middle } __Made to measure__
-
-    ---
-
-    Change the colors, fonts, language, icons, logo and more with a few lines
-
-    [:octicons-arrow-right-24: Customization](#)
-
--   :material-scale-balance:{ .lg .middle } __Open Source, MIT__
-
-    ---
-
-    Material for MkDocs is licensed under MIT and available on [GitHub]
-
-    [:octicons-arrow-right-24: License](#)
-
-</div>
 
 ## Usage
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
 
 ```python
@@ -96,11 +56,6 @@ dataset = load_dataset("Riksarkivet/Trolldomkomission")["train"]
 
 images = dataset["image"]
 ```
-
-!!! info inline end "Release Notes"
-
-    [Releases on Github :fontawesome-brands-github:](https://github.com/Swedish-National-Archives-AI-lab/htrflow_core/releases){ .md-button }
-
 
 
 ###  Installation
@@ -169,30 +124,3 @@ images = dataset["image"]
             # or specific framework
             poetry install --extras huggingface
             ```
-
-
-
-## INFO
-
-=== "License"
-
-    ### License
-
-    !!! info "INFO"
-        dsda
-
-
-=== "Contact"
-
-    ### Contact
-
-    !!! info "INFO"
-        dsda
-
-
-=== "Citation"
-
-    ### Citation
-
-    !!! info "INFO"
-        dsda

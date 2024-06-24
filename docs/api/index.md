@@ -1,5 +1,5 @@
 ---
-icon: material/api
+icon: material/book-open-outline
 ---
 
 # Test
