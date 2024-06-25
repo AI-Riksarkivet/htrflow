@@ -3,6 +3,7 @@ This module holds the base data structures
 """
 import logging
 import os
+import pickle
 from abc import ABC, abstractmethod
 from functools import lru_cache
 from itertools import chain
@@ -137,7 +138,6 @@ class PageNode(ImageNode):
 
 
 class Collection:
-
     pages: list[PageNode]
     _DEFAULT_LABEL = "untitled_collection"
 
@@ -182,6 +182,22 @@ class Collection:
         """
         paths = [os.path.join(path, file) for file in sorted(os.listdir(path))]
         return cls(paths)
+
+    @classmethod
+    def from_pickle(cls, path: str) -> "Collection":
+        """Initialize a collection from a pickle file
+
+        Arguments:
+            path: A path to a previously pickled collection instance
+        """
+        with open(path, "rb") as f:
+            collection = pickle.load(f)
+
+        if not isinstance(collection, Collection):
+            raise pickle.UnpicklingError(f"Unpickling {path} did not return a Collection instance.")
+
+        logger.info("Loaded collection '%s' from %s", collection.label, path)
+        return collection
 
     def __str__(self):
         return f"collection label: {self.label}\ncollection tree:\n" + "\n".join(child.tree2str() for child in self)
