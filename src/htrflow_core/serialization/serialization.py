@@ -24,7 +24,7 @@ from htrflow_core.utils.layout import REGION_KEY, RegionLocation
 
 
 if TYPE_CHECKING:
-    from htrflow_core.volume.volume import PageNode, Collection
+    from htrflow_core.volume.volume import Collection, PageNode
 
 
 logger = logging.getLogger(__name__)

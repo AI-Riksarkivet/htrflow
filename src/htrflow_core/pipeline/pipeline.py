@@ -28,7 +28,9 @@ class Pipeline:
             try:
                 collection = step.run(collection)
             except Exception:
-                logger.error("Pipeline failed on step %s. A backup collection is saved at %s", step_name, self.pickle_path)
+                logger.error(
+                    "Pipeline failed on step %s. A backup collection is saved at %s", step_name, self.pickle_path
+                )
                 raise
             self.pickle_path = pickle_collection(collection)
         return collection
