@@ -3,7 +3,6 @@ This module holds the base data structures
 """
 import logging
 import os
-import pickle
 from abc import ABC, abstractmethod
 from functools import lru_cache
 from itertools import chain
@@ -137,42 +136,28 @@ class PageNode(ImageNode):
         return NamedImage(imgproc.read(self.path), self.label)
 
 
-class Volume:
-
-    """Class representing a collection of input images
-
-    Examples:
-
-    ```python
-    from htrflow_core.volume import Volume
-
-    images = ['../assets/demo_image.jpg'] * 5
-
-    volume = Volume(images)
-    ```
-
-    """
+class Collection:
 
     pages: list[PageNode]
-    _DEFAULT_LABEL = "untitled_volume"
+    _DEFAULT_LABEL = "untitled_collection"
 
     def __init__(self, paths: Sequence[str], label: str | None = None, label_format: dict[str, str] | None = None):
-        """Initialize volume
+        """Initialize collection
 
         Arguments:
             paths: A list of paths to images
-            label: An optional label describing the volume. If not given,
+            label: An optional label describing the collection. If not given,
                 the label will be set to the input paths' first shared
                 parent directory, and if no such directory exists, it will
-                default to "untitled_volume".
+                default to "untitled_collection".
             label_format: What label format that should be used with this
-                volume, as a dictionary of keyword arguments. See
+                collection, as a dictionary of keyword arguments. See
                 Node.relabel_levels for options.
         """
         self.pages = paths2pages(paths)
-        self.label = label or _common_basename(paths) or Volume._DEFAULT_LABEL
+        self.label = label or _common_basename(paths) or Collection._DEFAULT_LABEL
         self._label_format = label_format or {}
-        logger.info("Initialized volume '%s' with %d pages", label, len(self.pages))
+        logger.info("Initialized collection '%s' with %d pages", label, len(self.pages))
 
     def __iter__(self) -> Iterator[PageNode]:
         return iter(self.pages)
@@ -187,10 +172,10 @@ class Volume:
         return chain(*[page.traverse(filter) for page in self])
 
     @classmethod
-    def from_directory(cls, path: str) -> "Volume":
-        """Initialize a volume from a directory
+    def from_directory(cls, path: str) -> "Collection":
+        """Initialize a collection from a directory
 
-        Sets the volume label to the directory name.
+        Sets the collection label to the directory name.
 
         Arguments:
             path: A path to a directory of images.
@@ -198,27 +183,11 @@ class Volume:
         paths = [os.path.join(path, file) for file in sorted(os.listdir(path))]
         return cls(paths)
 
-    @classmethod
-    def from_pickle(cls, path: str) -> "Volume":
-        """Initialize a volume from a pickle file
-
-        Arguments:
-            path: A path to a previously pickled volume instance
-        """
-        with open(path, "rb") as f:
-            vol = pickle.load(f)
-
-        if not isinstance(vol, Volume):
-            raise pickle.UnpicklingError(f"Unpickling {path} did not return a Volume instance.")
-
-        logger.info("Loaded volume '%s' from %s", vol.label, path)
-        return vol
-
     def __str__(self):
-        return f"Volume label: {self.label}\nVolume tree:\n" + "\n".join(child.tree2str() for child in self)
+        return f"collection label: {self.label}\ncollection tree:\n" + "\n".join(child.tree2str() for child in self)
 
     def images(self) -> "ImageGenerator":
-        """Yields the volume's original input images"""
+        """Yields the collection's original input images"""
         return ImageGenerator(page for page in self.pages)
 
     def segments(self) -> "ImageGenerator":
@@ -229,7 +198,7 @@ class Volume:
         yield from chain(*[page.leaves() for page in self])
 
     def active_leaves(self) -> Generator[ImageNode, None, None]:
-        """Yield the volume's active leaves
+        """Yield the collection's active leaves
 
         Here, an "active leaf" is a leaf node whose depth is equal to
         the maximum depth of the tree. In practice, this means that the
@@ -245,11 +214,11 @@ class Volume:
                 yield leaf
 
     def update(self, results: list[Result]) -> None:
-        """Update the volume with model results
+        """Update the collection with model results
 
         Arguments:
             results: A list of results where the i:th result
-                corresponds to the volume's i:th active leaf node.
+                corresponds to the collection's i:th active leaf node.
         """
         leaves = list(self.active_leaves())
         if len(leaves) != len(results):
@@ -260,7 +229,7 @@ class Volume:
         self.relabel()
 
     def save(self, directory: str = "outputs", serializer: str | serialization.Serializer = "alto") -> None:
-        """Save volume
+        """Save collection
 
         Arguments:
             directory: Output directory
@@ -268,7 +237,7 @@ class Volume:
                 "alto") or a Serializer instance. See serialization.supported_formats()
                 for available string options.
         """
-        serialization.save_volume(self, serializer, directory)
+        serialization.save_collection(self, serializer, directory)
 
     def set_label_format(self, **kwargs):
         self._label_format = kwargs

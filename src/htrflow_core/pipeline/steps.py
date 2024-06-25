@@ -8,7 +8,7 @@ from htrflow_core.postprocess.word_segmentation import simple_word_segmentation
 from htrflow_core.serialization import get_serializer
 from htrflow_core.utils.imgproc import write
 from htrflow_core.utils.layout import estimate_printspace, is_twopage
-from htrflow_core.volume.volume import Volume
+from htrflow_core.volume.volume import Collection
 
 
 logger = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ class PipelineStep:
     def from_config(cls, config):
         return cls(**config)
 
-    def run(self, volume: Volume) -> Volume:
+    def run(self, collection: Collection) -> Collection:
         """Run step"""
 
     def __str__(self):
@@ -57,12 +57,12 @@ class Inference(PipelineStep):
         generation_kwargs = config.get("generation_settings", {})
         return cls(model, init_kwargs, generation_kwargs)
 
-    def run(self, volume):
+    def run(self, collection):
         if self.model is None:
             self._init_model()
-        result = self.model(volume.segments(), **self.generation_kwargs)
-        volume.update(result)
-        return volume
+        result = self.model(collection.segments(), **self.generation_kwargs)
+        collection.update(result)
+        return collection
 
 
 class Segmentation(Inference):
@@ -76,10 +76,10 @@ class TextRecognition(Inference):
 class WordSegmentation(PipelineStep):
     requires = [TextRecognition]
 
-    def run(self, volume):
-        results = simple_word_segmentation(volume.active_leaves())
-        volume.update(results)
-        return volume
+    def run(self, collection):
+        results = simple_word_segmentation(collection.active_leaves())
+        collection.update(results)
+        return collection
 
 
 class Export(PipelineStep):
@@ -87,9 +87,9 @@ class Export(PipelineStep):
         self.serializer = get_serializer(format, **serializer_kwargs)
         self.dest = dest
 
-    def run(self, volume):
-        volume.save(self.dest, self.serializer)
-        return volume
+    def run(self, collection):
+        collection.save(self.dest, self.serializer)
+        return collection
 
 
 class ReadingOrderMarginalia(PipelineStep):
@@ -115,8 +115,8 @@ class ReadingOrderMarginalia(PipelineStep):
             return is_twopage(image)
         return self.two_page
 
-    def run(self, volume):
-        for page in volume:
+    def run(self, collection):
+        for page in collection:
             if page.is_leaf():
                 continue
 
@@ -126,23 +126,23 @@ class ReadingOrderMarginalia(PipelineStep):
 
             for region in page:
                 region.children = order_regions(region.children, printspace, is_twopage=False)
-        volume.relabel()
-        return volume
+        collection.relabel()
+        return collection
 
 
 class ExportImages(PipelineStep):
-    """Export the Volume's images
+    """Export the collection's images
 
     This step writes all existing images (regions, lines, etc.) in the
-    volume to disk.
+    collection to disk.
     """
 
     def __init__(self, dest):
         self.dest = dest
         os.makedirs(self.dest, exist_ok=True)
 
-    def run(self, volume):
-        for page in volume:
+    def run(self, collection):
+        for page in collection:
             directory = os.path.join(self.dest, page.get("image_name"))
             extension = page.get("image_path").split(".")[-1]
             os.makedirs(directory, exist_ok=True)
@@ -150,27 +150,27 @@ class ExportImages(PipelineStep):
                 if node.image is None:
                     continue
                 write(os.path.join(directory, f'{node.label}.{extension}'), node.image)
-        return volume
+        return collection
 
 
 class Break(PipelineStep):
     """Break the pipeline! Used for testing."""
 
-    def run(self, volume):
+    def run(self, collection):
         raise Exception
 
 
-def auto_import(source: Volume | list[str] | str) -> Volume:
-    """Import volume from `source`
+def auto_import(source: Collection | list[str] | str) -> Collection:
+    """Import collection from `source`
 
     Automatically detects import type from the input. Supported types
     are:
         - A path to a directory with images
         - A list of paths to images
-        - A path to a pickled volume
-        - A volume instance (returns itself)
+        - A path to a pickled collection
+        - A collection instance (returns itself)
     """
-    if isinstance(source, Volume):
+    if isinstance(source, Collection):
         return source
 
     # If source is a single string, treat it as a single-item list
@@ -182,10 +182,10 @@ def auto_import(source: Volume | list[str] | str) -> Volume:
         # Input is a single directory
         if len(source) == 1:
             if os.path.isdir(source[0]):
-                logger.info("Loading volume from directory %s", source[0])
-                return Volume.from_directory(source[0])
+                logger.info("Loading collection from directory %s", source[0])
+                return Collection.from_directory(source[0])
             if source[0].endswith("pickle"):
-                return Volume.from_pickle(source[0])
+                return Collection.from_pickle(source[0])
 
         # Input is a list of (potential) file paths, check each and
         # keep only the ones that refers to files
@@ -197,8 +197,8 @@ def auto_import(source: Volume | list[str] | str) -> Volume:
             paths.append(path)
 
         if paths:
-            logger.info("Loading volume from %d file(s)", len(paths))
-            return Volume(paths)
+            logger.info("Loading collection from %d file(s)", len(paths))
+            return Collection(paths)
 
     raise ValueError(f"Could not infer import type for '{source}'")
 

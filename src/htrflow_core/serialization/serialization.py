@@ -1,7 +1,7 @@
 """
 Serialization module
 
-This module contains functions for exporting a `Volume` or `PageNode`
+This module contains functions for exporting a `Collection` or `PageNode`
 instance to different formats.
 """
 
@@ -24,7 +24,7 @@ from htrflow_core.utils.layout import REGION_KEY, RegionLocation
 
 
 if TYPE_CHECKING:
-    from htrflow_core.volume.volume import PageNode, Volume
+    from htrflow_core.volume.volume import Collection, PageNode
 
 
 logger = logging.getLogger(__name__)
@@ -63,26 +63,26 @@ class Serializer:
             self.validate(doc)
         return doc
 
-    def serialize_volume(self, volume: Volume) -> Sequence[tuple[str, str]]:
-        """Serialize volume
+    def serialize_collection(self, collection: Collection) -> Sequence[tuple[str, str]]:
+        """Serialize collection
 
         Arguments:
-            volume: Input volume
+            collection: Input collection
 
         Returns:
             A sequence of (document, filename) tuples where `document`
-            is the serialized version of volume and `filename` is a
+            is the serialized version of collection and `filename` is a
             suggested filename to save `document` to. Note that this
             method may produce one file (which covers the entire
-            volume) or several files (typically one file per page),
+            collection) or several files (typically one file per page),
             depending on the serialization method.
         """
         outputs = []
-        for page in volume:
+        for page in collection:
             doc = self.serialize(page)
             if doc is None:
                 continue
-            filename = os.path.join(volume.label, page.label + self.extension)
+            filename = os.path.join(collection.label, page.label + self.extension)
             outputs.append((doc, filename))
         return outputs
 
@@ -213,7 +213,7 @@ class Json(Serializer):
         """Initialize JSON serializer
 
         Args:
-            one_file: Export all pages of the volume to the same file.
+            one_file: Export all pages of the collection to the same file.
                 Defaults to False.
             indent: The output json file's indentation level
         """
@@ -226,13 +226,13 @@ class Json(Serializer):
 
         return json.dumps(page.asdict(), default=default, indent=self.indent)
 
-    def serialize_volume(self, volume: Volume):
+    def serialize_collection(self, collection: Collection):
         if self.one_file:
-            pages = [json.loads(self._serialize(page)) for page in volume]
-            doc = json.dumps({"volume_label": volume.label, "pages": pages}, indent=self.indent)
-            filename = volume.label + self.extension
+            pages = [json.loads(self._serialize(page)) for page in collection]
+            doc = json.dumps({"collection_label": collection.label, "pages": pages}, indent=self.indent)
+            filename = collection.label + self.extension
             return [(doc, filename)]
-        return super().serialize_volume(volume)
+        return super().serialize_collection(collection)
 
 
 class PlainText(Serializer):
@@ -278,32 +278,32 @@ def get_serializer(serializer_name: str, **serializer_args) -> Serializer:
     raise ValueError(msg)
 
 
-def pickle_volume(volume: Volume, directory: str = ".cache", filename: Optional[str] = None):
-    """Pickle volume
+def pickle_collection(collection: Collection, directory: str = ".cache", filename: Optional[str] = None):
+    """Pickle collection
 
     Arguments:
-        volume: Input volume
+        collection: Input collection
         directory: Where to save the pickle file
         filename: Name of pickle file, optional. Defaults to
-            <volume label>.pickle if left as None
+            <collection label>.pickle if left as None
 
     Returns:
         The path to the pickled file.
     """
     os.makedirs(directory, exist_ok=True)
-    filename = f"{volume.label}.pickle" if filename is None else filename
+    filename = f"{collection.label}.pickle" if filename is None else filename
     path = os.path.join(directory, filename)
     with open(path, "wb") as f:
-        pickle.dump(volume, f)
-    logger.info("Wrote pickled volume '%s' to %s", volume.label, path)
+        pickle.dump(collection, f)
+    logger.info("Wrote pickled collection '%s' to %s", collection.label, path)
     return path
 
 
-def save_volume(volume: Volume, serializer: str | Serializer, dest: str) -> Iterable[tuple[str, str]]:
-    """Serialize and save volume
+def save_collection(collection: Collection, serializer: str | Serializer, dest: str) -> Iterable[tuple[str, str]]:
+    """Serialize and save collection
 
     Arguments:
-        volume: Input volume
+        collection: Input collection
         serializer: What serializer to use. Takes a Serializer instance
             or the name of the serializer as a string, see
             serialization.supported_formats() for supported formats.
@@ -314,7 +314,7 @@ def save_volume(volume: Volume, serializer: str | Serializer, dest: str) -> Iter
         serializer = get_serializer(serializer)
         logger.info("Using %s serializer with default settings", serializer.__class__.__name__)
 
-    for doc, filename in serializer.serialize_volume(volume):
+    for doc, filename in serializer.serialize_collection(collection):
         filename = os.path.join(dest, filename)
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         with open(filename, "w") as f:

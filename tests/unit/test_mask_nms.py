@@ -10,8 +10,6 @@ from htrflow_core.results import Result, Segment
 @pytest.fixture
 def results_with_mask():
     orig_shape = (200, 200)
-    image = np.zeros(orig_shape, dtype=np.uint8)
-
     mask_a = np.zeros(orig_shape, dtype=np.uint8)
     mask_a[20:70, 20:70] = 1
     mask_b = np.zeros(orig_shape, dtype=np.uint8)
@@ -43,7 +41,6 @@ def generate_random_masks(num_masks, image_size=(200, 200), num_classes=3):
 
 def simulate_large_dataset():
     num_masks = 100  # Simulating a large number of masks
-    image = np.zeros((200, 200), dtype=np.uint8)
     segments = generate_random_masks(num_masks)
     return Result(metadata={}, segments=segments)
 

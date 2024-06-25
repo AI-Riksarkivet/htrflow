@@ -65,25 +65,25 @@ def demo_page_segmented_thrice(demo_image):
 
 
 @pytest.fixture
-def demo_volume_unsegmented(demo_image):
+def demo_collection_unsegmented(demo_image):
     n_images = 5
-    vol = volume.Volume([demo_image] * n_images)
+    vol = volume.Collection([demo_image] * n_images)
     return vol
 
 
 @pytest.fixture
-def demo_volume_segmented(demo_image):
+def demo_collection_segmented(demo_image):
     n_images = 5
-    vol = volume.Volume([demo_image] * n_images)
+    vol = volume.Collection([demo_image] * n_images)
     result = dummy_segmentation_model(vol.images())
     vol.update(result)
     return vol
 
 
 @pytest.fixture
-def demo_volume_segmented_nested(demo_image):
+def demo_collection_segmented_nested(demo_image):
     n_images = 5
-    vol = volume.Volume([demo_image] * n_images)
+    vol = volume.Collection([demo_image] * n_images)
     result = dummy_segmentation_model(vol.images())
     vol.update(result)
     result = dummy_segmentation_model(vol.segments())
@@ -92,9 +92,9 @@ def demo_volume_segmented_nested(demo_image):
 
 
 @pytest.fixture
-def demo_volume_segmented_nested_with_text(demo_image):
+def demo_collection_segmented_nested_with_text(demo_image):
     n_images = 5
-    vol = volume.Volume([demo_image] * n_images)
+    vol = volume.Collection([demo_image] * n_images)
     result = dummy_segmentation_model(vol.images())
     vol.update(result)
     result = dummy_segmentation_model(vol.segments())
@@ -105,9 +105,9 @@ def demo_volume_segmented_nested_with_text(demo_image):
 
 
 @pytest.fixture
-def demo_volume_with_text(demo_image):
+def demo_collection_with_text(demo_image):
     n_images = 1
-    vol = volume.Volume([demo_image] * n_images)
+    vol = volume.Collection([demo_image] * n_images)
     result = dummy_text_recognition_model(vol.images())
     vol.update(result)
     return vol

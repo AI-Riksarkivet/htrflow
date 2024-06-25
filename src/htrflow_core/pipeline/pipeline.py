@@ -2,7 +2,7 @@ import logging
 from typing import Sequence
 
 from htrflow_core.pipeline.steps import PipelineStep, auto_import, init_step
-from htrflow_core.serialization import pickle_volume
+from htrflow_core.serialization import pickle_collection
 
 
 logger = logging.getLogger(__name__)
@@ -19,19 +19,21 @@ class Pipeline:
         """Init pipeline from config"""
         return Pipeline([init_step(step) for step in config["steps"]])
 
-    def run(self, volume, start=0):
-        """Run pipeline on volume"""
-        volume = auto_import(volume)
+    def run(self, collection, start=0):
+        """Run pipeline on collection"""
+        collection = auto_import(collection)
         for i, step in enumerate(self.steps[start:]):
             step_name = f"{step} (step {start+i+1} / {len(self.steps)})"
             logger.info("Running step %s", step_name)
             try:
-                volume = step.run(volume)
+                collection = step.run(collection)
             except Exception:
-                logger.error("Pipeline failed on step %s. A backup volume is saved at %s", step_name, self.pickle_path)
+                logger.error(
+                    "Pipeline failed on step %s. A backup collection is saved at %s", step_name, self.pickle_path
+                )
                 raise
-            self.pickle_path = pickle_volume(volume)
-        return volume
+            self.pickle_path = pickle_collection(collection)
+        return collection
 
     def metadata(self):
         return [step.metadata for step in self.steps]
