@@ -11,7 +11,7 @@ from htrflow_core.utils.geometry import Bbox
 
 
 if TYPE_CHECKING:
-    from htrflow_core.volume.volume import Volume
+    from htrflow_core.volume.volume import Collection
 
 
 logger = logging.getLogger(__name__)
@@ -180,20 +180,20 @@ def get_region_location(printspace: Bbox, region: Bbox) -> RegionLocation:
     return RegionLocation.PRINTSPACE
 
 
-def label_regions(volume: Volume):
-    """Label volume's regions
+def label_regions(collection: Collection):
+    """Label collection's regions
 
-    Labels each top-level segment of the volume as one of the five
+    Labels each top-level segment of the collection as one of the five
     region types specified by geometry.RegionLocation. Saves the label
     in the node's data dictionary under `key`.
 
     Arguments:
-        volume: Input volume
+        collection: Input collection
         key: Key used to save the region label. Defaults to
             "region_location".
     """
 
-    for page in volume:
+    for page in collection:
         printspace = estimate_printspace(page.image)
         for node in page:
             node.add_data(**{REGION_KEY: get_region_location(printspace, node.bbox)})
