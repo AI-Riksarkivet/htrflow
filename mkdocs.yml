@@ -3,7 +3,10 @@ site_name: "Riksarkivet - htrflow"
 site_url: https://Swedish-National-Archives-AI-lab.github.io/htrflow_core/
 site_author: "Swedish-National-Archives-AI-lab"
 site_description: "A short description of the project"
+repo_name: RA-AI-lab/htrflow_core
 repo_url: https://github.com/Swedish-National-Archives-AI-lab/htrflow_core
+edit_uri: https://github.com/Swedish-National-Archives-AI-lab/htrflow_core/tree/main/docs
+
 use_directory_urls: false
 extra_css:
   - stylesheets/extra.css
@@ -15,15 +18,16 @@ copyright: Copyright &copy; 2024  <a href="https://github.com/Swedish-National-A
 # Page tree
 nav:
   - Home: index.md
-
   - Getting Started:
     - getting_started/index.md
     - Quickstart: getting_started/quick_start.md
+    - Installation: getting_started/installation.md
     - Design: getting_started/core/design.md
     - Ecosystem: getting_started/core/ecosystem.md
     - Data Structure: getting_started/data_structure.md
     - Models: getting_started/models.md
     - Pipeline: getting_started/pipeline.md
+    - CLI: getting_started/cli.md
     - Serialization: getting_started/serialization.md
     - Tutorials:
         - The internals: "notebooks/demo.ipynb"
@@ -39,21 +43,20 @@ nav:
     - integrations/index.md
     - Dataplatform/IIIF
     - HaaS
+    - Gradio: hf/spaces.md
 
-  - Open Source:
-    - hf/index.md
-    - Models: hf/models.md
-    - Datasets: hf/datasets.md
-    - Tools: hf/spaces.md
+  - Resources:
+    - resources/index.md
+    - Open Source:
+      - Models: resources/models.md
+      - Datasets: resources/datasets.md
+    - Use Cases: resources/cases.md
 
   - Help:
     - help/index.md
     - FAQ: help/faq.md
     - Contribution: help/contributing.md
     - License: help/license.md
-
-
-
   
 
 # Configuration
@@ -131,6 +134,10 @@ plugins:
         - read_csv
         - read_json
       enabled: True
+  - git-revision-date-localized
+  - termynal
+  - swagger-ui-tag
+
 
 
 extra:
@@ -153,9 +160,6 @@ extra:
     - icon: fontawesome/brands/docker
       link: https://hub.docker.com/u/roboflow
       name: Docker Hub 
-  analytics:
-    provider: google
-    property: G-W257CN2VSV
 
 
 extra_css:

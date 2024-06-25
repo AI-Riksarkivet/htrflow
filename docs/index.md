@@ -2,7 +2,9 @@
 icon: octicons/home
 hide:
   - navigation
+  - toc
 ---
+
 
 <img src="assets/riks.png" width="20%" height="20%" align="right" />
 
@@ -27,7 +29,6 @@ hide:
 
 htrflow_core is a part of the htrflow suite, which is Riksarkivets open source project for handwritten text recogntion.
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
-
 
 
 ## Why should I use htrflow?
@@ -59,6 +60,15 @@ images = dataset["image"]
 
 
 ###  Installation
+
+
+<!-- termynal -->
+
+```
+> pip install htrflow_core
+---> 100%
+Installed
+```
 
 === "Installation"
 

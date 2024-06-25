@@ -1,7 +1,7 @@
 
 ## Datasets
 
-{{ read_csv("hf/tables/datasets.csv") }}
+{{ read_csv("resources/tables/datasets.csv") }}
 
 
 ## dataset – Contributions
