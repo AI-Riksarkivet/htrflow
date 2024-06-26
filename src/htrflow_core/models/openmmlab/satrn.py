@@ -15,7 +15,23 @@ logger = logging.getLogger(__name__)
 
 
 class Satrn(BaseModel, PytorchMixin):
+    """
+    HTRFLOW adapter of Openmmlabs' Satrn model
+    """
+
     def __init__(self, model: str, config: str | None = None, device: str | None = None) -> None:
+        """
+        Initialize a Satrn model.
+
+        Arguments:
+            model: Path to a local .pth model weights file or to a
+                huggingface repo which contains a .pth file, for example
+                'Riksarkivet/satrn_htr'.
+            config: Path to a local config.py file or to a huggingface
+                repo which contains a config.py file, for example
+                'Riksarkivet/satrn_htr'.
+            device: Model device.
+        """
         super().__init__(device)
 
         model_weights, model_config = load_mmlabs(model, config)
