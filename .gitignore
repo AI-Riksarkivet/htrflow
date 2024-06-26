@@ -3,12 +3,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Images
-*.jpg
-*.jpeg
-*.png
-*.tiff
-*.tif
 
 # Default HTRFLOW output directory
 outputs/

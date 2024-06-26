@@ -1,5 +1,5 @@
 # Project information
-site_name: "Riksarkivet - htrflow"
+site_name: "Riksarkivet - Htrflow Docs"
 site_url: https://Swedish-National-Archives-AI-lab.github.io/htrflow_core/
 site_author: "Swedish-National-Archives-AI-lab"
 site_description: "A short description of the project"
@@ -17,7 +17,7 @@ copyright: Copyright &copy; 2024  <a href="https://github.com/Swedish-National-A
 
 # Page tree
 nav:
-  - Home: index.md
+  - Htrflow: index.md
   - Getting Started:
     - getting_started/index.md
     - Quickstart: getting_started/quick_start.md

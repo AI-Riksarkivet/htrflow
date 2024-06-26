@@ -1,14 +1,13 @@
 ---
-icon: octicons/home
+icon: octicons/archive
 hide:
   - navigation
-  - toc
 ---
 
+<div align="center"">
+<img src="assets/background_htrflow_2.png" width="85%"/>
+</div>
 
-<img src="assets/riks.png" width="20%" height="20%" align="right" />
-
-# **htrflow_core**
 
 <p align="center">
     <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/Swedish-National-Archives-AI-lab/htrflow_core">
@@ -24,40 +23,69 @@ hide:
     </a>
 </p>
 
+___
 
+# **Htrflow**
+An open-source framework designed to enhance productivity and flexibility for both Handwritten Text Recognition (HTR) and Optical Character Recogntion (OCR). It is easy to learn, delivers high performance, and is ready for seamless integration and scaling in production environments.
 
+## Key features
+- **Standardization**: Avoid reinventing the wheel by standardizing HTR and OCR processes.
+- **Intuitive Design**: User-friendly and intuitive interface. 
+- **Collaboration**: Facilitate seamless collaboration both internally and with external partners within the humanities space.
+- **Modular Design**: Employ the "Lego principle" to create building blocks for specific document types using “blueprints.”
+- **Ease of Learning**: Simple and intuitive design that is easy to learn.
+- **Robustness**: Production-ready code that has been thoroughly tested.
+- **Standards-Based**: Supports various industry standard formats such as XML and JSON (and more).
+___
 
-htrflow_core is a part of the htrflow suite, which is Riksarkivets open source project for handwritten text recogntion.
+## Htrflow at Riksarkivet (The Swedish National Archives)
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
 
 
-## Why should I use htrflow?
+<img src="assets/riks.png" width="20%" height="20%" align="right" />
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
 
-!!! info inline end "Release Notes"
+### Htrflow as a Service
 
-    [Releases on Github :fontawesome-brands-github:](https://github.com/Swedish-National-Archives-AI-lab/htrflow_core/releases){ .md-button }
-
- 
-
-## Something here..å
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
 
-## Usage
+<div align="center"">
+<img src="assets/placeholder.jpg" width="50%"/>
+</div>
+
+
+### Htrflow Sandbox
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
 
-```bash
-pip install htrflow_core
-```
+<div align="center"">
+<img src="assets/placeholder.jpg" width="50%"/>
+</div>
 
-```python
-from datasets import load_dataset
 
-dataset = load_dataset("Riksarkivet/Trolldomkomission")["train"]
+___
 
-images = dataset["image"]
-```
+## Projects
+
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
+
+### Indexing projects
+
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
+
+<div align="center"">
+<img src="assets/placeholder.jpg" width="50%"/>
+</div>
+
+
+### Universal Viewer
+
+
+Riksarkivet Universal Viewer 4.0 is a community-developed, open-source item viewer, forked from [UniversalViewer](https://github.com/UniversalViewer/universalviewer). It is capable of displaying images, audio, video, and even 3D versions of digitized and born-digital library collections. The Riksarkivet viewer is built on the IIIF standard for interoperable images and includes a search function within transcriptions of archived documents displayed on the viewer.
+
+<div align="center"">
+<img src="assets/placeholder.jpg" width="50%"/>
+</div>
