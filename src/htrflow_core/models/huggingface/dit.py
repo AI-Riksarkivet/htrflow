@@ -16,35 +16,46 @@ logger = logging.getLogger(__name__)
 
 
 class DiT(BaseModel, PytorchMixin):
+    """
+    HTRFLOW adapter of DiT for image classification.
+
+    Uses huggingface's implementation of DiT. For further
+    information about the model, see
+    https://huggingface.co/docs/transformers/model_doc/dit.
+    """
+
     def __init__(
         self,
-        model: str = "microsoft/dit-base-finetuned-rvlcdip",
+        model: str,
         processor: str | None = None,
-        return_format: Literal["argmax", "softmax"] = "softmax",
         model_kwargs: dict | None = None,
         processor_kwargs: dict | None = None,
         **kwargs,
     ):
+        """Initialize a DiT model
+
+        Arguments:
+            model: Path or name of pretrained AutoModelForImageClassification.
+            processor: Optional path or name of a pretrained AutoImageProcessor.
+                If not given, the given `model` is used.
+            model_kwargs: Model initialization kwargs that are forwarded to
+                AutoModelForImageClassification.from_pretrained().
+            processor_kwargs: Processor initialization kwargs that are forwarded
+                to AutoImageProcessor.from_pretrained().
+            kwargs: Additional kwargs that are forwarded to BaseModel's __init__.
+        """
         super().__init__(**kwargs)
 
+        # Initialize model
         model_kwargs = HF_CONFIG | (model_kwargs or {})
-        processor_kwargs = HF_CONFIG | (processor_kwargs or {})
-
-        self.return_format = return_format
-
         self.model = AutoModelForImageClassification.from_pretrained(model, **model_kwargs)
-
         self.model.to(self.set_device(self.device))
-        logger.info(
-            "Initialized DiT model from %s on device %s. Initialization parameters: %s",
-            model,
-            getattr(self.model, "device", "<device name unavailable>"),
-            model_kwargs,
-        )
+        logger.info("Initialized DiT model from %s on device %s.", model, self.device)
 
+        # Initialize processor
         processor = processor or model
+        processor_kwargs = HF_CONFIG | (processor_kwargs or {})
         self.processor = AutoImageProcessor.from_pretrained(processor, **processor_kwargs)
-
         logger.info("Initialized DiT processor from %s. Initialization parameters: %s", processor, processor_kwargs)
 
         self.metadata.update(
@@ -54,23 +65,34 @@ class DiT(BaseModel, PytorchMixin):
                 "framework": Framework.HuggingFace.value,
                 "task": Task.ImageClassification.value,
                 "device": self.device_id,
-                "return_format": self.return_format,
             }
         )
 
-    def _predict(self, images: list[np.ndarray]) -> list[Result]:
+    def _predict(
+        self, images: list[np.ndarray], return_format: Literal["argmax", "softmax"] = "softmax"
+    ) -> list[Result]:
+        """Perform inference on `images`
+
+        Arguments:
+            images: List of input images.
+            return_format: Decides the format of the output. Options are:
+                - "softmax": returns the confidence scores for each class
+                    label and image. Default.
+                - "argmax": returns the most probable class label for each
+                    image.
+        """
         inputs = self.processor(images, return_tensors="pt").pixel_values
 
         with torch.no_grad():
             batch_logits = self.model(inputs.to(self.model.device)).logits
 
         return [
-            Result(metadata=self.metadata, data=[{"classification": self._get_label(logits)}])
+            Result(metadata=self.metadata, data=[{"classification": self._get_labels(logits, return_format)}])
             for logits in batch_logits
         ]
 
-    def _get_label(self, logits):
-        if self.return_format == "argmax":
+    def _get_labels(self, logits, return_format):
+        if return_format == "argmax":
             predicted_class_idx = logits.argmax(-1).item()
             label_ = self.model.config.id2label[predicted_class_idx]
 
