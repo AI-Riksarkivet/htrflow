@@ -12,14 +12,35 @@ from htrflow_core.models.mixins.torch_mixin import PytorchMixin
 from htrflow_core.models.openmmlab.utils import SuppressOutput
 from htrflow_core.postprocess.mask_nms import multiclass_mask_nms
 from htrflow_core.results import Result
-from htrflow_core.utils.imgproc import Mask, NumpyImage, resize
+from htrflow_core.utils.imgproc import NumpyImage, resize
 
 
 logger = logging.getLogger(__name__)
 
 
 class RTMDet(BaseModel, PytorchMixin):
+    """
+    HTRFLOW adapter of Openmmlabs' RTMDet model
+
+    This model can be used for region and line segmentation. Riksarkivet
+    provides two pre-trained RTMDet models:
+        -   https://huggingface.co/Riksarkivet/rtmdet_lines
+        -   https://huggingface.co/Riksarkivet/rtmdet_regions
+    """
+
     def __init__(self, model: str, config: str | None = None, device: str | None = None) -> None:
+        """
+        Initialize an RTMDet model.
+
+        Arguments:
+            model: Path to a local .pth model weights file or to a
+                huggingface repo which contains a .pth file, for example
+                'Riksarkivet/rtmdet_lines'.
+            config: Path to a local config.py file or to a huggingface
+                repo which contains a config.py file, for example
+                'Riksarkivet/rtmdet_lines'.
+            device: Model device.
+        """
         super().__init__(device)
 
         model_weights, model_config = load_mmlabs(model, config)
@@ -59,15 +80,20 @@ class RTMDet(BaseModel, PytorchMixin):
 
     def _create_segmentation_result(self, image: NumpyImage, output: DetDataSample, nms_downscale: float) -> Result:
         sample: InstanceData = output.pred_instances
+        orig_shape = image.shape[:2]
+
+        # RTMDet sometimes return masks of slightly different shape (+- a few pixels)
+        # than the input image. To avoid alignment problems later on, all masks are
+        # resized to the original image shape.
+        np_masks = sample.masks.cpu().numpy().astype(np.uint8)
+        masks = [resize(mask, orig_shape) for mask in np_masks]
+
         boxes = sample.bboxes.int().tolist()
-
-        masks = self._create_masks_and_test_alignment(image, sample)
-
         scores = sample.scores.tolist()
         class_labels = sample.labels.tolist()
 
         result = Result.segmentation_result(
-            image.shape[:2], bboxes=boxes, masks=masks, scores=scores, labels=class_labels, metadata=self.metadata
+            orig_shape, bboxes=boxes, masks=masks, scores=scores, labels=class_labels, metadata=self.metadata
         )
         indices_to_drop = multiclass_mask_nms(result, downscale=nms_downscale)
         result.drop_indices(indices_to_drop)
@@ -75,21 +101,8 @@ class RTMDet(BaseModel, PytorchMixin):
         logger.info(
             "%s (%d x %d): Found %d segments, dropped %d",
             getattr(image, "name", "unlabelled image"),
-            *image.shape[:2],
+            *orig_shape,
             len(scores),
             len(indices_to_drop),
         )
         return result
-
-    def _create_masks_and_test_alignment(self, image: NumpyImage, sample: InstanceData) -> list[Mask]:
-        masks = self.to_numpy(sample.masks).astype(np.uint8)
-        _, *mask_size = masks.shape  # n_masks, (height, width)
-        *image_size, _ = image.shape  # (height, width), n_channels
-        if mask_size != image_size:
-            logger.warning(
-                "Mask and image shape not equal (masks %d-by-%d, image %d-by-%d). Resizing masks.",
-                *mask_size,
-                *image_size,
-            )
-            masks = [resize(mask, image_size) for mask in masks]
-        return masks
