@@ -41,9 +41,10 @@ nav:
 
   - Integrations:
     - integrations/index.md
-    - Dataplatform/IIIF
-    - HaaS
-    - Gradio: hf/spaces.md
+    - IIIF: integrations/iiif.md
+    - Search: integrations/search.md
+    - HaaS: integrations/haas.md
+    - Gradio: integrations/spaces.md
 
   - Resources:
     - resources/index.md
@@ -88,13 +89,13 @@ theme:
       primary: indigo
       accent: indigo
       toggle:
-        icon: material/toggle-switch-off-outline
+        icon: material/weather-sunny
         name: Switch to dark mode
     - scheme: slate
       primary: black
       accent: black
       toggle:
-        icon: material/toggle-switch
+        icon: material/weather-night
         name: Switch to light mode
   font:
     text: Roboto

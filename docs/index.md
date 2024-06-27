@@ -5,7 +5,7 @@ hide:
 ---
 
 <div align="center"">
-<img src="assets/background_htrflow_2.png" width="85%"/>
+<img src="assets/background_htrflow_2.png" width="90%"/>
 </div>
 
 
@@ -38,54 +38,31 @@ An open-source framework designed to enhance productivity and flexibility for bo
 - **Standards-Based**: Supports various industry standard formats such as XML and JSON (and more).
 ___
 
+<img src="assets/riks.png" width="20%" height="15%" align="right" />
+
+
 ## Htrflow at Riksarkivet (The Swedish National Archives)
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
-
-
-<img src="assets/riks.png" width="20%" height="20%" align="right" />
-
-
-### Htrflow as a Service
 
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
 
-<div align="center"">
-<img src="assets/placeholder.jpg" width="50%"/>
-</div>
+##
+
+## Ecosystem
+
+=== "Htrflow as a Service"
+
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
+
+    <div align="center"">
+    <img src="assets/placeholder.jpg" width="100%"/>
+    </div>
+
+=== "Htrflow Sandbox"
+
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
 
 
-### Htrflow Sandbox
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
-
-<div align="center"">
-<img src="assets/placeholder.jpg" width="50%"/>
-</div>
-
-
-___
-
-## Projects
-
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
-
-### Indexing projects
-
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
-
-<div align="center"">
-<img src="assets/placeholder.jpg" width="50%"/>
-</div>
-
-
-### Universal Viewer
-
-
-Riksarkivet Universal Viewer 4.0 is a community-developed, open-source item viewer, forked from [UniversalViewer](https://github.com/UniversalViewer/universalviewer). It is capable of displaying images, audio, video, and even 3D versions of digitized and born-digital library collections. The Riksarkivet viewer is built on the IIIF standard for interoperable images and includes a search function within transcriptions of archived documents displayed on the viewer.
-
-<div align="center"">
-<img src="assets/placeholder.jpg" width="50%"/>
-</div>
+    <div align="center"">
+    <img src="assets/sandbox.png" width="80%"/>
+    </div>
