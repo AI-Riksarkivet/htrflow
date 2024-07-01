@@ -1,11 +1,11 @@
 # Project information
 site_name: "Riksarkivet - Htrflow Docs"
-site_url: https://Swedish-National-Archives-AI-lab.github.io/htrflow_core/
-site_author: "Swedish-National-Archives-AI-lab"
-site_description: "A short description of the project"
-repo_name: RA-AI-lab/htrflow_core
-repo_url: https://github.com/Swedish-National-Archives-AI-lab/htrflow_core
-edit_uri: https://github.com/Swedish-National-Archives-AI-lab/htrflow_core/tree/main/docs
+site_url: https://ai-riksarkivet.github.io/htrflow/latest/
+site_author: "AI Riksarkivet"
+site_description: "AIRA has developed an open source framework to make HTR easier to productionize."
+repo_name: AI-Riksarkivet/htrflow_core
+repo_url: https://github.com/AI-Riksarkivet/htrflow/
+edit_uri: https://github.com/AI-Riksarkivet/htrflow/tree/main/docs
 
 use_directory_urls: false
 extra_css:
@@ -13,7 +13,7 @@ extra_css:
 
 
 # Copyright
-copyright: Copyright &copy; 2024  <a href="https://github.com/Swedish-National-Archives-AI-lab" target="_blank">© Swedish-National-Archives-AI-lab.</a>
+copyright: Copyright &copy; 2024  <a href="https://github.com/AI-Riksarkivet/htrflow" target="_blank">© AI Riksarkivet.</a>
 
 # Page tree
 nav:
@@ -150,16 +150,16 @@ extra:
       link: https://huggingface.co/Riksarkivet
       name: Hugging Face
     - icon: fontawesome/brands/github
-      link: https://github.com/Swedish-National-Archives-AI-lab
+      link: https://github.com/AI-Riksarkivet
       name: Github 
     - icon: fontawesome/brands/linkedin
-      link: https://www.linkedin.com/in/Swedish-National-Archives-AI-lab
+      link: https://www.linkedin.com/company/national-archives-in-sweden-riksarkivet-
       name: Linkedin 
     - icon: fontawesome/brands/python
-      link: https://pypi.org/project/supervision
+      link: https://pypi.org/htrflow/
       name: PyPi
     - icon: fontawesome/brands/docker
-      link: https://hub.docker.com/u/roboflow
+      link: https://hub.docker.com/u/airiksarkivet
       name: Docker Hub 
 
 
