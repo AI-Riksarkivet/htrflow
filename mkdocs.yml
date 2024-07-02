@@ -161,7 +161,9 @@ extra:
     - icon: fontawesome/brands/docker
       link: https://hub.docker.com/u/airiksarkivet
       name: Docker Hub 
-
+  analytics:
+    provider: custom
+    property: matomo
 
 extra_css:
   - stylesheets/extra.css
