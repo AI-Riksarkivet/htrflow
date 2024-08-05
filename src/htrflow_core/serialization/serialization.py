@@ -180,14 +180,11 @@ class PageXML(Serializer):
         if page.is_leaf():
             return None
 
-        def is_text_line(node):
-            return node.text and (node.parent is None or node.parent.is_region())
-
         return self.template.render(
             page=page,
             TEXT_RESULT_KEY=TEXT_RESULT_KEY,
             metadata=metadata(page),
-            is_text_line=is_text_line,
+            is_text_line=lambda node: node.is_line(),
         )
 
     def validate(self, doc: str) -> None:

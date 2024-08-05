@@ -12,9 +12,9 @@ from typing import Generator, Iterable, Iterator, Sequence
 import numpy as np
 
 from htrflow_core import serialization
-from htrflow_core.results import TEXT_RESULT_KEY, Result, Segment
+from htrflow_core.results import TEXT_RESULT_KEY, RecognizedText, Result, Segment
 from htrflow_core.utils import imgproc
-from htrflow_core.utils.geometry import Bbox, Mask, Point, Polygon
+from htrflow_core.utils.geometry import Bbox, Mask, Point, Polygon, mask2polygon
 from htrflow_core.volume import node
 
 
@@ -41,10 +41,21 @@ class ImageNode(node.Node, ABC):
         self.coord = coord
         self.bbox = Bbox(0, 0, width, height).move(coord)
         self.mask = mask
+        self.polygon = self._compute_polygon(polygon)
 
-        if polygon and parent:
-            polygon = polygon.move(parent.coord)
-        self.polygon = polygon or self.bbox.polygon()
+    def _compute_polygon(self, polygon: Polygon | None):
+        if polygon:
+            if self.parent:
+                polygon = polygon.move(self.parent.coord)
+            return polygon
+
+        if self.parent and self.parent.mask is not None:
+            x, y = self.parent.coord
+            cropped_mask = imgproc.crop(self.parent.mask, self.bbox.move((-x, -y)))
+            if cropped_mask.any():
+                return mask2polygon(cropped_mask).move(self.coord)
+
+        return self.bbox.polygon()
 
     def __str__(self) -> str:
         s = f"{self.height}x{self.width} node ({self.label}) at ({self.coord.x}, {self.coord.y})"
@@ -63,6 +74,20 @@ class ImageNode(node.Node, ABC):
         if text_result := self.get(TEXT_RESULT_KEY):
             return text_result.top_candidate()
         return None
+
+    @property
+    def text_result(self) -> RecognizedText | None:
+        if text_result := self.get(TEXT_RESULT_KEY):
+            return text_result
+        if all(child.is_word() for child in self):
+            return RecognizedText(texts=[" ".join(child.text for child in self)], scores=[0])
+        return None
+
+    def is_word(self):
+        return self.text is not None and len(self.text.split()) < 2
+
+    def is_line(self):
+        return all(child.is_word() for child in self) and (self.parent is None or self.parent.is_region())
 
     def update(self, result: Result):
         """Update node with result"""
