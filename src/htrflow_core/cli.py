@@ -74,21 +74,18 @@ def main(
 ):
     """Entrypoint for htrflow_core's pipeline."""
     setup_pipeline_logging(logfile, loglevel.upper())
-    try:
-        with open(pipeline, "r") as file:
-            config = yaml.safe_load(file)
-        hf_utils.HF_CONFIG |= config.get("huggingface_config", {})
-        pipe = Pipeline.from_config(config)
 
-        volume = auto_import(inputs)
+    with open(pipeline, "r") as file:
+        config = yaml.safe_load(file)
+    hf_utils.HF_CONFIG |= config.get("huggingface_config", {})
+    pipe = Pipeline.from_config(config)
 
-        if "labels" in config:
-            volume.set_label_format(**config["labels"])
-        typer.echo("Running Pipeline")
-        volume = pipe.run(volume)
-    except Exception as e:
-        typer.echo(f"Error: {e}", err=True)
-        raise typer.Exit(code=1)
+    volume = auto_import(inputs)
+
+    if "labels" in config:
+        volume.set_label_format(**config["labels"])
+    typer.echo("Running Pipeline")
+    volume = pipe.run(volume)
 
 
 @app.command("cowsay")
