@@ -7,13 +7,13 @@ instance to different formats.
 
 from __future__ import annotations
 
-import datetime
 import json
 import logging
 import os
 import pickle
 from collections import defaultdict
-from typing import TYPE_CHECKING, Iterable, Optional, Sequence, Union
+from datetime import datetime
+from typing import TYPE_CHECKING, Optional, Sequence
 
 import xmlschema
 from jinja2 import Environment, FileSystemLoader
@@ -47,7 +47,7 @@ class Serializer:
     extension: str
     format_name: str
 
-    def serialize(self, page: PageNode, validate: bool = False) -> str | None:
+    def serialize(self, page: PageNode, validate: bool = False, **metadata) -> str | None:
         """Serialize page
 
         Arguments:
@@ -58,12 +58,12 @@ class Serializer:
         Returns:
             A string if the serialization was succesful, else None
         """
-        doc = self._serialize(page)
+        doc = self._serialize(page, **metadata)
         if validate:
             self.validate(doc)
         return doc
 
-    def serialize_collection(self, collection: Collection) -> Sequence[tuple[str, str]]:
+    def serialize_collection(self, collection: Collection, **metadata) -> Sequence[tuple[str, str]]:
         """Serialize collection
 
         Arguments:
@@ -79,7 +79,7 @@ class Serializer:
         """
         outputs = []
         for page in collection:
-            doc = self.serialize(page)
+            doc = self.serialize(page, **metadata)
             if doc is None:
                 continue
             filename = os.path.join(collection.label, page.label + self.extension)
@@ -89,7 +89,7 @@ class Serializer:
     def validate(self, doc: str) -> None:
         """Validate document"""
 
-    def _serialize(self, page: PageNode) -> str | None:
+    def _serialize(self, page: PageNode, **metadata) -> str | None:
         """Format-specific seralization method
 
         Arguments:
@@ -122,7 +122,7 @@ class AltoXML(Serializer):
         self.template = env.get_template("alto")
         self.schema = os.path.join(_SCHEMA_DIR, "alto-4-4.xsd")
 
-    def _serialize(self, page: PageNode) -> str:
+    def _serialize(self, page: PageNode, **metadata) -> str:
         # Find all nodes that correspond to Alto TextBlock elements and
         # their location (if available). A TextBlock is a region whose
         # children are text lines (and not other regions). If the node's
@@ -141,8 +141,9 @@ class AltoXML(Serializer):
             bottom_margin=text_blocks[RegionLocation.MARGIN_BOTTOM],
             left_margin=text_blocks[RegionLocation.MARGIN_LEFT],
             right_margin=text_blocks[RegionLocation.MARGIN_RIGHT],
-            metadata=metadata(page),
-            xmlescape=xmlescape,
+            metadata=get_metadata(),
+            processing_steps=metadata.pop("processing_steps", []),
+            xmlescape=xmlescape
         )
 
     def validate(self, doc: str) -> None:
@@ -176,14 +177,14 @@ class PageXML(Serializer):
         self.template = env.get_template("page")
         self.schema = os.path.join(_SCHEMA_DIR, "pagecontent.xsd")
 
-    def _serialize(self, page: PageNode):
+    def _serialize(self, page: PageNode, **metadata):
         if page.is_leaf():
             return None
 
         return self.template.render(
             page=page,
             TEXT_RESULT_KEY=TEXT_RESULT_KEY,
-            metadata=metadata(page),
+            metadata=get_metadata(),
             is_text_line=lambda node: node.is_line(),
         )
 
@@ -241,24 +242,15 @@ class PlainText(Serializer):
         return "\n".join(line.text for line in lines)
 
 
-def metadata(page: PageNode) -> dict[str, Union[str, list[dict[str, str]]]]:
-    """Generate metadata for `page`
+def get_metadata() -> dict:
+    timestamp = datetime.utcnow().isoformat()
 
-    Args:
-        page: input page
-
-    Returns:
-        A dictionary with metadata
-    """
-    timestamp = datetime.datetime.utcnow().isoformat()
     return {
-        "creator": f"{htrflow_core.meta['Author']}",
-        "software_name": f"{htrflow_core.meta['Name']}",
-        "software_version": f"{htrflow_core.meta['Version']}",
-        "application_description": f"{htrflow_core.meta['Summary']}",
+        "creator": htrflow_core.meta["Author"],
+        "software_name": htrflow_core.meta["Name"],
+        "software_version": htrflow_core.meta["Version"],
+        "application_description": htrflow_core.meta["Summary"],
         "created": timestamp,
-        "last_change": timestamp,
-        "processing_steps": [{"description": "", "settings": ""}],
     }
 
 
@@ -296,7 +288,7 @@ def pickle_collection(collection: Collection, directory: str = ".cache", filenam
     return path
 
 
-def save_collection(collection: Collection, serializer: str | Serializer, dest: str) -> Iterable[tuple[str, str]]:
+def save_collection(collection: Collection, serializer: str | Serializer, dest: str, **metadata):
     """Serialize and save collection
 
     Arguments:
@@ -311,7 +303,7 @@ def save_collection(collection: Collection, serializer: str | Serializer, dest: 
         serializer = get_serializer(serializer)
         logger.info("Using %s serializer with default settings", serializer.__class__.__name__)
 
-    for doc, filename in serializer.serialize_collection(collection):
+    for doc, filename in serializer.serialize_collection(collection, **metadata):
         filename = os.path.join(dest, filename)
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         with open(filename, "w") as f:

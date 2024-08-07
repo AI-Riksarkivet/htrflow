@@ -3,7 +3,7 @@
     <Metadata>
         <Creator>{{ metadata.creator }}</Creator>
         <Created>{{ metadata.created }}</Created>
-        <LastChange>{{ metadata.last_change }}</LastChange>
+        <LastChange>{{ metadata.created }}</LastChange>
     </Metadata>
     <Page imageFilename="{{ page.get('image_path') }}" imageWidth="{{ page.width }}" imageHeight="{{ page.height }}">
         <ReadingOrder>

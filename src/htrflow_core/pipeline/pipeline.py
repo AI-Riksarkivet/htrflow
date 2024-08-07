@@ -12,6 +12,8 @@ class Pipeline:
     def __init__(self, steps: Sequence[PipelineStep]):
         self.steps = steps
         self.pickle_path = None
+        for step in self.steps:
+            step.parent_pipeline = self
         validate(self)
 
     @classmethod
@@ -36,7 +38,7 @@ class Pipeline:
         return collection
 
     def metadata(self):
-        return [step.metadata for step in self.steps]
+        return [step.metadata for step in self.steps if step.metadata]
 
 
 def validate(pipeline: Pipeline):

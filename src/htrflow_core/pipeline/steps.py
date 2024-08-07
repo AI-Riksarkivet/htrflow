@@ -1,17 +1,24 @@
 import logging
 import os
+from dataclasses import dataclass
 from typing import Literal
 
 from htrflow_core.models.importer import all_models
 from htrflow_core.postprocess.reading_order import order_regions
 from htrflow_core.postprocess.word_segmentation import simple_word_segmentation
-from htrflow_core.serialization import get_serializer
+from htrflow_core.serialization import get_serializer, save_collection
 from htrflow_core.utils.imgproc import write
 from htrflow_core.utils.layout import estimate_printspace, is_twopage
 from htrflow_core.volume.volume import Collection
 
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class StepMetadata:
+    description: str
+    settings: dict[str, str]
 
 
 class PipelineStep:
@@ -22,6 +29,8 @@ class PipelineStep:
     """
 
     requires = []
+    parent_pipeline = None
+    metadata: StepMetadata | None = None
 
     @classmethod
     def from_config(cls, config):
@@ -43,6 +52,7 @@ class Inference(PipelineStep):
 
     def _init_model(self):
         self.model = self.model_class(**self.model_kwargs)
+        self.metadata = StepMetadata(str(self), self.model.metadata)
 
     @classmethod
     def from_config(cls, config):
@@ -88,7 +98,8 @@ class Export(PipelineStep):
         self.dest = dest
 
     def run(self, collection):
-        collection.save(self.dest, self.serializer)
+        metadata = self.parent_pipeline.metadata() if self.parent_pipeline else None
+        save_collection(collection, self.serializer, self.dest, processing_steps=metadata)
         return collection
 
 
