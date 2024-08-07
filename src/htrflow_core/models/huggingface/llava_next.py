@@ -6,10 +6,10 @@ from typing import Optional, Union
 
 import numpy as np
 import torch
+from huggingface_hub import model_info
 from transformers import LlavaNextForConditionalGeneration, LlavaNextProcessor, TextIteratorStreamer, TextStreamer
 
 from htrflow_core.models.base_model import BaseModel
-from htrflow_core.models.enums import Framework, Task
 from htrflow_core.models.mixins.torch_mixin import PytorchMixin
 from htrflow_core.results import RecognizedText, Result
 from htrflow_core.utils import imgproc
@@ -57,12 +57,11 @@ class LLavaNext(BaseModel, PytorchMixin):
 
         self.metadata.update(
             {
-                "model": str(model),
-                "processor": str(processor),
-                "prompt": str(prompt),
-                "framework": Framework.HuggingFace.value,
-                "task": Task.Image2Text.value,
-                "device": self.device_id,
+                "model": model,
+                "model_version": model_info(model).sha,
+                "prompt": prompt,
+                "processor": processor,
+                "processor_version": model_info(processor).sha,
             }
         )
 

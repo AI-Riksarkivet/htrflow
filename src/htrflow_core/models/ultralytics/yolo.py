@@ -6,8 +6,7 @@ from ultralytics import YOLO as UltralyticsYOLO
 from ultralytics.engine.results import Results as UltralyticsResults
 
 from htrflow_core.models.base_model import BaseModel
-from htrflow_core.models.enums import Framework, Task
-from htrflow_core.models.hf_utils import load_ultralytics
+from htrflow_core.models.hf_utils import commit_hash_from_path, load_ultralytics
 from htrflow_core.models.mixins.torch_mixin import PytorchMixin
 from htrflow_core.results import Result
 
@@ -26,10 +25,8 @@ class YOLO(BaseModel, PytorchMixin):
 
         self.metadata.update(
             {
-                "model": str(model),
-                "framework": Framework.Ultralytics.value,
-                "task": [Task.ObjectDetection.value, Task.InstanceSegmentation.value],
-                "device": self.device_id,
+                "model": model,
+                "model_version": commit_hash_from_path(model_file)
             }
         )
 

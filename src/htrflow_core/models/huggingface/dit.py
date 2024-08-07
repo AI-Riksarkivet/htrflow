@@ -3,10 +3,10 @@ from typing import Literal
 
 import numpy as np
 import torch
+from huggingface_hub import model_info
 from transformers import AutoImageProcessor, AutoModelForImageClassification
 
 from htrflow_core.models.base_model import BaseModel
-from htrflow_core.models.enums import Framework, Task
 from htrflow_core.models.hf_utils import HF_CONFIG
 from htrflow_core.models.mixins.torch_mixin import PytorchMixin
 from htrflow_core.results import Result
@@ -60,13 +60,13 @@ class DiT(BaseModel, PytorchMixin):
 
         self.metadata.update(
             {
-                "model": str(model),
-                "processor": str(processor),
-                "framework": Framework.HuggingFace.value,
-                "task": Task.ImageClassification.value,
-                "device": self.device_id,
+                "model": model,
+                "model_version": model_info(model).sha,
+                "processor": processor,
+                "processor_version": model_info(processor).sha,
             }
         )
+
 
     def _predict(
         self, images: list[np.ndarray], return_format: Literal["argmax", "softmax"] = "softmax"

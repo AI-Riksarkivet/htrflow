@@ -3,8 +3,7 @@ import logging
 from mmocr.apis import TextRecInferencer
 
 from htrflow_core.models.base_model import BaseModel
-from htrflow_core.models.enums import Framework, Task
-from htrflow_core.models.hf_utils import load_mmlabs
+from htrflow_core.models.hf_utils import load_mmlabs, commit_hash_from_path
 from htrflow_core.models.mixins.torch_mixin import PytorchMixin
 from htrflow_core.models.openmmlab.utils import SuppressOutput
 from htrflow_core.results import Result
@@ -34,6 +33,7 @@ class Satrn(BaseModel, PytorchMixin):
         """
         super().__init__(device)
 
+        config = config or model
         model_weights, model_config = load_mmlabs(model, config)
 
         with SuppressOutput():
@@ -51,10 +51,10 @@ class Satrn(BaseModel, PytorchMixin):
 
         self.metadata.update(
             {
-                "model": str(model),
-                "config": str(config),
-                "framework": Framework.Openmmlab.value,
-                "task": Task.Image2Text.value,
+                "model": model,
+                "model_version": commit_hash_from_path(model_weights),
+                "config": config,
+                "config_version": commit_hash_from_path(model_config),
             }
         )
 

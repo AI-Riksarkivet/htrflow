@@ -5,7 +5,6 @@ from typing import Any, Collection, Generator, Iterable, TypeVar
 
 from tqdm import tqdm
 
-from htrflow_core.models.mixins.meta_mixin import MetadataMixin
 from htrflow_core.results import Result
 from htrflow_core.utils.imgproc import NumpyImage, rescale_linear
 
@@ -14,10 +13,11 @@ logger = logging.getLogger(__name__)
 _T = TypeVar("_T")
 
 
-class BaseModel(ABC, MetadataMixin):
+class BaseModel(ABC):
     def __init__(self, device=None) -> None:
         self.device = device
-        self.metadata = self.default_metadata()
+        self.metadata = {"model_class": self.__class__.__name__}
+
 
     def predict(
         self,

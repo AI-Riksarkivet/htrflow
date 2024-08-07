@@ -3,12 +3,12 @@ from typing import Any
 
 import numpy as np
 import torch
+from huggingface_hub import model_info
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 from transformers.generation import BeamSearchEncoderDecoderOutput
 from transformers.utils import ModelOutput
 
 from htrflow_core.models.base_model import BaseModel
-from htrflow_core.models.enums import Framework, Task
 from htrflow_core.models.hf_utils import HF_CONFIG
 from htrflow_core.models.mixins.torch_mixin import PytorchMixin
 from htrflow_core.results import RecognizedText, Result, Segment
@@ -63,11 +63,10 @@ class TrOCR(BaseModel, PytorchMixin):
 
         self.metadata.update(
             {
-                "model": str(model),
-                "processor": str(processor),
-                "framework": Framework.HuggingFace.value,
-                "task": Task.Image2Text.value,
-                "device": self.device_id,
+                "model": model,
+                "model_version": model_info(model).sha,
+                "processor": processor,
+                "processor_version": model_info(processor).sha,
             }
         )
 
@@ -190,7 +189,7 @@ class WordLevelTrOCR(TrOCR):
 
             if any(start >= end_ for start, end_ in word_boundaries):
                 word_boundaries = [(0, width) for _ in words]
-                logger.warning("Word segmentation failed on line with detected text: %s)", lines[i])
+                logger.warning("Word segmentation failed on line with detected text: %s", lines[i])
 
             results.append(
                 Result(

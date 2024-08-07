@@ -6,8 +6,7 @@ from mmdet.structures import DetDataSample
 from mmengine.structures import InstanceData
 
 from htrflow_core.models.base_model import BaseModel
-from htrflow_core.models.enums import Framework, Task
-from htrflow_core.models.hf_utils import load_mmlabs
+from htrflow_core.models.hf_utils import commit_hash_from_path, load_mmlabs
 from htrflow_core.models.mixins.torch_mixin import PytorchMixin
 from htrflow_core.models.openmmlab.utils import SuppressOutput
 from htrflow_core.postprocess.mask_nms import multiclass_mask_nms
@@ -43,6 +42,7 @@ class RTMDet(BaseModel, PytorchMixin):
         """
         super().__init__(device)
 
+        config = config or model
         model_weights, model_config = load_mmlabs(model, config)
 
         with SuppressOutput():
@@ -63,10 +63,10 @@ class RTMDet(BaseModel, PytorchMixin):
 
         self.metadata.update(
             {
-                "model": str(model),
-                "config": str(config),
-                "framework": Framework.Openmmlab.value,
-                "task": [Task.ObjectDetection.value, Task.InstanceSegmentation.value],
+                "model": model,
+                "model_version": commit_hash_from_path(model_weights),
+                "config": config,
+                "config_version": commit_hash_from_path(model_config),
             }
         )
 

@@ -1,5 +1,6 @@
 import fnmatch
 import os
+import string
 
 from huggingface_hub import hf_hub_download, list_repo_files
 from huggingface_hub.file_download import repo_folder_name
@@ -55,6 +56,25 @@ def load_ultralytics(model_id: str) -> str:
     if os.path.exists(model_id):
         return model_id
     return _hf_hub_download_matching_file(model_id, "*.pt")
+
+
+def commit_hash_from_path(path: str) -> str | None:
+    """Parse the commit hash from a cached repo file
+
+    Downloads from the huggingface hub end up in a directory named
+    as the latest commit hash, like this:
+        `my-model/snapshots/<commit hash>/model.pt`
+
+    Arguments:
+        path: A path to a cached file from the hugging face hub
+
+    Returns:
+        The commit hash if available, else None.
+    """
+    _, sha = os.path.split(os.path.dirname(path))
+    if all(ch in string.hexdigits for ch in sha):
+        return sha
+    return None
 
 
 def _hf_hub_download_matching_file(repo_id: str, pattern: str) -> str:
