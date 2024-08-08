@@ -13,10 +13,10 @@ logger = logging.getLogger(__name__)
 
 
 class YOLO(BaseModel):
-    def __init__(self, model: str, device: str | None = None, **kwargs) -> None:
+    def __init__(self, model: str, device: str | None = None, revision: str | None = None, **kwargs) -> None:
         super().__init__(device)
 
-        model_file = load_ultralytics(model)
+        model_file = load_ultralytics(model, revision)
         self.model = UltralyticsYOLO(model_file, **kwargs).to(self.device)
 
         logger.info("Initialized YOLO model '%s' from %s on device %s", model, model_file, self.model.device)

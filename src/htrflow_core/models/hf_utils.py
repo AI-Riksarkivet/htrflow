@@ -15,7 +15,7 @@ def _fix_mmlab_dict_file(config_path: str, dictionary_path: str) -> None:
     cfg.dump(config_path)
 
 
-def load_mmlabs(model_id: str, config_id: str | None = None) -> tuple[str, str]:
+def load_mmlabs(model_id: str, config_id: str | None = None, revision: str | None = None) -> tuple[str, str]:
     """Download mmlabs model files if not present in cache.
 
     OpenMMLabs models need two files: a model weights file and a config file.
@@ -35,11 +35,11 @@ def load_mmlabs(model_id: str, config_id: str | None = None) -> tuple[str, str]:
     if os.path.exists(model_id) and config_id and os.path.exists(config_id):
         return model_id, config_id
 
-    model = _hf_hub_download_matching_file(model_id, "*.pth")
-    config = _hf_hub_download_matching_file(model_id, "config.py")
+    model = _hf_hub_download_matching_file(model_id, "*.pth", revision)
+    config = _hf_hub_download_matching_file(model_id, "config.py", revision)
 
     try:
-        dictionary = _hf_hub_download_matching_file(model_id, "dictionary.txt")
+        dictionary = _hf_hub_download_matching_file(model_id, "dictionary.txt", revision)
         _fix_mmlab_dict_file(config, dictionary)
     except FileNotFoundError:
         pass
@@ -47,7 +47,7 @@ def load_mmlabs(model_id: str, config_id: str | None = None) -> tuple[str, str]:
     return model, config
 
 
-def load_ultralytics(model_id: str) -> str:
+def load_ultralytics(model_id: str, revision: str | None = None) -> str:
     """Download ultralytics model if it's not present in cache.
 
     Returns:
@@ -55,7 +55,7 @@ def load_ultralytics(model_id: str) -> str:
     """
     if os.path.exists(model_id):
         return model_id
-    return _hf_hub_download_matching_file(model_id, "*.pt")
+    return _hf_hub_download_matching_file(model_id, "*.pt", revision)
 
 
 def commit_hash_from_path(path: str) -> str | None:
@@ -77,7 +77,7 @@ def commit_hash_from_path(path: str) -> str | None:
     return None
 
 
-def _hf_hub_download_matching_file(repo_id: str, pattern: str) -> str:
+def _hf_hub_download_matching_file(repo_id: str, pattern: str, revision: str | None) -> str:
     """Download file from the given repo based on its filename
 
     Uses `hf_hub_download` to download the first file in the given repo
@@ -100,7 +100,7 @@ def _hf_hub_download_matching_file(repo_id: str, pattern: str) -> str:
     repo_files = _list_repo_files(repo_id)
     for file_ in repo_files:
         if fnmatch.fnmatch(file_, pattern):
-            return hf_hub_download(repo_id, file_, **HF_CONFIG)
+            return hf_hub_download(repo_id, file_, revision=revision, **HF_CONFIG)
     raise FileNotFoundError(
         (
             "Could not find any file that matches the pattern '%s' in "

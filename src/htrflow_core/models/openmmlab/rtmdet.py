@@ -26,7 +26,7 @@ class RTMDet(BaseModel):
         -   https://huggingface.co/Riksarkivet/rtmdet_regions
     """
 
-    def __init__(self, model: str, config: str | None = None, device: str | None = None) -> None:
+    def __init__(self, model: str, config: str | None = None, device: str | None = None, revision: str | None = None) -> None:
         """
         Initialize an RTMDet model.
 
@@ -42,7 +42,7 @@ class RTMDet(BaseModel):
         super().__init__(device)
 
         config = config or model
-        model_weights, model_config = load_mmlabs(model, config)
+        model_weights, model_config = load_mmlabs(model, config, revision)
 
         with SuppressOutput():
             self.model = DetInferencer(
