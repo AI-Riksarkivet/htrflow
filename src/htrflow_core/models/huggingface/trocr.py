@@ -10,14 +10,13 @@ from transformers.utils import ModelOutput
 
 from htrflow_core.models.base_model import BaseModel
 from htrflow_core.models.hf_utils import HF_CONFIG
-from htrflow_core.models.mixins.torch_mixin import PytorchMixin
 from htrflow_core.results import RecognizedText, Result, Segment
 
 
 logger = logging.getLogger(__name__)
 
 
-class TrOCR(BaseModel, PytorchMixin):
+class TrOCR(BaseModel):
     """
     HTRFLOW adapter of the tranformer-based OCR model TrOCR.
 
@@ -32,7 +31,7 @@ class TrOCR(BaseModel, PytorchMixin):
         processor: str | None = None,
         model_kwargs: dict[str, Any] | None = None,
         processor_kwargs: dict[str, Any] | None = None,
-        **kwargs,
+        device: str | None = None,
     ):
         """Initialize a TrOCR model
 
@@ -47,12 +46,12 @@ class TrOCR(BaseModel, PytorchMixin):
             kwargs: Additional kwargs which are forwarded to BaseModel's
                 __init__.
         """
-        super().__init__(**kwargs)
+        super().__init__(device)
 
         # Initialize model
         model_kwargs = HF_CONFIG | (model_kwargs or {})
         self.model = VisionEncoderDecoderModel.from_pretrained(model, **model_kwargs)
-        self.model.to(self.set_device(self.device))
+        self.model.to(self.device)
         logger.info("Initialized TrOCR model from %s on device %s.", model, self.model.device)
 
         # Initialize processor

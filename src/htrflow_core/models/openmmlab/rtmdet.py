@@ -7,7 +7,6 @@ from mmengine.structures import InstanceData
 
 from htrflow_core.models.base_model import BaseModel
 from htrflow_core.models.hf_utils import commit_hash_from_path, load_mmlabs
-from htrflow_core.models.mixins.torch_mixin import PytorchMixin
 from htrflow_core.models.openmmlab.utils import SuppressOutput
 from htrflow_core.postprocess.mask_nms import multiclass_mask_nms
 from htrflow_core.results import Result
@@ -17,7 +16,7 @@ from htrflow_core.utils.imgproc import NumpyImage, resize
 logger = logging.getLogger(__name__)
 
 
-class RTMDet(BaseModel, PytorchMixin):
+class RTMDet(BaseModel):
     """
     HTRFLOW adapter of Openmmlabs' RTMDet model
 
@@ -49,7 +48,7 @@ class RTMDet(BaseModel, PytorchMixin):
             self.model = DetInferencer(
                 model=model_config,
                 weights=model_weights,
-                device=self.set_device(self.device),
+                device=self.device,
                 show_progress=False,
             )
 

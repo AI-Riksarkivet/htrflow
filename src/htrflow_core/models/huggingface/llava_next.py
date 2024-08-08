@@ -10,7 +10,6 @@ from huggingface_hub import model_info
 from transformers import LlavaNextForConditionalGeneration, LlavaNextProcessor, TextIteratorStreamer, TextStreamer
 
 from htrflow_core.models.base_model import BaseModel
-from htrflow_core.models.mixins.torch_mixin import PytorchMixin
 from htrflow_core.results import RecognizedText, Result
 from htrflow_core.utils import imgproc
 
@@ -18,7 +17,7 @@ from htrflow_core.utils import imgproc
 logger = logging.getLogger(__name__)
 
 
-class LLavaNext(BaseModel, PytorchMixin):
+class LLavaNext(BaseModel):
     default_generation_kwargs = {"num_beams": 1, "max_new_tokens": 200}
 
     def __init__(
@@ -26,10 +25,10 @@ class LLavaNext(BaseModel, PytorchMixin):
         model: str = "llava-hf/llava-v1.6-mistral-7b-hf",
         processor: str = "llava-hf/llava-v1.6-mistral-7b-hf",
         prompt: str = "[INST] <image>\Please transcribe the handwritten English text displayed in the image [/INST]",
+        device: str | None = None,
         *model_args,
-        **kwargs,
     ):
-        super().__init__(**kwargs)
+        super().__init__(device)
 
         # nf4_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4")
 
@@ -43,7 +42,7 @@ class LLavaNext(BaseModel, PytorchMixin):
             *model_args,
         )
 
-        self.model.to(self.set_device(self.device))
+        self.model.to(self.device)
 
         processor = processor or model
 

@@ -4,7 +4,6 @@ from mmocr.apis import TextRecInferencer
 
 from htrflow_core.models.base_model import BaseModel
 from htrflow_core.models.hf_utils import load_mmlabs, commit_hash_from_path
-from htrflow_core.models.mixins.torch_mixin import PytorchMixin
 from htrflow_core.models.openmmlab.utils import SuppressOutput
 from htrflow_core.results import Result
 from htrflow_core.utils.imgproc import NumpyImage
@@ -13,7 +12,7 @@ from htrflow_core.utils.imgproc import NumpyImage
 logger = logging.getLogger(__name__)
 
 
-class Satrn(BaseModel, PytorchMixin):
+class Satrn(BaseModel):
     """
     HTRFLOW adapter of Openmmlabs' Satrn model
     """
@@ -38,7 +37,7 @@ class Satrn(BaseModel, PytorchMixin):
 
         with SuppressOutput():
             self.model = TextRecInferencer(
-                model=model_config, weights=model_weights, device=self.set_device(self.device)
+                model=model_config, weights=model_weights, device=self.device
             )
 
         logger.info(

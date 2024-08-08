@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from itertools import islice
 from typing import Any, Collection, Generator, Iterable, TypeVar
 
+import torch
 from tqdm import tqdm
 
 from htrflow_core.results import Result
@@ -14,10 +15,12 @@ _T = TypeVar("_T")
 
 
 class BaseModel(ABC):
-    def __init__(self, device=None) -> None:
-        self.device = device
-        self.metadata = {"model_class": self.__class__.__name__}
 
+    def __init__(self, device: str | None = None):
+        self.metadata = {"model_class": self.__class__.__name__}
+        if device is None:
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.device = torch.device(device)
 
     def predict(
         self,

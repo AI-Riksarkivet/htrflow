@@ -8,14 +8,13 @@ from transformers import AutoImageProcessor, AutoModelForImageClassification
 
 from htrflow_core.models.base_model import BaseModel
 from htrflow_core.models.hf_utils import HF_CONFIG
-from htrflow_core.models.mixins.torch_mixin import PytorchMixin
 from htrflow_core.results import Result
 
 
 logger = logging.getLogger(__name__)
 
 
-class DiT(BaseModel, PytorchMixin):
+class DiT(BaseModel):
     """
     HTRFLOW adapter of DiT for image classification.
 
@@ -30,7 +29,7 @@ class DiT(BaseModel, PytorchMixin):
         processor: str | None = None,
         model_kwargs: dict | None = None,
         processor_kwargs: dict | None = None,
-        **kwargs,
+        device: str | None = None,
     ):
         """Initialize a DiT model
 
@@ -44,12 +43,12 @@ class DiT(BaseModel, PytorchMixin):
                 to AutoImageProcessor.from_pretrained().
             kwargs: Additional kwargs that are forwarded to BaseModel's __init__.
         """
-        super().__init__(**kwargs)
+        super().__init__(device)
 
         # Initialize model
         model_kwargs = HF_CONFIG | (model_kwargs or {})
         self.model = AutoModelForImageClassification.from_pretrained(model, **model_kwargs)
-        self.model.to(self.set_device(self.device))
+        self.model.to(self.device)
         logger.info("Initialized DiT model from %s on device %s.", model, self.device)
 
         # Initialize processor
@@ -66,7 +65,6 @@ class DiT(BaseModel, PytorchMixin):
                 "processor_version": model_info(processor).sha,
             }
         )
-
 
     def _predict(
         self, images: list[np.ndarray], return_format: Literal["argmax", "softmax"] = "softmax"

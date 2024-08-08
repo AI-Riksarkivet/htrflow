@@ -1,5 +1,4 @@
 import logging
-from os import PathLike
 
 import numpy as np
 from ultralytics import YOLO as UltralyticsYOLO
@@ -7,19 +6,18 @@ from ultralytics.engine.results import Results as UltralyticsResults
 
 from htrflow_core.models.base_model import BaseModel
 from htrflow_core.models.hf_utils import commit_hash_from_path, load_ultralytics
-from htrflow_core.models.mixins.torch_mixin import PytorchMixin
 from htrflow_core.results import Result
 
 
 logger = logging.getLogger(__name__)
 
 
-class YOLO(BaseModel, PytorchMixin):
-    def __init__(self, model: str | PathLike = "ultralyticsplus/yolov8s", *model_args, **kwargs) -> None:
-        super().__init__(**kwargs)
+class YOLO(BaseModel):
+    def __init__(self, model: str, device: str | None = None, **kwargs) -> None:
+        super().__init__(device)
 
         model_file = load_ultralytics(model)
-        self.model = UltralyticsYOLO(model_file, *model_args).to(self.set_device(self.device))
+        self.model = UltralyticsYOLO(model_file, **kwargs).to(self.device)
 
         logger.info("Initialized YOLO model '%s' from %s on device %s", model, model_file, self.model.device)
 
