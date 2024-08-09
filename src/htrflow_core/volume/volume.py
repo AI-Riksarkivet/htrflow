@@ -77,24 +77,19 @@ class ImageNode(node.Node, ABC):
 
     @property
     def text_result(self) -> RecognizedText | None:
-        if text_result := self.get(TEXT_RESULT_KEY):
-            return text_result
-        if all(child.is_word() for child in self):
-            return RecognizedText(texts=[" ".join(child.text for child in self)], scores=[0])
-        return None
+        return self.get(TEXT_RESULT_KEY, None)
 
     def is_word(self):
-        return self.text is not None and len(self.text.split()) < 2
+        return self.is_leaf() and self.parent.text is not None
 
     def is_line(self):
-        return all(child.is_word() for child in self) and (self.parent is None or self.parent.is_region())
+        return self.text is not None and (not self.children or all(child.is_word() for child in self))
 
     def update(self, result: Result):
         """Update node with result"""
         if result.segments:
             self.create_segments(result.segments)
-        for leaf, data in zip(self.leaves(), result.data):
-            leaf.add_data(**data)
+        self.add_data(**result.data)
 
     def create_segments(self, segments: Sequence[Segment]) -> None:
         """Segment this node"""
@@ -125,7 +120,7 @@ class SegmentNode(ImageNode):
     def __init__(self, segment: Segment, parent: ImageNode):
         bbox = segment.bbox.move(parent.coord)
         super().__init__(bbox.height, bbox.width, bbox.p1, segment.polygon, segment.mask, parent)
-        self.add_data(segment=segment)
+        self.add_data(segment=segment, **segment.data)
         self.segment = segment
 
     @property

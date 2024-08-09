@@ -192,13 +192,16 @@ class WordLevelTrOCR(TrOCR):
                 logger.warning("Word segmentation failed on line with detected text: %s", lines[i])
 
             results.append(
-                Result(
+                Result.word_segmentation_result(
                     metadata=self.metadata,
-                    segments=[Segment(bbox=(start, 0, end_, height)) for start, end_ in word_boundaries],
-                    texts=[RecognizedText([word], [0]) for word in words],
+                    orig_shape=(height, width),
+                    words=words,
+                    word_scores=[0 for word in words],
+                    line=lines[i],
+                    line_score=0,
+                    bboxes=[(start, 0, end_, height) for start, end_ in word_boundaries]
                 )
             )
-
         return results
 
 

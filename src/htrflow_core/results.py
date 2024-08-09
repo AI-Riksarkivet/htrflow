@@ -42,6 +42,7 @@ class Segment:
         class_label: str | None = None,
         polygon: Polygon | Sequence[tuple[int, int]] | None = None,
         orig_shape: tuple[int, int] | None = None,
+        data: dict[str, Any] | None = None,
     ):
         """Create a `Segment` instance
 
@@ -88,6 +89,7 @@ class Segment:
         self.score = score
         self.class_label = class_label
         self.orig_shape = orig_shape
+        self.data = data or {}
 
     def __str__(self):
         return f"Segment(class_label={self.class_label}, score={self.score}, bbox={self.bbox}, polygon={self.polygon}, mask={self.mask})"  # noqa: E501
@@ -178,25 +180,26 @@ class Result:
         segments: `Segment` instances representing results from an object
             detection or instance segmentation model, or similar. May
             be empty if not applicable.
-        data: Any other data associated with the result, stored as a
-            sequence of dictionaries. Is assumed to correspond one-to-one
-            with `segments` when `segments` is non-empty. If `segments`
-            is empty, the first entry in `data` is assumed to apply for
-            the entire input image.
+        data: Any other data associated with the result.
     """
 
     def __init__(
         self,
         metadata: dict[str, str] | None = None,
         segments: Sequence[Segment] | None = None,
-        data: Sequence[dict[str, Any]] | None = None,
-        texts: Sequence[RecognizedText] | None = None,
+        data: dict[str, Any] = None,
+        text: RecognizedText | None = None,
     ):
+        """Create a Result
+
+        See also the alternative constructors Result.text_recognition_result,
+        Result.segmentation_result and Result.word_segmentation_result.
+        """
         self.metadata = metadata or {}
         self.segments = segments or []
-        self.data = []
-        for entry, text in _zip_longest_none(data, texts, fillvalue={}):
-            self.data.append(entry | {TEXT_RESULT_KEY: text})
+        self.data = data or {}
+        if text is not None:
+            self.data.update({TEXT_RESULT_KEY: text})
 
     def rescale(self, factor: float):
         """Rescale the Result's segments"""
@@ -239,7 +242,7 @@ class Result:
         Returns:
             A Result instance with the specified data and no segments.
         """
-        return cls(metadata, texts=[RecognizedText(texts, scores)])
+        return cls(metadata, text=RecognizedText(texts, scores))
 
     @classmethod
     def segmentation_result(
@@ -267,6 +270,24 @@ class Result:
             segments.append(Segment(*item, orig_shape=orig_shape))
         return cls(metadata, segments=segments)
 
+    @classmethod
+    def word_segmentation_result(
+        cls,
+        words,
+        line = None,
+        line_score = None,
+        word_scores = None,
+        **segments
+    ):
+        result = cls.segmentation_result(**segments)
+        if line:
+            line_score = line_score or 0
+            result.data = {TEXT_RESULT_KEY: RecognizedText(line, line_score)}
+        word_scores = word_scores or [0 for _ in words]
+        for segment, word, score in zip(result.segments, words, word_scores):
+            segment.data = {TEXT_RESULT_KEY: RecognizedText(word, score)}
+        return result
+
     def reorder(self, index: Sequence[int]) -> None:
         """Reorder result
 
@@ -279,8 +300,6 @@ class Result:
         """
         if self.segments:
             self.segments = [self.segments[i] for i in index]
-        if self.data:
-            self.data = [self.data[i] for i in index]
 
     def drop_indices(self, index: Sequence[int]) -> None:
         """Drop segments from result
