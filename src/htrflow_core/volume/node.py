@@ -266,8 +266,14 @@ class Node:
             if not include_starting_node and node == self:
                 continue
             node.detach()
-        logger.info("Removed %d nodes from the tree", len(nodes))
+
+        if nodes:
+            logger.info("Removed %d nodes from the tree %s", len(nodes), self.label)
 
     def max_depth(self) -> int:
         """Return the max depth of the tree starting at this node"""
         return max(node.depth() for node in self.leaves())
+
+    def is_root(self) -> bool:
+        """True if this node is a root node"""
+        return self.parent is None

@@ -1,16 +1,17 @@
 import logging
 import os
 from dataclasses import dataclass
-from typing import Literal
+from typing import Literal, Callable
 
 from htrflow_core.models.importer import all_models
 from htrflow_core.postprocess.reading_order import order_regions
 from htrflow_core.postprocess.word_segmentation import simple_word_segmentation
+from htrflow_core.postprocess import metrics
 from htrflow_core.serialization import get_serializer, save_collection
 from htrflow_core.utils.imgproc import write
 from htrflow_core.utils.layout import estimate_printspace, is_twopage
 from htrflow_core.volume.volume import Collection
-
+from htrflow_core.volume.node import Node
 
 logger = logging.getLogger(__name__)
 
@@ -169,6 +170,40 @@ class Break(PipelineStep):
 
     def run(self, collection):
         raise Exception
+
+
+class Prune(PipelineStep):
+    """Remove nodes based on a given condition"""
+
+    def __init__(self, condition: Callable[[Node], bool]):
+        self.condition = condition
+
+    def run(self, collection):
+        for page in collection:
+            page.prune(self.condition)
+            page.prune(lambda node: node.is_leaf() and node.depth() != node.max_depth())
+        collection.relabel()
+        return collection
+
+
+class RemoveLowTextConfidenceLines(Prune):
+    """Remove all lines with text confidence score below `threshold`"""
+    def __init__(self, threshold):
+        super().__init__(lambda node: node.is_line() and metrics.line_text_confidence(node) < threshold)
+
+
+class RemoveLowTextConfidenceRegions(Prune):
+    """Remove all regions where the average text confidence score is below `threshold`"""
+
+    def __init__(self, threshold):
+        super().__init__(lambda node: all(child.is_line() for child in node) and metrics.average_text_confidence(node) < threshold)
+
+
+class RemoveLowTextConfidencePages(Prune):
+    """Remove all pages where the average text confidence score is below `threshold`"""
+
+    def __init__(self, threshold):
+        super().__init__(lambda node: node.parent and node.parent.is_root() and metrics.average_text_confidence(node) < threshold)
 
 
 def auto_import(source: Collection | list[str] | str) -> Collection:

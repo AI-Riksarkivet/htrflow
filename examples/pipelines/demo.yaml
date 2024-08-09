@@ -25,10 +25,9 @@ steps:
        batch_size: 16
        nms_downscale: 0.5
 
-# Text recognition (line-based)
 - step: TextRecognition
   settings:
-    model: Trocr
+    model: WordLevelTrocr
     model_settings:
        model: Riksarkivet/trocr-base-handwritten-swe
     generation_settings:
@@ -39,8 +38,13 @@ steps:
   settings:
     two_page: always
 
-# Optional word segmentation
-- step: WordSegmentation
+- step: RemoveLowTextConfidencePages
+  settings:
+    threshold: 0.99
+
+- step: RemoveLowTextConfidenceLines
+  settings:
+    threshold: 0.95
 
 # Export to Alto and Page XML 
 - step: Export

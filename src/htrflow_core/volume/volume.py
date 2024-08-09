@@ -80,10 +80,10 @@ class ImageNode(node.Node, ABC):
         return self.get(TEXT_RESULT_KEY, None)
 
     def is_word(self):
-        return self.is_leaf() and self.parent.text is not None
+        return self.text is not None and self.parent and self.parent.is_line()
 
     def is_line(self):
-        return self.text is not None and (not self.children or all(child.is_word() for child in self))
+        return self.text is not None and self.parent and self.parent.text is None
 
     def update(self, result: Result):
         """Update node with result"""

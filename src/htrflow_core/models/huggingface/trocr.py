@@ -154,6 +154,7 @@ class WordLevelTrOCR(TrOCR):
             num_beams=num_beams,
             return_dict_in_generate=True,
             output_attentions=True,
+            output_scores=True,
             **generation_kwargs,
         )
 
@@ -173,6 +174,7 @@ class WordLevelTrOCR(TrOCR):
         heatmaps = torch.reshape(attentions[:, :, 1:], (-1, n_tokens, n_patches, n_patches))
 
         lines = self.processor.batch_decode(outputs.sequences, skip_special_tokens=True)
+        line_scores = self._compute_sequence_scores(outputs)
         special_tokens = {*self.processor.tokenizer.special_tokens_map.values()}
         results = []
 
@@ -196,9 +198,9 @@ class WordLevelTrOCR(TrOCR):
                     metadata=self.metadata,
                     orig_shape=(height, width),
                     words=words,
-                    word_scores=[0 for word in words],
+                    word_scores=[line_scores[i] for word in words],
                     line=lines[i],
-                    line_score=0,
+                    line_score=line_scores[i],
                     bboxes=[(start, 0, end_, height) for start, end_ in word_boundaries]
                 )
             )
