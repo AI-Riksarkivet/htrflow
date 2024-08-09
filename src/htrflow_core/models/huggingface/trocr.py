@@ -5,7 +5,6 @@ import numpy as np
 import torch
 from huggingface_hub import model_info
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel
-from transformers.generation import BeamSearchEncoderDecoderOutput
 from transformers.utils import ModelOutput
 
 from htrflow_core.models.base_model import BaseModel
@@ -94,7 +93,7 @@ class TrOCR(BaseModel):
         model_outputs = self.model.generate(model_inputs.to(self.model.device), **generation_kwargs)
 
         texts = self.processor.batch_decode(model_outputs.sequences, skip_special_tokens=True)
-        scores = self._compute_seuqence_scores(model_outputs)
+        scores = self._compute_sequence_scores(model_outputs)
 
         # Assemble and return a list of Result objects from the prediction outputs.
         # `texts` and `scores` are flattened lists so we need to iterate over them in steps.
@@ -109,7 +108,7 @@ class TrOCR(BaseModel):
             results.append(result)
         return results
 
-    def _compute_seuqence_scores(self, outputs: ModelOutput):
+    def _compute_sequence_scores(self, outputs: ModelOutput):
         """Compute normalized prediction score for each output sequence
 
         This function computes the normalized sequence scores from the output.
@@ -117,17 +116,19 @@ class TrOCR(BaseModel):
         It follows example #1 found here:
         https://discuss.huggingface.co/t/announcement-generation-get-probabilities-for-generated-output/30075
         """
+        transition_scores = self.model.decoder.compute_transition_scores(
+            outputs.sequences,
+            outputs.scores,
+            beam_indices=getattr(outputs, "beam_indices", None),
+            normalize_logits=True
+        )
 
-        if isinstance(outputs, BeamSearchEncoderDecoderOutput):
-            transition_scores = self.model.decoder.compute_transition_scores(
-                outputs.sequences, outputs.scores, outputs.beam_indices, normalize_logits=True
-            )
-        else:
-            transition_scores = self.model.decoder.compute_transition_scores(
-                outputs.sequences, outputs.scores, normalize_logits=True
-            )
-        transition_scores = transition_scores.cpu()
         length_penalty = self.model.generation_config.length_penalty
+        # In output from greedy decoding, padding tokens have a transition score
+        # of negative infinity. To "hide" them from the score computation
+        # they are set to 0 instead.
+        transition_scores[outputs.sequences[:, 1:] == self.model.generation_config.pad_token_id] = 0
+        transition_scores = transition_scores.cpu()
         output_length = np.sum(transition_scores.numpy() < 0, axis=1)
         scores = transition_scores.sum(axis=1) / (output_length**length_penalty)
         return np.exp(scores).tolist()
