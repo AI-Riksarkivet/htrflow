@@ -5,11 +5,6 @@ from htrflow_core.results import RecognizedText
 
 
 @pytest.fixture
-def demo_image():
-    return "examples/images/A0068699_00021.jpg"
-
-
-@pytest.fixture
 def alto():
     return serialization.AltoXML()
 

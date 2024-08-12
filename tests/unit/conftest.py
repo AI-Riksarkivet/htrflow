@@ -11,14 +11,14 @@ from htrflow_core.volume import volume
 
 @pytest.fixture
 def demo_image():
-    return "examples/images/A0068699_00021.jpg"
+    return "examples/images/pages/A0068699_00021.jpg"
 
 
 @pytest.fixture
 def demo_page_unsegmented(demo_image):
     node = volume.PageNode(demo_image)
     result = dummy_text_recognition_model([node.image])
-    node.add_data(**result[0].data[0])
+    node.add_data(**result[0].data)
     node.relabel()
     return node
 
@@ -31,7 +31,7 @@ def demo_page_segmented_once(demo_image):
         node.create_segments(result.segments)
     results = dummy_text_recognition_model(node.segments())
     for result, leaf in zip(results, node.leaves()):
-        leaf.add_data(**result.data[0])
+        leaf.add_data(**result.data)
     node.relabel()
     return node
 
@@ -45,7 +45,7 @@ def demo_page_segmented_twice(demo_image):
             leaf.create_segments(result.segments)
     results = dummy_text_recognition_model(node.segments())
     for result, leaf in zip(results, node.leaves()):
-        leaf.add_data(**result.data[0])
+        leaf.add_data(**result.data)
     node.relabel()
     return node
 
@@ -59,7 +59,7 @@ def demo_page_segmented_thrice(demo_image):
             leaf.create_segments(result.segments)
     results = dummy_text_recognition_model(node.segments())
     for result, leaf in zip(results, node.leaves()):
-        leaf.add_data(**result.data[0])
+        leaf.add_data(**result.data)
     node.relabel()
     return node
 
