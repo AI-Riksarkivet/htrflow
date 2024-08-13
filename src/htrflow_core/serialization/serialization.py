@@ -19,6 +19,7 @@ import xmlschema
 from jinja2 import Environment, FileSystemLoader
 
 import htrflow_core
+from htrflow_core.postprocess.metrics import average_text_confidence
 from htrflow_core.results import TEXT_RESULT_KEY
 from htrflow_core.utils.layout import REGION_KEY, RegionLocation
 
@@ -136,6 +137,7 @@ class AltoXML(Serializer):
 
         return self.template.render(
             page=page,
+            page_confidence=average_text_confidence(page),
             printspace=text_blocks[RegionLocation.PRINTSPACE],
             top_margin=text_blocks[RegionLocation.MARGIN_TOP],
             bottom_margin=text_blocks[RegionLocation.MARGIN_BOTTOM],

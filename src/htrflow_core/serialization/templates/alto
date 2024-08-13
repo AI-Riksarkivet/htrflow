@@ -67,7 +67,7 @@
     </ReadingOrder>
     {%- endif %}
     <Layout>
-        <Page WIDTH="{{ page.width }}" HEIGHT="{{ page.height }}" PHYSICAL_IMG_NR="0" ID="_{{ page.get('page_id') }}">
+        <Page WIDTH="{{ page.width }}" HEIGHT="{{ page.height }}" PC="{{ '%.4f' % page_confidence }}" PHYSICAL_IMG_NR="0" ID="_{{ page.get('page_id') }}">
             {%- if top_margin | length > 0 %}
             <TopMargin>
                 {{ render(top_margin) }}

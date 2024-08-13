@@ -1,7 +1,11 @@
-from htrflow_core.volume import volume
+from typing import TYPE_CHECKING
 
 
-def average_text_confidence(node: volume.ImageNode) -> float:
+if TYPE_CHECKING:
+    from htrflow_core.volume import volume
+
+
+def average_text_confidence(node: "volume.ImageNode") -> float:
     """Average text confidence value of `node` and its children
 
     Returns the average text confidence of all text lines attached
@@ -20,7 +24,7 @@ def average_text_confidence(node: volume.ImageNode) -> float:
     return 0.0
 
 
-def line_text_confidence(node: volume.SegmentNode) -> float:
+def line_text_confidence(node: "volume.SegmentNode") -> float:
     """The text confidence score of `node`"""
     if text_result := node.text_result:
         return text_result.top_score()
