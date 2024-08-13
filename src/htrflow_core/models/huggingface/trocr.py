@@ -9,7 +9,7 @@ from transformers.utils import ModelOutput
 
 from htrflow_core.models.base_model import BaseModel
 from htrflow_core.models.hf_utils import HF_CONFIG
-from htrflow_core.results import RecognizedText, Result, Segment
+from htrflow_core.results import Result
 
 
 logger = logging.getLogger(__name__)

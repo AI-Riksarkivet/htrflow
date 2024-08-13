@@ -3,7 +3,7 @@ import logging
 from mmocr.apis import TextRecInferencer
 
 from htrflow_core.models.base_model import BaseModel
-from htrflow_core.models.hf_utils import load_mmlabs, commit_hash_from_path
+from htrflow_core.models.hf_utils import commit_hash_from_path, load_mmlabs
 from htrflow_core.models.openmmlab.utils import SuppressOutput
 from htrflow_core.results import Result
 from htrflow_core.utils.imgproc import NumpyImage
@@ -17,7 +17,13 @@ class Satrn(BaseModel):
     HTRFLOW adapter of Openmmlabs' Satrn model
     """
 
-    def __init__(self, model: str, config: str | None = None, device: str | None = None, revision: str | None = None) -> None:
+    def __init__(
+        self,
+        model: str,
+        config: str | None = None,
+        device: str | None = None,
+        revision: str | None = None,
+    ) -> None:
         """
         Initialize a Satrn model.
 
@@ -58,7 +64,13 @@ class Satrn(BaseModel):
         )
 
     def _predict(self, images: list[NumpyImage], **kwargs) -> list[Result]:
-        outputs = self.model(images, batch_size=len(images), return_datasamples=False, progress_bar=False, **kwargs)
+        outputs = self.model(
+            images,
+            batch_size=len(images),
+            return_datasamples=False,
+            progress_bar=False,
+            **kwargs
+        )
         results = []
         for prediction in outputs["predictions"]:
             texts = prediction["text"]

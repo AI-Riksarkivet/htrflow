@@ -1,17 +1,18 @@
 import logging
 import os
 from dataclasses import dataclass
-from typing import Literal, Callable
+from typing import Callable, Literal
 
 from htrflow_core.models.importer import all_models
+from htrflow_core.postprocess import metrics
 from htrflow_core.postprocess.reading_order import order_regions
 from htrflow_core.postprocess.word_segmentation import simple_word_segmentation
-from htrflow_core.postprocess import metrics
 from htrflow_core.serialization import get_serializer, save_collection
 from htrflow_core.utils.imgproc import write
 from htrflow_core.utils.layout import estimate_printspace, is_twopage
-from htrflow_core.volume.volume import Collection
 from htrflow_core.volume.node import Node
+from htrflow_core.volume.volume import Collection
+
 
 logger = logging.getLogger(__name__)
 
@@ -100,7 +101,9 @@ class Export(PipelineStep):
 
     def run(self, collection):
         metadata = self.parent_pipeline.metadata() if self.parent_pipeline else None
-        save_collection(collection, self.serializer, self.dest, processing_steps=metadata)
+        save_collection(
+            collection, self.serializer, self.dest, processing_steps=metadata
+        )
         return collection
 
 
@@ -111,6 +114,7 @@ class ReadingOrderMarginalia(PipelineStep):
     (corresponding to regions and lines). Both the regions and their
     lines are ordered using `reading_order.order_regions`.
     """
+
     def __init__(self, two_page: Literal["auto"] | bool = False):
         """
         Arguments:
@@ -134,10 +138,14 @@ class ReadingOrderMarginalia(PipelineStep):
 
             image = page.image
             printspace = estimate_printspace(image)
-            page.children = order_regions(page.children, printspace, self.is_twopage(image))
+            page.children = order_regions(
+                page.children, printspace, self.is_twopage(image)
+            )
 
             for region in page:
-                region.children = order_regions(region.children, printspace, is_twopage=False)
+                region.children = order_regions(
+                    region.children, printspace, is_twopage=False
+                )
         collection.relabel()
         return collection
 
@@ -161,7 +169,7 @@ class ExportImages(PipelineStep):
             for node in page.traverse():
                 if node.image is None:
                     continue
-                write(os.path.join(directory, f'{node.label}.{extension}'), node.image)
+                write(os.path.join(directory, f"{node.label}.{extension}"), node.image)
         return collection
 
 
@@ -188,22 +196,33 @@ class Prune(PipelineStep):
 
 class RemoveLowTextConfidenceLines(Prune):
     """Remove all lines with text confidence score below `threshold`"""
+
     def __init__(self, threshold):
-        super().__init__(lambda node: node.is_line() and metrics.line_text_confidence(node) < threshold)
+        super().__init__(
+            lambda node: node.is_line()
+            and metrics.line_text_confidence(node) < threshold
+        )
 
 
 class RemoveLowTextConfidenceRegions(Prune):
     """Remove all regions where the average text confidence score is below `threshold`"""
 
     def __init__(self, threshold):
-        super().__init__(lambda node: all(child.is_line() for child in node) and metrics.average_text_confidence(node) < threshold)
+        super().__init__(
+            lambda node: all(child.is_line() for child in node)
+            and metrics.average_text_confidence(node) < threshold
+        )
 
 
 class RemoveLowTextConfidencePages(Prune):
     """Remove all pages where the average text confidence score is below `threshold`"""
 
     def __init__(self, threshold):
-        super().__init__(lambda node: node.parent and node.parent.is_root() and metrics.average_text_confidence(node) < threshold)
+        super().__init__(
+            lambda node: node.parent
+            and node.parent.is_root()
+            and metrics.average_text_confidence(node) < threshold
+        )
 
 
 def auto_import(source: Collection | list[str] | str) -> Collection:
@@ -250,7 +269,9 @@ def auto_import(source: Collection | list[str] | str) -> Collection:
 
 
 def all_subclasses(cls):
-    return set(cls.__subclasses__()).union([s for c in cls.__subclasses__() for s in all_subclasses(c)])
+    return set(cls.__subclasses__()).union(
+        [s for c in cls.__subclasses__() for s in all_subclasses(c)]
+    )
 
 
 # Mapping class name -> class

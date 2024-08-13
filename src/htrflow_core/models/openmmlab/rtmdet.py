@@ -26,7 +26,13 @@ class RTMDet(BaseModel):
         -   https://huggingface.co/Riksarkivet/rtmdet_regions
     """
 
-    def __init__(self, model: str, config: str | None = None, device: str | None = None, revision: str | None = None) -> None:
+    def __init__(
+        self,
+        model: str,
+        config: str | None = None,
+        device: str | None = None,
+        revision: str | None = None,
+    ) -> None:
         """
         Initialize an RTMDet model.
 
@@ -69,15 +75,27 @@ class RTMDet(BaseModel):
             }
         )
 
-    def _predict(self, images: list[NumpyImage], nms_downscale: float = 1.0, **kwargs) -> list[Result]:
+    def _predict(
+        self, images: list[NumpyImage], nms_downscale: float = 1.0, **kwargs
+    ) -> list[Result]:
         batch_size = max(1, len(images))
-        outputs = self.model(images, batch_size=batch_size, draw_pred=False, return_datasample=True, **kwargs)
+        outputs = self.model(
+            images,
+            batch_size=batch_size,
+            draw_pred=False,
+            return_datasample=True,
+            **kwargs,
+        )
         results = []
         for image, output in zip(images, outputs["predictions"]):
-            results.append(self._create_segmentation_result(image, output, nms_downscale))
+            results.append(
+                self._create_segmentation_result(image, output, nms_downscale)
+            )
         return results
 
-    def _create_segmentation_result(self, image: NumpyImage, output: DetDataSample, nms_downscale: float) -> Result:
+    def _create_segmentation_result(
+        self, image: NumpyImage, output: DetDataSample, nms_downscale: float
+    ) -> Result:
         sample: InstanceData = output.pred_instances
         orig_shape = image.shape[:2]
 
@@ -92,7 +110,12 @@ class RTMDet(BaseModel):
         class_labels = sample.labels.tolist()
 
         result = Result.segmentation_result(
-            orig_shape, bboxes=boxes, masks=masks, scores=scores, labels=class_labels, metadata=self.metadata
+            orig_shape,
+            bboxes=boxes,
+            masks=masks,
+            scores=scores,
+            labels=class_labels,
+            metadata=self.metadata,
         )
         indices_to_drop = multiclass_mask_nms(result, downscale=nms_downscale)
         result.drop_indices(indices_to_drop)
