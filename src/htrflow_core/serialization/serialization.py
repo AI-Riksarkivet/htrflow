@@ -220,19 +220,19 @@ class Json(Serializer):
         self.one_file = one_file
         self.indent = indent
 
-    def _serialize(self, page: PageNode):
+    def _serialize(self, page: PageNode, **metadata):
         def default(obj):
             return {k: v for k, v in obj.__dict__.items() if k not in ["mask", "_image", "parent"]}
 
-        return json.dumps(page.asdict(), default=default, indent=self.indent)
+        return json.dumps(page.asdict() | metadata, default=default, indent=self.indent)
 
-    def serialize_collection(self, collection: Collection):
+    def serialize_collection(self, collection: Collection, **metadata):
         if self.one_file:
-            pages = [json.loads(self._serialize(page)) for page in collection]
+            pages = [json.loads(self._serialize(page, **metadata)) for page in collection]
             doc = json.dumps({"collection_label": collection.label, "pages": pages}, indent=self.indent)
             filename = collection.label + self.extension
             return [(doc, filename)]
-        return super().serialize_collection(collection)
+        return super().serialize_collection(collection, **metadata)
 
 
 class PlainText(Serializer):
