@@ -189,7 +189,6 @@ class Prune(PipelineStep):
     def run(self, collection):
         for page in collection:
             page.prune(self.condition)
-            page.prune(lambda node: node.is_leaf() and node.depth() != node.max_depth())
         collection.relabel()
         return collection
 

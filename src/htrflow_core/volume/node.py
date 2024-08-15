@@ -247,8 +247,8 @@ class Node:
         """Prune the tree
 
         Removes (detaches) all nodes starting from this node that
-        fulfil the given condition. Any decendents of a node that
-        fulfils the condition are also removed.
+        fulfil the given condition. If any removed node is its parents
+        only child, the parent is also removed.
 
         Arguments:
             condition: A function `f` where `f(node) == True` if `node`
@@ -265,6 +265,11 @@ class Node:
         for node in nodes:
             if not include_starting_node and node == self:
                 continue
+
+            if node.parent:
+                if len(node.parent.children) == 1:
+                    node.parent.detach()
+
             node.detach()
 
         if nodes:
