@@ -78,6 +78,10 @@ class Serializer:
             collection) or several files (typically one file per page),
             depending on the serialization method.
         """
+        for page in collection:
+            page.prune(lambda node: node.is_leaf() and node.depth() != page.max_depth())
+        collection.relabel()
+
         outputs = []
         for page in collection:
             doc = self.serialize(page, **metadata)
