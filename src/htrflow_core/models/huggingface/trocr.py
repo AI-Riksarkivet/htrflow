@@ -165,7 +165,7 @@ class WordLevelTrOCR(TrOCR):
         # mean of the attention heads at each layer (axis 2) to get one set of
         # weights per token and layer, and then summing over the layers (axis 0)
         # to get one set of weights per token.
-        attentions = attentions.mean(axis=2).sum(axis=0).squeeze()
+        attentions = attentions.mean(axis=2).sum(axis=0)
 
         # Create heatmaps by reshaping the weights dimension (size n_patches * n_patches + 1)
         # to (n_patches, n_patches) and discard the extra first patch.
