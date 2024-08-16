@@ -181,8 +181,10 @@ def read(source: str | npt.NDArray[Any]) -> npt.NDArray[Any]:
     return img
 
 
-def write(dest: str, image: npt.NDArray[Any]) -> None:
+def write(dest: str, image: npt.NDArray[Any]) -> str:
     cv2.imwrite(dest, image)
+    logger.info("Wrote image to %s", dest)
+    return dest
 
 
 class ImageImportError(RuntimeError):

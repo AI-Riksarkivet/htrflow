@@ -8,7 +8,7 @@ from htrflow_core.postprocess import metrics
 from htrflow_core.postprocess.reading_order import order_regions
 from htrflow_core.postprocess.word_segmentation import simple_word_segmentation
 from htrflow_core.serialization import get_serializer, save_collection
-from htrflow_core.utils.imgproc import write
+from htrflow_core.utils.imgproc import binarize, write
 from htrflow_core.utils.layout import estimate_printspace, is_twopage
 from htrflow_core.volume.node import Node
 from htrflow_core.volume.volume import Collection
@@ -222,6 +222,34 @@ class RemoveLowTextConfidencePages(Prune):
             and node.parent.is_root()
             and metrics.average_text_confidence(node) < threshold
         )
+
+
+class ProcessImages(PipelineStep):
+
+    output_directory: str
+
+    def run(self, collection):
+
+        for page in collection:
+            new_image = self.op(page.image)
+            _, image_name = os.path.split(page.path)
+            dest = os.path.join(
+                "processed_images", collection.label, self.output_directory
+            )
+            os.makedirs(dest, exist_ok=True)
+            page.path = write(os.path.join(dest, image_name), new_image)
+        return collection
+
+    def op(self, image):
+        pass
+
+
+class Binarization(ProcessImages):
+
+    output_directory = "binarized"
+
+    def op(self, image):
+        return binarize(image)
 
 
 def auto_import(source: Collection | list[str] | str) -> Collection:
