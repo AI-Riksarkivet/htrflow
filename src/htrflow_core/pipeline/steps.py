@@ -1,8 +1,9 @@
 import logging
 import os
 from dataclasses import dataclass
-from typing import Callable, Literal
+from typing import Any, Callable, Literal
 
+from htrflow_core.models.base_model import BaseModel
 from htrflow_core.models.importer import all_models
 from htrflow_core.postprocess import metrics
 from htrflow_core.postprocess.reading_order import order_regions
@@ -24,13 +25,8 @@ class StepMetadata:
 
 
 class PipelineStep:
-    """Pipeline step base class
+    """Pipeline step base class"""
 
-    Class attributes:
-        requires: A list of steps that need to precede this step.
-    """
-
-    requires = []
     parent_pipeline = None
     metadata: StepMetadata | None = None
 
@@ -86,7 +82,6 @@ class TextRecognition(Inference):
 
 
 class WordSegmentation(PipelineStep):
-    requires = [TextRecognition]
 
     def run(self, collection):
         results = simple_word_segmentation(collection.active_leaves())
@@ -303,11 +298,18 @@ def all_subclasses(cls):
 
 # Mapping class name -> class
 # Ex. {segmentation: `steps.Segmentation`}
-STEPS = {cls_.__name__.lower(): cls_ for cls_ in all_subclasses(PipelineStep)}
-MODELS = {model.__name__.lower(): model for model in all_models()}
+STEPS: dict[str, PipelineStep] = {
+    cls_.__name__.lower(): cls_ for cls_ in all_subclasses(PipelineStep)
+}
+MODELS: dict[str, BaseModel] = {model.__name__.lower(): model for model in all_models()}
 
 
-def init_step(step):
-    name = step["step"].lower()
-    config = step.get("settings", {})
-    return STEPS[name].from_config(config)
+def init_step(step_name: str, step_settings: dict[str, Any]) -> PipelineStep:
+    """Initialize a pipeline step
+
+    Arguments:
+        step_name: The name of the pipeline step class. Not case sensitive.
+        step_settings: A dictionary containing parameters for the step's
+            __init__() method.
+    """
+    return STEPS[step_name.lower()].from_config(step_settings)

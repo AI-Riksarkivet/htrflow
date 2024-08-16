@@ -14,12 +14,11 @@ class Pipeline:
         self.pickle_path = None
         for step in self.steps:
             step.parent_pipeline = self
-        validate(self)
 
     @classmethod
     def from_config(self, config: dict[str, str]):
         """Init pipeline from config"""
-        return Pipeline([init_step(step) for step in config["steps"]])
+        return Pipeline([init_step(step["step"], step.get("settings", {})) for step in config["steps"]])
 
     def run(self, collection, start=0):
         """Run pipeline on collection"""
@@ -39,13 +38,3 @@ class Pipeline:
 
     def metadata(self):
         return [step.metadata for step in self.steps if step.metadata]
-
-
-def validate(pipeline: Pipeline):
-    steps = [step.__class__ for step in pipeline.steps]
-    for i, step in enumerate(steps):
-        for req_step in step.requires:
-            if req_step not in steps[:i]:
-                raise RuntimeError(f"Not valid pipeline: {step.__name__} must be preceded by {req_step.__name__}")
-            logger.info("Validating pipeline: %s is preceded by %s - OK", step.__name__, req_step.__name__)
-    logger.info("Pipeline passed validation")
