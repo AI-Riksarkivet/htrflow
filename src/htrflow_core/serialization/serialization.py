@@ -243,9 +243,9 @@ class PlainText(Serializer):
     extension = ".txt"
     format_name = "txt"
 
-    def _serialize(self, page: PageNode) -> str:
-        lines = page.traverse(lambda node: node.is_leaf())
-        return "\n".join(line.text for line in lines)
+    def _serialize(self, page: PageNode, **metadata) -> str:
+        lines = page.traverse(lambda node: node.is_line())
+        return "\n".join(line.text.strip() for line in lines)
 
 
 def get_metadata() -> dict:
