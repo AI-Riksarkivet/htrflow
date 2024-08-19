@@ -4,7 +4,7 @@ requires = ["poetry-core"]
 
 # Metadata
 [tool.poetry]
-authors = ["Swedish-National-Archives-AI-lab <gabriel.borg@riksarkivet.se>"]
+authors = ["Riksarkivets AI-labb <ai@riksarkivet.se>"]
 classifiers = [
   "Development Status :: 4 - Beta",
   "Intended Audience :: Developers",
@@ -15,13 +15,13 @@ classifiers = [
   "Typing :: Typed",
 ]
 description = "A short description of the project"
-documentation = "https://swedish-national-archives-ai-lab.github.io/htrflow_core/"
+documentation = "https://ai-riksarkivet.github.io/htrflow"
 include = ["scripts/openmmlab_install.py", "src/htrflow_core/serialization/*"]
 
 license = "EUPL-1.2"
 name = "htrflow_core"
 readme = "README.md"
-repository = "https://github.com/Swedish-National-Archives-AI-lab/htrflow_core"
+repository = "https://github.com/AI-Riksarkivet/htrflow"
 version = "0.0.1"
 
 [[tool.poetry.packages]]
