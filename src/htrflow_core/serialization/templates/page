@@ -5,7 +5,7 @@
         <Created>{{ metadata.created }}</Created>
         <LastChange>{{ metadata.created }}</LastChange>
     </Metadata>
-    <Page imageFilename="{{ page.get('image_path') }}" imageWidth="{{ page.width }}" imageHeight="{{ page.height }}">
+    <Page imageFilename="{{ page.get('file_name') }}" imageWidth="{{ page.width }}" imageHeight="{{ page.height }}">
         <ReadingOrder>
             <OrderedGroup id='ro'>
             {%- for node in page recursive %}
