@@ -25,25 +25,39 @@
 
 HTRFlow is an open source tool for handwritten text recognition. It is developed by the AI lab at the Swedish National Archives (Riksarkivet).
 
-
 ## Installation
 
 ### Package
 
 
 ### From source
+Requirements:
+  - [Poetry](https://python-poetry.org/)
+  - Python 3.10
+
 Clone this repository and run
 ```sh
-poetry install --extras "huggingface ultralytics openmmlabs cli"
+poetry install --extras "huggingface ultralytics cli"
+```
+This will install the HTRFlow CLI and enable huggingface and ultralytics models in a virtual environment. If you also want to use openmmlab models such as RTMDet and Satrn, you also need to run:
+```
+python3 scripts/openmmlab_install.py
+```
+Now activate the virtual enviroment with
+```
 poetry shell
 ```
-
-## Get started
-Once HTRFlow is installed, run it with:
+The HTRFlow CLI is now available within the poetry shell. Try it by running:
 ```sh
 htrflow pipeline examples/pipelines/demo.yaml examples/images/pages
 ```
 This command runs HTRFlow on the three example pages in [examples/images/pages](https://github.com/AI-Riksarkivet/htrflow/tree/main/examples/images/pages) and writes the output Page XML and Alto XML.
+
+## Usage
+Once HTRFlow is installed, run it with:
+```sh
+htrflow pipeline <pipeline file> <input image(s)>
+```
 
 ## Pipelines
 
@@ -75,7 +89,7 @@ This pipeline uses [Riksarkivet/rtmdet_lines](https://huggingface.co/Riksarkivet
 See the demo pipeline  [examples/pipelines/demo.yaml](https://github.com/AI-Riksarkivet/htrflow/tree/main/examples/pipelines/demo.yaml) for a more complex pipeline.
 
 ### Built-in pipeline steps
-Htrflow comes with several pre-defined pipeline steps out of the box. These include:
+HTRflow comes with several pre-defined pipeline steps out of the box. These include:
 - Inference, including text recognition and segmentation
 - Image preprocessing
 - Reading order detection
@@ -130,25 +144,3 @@ The following model architectures are currently supported by HTRFlow:
 | RTMDet | Segmentation | [Riksarkivet/rtmdet_lines](https://huggingface.co/Riksarkivet/rtmdet_lines) <br> [Riksarkivet/rtmdet_regions](https://huggingface.co/Riksarkivet/rtmdet_regions) |
 | Yolo | Segmentation |  |
 | DiT | Image classification |  |
-
-
-
-
-
-## Contributing
-
-- Clone this repository
-- Requirements:
-  - [Poetry](https://python-poetry.org/)
-  - Python 3.10+
-- Create a virtual environment and install the dependencies
-
-```sh
-poetry install
-```
-
-- Activate the virtual environment
-
-```sh
-poetry shell
-```
