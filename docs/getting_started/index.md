@@ -2,41 +2,42 @@
 icon: material/rocket-launch-outline 
 ---
 
-# Getting Started
+# Getting Started (Work in progress...)
 
 
 <div class="grid cards" markdown>
 
--   :material-clock-fast:{ .lg .middle } __Set up in 5 minutes__
+-   :material-clock-fast:{ .lg .middle } __How to run Htrflow pipeline__
 
     ---
 
-    Install [`mkdocs-material`](#) with [`pip`](#) and get up
-    and running in minutes
+    (WIP)
 
     [:octicons-arrow-right-24: Getting started](#)
 
--   :fontawesome-brands-markdown:{ .lg .middle } __It's just Markdown__
+-   :fontawesome-brands-markdown:{ .lg .middle } __How to add model__
 
     ---
 
-    Focus on your content and generate a responsive and searchable static site
+    (WIP)
+
 
     [:octicons-arrow-right-24: Reference](#)
 
--   :material-format-font:{ .lg .middle } __Made to measure__
+-   :material-format-font:{ .lg .middle } __The data structure__
 
     ---
 
-    Change the colors, fonts, language, icons, logo and more with a few lines
+    (WIP)
+
 
     [:octicons-arrow-right-24: Customization](#)
 
--   :material-scale-balance:{ .lg .middle } __Open Source, MIT__
+-   :material-scale-balance:{ .lg .middle } __Different serialization__
 
     ---
 
-    Material for MkDocs is licensed under MIT and available on [GitHub]
+    (WIP)
 
     [:octicons-arrow-right-24: License](#)
 

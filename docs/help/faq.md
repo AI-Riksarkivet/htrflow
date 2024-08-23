@@ -1,14 +1,8 @@
 # Frequently Asked Questions (FAQ)
 
 
-## INFO
+## INFO (WIP)
 
-=== "License"
-
-    ### License
-
-    !!! info "INFO"
-        dsda
 
 
 === "Contact"
@@ -16,7 +10,9 @@
     ### Contact
 
     !!! info "INFO"
-        dsda
+        |     Contact info  |                           |
+        | ----------- | ------------------------------------ |
+        | `email:`       | ai.riksarkivet.se  |
 
 
 === "Citation"
@@ -24,4 +20,17 @@
     ### Citation
 
     !!! info "INFO"
-        dsda
+        ..
+
+### Does Htrflow train models?
+
+No! Htrflow is used to faciliate inference for HTR in a simplifed pipeline design and structure your results for seamless serialization of you choice.
+
+### How does Htrflow compare to Transkribus, Kraken or Escriptorium?
+WIP
+
+### Which models can be used in Htrflow?
+WIP
+
+### Is Htrflow Cloud Native?
+WIP

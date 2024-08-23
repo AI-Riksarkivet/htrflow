@@ -45,7 +45,6 @@ opencv-python = ">=4.6.0"
 tqdm = "^4.66.2"
 xmlschema = "^3.0.2"
 requests = "^2.31.0"
-# pydantic = "^2.7.0"  # Not added but should be
 
 # openmmlab
 mmcv = {version = "2.0.0", optional = true}
@@ -57,18 +56,17 @@ yapf = {version = "0.40.1", optional = true}
 
 # huggingface
 datasets = {version = "^2.17.1", optional = true}
-huggingface-hub = {extras = ["cli"], version = "^0.20.3", optional = true}
-transformers = {extras = ["torch"], version = "^4.37.2", optional = true}
+huggingface-hub = {extras = ["cli"], version = "^0.24.6", optional = true}
+transformers = {extras = ["torch"], version = "^4.44.1", optional = true}
 # llm
-accelerate = {version = "^0.28.0", optional = true} 
-bitsandbytes = {version = "^0.43.0", optional = true} 
+accelerate = {version = "^0.33.0", optional = true} 
+bitsandbytes = {version = "^0.43.3", optional = true} 
 # ultralytics
 ultralytics = {version = "^8.0.225", optional = true}
 
 # cli
 typer = {extras = ["all"], version = "^0.12.0", optional = true}
 rich = {version =  "^13.7.1", optional = true}
-cowsay = {version = "^6.1", optional = true}
 
 [tool.poetry.extras]
 huggingface = ["transformers", "huggingface-hub", "datasets"]
@@ -76,8 +74,8 @@ llm = ["transformers", "huggingface-hub", "datasets", "torch","accelerate", "bit
 openmmlab = [ "yapf","torch","mmcv", "mmdet", "mmengine", "mmocr", "huggingface-hub"]
 pytorch = ["torch"]
 ultralytics = ["ultralytics", "huggingface-hub"]
-local_models = ["transformers", "huggingface-hub", "datasets", "ultralytics"]
-cli = ["typer", "rich", "cowsay"]
+local_models = ["transformers", "huggingface-hub", "datasets", "torch","accelerate", "bitsandbytes", "ultralytics"]
+cli = ["typer", "rich"]
 
 [tool.poetry.group.test.dependencies]
 mypy = "^1.8.0"

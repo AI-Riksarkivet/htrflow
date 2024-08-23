@@ -4,6 +4,7 @@ hide:
   - navigation
 ---
 
+
 <div align="center"">
 <img src="assets/background_htrflow_2.png" width="90%"/>
 </div>
@@ -25,8 +26,24 @@ hide:
 
 ___
 
-# **Htrflow**
+!!! Warning "Docs: Work in progress!"
+
+    [Htrflow](https://pypi.org/project/htrflow/) has a stable release, but the docs is still under development.
+
+
+## Htrflow
+
+<!-- ![Image title](assets/labrat.png){ align=right width="300" } -->
+<img src="assets/ai_lab.png" width="20%" height="20%" align="right" />
+
+
+AIRA, the AI-lab at Riksarkivet (The Swedish National Archives), presents **Htrflow** !
+
+
 An open-source framework designed to enhance productivity and flexibility for both Handwritten Text Recognition (HTR) and Optical Character Recogntion (OCR). It is easy to learn, delivers high performance, and is ready for seamless integration and scaling in production environments.
+
+<!-- <img src="assets/riks.png" width="10%" height="10%" align="right" /> -->
+
 
 ## Key features
 - **Standardization**: Avoid reinventing the wheel by standardizing HTR and OCR processes.
@@ -38,29 +55,22 @@ An open-source framework designed to enhance productivity and flexibility for bo
 - **Standards-Based**: Supports various industry standard formats such as XML and JSON (and more).
 ___
 
-<img src="assets/riks.png" width="20%" height="15%" align="right" />
 
 
-## Htrflow at Riksarkivet (The Swedish National Archives)
 
+## Ecosystem (WIP)
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
+=== "Htrflow as a Service (WIP)"
 
-##
-
-## Ecosystem
-
-=== "Htrflow as a Service"
-
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
+    Cloud Native support
 
     <div align="center"">
     <img src="assets/placeholder.jpg" width="100%"/>
     </div>
 
-=== "Htrflow Sandbox"
+=== "Htrflow Sandbox (WIP)"
 
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.
+    GUI, developed in Svelte and Gradio (WIP)
 
 
     <div align="center"">

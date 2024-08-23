@@ -22,8 +22,6 @@ nav:
     - getting_started/index.md
     - Quickstart: getting_started/quick_start.md
     - Installation: getting_started/installation.md
-    - Design: getting_started/core/design.md
-    - Ecosystem: getting_started/core/ecosystem.md
     - Data Structure: getting_started/data_structure.md
     - Models: getting_started/models.md
     - Pipeline: getting_started/pipeline.md
@@ -37,21 +35,26 @@ nav:
     - Volume: api/volume/volume.md
     - Node: api/volume/node.md
     - Results: api/results/results.md
-    - Image: api/image/image.md
+    - Utils: 
+        - Draw: api/utils/draw.md
+        - Geometry: api/utils/geometry.md
+        - Image processing: api/utils/imgproc.md
+        - Layout: api/utils/layout.md
+
 
   - Integrations:
     - integrations/index.md
-    - IIIF: integrations/iiif.md
-    - Search: integrations/search.md
-    - HaaS: integrations/haas.md
-    - Gradio: integrations/spaces.md
+    # - IIIF: integrations/iiif.md
+    # - Search: integrations/search.md
+    # - HaaS: integrations/haas.md
+    # - Gradio: integrations/spaces.md
 
   - Resources:
     - resources/index.md
-    - Open Source:
-      - Models: resources/models.md
-      - Datasets: resources/datasets.md
-    - Use Cases: resources/cases.md
+    # - Open Source:
+    #   - Models: resources/models.md
+    #   - Datasets: resources/datasets.md
+    # - Use Cases: resources/cases.md
 
   - Help:
     - help/index.md

@@ -4,7 +4,6 @@ import time
 from pathlib import Path
 from typing import List
 
-import cowsay
 import typer
 import yaml
 from typing_extensions import Annotated
@@ -14,7 +13,11 @@ from htrflow_core.pipeline.pipeline import Pipeline
 from htrflow_core.pipeline.steps import auto_import
 
 
-app = typer.Typer(name="htrflow_core", add_completion=False, help="CLI inferface for htrflow_core's pipeline")
+app = typer.Typer(
+    name="htrflow_core",
+    add_completion=False,
+    help="CLI inferface for htrflow_core's pipeline",
+)
 
 
 class HTRFLOWLoggingFormatter(logging.Formatter):
@@ -33,7 +36,9 @@ def setup_pipeline_logging(logfile: str, loglevel: str):
     logging.getLogger("transformers").setLevel(logging.ERROR)
     logger = logging.getLogger()
     logger.setLevel(loglevel.upper())
-    handler = logging.FileHandler(logfile, mode="w") if logfile else logging.StreamHandler()
+    handler = (
+        logging.FileHandler(logfile, mode="w") if logfile else logging.StreamHandler()
+    )
     handler.setFormatter(HTRFLOWLoggingFormatter())
     logger.addHandler(handler)
 
@@ -58,18 +63,35 @@ def validate_logfile_extension(logfile: str):
 @app.command("pipeline")
 def main(
     pipeline: Annotated[
-        str, typer.Argument(..., help="Path to the pipeline config YAML file", callback=check_file_exists)
+        str,
+        typer.Argument(
+            ...,
+            help="Path to the pipeline config YAML file",
+            callback=check_file_exists,
+        ),
     ],
     inputs: Annotated[
-        List[str], typer.Argument(..., help="Input path(s) pointing to images or directories contatining images")
+        List[str],
+        typer.Argument(
+            ...,
+            help="Input path(s) pointing to images or directories contatining images",
+        ),
     ],
     logfile: Annotated[
         str,
-        typer.Option(help="Log file path", rich_help_panel="Secondary Arguments", callback=validate_logfile_extension),
+        typer.Option(
+            help="Log file path",
+            rich_help_panel="Secondary Arguments",
+            callback=validate_logfile_extension,
+        ),
     ] = None,
     loglevel: Annotated[
         str,
-        typer.Option(help="Logging level", case_sensitive=False, rich_help_panel="Secondary Arguments"),
+        typer.Option(
+            help="Logging level",
+            case_sensitive=False,
+            rich_help_panel="Secondary Arguments",
+        ),
     ] = "info",
 ):
     """Entrypoint for htrflow_core's pipeline."""
@@ -86,13 +108,6 @@ def main(
         volume.set_label_format(**config["labels"])
     typer.echo("Running Pipeline")
     volume = pipe.run(volume)
-
-
-@app.command("cowsay")
-def test(msg: Annotated[str, typer.Argument(help="Who Cow will greet")] = "Hello World"):
-    """Test CLI with cowsay"""
-    cow_msg = f"Hello {msg}"
-    typer.echo(cowsay.get_output_string("cow", cow_msg))
 
 
 if __name__ == "__main__":
