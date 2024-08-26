@@ -206,3 +206,100 @@ class BagOfWords(TextMetric):
             "bow_extras": Ratio(candidate_words - intersection_words, candidate_words),
         }
 
+
+def _df_to_table(df: pd.DataFrame, highlight_policy: dict) -> Table:
+    """Convert a pandas dataframe to a rich table
+
+    Highlights the best entry of each row according to the given policy.
+
+    Arguments:
+        df: Input dataframe
+        highlight_policy: A dictionary mapping indices of `df` to a
+            function that given a list of values returns the value that
+            should be highlighted in the table.
+    """
+
+    table = Table()
+    table.add_column()
+    for column in df.columns:
+        table.add_column(str(column))
+    for label, row in zip(df.index, df.values):
+        best = highlight_policy.get(label, lambda _: None)(row)
+        table.add_row(label, *[_format_value(value, best) for value in row])
+    return table
+
+
+def _format_value(value: float, best: float | None) -> str:
+    """Returns a formatted string representing `value`
+
+    Arguments:
+        value: The value to be formatted
+        best: If value == best, the formatted string will be highlighted
+            bold green.
+    """
+    res = f"{100 * value:.4}" if value is not None else "None"
+    if value == best:
+        res = "[bold green]" + res + "[/bold green]*"
+    return res
+
+
+def print_summary(results: pd.DataFrame, metrics: list[Metric]):
+    """Pretty-print a summary of `results`"""
+    highlight_policy = {}
+    for metric in metrics:
+        highlight_policy |= metric.best
+    summary = results.sum().map(float).unstack("pipeline")
+    table = _df_to_table(summary, highlight_policy)
+    print(table)
+
+
+def read_xmls(directory: str) -> dict[str, PageXMLPage]:
+    """Read PageXMLs from a directory
+
+    Returns a dictionary mapping the PageXML file name to its
+    corresponding `PageXMLPage` instance.
+    """
+    pages = parse_pagexml_files_from_directory(directory)
+    return {os.path.basename(page.metadata["filename"]): page for page in pages}
+
+
+def evaluate(
+    gt_directory: str, *candidate_directories: tuple[str, ...]
+) -> pd.DataFrame:
+    """Evaluate candidate(s) against GT
+
+    The candidates must have the same file name as their corresponding
+    GT files. For example, `candidate_directory/page_0.xml` is evaluated
+    against `gt_directory/page_0.xml`.
+
+    Pretty-prints a summary of the results and returns all results as a
+    pandas DataFrame.
+
+    Arguments:
+        gt: Path to directory with GT PageXMLs
+        candidate_directories: Paths to directories with generated PageXMLs
+
+    Returns:
+        A pandas DataFrame with evaluation results.
+    """
+    metrics = [CER(), WER(), BagOfWords(), LineCoverage(), RegionCoverage()]
+    gt = read_xmls(gt_directory)
+
+    dfs = []
+    for candidate in candidate_directories:
+        candidate_pages = read_xmls(candidate)
+        pages = [
+            page for page in gt if page in candidate_pages and gt[page].num_words > 0
+        ]
+        for metric in metrics:
+            values = [metric(gt[page], candidate_pages[page]) for page in pages]
+            df = pd.DataFrame(values, index=pages)
+            dfs.append(df)
+
+    df = pd.concat(dfs, axis=1)
+    candidates = [os.path.basename(path) for path in candidate_directories]
+    metric_labels = df.columns[: len(df.columns) // len(candidates)]
+    names = ["pipeline", "metric"]
+    df.columns = pd.MultiIndex.from_product([candidates, metric_labels], names=names)
+    print_summary(df, metrics)
+    return df
