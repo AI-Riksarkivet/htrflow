@@ -31,13 +31,13 @@
                 <Word id="{{ child.label }}">
                     <Coords points="{% for point in child.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}" />
                     <TextEquiv conf="{{ child.text_result.top_score() }}">
-                        <Unicode>{{ child.text }}</Unicode>
+                        <Unicode>{{ xmlescape(child.text) }}</Unicode>
                     </TextEquiv>
                 </Word>
             {%- endfor %}
             {%- else %}
             <TextEquiv conf="{{ node.text_result.top_score() }}">
-                <Unicode>{{ node.text }}</Unicode>
+                <Unicode>{{ xmlescape(node.text) }}</Unicode>
             </TextEquiv>
             {%-endif %}
             </TextLine>

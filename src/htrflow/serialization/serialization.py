@@ -192,6 +192,7 @@ class PageXML(Serializer):
             TEXT_RESULT_KEY=TEXT_RESULT_KEY,
             metadata=get_metadata(),
             is_text_line=lambda node: node.is_line(),
+            xmlescape=xmlescape,
         )
 
     def validate(self, doc: str) -> None:
