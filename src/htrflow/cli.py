@@ -4,8 +4,7 @@ import shutil
 import socket
 import time
 from datetime import datetime
-from pathlib import Path
-from typing import List
+from enum import Enum
 
 import typer
 import yaml
@@ -20,8 +19,17 @@ from htrflow.pipeline.steps import auto_import
 app = typer.Typer(
     name="htrflow",
     add_completion=False,
-    help="CLI inferface for htrflow's pipeline",
+    help="CLI inferface for htrflow",
 )
+
+
+# This is needed in order for Typer to print the choices in
+# the generated CLI help.
+class LogLevel(Enum):
+    debug = "debug"
+    info = "info"
+    warning = "warning"
+    error = "error"
 
 
 class HTRFLOWLoggingFormatter(logging.Formatter):
@@ -36,70 +44,41 @@ class HTRFLOWLoggingFormatter(logging.Formatter):
         super().__init__(fmt, datefmt)
 
 
-def setup_pipeline_logging(logfile: str, loglevel: str):
+def setup_pipeline_logging(logfile: str | None, loglevel: LogLevel):
     logging.getLogger("transformers").setLevel(logging.ERROR)
     logger = logging.getLogger()
-    logger.setLevel(loglevel.upper())
-    handler = (
-        logging.FileHandler(logfile, mode="w") if logfile else logging.StreamHandler()
-    )
+    logger.setLevel(loglevel.value.upper())
+    if logfile is None:
+        handler = logging.StreamHandler()
+    else:
+        handler = logging.FileHandler(logfile, mode="w")
     handler.setFormatter(HTRFLOWLoggingFormatter())
     logger.addHandler(handler)
 
 
-def check_file_exists(file_path_str: str):
-    """Ensure the path exists and is a file."""
-    file_path = Path(file_path_str)
-    if not file_path.exists() or not file_path.is_file():
-        typer.echo(f"The file {file_path} does not exist or is not a valid file.")
-        raise typer.Exit(code=1)
-    return file_path_str
-
-
-def validate_logfile_extension(logfile: str):
-    """Ensure the logfile string has a .log extension."""
-    if logfile and not logfile.endswith(".log"):
-        typer.echo(f"The logfile must have a .log extension. Provided: {logfile}")
-        raise typer.Exit(code=1)
-    return logfile
-
-
 @app.command("pipeline")
-def main(
+def run_pipeline(
     pipeline: Annotated[
-        str,
-        typer.Argument(
-            ...,
-            help="Path to the pipeline config YAML file",
-            callback=check_file_exists,
-        ),
+        str, typer.Argument(help="Path to a HTRFlow pipeline YAML file")
     ],
     inputs: Annotated[
-        List[str],
+        list[str],
         typer.Argument(
-            ...,
-            help="Input path(s) pointing to images or directories contatining images",
+            help="Paths to input images. May be paths to directories of images or paths to single images."
         ),
     ],
     logfile: Annotated[
         str,
         typer.Option(
-            help="Log file path",
-            rich_help_panel="Secondary Arguments",
-            callback=validate_logfile_extension,
+            help="Where to write logs to. If not provided, logs will be printed to the standard output."
         ),
     ] = None,
     loglevel: Annotated[
-        str,
-        typer.Option(
-            help="Logging level",
-            case_sensitive=False,
-            rich_help_panel="Secondary Arguments",
-        ),
-    ] = "info",
+        LogLevel, typer.Option(help="Loglevel", case_sensitive=False)
+    ] = LogLevel.info,
 ):
-    """Entrypoint for htrflow's pipeline."""
-    setup_pipeline_logging(logfile, loglevel.upper())
+    """Run a HTRFlow pipeline"""
+    setup_pipeline_logging(logfile, loglevel)
 
     with open(pipeline, "r") as file:
         config = yaml.safe_load(file)
@@ -110,18 +89,9 @@ def main(
 
     if "labels" in config:
         volume.set_label_format(**config["labels"])
-    typer.echo("Running Pipeline")
-    volume = pipe.run(volume)
-    return volume
 
-
-@app.command("cowsay")
-def test(
-    msg: Annotated[str, typer.Argument(help="Who Cow will greet")] = "Hello World"
-):
-    """Test CLI with cowsay"""
-    cow_msg = f"Hello {msg}"
-    typer.echo(cowsay.get_output_string("cow", cow_msg))
+    print(f"Running pipeline {pipeline}")
+    return pipe.run(volume)
 
 
 @app.command("evaluate")
@@ -161,7 +131,7 @@ def run_evaluation(
             shutil.copy(pipe, os.path.join(pipeline_dir, pipeline_name + ".yaml"))
 
             # Run the pipeline
-            collection = pipeline(
+            collection = run_pipeline(
                 pipe, images, logfile=os.path.join(pipeline_dir, "htrflow.log")
             )
             collection.label = pipeline_name
