@@ -1,18 +1,18 @@
-<img src="https://github.com/Swedish-National-Archives-AI-lab/htrflow_core/blob/main/docs/assets/riks.png?raw=true" width="20%" height="20%" align="right" />
+<img src="https://github.com/Swedish-National-Archives-AI-lab/htrflow/blob/main/docs/assets/riks.png?raw=true" width="20%" height="20%" align="right" />
 
 # **htrflow**
 
 <p align="center">
-    <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/Swedish-National-Archives-AI-lab/htrflow_core">
-    <img alt="License" src="https://img.shields.io/github/license/Swedish-National-Archives-AI-lab/htrflow_core">
-    <a href="https://circleci.com/gh/Swedish-National-Archives-AI-lab/htrflow_core">
-        <img alt="Build" src="https://img.shields.io/github/Swedish-National-Archives-AI-lab/htrflow_core/main">
+    <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/Swedish-National-Archives-AI-lab/htrflow">
+    <img alt="License" src="https://img.shields.io/github/license/Swedish-National-Archives-AI-lab/htrflow">
+    <a href="https://circleci.com/gh/Swedish-National-Archives-AI-lab/htrflow">
+        <img alt="Build" src="https://img.shields.io/github/Swedish-National-Archives-AI-lab/htrflow/main">
     </a>
-    <a href="https://github.com/Swedish-National-Archives-AI-lab/htrflow_core/releases">
-        <img alt="GitHub release" src="https://img.shields.io/github/release/Swedish-National-Archives-AI-lab/htrflow_core.svg">
+    <a href="https://github.com/Swedish-National-Archives-AI-lab/htrflow/releases">
+        <img alt="GitHub release" src="https://img.shields.io/github/release/Swedish-National-Archives-AI-lab/htrflow.svg">
     </a>
-    <a href="https://github.com/Swedish-National-Archives-AI-lab/htrflow_core/releases">
-        <img alt="GitHub docs" src="https://img.shields.io/github/docs/Swedish-National-Archives-AI-lab/htrflow_core.svg">
+    <a href="https://github.com/Swedish-National-Archives-AI-lab/htrflow/releases">
+        <img alt="GitHub docs" src="https://img.shields.io/github/docs/Swedish-National-Archives-AI-lab/htrflow.svg">
     </a>
 <!-- Add test, ci, build, publish, draft bagdges here... -->
 
@@ -131,7 +131,7 @@ steps:
 ```
 All key-value pairs listed under `settings` will be passed to the step's `__init__()` method. If the pipeline step doesn't need any arguments, you can omit `settings`.
 
-For filtering and image processing operations, you can base your custom step on the base classes Prune and ProcessImages. Examples of this, and other pipeline steps, can be found in [htrflow_core/pipeline/steps.py](https://github.com/AI-Riksarkivet/htrflow/blob/56d70ad9e6d8aa38893ae3f46fa90f40311de195/src/htrflow_core/pipeline/steps.py).
+For filtering and image processing operations, you can base your custom step on the base classes Prune and ProcessImages. Examples of this, and other pipeline steps, can be found in [htrflow/pipeline/steps.py](https://github.com/AI-Riksarkivet/htrflow/blob/56d70ad9e6d8aa38893ae3f46fa90f40311de195/src/htrflow/pipeline/steps.py).
 
 
 ## Models

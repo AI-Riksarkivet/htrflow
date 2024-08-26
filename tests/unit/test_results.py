@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import pytest
 
-from htrflow_core.results import Segment
+from htrflow.results import Segment
 
 
 @pytest.fixture

@@ -7,30 +7,30 @@
 <!-- termynal -->
 
 ```
-> pip install htrflow_core
+> pip install htrflow
 ---> 100%
 Installed
 ```
 
 === "Installation"
 
-    You can install `htrflow_core` with [pypi](https://pypi.org/project/htrflow_core) in a
+    You can install `htrflow` with [pypi](https://pypi.org/project/htrflow) in a
     [**Python>=3.10**](https://www.python.org/) environment.
 
     !!! tip "pip install (recommended)"
 
         === "core"
-            The core installation of `htrflow_core` install everything you need to get you started with structuring output in your htr workflow.
+            The core installation of `htrflow` install everything you need to get you started with structuring output in your htr workflow.
 
             ```bash
-            pip install htrflow_core
+            pip install htrflow
             ```
 
         === "models"
             This installation add support för models we have implemented.
 
             ```bash
-            pip install "htrflow_core[models]"
+            pip install "htrflow[models]"
             ```
 
 === "Development"
@@ -41,8 +41,8 @@ Installed
 
             ```bash
             # clone repository and navigate to root directory
-            git clone https://github.com/Swedish-National-Archives-AI-lab/htrflow_core
-            cd htrflow_core
+            git clone https://github.com/Swedish-National-Archives-AI-lab/htrflow
+            cd htrflow
 
             # setup python environment and activate it
             python3 -m venv venv
@@ -60,8 +60,8 @@ Installed
 
             ```bash
             # clone repository and navigate to root directory
-            git clone https://github.com/Swedish-National-Archives-AI-lab/htrflow_core
-            cd htrflow_core
+            git clone https://github.com/Swedish-National-Archives-AI-lab/htrflow
+            cd htrflow
 
             # setup python environment and activate it
             poetry env use python3.10

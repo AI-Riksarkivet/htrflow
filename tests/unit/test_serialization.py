@@ -1,7 +1,7 @@
 import pytest
 
-from htrflow_core import serialization
-from htrflow_core.results import RecognizedText
+from htrflow import serialization
+from htrflow.results import RecognizedText
 
 
 @pytest.fixture

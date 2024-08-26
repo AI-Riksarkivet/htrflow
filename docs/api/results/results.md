@@ -1,3 +1,3 @@
 # Results
 
-:::htrflow_core.results
+:::htrflow.results

@@ -3,7 +3,7 @@ site_name: "Riksarkivet - Htrflow Docs"
 site_url: https://ai-riksarkivet.github.io/htrflow/latest/
 site_author: "AI Riksarkivet"
 site_description: "AIRA has developed an open source framework to make HTR easier to productionize."
-repo_name: AI-Riksarkivet/htrflow_core
+repo_name: AI-Riksarkivet/htrflow
 repo_url: https://github.com/AI-Riksarkivet/htrflow/
 edit_uri: https://github.com/AI-Riksarkivet/htrflow/tree/main/docs
 
@@ -103,8 +103,8 @@ theme:
   font:
     text: Roboto
     code: Roboto Mono
-  favicon: https://raw.githubusercontent.com/Swedish-National-Archives-AI-lab/htrflow_core/main/docs/assets/favicon.ico
-  logo: https://raw.githubusercontent.com/Swedish-National-Archives-AI-lab/htrflow_core/main/docs/assets/riks.png
+  favicon: https://raw.githubusercontent.com/Swedish-National-Archives-AI-lab/htrflow/main/docs/assets/favicon.ico
+  logo: https://raw.githubusercontent.com/Swedish-National-Archives-AI-lab/htrflow/main/docs/assets/riks.png
   icon:
     logo: logo
     repo: fontawesome/brands/github
@@ -125,6 +125,7 @@ plugins:
           selection:
             filters:
               - "!^_" # exclude all members starting with _
+
 
   - mkdocs-jupyter:
       kernel_name: python3

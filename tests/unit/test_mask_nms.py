@@ -3,8 +3,8 @@ import random
 import numpy as np
 import pytest
 
-# from htrflow_core.postprocess.mask_nms import multiclass_mask_nms, mask_nms
-from htrflow_core.results import Result, Segment
+# from htrflow.postprocess.mask_nms import multiclass_mask_nms, mask_nms
+from htrflow.results import Result, Segment
 
 
 @pytest.fixture

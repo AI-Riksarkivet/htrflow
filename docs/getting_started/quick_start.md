@@ -17,7 +17,7 @@ images = dataset["image"]
 ## Volume
 
 ```python
-from htrflow_core.volume import Volume
+from htrflow.volume import Volume
 
 vol = Volume([images])
 
@@ -26,7 +26,7 @@ vol = Volume([images])
 ## **Segment Images**
 
 ```python
-from htrflow_core.models.ultralytics.yolo import YOLO
+from htrflow.models.ultralytics.yolo import YOLO
 
 seg_model = YOLO('ultralyticsplus/yolov8s')
 res = seg_model(vol.images()) # vol.segments() is also possible since it points to the images
@@ -41,7 +41,7 @@ vol.update(res)
 ## HTR
 
 ```python
-from htrflow_core.models.huggingface.trocr import TrOCR
+from htrflow.models.huggingface.trocr import TrOCR
 
 rec_model = TrOCR()
 res = rec_model(vol.segments())

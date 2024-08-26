@@ -2,7 +2,7 @@ import pickle
 
 import pytest
 
-from htrflow_core.volume import node, volume
+from htrflow.volume import node, volume
 
 
 def one_layer_tree(n_children=3):

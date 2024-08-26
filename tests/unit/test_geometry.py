@@ -1,4 +1,4 @@
-from htrflow_core.utils import geometry
+from htrflow.utils import geometry
 
 
 def test_point_unpacking():
@@ -115,8 +115,8 @@ def test_polygon_getitem():
 
 
 def test_polygon_from_tuples():
-    pol_tuples = geometry.Polygon([(0,0)])
-    pol_points = geometry.Polygon([geometry.Point(0,0)])
+    pol_tuples = geometry.Polygon([(0, 0)])
+    pol_points = geometry.Polygon([geometry.Point(0, 0)])
     assert pol_points[0] == pol_tuples[0]
 
 
@@ -130,7 +130,7 @@ def test_polygon_move():
     polygon = polygon.move(dest)
 
     # We expect a new polygon (5,5), (6,6) ...
-    exptected_points = [geometry.Point(i+dest[0], i+dest[1]) for i in range(n_points)]
+    exptected_points = [geometry.Point(i + dest[0], i + dest[1]) for i in range(n_points)]
 
     assert all(point == expected_point for point, expected_point in zip(polygon, exptected_points))
 

@@ -16,21 +16,21 @@ classifiers = [
 ]
 description = "A short description of the project"
 documentation = "https://ai-riksarkivet.github.io/htrflow"
-include = ["scripts/openmmlab_install.py", "src/htrflow_core/serialization/*"]
+include = ["scripts/openmmlab_install.py", "src/htrflow/serialization/*"]
 
 license = "EUPL-1.2"
-name = "htrflow_core"
+name = "htrflow"
 readme = "README.md"
 repository = "https://github.com/AI-Riksarkivet/htrflow"
-version = "0.0.1"
+version = "0.1.0"
 
 [[tool.poetry.packages]]
 from = "src"
-include = "htrflow_core"
+include = "htrflow"
 
 [tool.poetry.scripts]
 openmmlab_install = "scripts.openmmlab_install:main"
-htrflow = "htrflow_core.cli:app"
+htrflow = "htrflow.cli:app"
 
 # Dependencies
 [tool.poetry.dependencies]
@@ -39,7 +39,7 @@ python = ">=3.10, <4.0"
 # dep
 jinja2 = "3.1.3"
 lorem = "^0.1.1"
-matplotlib = "^3.8.3" # viz..
+matplotlib = "^3.8.3"
 numpy = "1.26.4"
 opencv-python = ">=4.6.0"
 tqdm = "^4.66.2"
@@ -84,7 +84,7 @@ pytest = "^8.0.1"
 pytest-cov = "^4.1.0"
 pytest-github-actions-annotate-failures = "^0.2.0"
 python-dotenv = "1.0.1"
-ruff = "^0.2.2"
+ruff = "^0.6.2"
 
 [tool.poetry.group.docs.dependencies]
 mike = "^2.1.1"
@@ -99,13 +99,13 @@ mkdocs-swagger-ui-tag = "^0.6.10"
 
 # Test
 [tool.pytest.ini_options]
-addopts = "-v --cov htrflow_core --cov-report term-missing --no-cov-on-fail "
+addopts = "-v --cov htrflow --cov-report term-missing --no-cov-on-fail "
 markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')", "gpu: marks tests as gpu (deselect with '-m \"not gpu\"')"]
 pythonpath = "src"
 testpaths = ["tests/unit"]
 
 [tool.coverage.run]
-source = ["src/htrflow_core"]
+source = ["src/htrflow"]
 
 [tool.coverage.report]
 exclude_lines = [
@@ -131,7 +131,7 @@ select = ["C", "E", "F", "I", "W"]
 "__init__.py" = ["E402", "F401", "F403", "F811"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["htrflow_core"]
+known-first-party = ["htrflow"]
 lines-after-imports = 2
 
 # Typing

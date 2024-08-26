@@ -16,7 +16,7 @@ services:
       [
         "/bin/sh",
         "-c",
-        "htrflow pipeline pipeline/im-pipeline.yaml input/1107 --logfile logs/htrflow/htrflow_core_1107.log",
+        "htrflow pipeline pipeline/im-pipeline.yaml input/1107 --logfile logs/htrflow/htrflow_1107.log",
       ]
 
     volumes:

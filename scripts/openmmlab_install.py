@@ -7,7 +7,9 @@ def install_packages():
         subprocess.check_call(["pip", "install", "-U", "torch==2.0.0"])
         os_name = platform.system().lower()
         if os_name == "windows":
-            mmcv_url = "https://github.com/AI-Riksarkivet/openmim_install/raw/main/mmcv-2.0.0-cp310-cp310-win_amd64.whl"
+            mmcv_url = (
+                "https://github.com/AI-Riksarkivet/openmim_install/raw/main/mmcv-2.0.0-cp310-cp310-win_amd64.whl"
+            )
         elif os_name == "linux":
             mmcv_url = "https://github.com/AI-Riksarkivet/openmim_install/raw/main/mmcv-2.0.0-cp310-cp310-manylinux1_x86_64.whl"
         elif os_name == "darwin":  # macOS is identified as 'Darwin'

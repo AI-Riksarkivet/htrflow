@@ -5,8 +5,8 @@ import lorem
 import numpy as np
 import pytest
 
-from htrflow_core.results import Result
-from htrflow_core.volume import volume
+from htrflow.results import Result
+from htrflow.volume import volume
 
 
 @pytest.fixture
@@ -122,7 +122,7 @@ def dummy_segmentation(shape):
         {},
         masks=[dummy_mask(shape) for _ in range(n_segments)],
         scores=scores,
-        labels=labels
+        labels=labels,
     )
 
 
@@ -131,7 +131,7 @@ def dummy_text_recognition():
     return Result.text_recognition_result(
         {},
         texts=[lorem.sentence() for _ in range(n_candidates)],
-        scores=[random.random() for _ in range(n_candidates)]
+        scores=[random.random() for _ in range(n_candidates)],
     )
 
 
