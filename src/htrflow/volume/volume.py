@@ -103,7 +103,7 @@ class ImageNode(node.Node, ABC):
         return any(child.contains_text() for child in self.children)
 
     def has_regions(self) -> bool:
-        return all(not child.is_leaf() for child in self.children)
+        return all(child.text is None for child in self.children)
 
     def segments(self) -> "ImageGenerator":
         return ImageGenerator(self.leaves())
