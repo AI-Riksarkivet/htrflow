@@ -42,7 +42,7 @@ class Ratio:
     __radd__ = __add__  # redirects int + Ratio to __add__
 
     def __float__(self):
-        return -1 if self.b == 0 else float(self.a / self.b)
+        return -1.0 if self.b == 0 else float(self.a / self.b)
 
     def __gt__(self, other):
         return float(self) > float(other)
