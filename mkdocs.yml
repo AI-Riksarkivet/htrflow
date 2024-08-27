@@ -116,7 +116,9 @@ plugins:
       default_handler: python
       handlers:
         python:
-          rendering:
+          options:
+            show_symbol_type_heading: True
+            show_symbol_type_toc: True
             show_root_toc_entry: True
             show_root_heading: True
             show_source: True
