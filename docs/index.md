@@ -11,16 +11,16 @@ hide:
 
 
 <p align="center">
-    <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/Swedish-National-Archives-AI-lab/htrflow">
-    <img alt="License" src="https://img.shields.io/github/license/Swedish-National-Archives-AI-lab/htrflow">
-    <a href="https://circleci.com/gh/Swedish-National-Archives-AI-lab/htrflow">
-        <img alt="Build" src="https://img.shields.io/github/Swedish-National-Archives-AI-lab/htrflow/main">
+    <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/AI-Riksarkivet/htrflow">
+    <img alt="License" src="https://img.shields.io/github/license/AI-Riksarkivet/htrflow">
+    <a href="https://circleci.com/gh/AI-Riksarkivet/htrflow">
+        <img alt="Build" src="https://img.shields.io/github/AI-Riksarkivet/htrflow/main">
     </a>
-    <a href="https://github.com/Swedish-National-Archives-AI-lab/htrflow/releases">
-        <img alt="GitHub release" src="https://img.shields.io/github/release/Swedish-National-Archives-AI-lab/htrflow.svg">
+    <a href="https://github.com/AI-Riksarkivet/htrflow/releases">
+        <img alt="GitHub release" src="https://img.shields.io/github/release/AI-Riksarkivet/htrflow.svg">
     </a>
-    <a href="https://github.com/Swedish-National-Archives-AI-lab/htrflow/releases">
-        <img alt="GitHub docs" src="https://img.shields.io/github/docs/Swedish-National-Archives-AI-lab/htrflow.svg">
+    <a href="https://github.com/AI-Riksarkivet/htrflow/releases">
+        <img alt="GitHub docs" src="https://img.shields.io/github/docs/AI-Riksarkivet/htrflow.svg">
     </a>
 </p>
 

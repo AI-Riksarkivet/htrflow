@@ -1,53 +1,89 @@
-<img src="https://github.com/Swedish-National-Archives-AI-lab/htrflow/blob/main/docs/assets/riks.png?raw=true" width="20%" height="20%" align="right" />
+<img src="https://github.com/AI-Riksarkivet/htrflow/blob/main/docs/assets/riks.png?raw=true" width="10%" height="10%" align="right" />
 
 # **htrflow**
 
 <p align="center">
-    <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/Swedish-National-Archives-AI-lab/htrflow">
-    <img alt="License" src="https://img.shields.io/github/license/Swedish-National-Archives-AI-lab/htrflow">
-    <a href="https://circleci.com/gh/Swedish-National-Archives-AI-lab/htrflow">
-        <img alt="Build" src="https://img.shields.io/github/Swedish-National-Archives-AI-lab/htrflow/main">
+    <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/AI-Riksarkivet/htrflow">
+    <img alt="License" src="https://img.shields.io/github/license/AI-Riksarkivet/htrflow">
+    <a href="https://circleci.com/gh/AI-Riksarkivet/htrflow">
+        <img alt="Build" src="https://img.shields.io/github/AI-Riksarkivet/htrflow/main">
     </a>
-    <a href="https://github.com/Swedish-National-Archives-AI-lab/htrflow/releases">
-        <img alt="GitHub release" src="https://img.shields.io/github/release/Swedish-National-Archives-AI-lab/htrflow.svg">
+    <a href="https://github.com/AI-Riksarkivet/htrflow/releases">
+        <img alt="GitHub release" src="https://img.shields.io/github/release/AI-Riksarkivet/htrflow.svg">
     </a>
-    <a href="https://github.com/Swedish-National-Archives-AI-lab/htrflow/releases">
-        <img alt="GitHub docs" src="https://img.shields.io/github/docs/Swedish-National-Archives-AI-lab/htrflow.svg">
+    <a href="https://github.com/AI-Riksarkivet/htrflow/releases">
+        <img alt="GitHub docs" src="https://img.shields.io/github/docs/AI-Riksarkivet/htrflow.svg">
     </a>
 <!-- Add test, ci, build, publish, draft bagdges here... -->
 
 </p>
 
 <p align="center">
-  <img src="https://github.com/Borg93/htr_gradio_file_placeholder/blob/main/htrflow_background_dalle3.png?raw=true" alt="HTRFLOW Image" width=40%>
+  <img src="https://github.com/AI-Riksarkivet/htrflow/blob/main/docs/assets/background_htrflow_2.png?raw=true" alt="HTRFLOW Image" width=70%>
 </p>
 
 
+
 HTRFlow is an open source tool for handwritten text recognition. It is developed by the AI lab at the Swedish National Archives (Riksarkivet).
+
+## Docs
+> ⚠️! Docs still under development
+
+[![mkdocs](https://img.shields.io/badge/htrflow_docs-526CFE?style=for-the-badge&logo=MaterialForMkDocs&logoColor=white)](https://ai-riksarkivet.github.io/htrflow)
+
 
 ## Installation
 
 ### Package
 
+<a href="https://pypi.org/project/htrflow/">
+    <img alt="pypi" src="https://img.shields.io/pypi/pyversions/htrflow">
+</a>
+
+Either install with uv or pip:
+
+#### uv:
+```sh
+uv pip install htrflow[all]
+```
+
+#### pip:
+
+```sh
+pip install htrflow[all] 
+```
+This includes ultralytics and transformers models, but if you want also to use openmmlab models:
+
+```sh
+pip install htrflow"[all,openmmlab]" 
+```
+
+> Note that this forces torch to 2.0.0, since openmmlabs depends on it for now..
+
 
 ### From source
 Requirements:
-  - [Poetry](https://python-poetry.org/)
+  - [uv](https://docs.astral.sh/uv/) or pip
   - Python 3.10
 
 Clone this repository and run
 ```sh
-poetry install --extras "huggingface ultralytics cli"
+uv pip install -e .[all]
 ```
 This will install the HTRFlow CLI and enable huggingface and ultralytics models in a virtual environment. If you also want to use openmmlab models such as RTMDet and Satrn, you also need to run:
 ```
-python3 scripts/openmmlab_install.py
+uv pip install -e ."[all,openmmlab]"
 ```
 Now activate the virtual enviroment with
 ```
-poetry shell
+source .venv/bin/activate
 ```
-The HTRFlow CLI is now available within the poetry shell. Try it by running:
+Or if you are using `uv` you can just run with `uv run` prefix before all your commands:
+```
+uv run <cmd>
+```
+
+The HTRFlow CLI is now available within the `.venv` from uv or where you installed the package. Try it by running:
 ```sh
 htrflow pipeline examples/pipelines/demo.yaml examples/images/pages
 ```

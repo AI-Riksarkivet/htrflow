@@ -8,4 +8,4 @@ icon: material/book-open-outline
 
 !!! info inline end "Release Notes"
 
-    [Releases on Github :fontawesome-brands-github:](https://github.com/Swedish-National-Archives-AI-lab/htrflow/releases){ .md-button }
+    [Releases on Github :fontawesome-brands-github:](https://github.com/AI-Riksarkivet/htrflow/releases){ .md-button }

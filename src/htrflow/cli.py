@@ -25,7 +25,7 @@ app = typer.Typer(
 
 # This is needed in order for Typer to print the choices in
 # the generated CLI help.
-class LogLevel(Enum):
+class LogLevel(str, Enum):
     debug = "debug"
     info = "info"
     warning = "warning"
@@ -122,7 +122,6 @@ def run_evaluation(
         pipelines = candidates
         candidates = []
         for i, pipe in enumerate(pipelines):
-
             # Create a directory under `run_dir` to save pipeline results,
             # logs and a copy of the pipeline yaml to.
             pipeline_name = f"pipeline{i}_{os.path.splitext(os.path.basename(pipe))[0]}"

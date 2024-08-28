@@ -63,6 +63,6 @@ Ensure all tests pass before requesting a review.
 
 ## License 📄
 
-By contributing to htrflow, you agree that your contributions will be licensed under the [EUPL-1.2 license](https://github.com/Swedish-National-Archives-AI-lab/htrflow/tree/main?tab=EUPL-1.2-1-ov-file#readme).
+By contributing to htrflow, you agree that your contributions will be licensed under the [EUPL-1.2 license](https://github.com/AI-Riksarkivet/htrflow/tree/main?tab=EUPL-1.2-1-ov-file#readme).
 
 Thank you for contributing to htrflow!

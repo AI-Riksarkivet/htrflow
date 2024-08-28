@@ -1,33 +1,23 @@
-# Use the base image
 FROM airiksarkivet/cuda-12-py310:0.0.1
 
-# Set the working directory
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
+
+ENV UV_SYSTEM_PYTHON=1
+
 WORKDIR /app
 
-# Install Poetry
-RUN pip install poetry
+RUN uv pip install htrflow"[all,openmmlab]"
 
-# Copy the Poetry project files
-COPY . .
+# ADD uv.lock /app/uv.lock
+# ADD pyproject.toml /app/pyproject.toml
 
-# Install dependencies using Poetry
-RUN poetry install --no-interaction --no-root --extras "huggingface ultralytics cli"
+# RUN --mount=type=cache,target=/root/.cache/uv \
+#     uv sync --all-extras --frozen --no-install-project
 
-# Run the openmmlab_install script using Poetry
-RUN poetry run scripts/openmmlab_install
+# ADD . /app
+# RUN --mount=type=cache,target=/root/.cache/uv \
+#     uv sync --frozen --all-extras
 
+# ENV PATH="/app/.venv/bin:$PATH"
 
-# Create necessary directories
-RUN mkdir -p /app/output /app/input /app/logs /app/pipeline /app/models
-
-# Set the entry point (uncomment and modify if needed)
-CMD ["poetry", "run", "htrflow", "--help"]
-
-
-# CMD ["htrflow", "--help"]
-# docker build -t airiksarkivet/htrflow:v0.1.1 -f docker/Dockerfile .
-# docker push airiksarkivet/htrflow:v0.1.1
-# docker run --gpus all -it --rm htrflow_im:latest /bin/bash
-# docker exec -it <c_id> /bin/bash
-
-
+CMD ["uv", "run", "htrflow", "--help"]

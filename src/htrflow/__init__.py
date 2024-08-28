@@ -9,7 +9,6 @@ def _package_metadata_as_dict(package_name: str, exclude_keys: Optional[List[str
     """Get package metadata and return it as a dict, excluding specified keys."""
     if exclude_keys is None:
         exclude_keys = []
-
     try:
         meta_data = metadata(package_name)
 
@@ -40,5 +39,11 @@ def _package_metadata_as_dict(package_name: str, exclude_keys: Optional[List[str
 
 meta = _package_metadata_as_dict(
     htrflow.__package__,
-    exclude_keys=["Classifier", "Description", "Description-Content-Type"],
+    exclude_keys=[
+        "Classifier",
+        "Readme",
+        "Description",
+        "Description-Content-Type",
+        "License",
+    ],
 )

@@ -103,8 +103,8 @@ theme:
   font:
     text: Roboto
     code: Roboto Mono
-  favicon: https://raw.githubusercontent.com/Swedish-National-Archives-AI-lab/htrflow/main/docs/assets/favicon.ico
-  logo: https://raw.githubusercontent.com/Swedish-National-Archives-AI-lab/htrflow/main/docs/assets/riks.png
+  favicon: https://raw.githubusercontent.com/AI-Riksarkivet/htrflow/main/docs/assets/favicon.ico
+  logo: https://raw.githubusercontent.com/AI-Riksarkivet/htrflow/main/docs/assets/riks.png
   icon:
     logo: logo
     repo: fontawesome/brands/github

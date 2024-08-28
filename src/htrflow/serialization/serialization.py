@@ -256,7 +256,7 @@ def get_metadata() -> dict:
     timestamp = datetime.utcnow().isoformat()
 
     return {
-        "creator": htrflow.meta["Author"],
+        "creator": htrflow.meta["Author-email"],
         "software_name": htrflow.meta["Name"],
         "software_version": htrflow.meta["Version"],
         "application_description": htrflow.meta["Summary"],

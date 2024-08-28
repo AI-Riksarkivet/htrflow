@@ -41,7 +41,7 @@ Installed
 
             ```bash
             # clone repository and navigate to root directory
-            git clone https://github.com/Swedish-National-Archives-AI-lab/htrflow
+            git clone https://github.com/AI-Riksarkivet/htrflow
             cd htrflow
 
             # setup python environment and activate it
@@ -60,7 +60,7 @@ Installed
 
             ```bash
             # clone repository and navigate to root directory
-            git clone https://github.com/Swedish-National-Archives-AI-lab/htrflow
+            git clone https://github.com/AI-Riksarkivet/htrflow
             cd htrflow
 
             # setup python environment and activate it

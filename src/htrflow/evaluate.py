@@ -263,9 +263,7 @@ def read_xmls(directory: str) -> dict[str, PageXMLPage]:
     return {os.path.basename(page.metadata["filename"]): page for page in pages}
 
 
-def evaluate(
-    gt_directory: str, *candidate_directories: tuple[str, ...]
-) -> pd.DataFrame:
+def evaluate(gt_directory: str, *candidate_directories: tuple[str, ...]) -> pd.DataFrame:
     """Evaluate candidate(s) against GT
 
     The candidates must have the same file name as their corresponding
@@ -288,9 +286,7 @@ def evaluate(
     dfs = []
     for candidate in candidate_directories:
         candidate_pages = read_xmls(candidate)
-        pages = [
-            page for page in gt if page in candidate_pages and gt[page].num_words > 0
-        ]
+        pages = [page for page in gt if page in candidate_pages and gt[page].num_words > 0]
         for metric in metrics:
             values = [metric(gt[page], candidate_pages[page]) for page in pages]
             df = pd.DataFrame(values, index=pages)

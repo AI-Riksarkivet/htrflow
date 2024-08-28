@@ -1,123 +1,153 @@
-[build-system]
-build-backend = "poetry.core.masonry.api"
-requires = ["poetry-core"]
-
-# Metadata
-[tool.poetry]
-authors = ["Riksarkivets AI-labb <ai@riksarkivet.se>"]
-classifiers = [
-  "Development Status :: 4 - Beta",
-  "Intended Audience :: Developers",
-  "Operating System :: OS Independent",
-  "Programming Language :: Python",
-  "Programming Language :: Python :: 3.10",
-  "Topic :: Software Development :: Libraries :: Python Modules",
-  "Typing :: Typed",
-]
-description = "A short description of the project"
-documentation = "https://ai-riksarkivet.github.io/htrflow"
-include = ["scripts/openmmlab_install.py", "src/htrflow/serialization/*"]
-
-license = "EUPL-1.2"
+[project]
 name = "htrflow"
+version = "0.1.1"
+description = "htrflow is developed at Riksarkivet's AI-lab as an open-source package to simplify HTR"
 readme = "README.md"
-repository = "https://github.com/AI-Riksarkivet/htrflow"
-version = "0.1.0"
+license = {file = "LICENSE"}
+authors = [{email = "ai@riksarkivet.se"}]
+keywords = ["htr", "htrflow", "ocr"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+requires-python = ">=3.10"
 
-[[tool.poetry.packages]]
-from = "src"
-include = "htrflow"
+dependencies = [
+    "jinja2 == 3.1.3",
+    "lorem >=0.1.1,<0.2",
+    "matplotlib >=3.8.3,<4",
+    "numpy == 1.26.4",
+    "opencv-python >=4.6.0",
+    "tqdm >=4.66.2,<5",
+    "xmlschema >=3.0.2,<4",
+    "requests >=2.31.0,<3",
+]
 
-[tool.poetry.scripts]
-openmmlab_install = "scripts.openmmlab_install:main"
+[project.urls]
+Documentation = "https://ai-riksarkivet.github.io/htrflow"
+Repository = "https://github.com/AI-Riksarkivet/htrflow"
+
+
+[project.scripts]
 htrflow = "htrflow.cli:app"
-
-# Dependencies
-[tool.poetry.dependencies]
-# python
-python = ">=3.10, <4.0"
-# dep
-jinja2 = "3.1.3"
-lorem = "^0.1.1"
-matplotlib = "^3.8.3"
-numpy = "1.26.4"
-opencv-python = ">=4.6.0"
-tqdm = "^4.66.2"
-xmlschema = "^3.0.2"
-requests = "^2.31.0"
-
-# openmmlab
-mmcv = {version = "2.0.0", optional = true}
-mmdet = {version = "3.1.0", optional = true}
-mmengine = {version = "0.7.2", optional = true}
-mmocr = {version = "1.0.1", optional = true}
-torch = {version = "2.0.0", optional = true}
-yapf = {version = "0.40.1", optional = true}
-
-# huggingface
-datasets = {version = "^2.17.1", optional = true}
-huggingface-hub = {extras = ["cli"], version = "^0.24.6", optional = true}
-transformers = {extras = ["torch"], version = "^4.44.1", optional = true}
-# llm
-accelerate = {version = "^0.33.0", optional = true} 
-bitsandbytes = {version = "^0.43.3", optional = true} 
-# ultralytics
-ultralytics = {version = "^8.0.225", optional = true}
-
-# cli
-typer = {extras = ["all"], version = "^0.12.0", optional = true}
-rich = {version =  "^13.7.1", optional = true}
-
-[tool.poetry.extras]
-huggingface = ["transformers", "huggingface-hub", "datasets"]
-llm = ["transformers", "huggingface-hub", "datasets", "torch","accelerate", "bitsandbytes"]
-openmmlab = [ "yapf","torch","mmcv", "mmdet", "mmengine", "mmocr", "huggingface-hub"]
-pytorch = ["torch"]
-ultralytics = ["ultralytics", "huggingface-hub"]
-local_models = ["transformers", "huggingface-hub", "datasets", "torch","accelerate", "bitsandbytes", "ultralytics"]
-cli = ["typer", "rich"]
-
-[tool.poetry.group.test.dependencies]
-mypy = "^1.8.0"
-pre-commit = "^3.6.2"
-pytest = "^8.0.1"
-pytest-cov = "^4.1.0"
-pytest-github-actions-annotate-failures = "^0.2.0"
-python-dotenv = "1.0.1"
-ruff = "^0.6.2"
-
-[tool.poetry.group.docs.dependencies]
-mike = "^2.1.1"
-mkdocs-jupyter = "^0.24.6"
-mkdocs-material = "^9.5.10"
-mkdocstrings = {extras = ["python"], version = ">=0.20"}
-mkdocs-table-reader-plugin = "^2.2.2"
-mkdocs-git-revision-date-localized-plugin = "^1.2.6"
-termynal = "^0.12.1"
-mkdocs-swagger-ui-tag = "^0.6.10"
+openmmlab_install = "scripts.openmmlab_install:main"
 
 
-# Test
+[tool.uv]
+dev-dependencies = [
+    "mypy >=1.8.0",
+    "pre-commit >=3.6.2",
+    "pytest >=8.0.1",
+    "pytest-cov >=4.1.0",
+    "pytest-github-actions-annotate-failures >=0.2.0",
+    "python-dotenv >=1.0.1",
+    "ruff >=0.6.2",
+    "twine>=5.1.1",
+]
+
+[tool.uv.sources]
+mmcv = { url = "https://github.com/AI-Riksarkivet/openmim_install/raw/main/mmcv-2.0.0-cp310-cp310-manylinux1_x86_64.whl" }
+
+[project.optional-dependencies]
+docs = [
+    "mike >=2.1.1",
+    "mkdocs-jupyter >=0.24.6",
+    "mkdocs-material >=9.5.10",
+    "mkdocstrings[python] >=0.20",
+    "mkdocs-table-reader-plugin >=2.2.2",
+    "mkdocs-git-revision-date-localized-plugin >=1.2.6",
+    "termynal >=0.12.1",
+    "mkdocs-swagger-ui-tag >=0.6.10"
+]
+
+huggingface = [
+    "transformers[torch] >=4.44.1" ,
+    "huggingface-hub[cli] >=0.24.6",
+    "datasets >=2.17.1",
+]
+llm = [
+    "transformers[torch] >=4.44.1" ,
+    "huggingface-hub[cli] >=0.24.6",
+    "datasets >=2.17.1",
+    "accelerate >=0.33.0",
+    "bitsandbytes >=0.43.3",
+]
+ultralytics = [
+    "ultralytics >=8.0.225",
+    "huggingface-hub[cli] >=0.24.6",
+]
+cli = [
+    "typer>=0.12.0",
+    "rich >=13.7.1",
+    "jiwer >=3.0.4",
+    "pandas >=2.2.2",
+    "pagexml-tools >=0.5.0",
+]
+
+eval = [
+    "jiwer >=3.0.4",
+    "pandas >=2.2.2",
+    "pagexml-tools >=0.5.0",
+]
+
+openmmlab=[
+    "torch==2.0.0",
+    "mmcv",
+    "mmdet==3.1.0",
+    "mmengine==0.7.2",
+    "mmocr==1.0.1",
+    "yapf==0.40.1",
+]
+
+all = [
+    "transformers[torch] >=4.44.1" ,
+    "huggingface-hub[cli] >=0.24.6",
+    "datasets >=2.17.1",
+    "accelerate >=0.33.0",
+    "bitsandbytes >=0.43.3",
+    "ultralytics >=8.0.225",
+    "huggingface-hub[cli] >=0.24.6",
+    "typer>=0.12.0",
+    "rich >=13.7.1",
+    "jiwer >=3.0.4",
+    "pandas >=2.2.2",
+    "pagexml-tools >=0.5.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+
+# Test configuration (tool.pytest.ini_options)
 [tool.pytest.ini_options]
-addopts = "-v --cov htrflow --cov-report term-missing --no-cov-on-fail "
-markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')", "gpu: marks tests as gpu (deselect with '-m \"not gpu\"')"]
+addopts = "-v --cov htrflow --cov-report term-missing --no-cov-on-fail"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "gpu: marks tests as gpu (deselect with '-m \"not gpu\"')",
+]
 pythonpath = "src"
 testpaths = ["tests/unit"]
 
+# Coverage configuration (tool.coverage)
 [tool.coverage.run]
 source = ["src/htrflow"]
 
 [tool.coverage.report]
 exclude_lines = [
-  "if __name__ == .__main__.:",
-  "pragma: no cover",
-  "def __repr__",
-  "if self\\.debug",
-  "raise AssertionError",
-  "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "pragma: no cover",
+    "def __repr__",
+    "if self\\.debug",
+    "raise AssertionError",
+    "raise NotImplementedError",
 ]
 
-# Formatting
+# Formatting and linting (tool.ruff)
 [tool.ruff]
 line-length = 119
 target-version = "py310"
@@ -134,7 +164,7 @@ select = ["C", "E", "F", "I", "W"]
 known-first-party = ["htrflow"]
 lines-after-imports = 2
 
-# Typing
+# Typing (tool.mypy)
 [tool.mypy]
 check_untyped_defs = true
 disallow_any_generics = true
@@ -150,6 +180,6 @@ warn_return_any = true
 warn_unreachable = true
 warn_unused_configs = true
 
-# Scaffolding
+# Scaffolding (tool.cruft)
 [tool.cruft]
 skip = ["src", "tests"]
