@@ -121,6 +121,7 @@ plugins:
             show_symbol_type_toc: True
             show_root_toc_entry: True
             show_root_heading: True
+            show_root_full_path: False
             show_source: True
             show_category_heading: True
             show_bases: True
