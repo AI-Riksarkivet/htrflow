@@ -5,7 +5,7 @@ from typing import Any
 import jiwer
 import pandas as pd
 from pagexml.model.physical_document_model import PageXMLPage
-from pagexml.parser import parse_pagexml_files_from_directory
+from pagexml.parser import parse_pagexml_file
 from rich import print
 from rich.table import Table
 from shapely import GEOSException, Polygon, union_all
@@ -259,8 +259,17 @@ def read_xmls(directory: str) -> dict[str, PageXMLPage]:
     Returns a dictionary mapping the PageXML file name to its
     corresponding `PageXMLPage` instance.
     """
-    pages = parse_pagexml_files_from_directory(directory)
-    return {os.path.basename(page.metadata["filename"]): page for page in pages}
+    pages = {}
+    for parent, _, files in os.walk(directory):
+        for file in files:
+            if not file.endswith(".xml"):
+                continue
+            try:
+                page = parse_pagexml_file(os.path.join(parent, file))
+            except ValueError:
+                continue
+            pages[file] = page
+    return pages
 
 
 def evaluate(gt_directory: str, *candidate_directories: tuple[str, ...]) -> pd.DataFrame:
