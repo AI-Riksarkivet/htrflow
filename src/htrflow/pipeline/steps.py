@@ -3,11 +3,14 @@ import os
 from dataclasses import dataclass
 from typing import Any, Callable, Literal
 
+from pagexml.parser import parse_pagexml_file
+
 from htrflow.models.base_model import BaseModel
 from htrflow.models.importer import all_models
 from htrflow.postprocess import metrics
 from htrflow.postprocess.reading_order import order_regions
 from htrflow.postprocess.word_segmentation import simple_word_segmentation
+from htrflow.results import Result
 from htrflow.serialization import get_serializer, save_collection
 from htrflow.utils.imgproc import binarize, write
 from htrflow.utils.layout import estimate_printspace, is_twopage
@@ -70,6 +73,43 @@ class Inference(PipelineStep):
             self._init_model()
         result = self.model(collection.segments(), **self.generation_kwargs)
         collection.update(result)
+        return collection
+
+
+class ImportSegmentation(PipelineStep):
+    """Import segmentation from PageXML file
+
+    This step replicates the line segmentation from a PageXML file.
+    """
+
+    def __init__(self, source: str):
+        """
+        Arguments:
+            source: Path to a directory with PageXML files. The XML files
+                must have the same names as the input image files (ignoring
+                the file extension)
+        """
+        self.source = source
+
+    def run(self, collection):
+        pages = []
+        for page in collection:
+            try:
+                pages.append(
+                    parse_pagexml_file(os.path.join(self.source, page.label + ".xml"))
+                )
+            except ValueError:
+                pages.append(None)
+
+        results = []
+        for page in pages:
+            if page is None:
+                results.append(Result())
+                continue
+            shape = (page.coords.height, page.coords.width)
+            polygons = [line.coords.points for line in page.get_lines()]
+            results.append(Result.segmentation_result(shape, {}, polygons=polygons))
+        collection.update(results)
         return collection
 
 
