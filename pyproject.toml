@@ -25,7 +25,32 @@ dependencies = [
     "tqdm >=4.66.2,<5",
     "xmlschema >=3.0.2,<4",
     "requests >=2.31.0,<3",
+    "typer>=0.12.0",
+    "rich >=13.7.1",
+    "jiwer >=3.0.4",
+    "pandas >=2.2.2",
+    "pagexml-tools >=0.5.0",
+    "transformers[torch] >=4.44.1" ,
+    "huggingface-hub[cli] >=0.24.6",
+    "ultralytics >=8.0.225",
+    "cmake==3.30.2",
+    "lit==18.1.8",
+    "nvidia-cublas-cu11==11.10.3.66",
+    "nvidia-cuda-cupti-cu11==11.7.101",
+    "nvidia-cuda-nvrtc-cu11==11.7.99",
+    "nvidia-cuda-runtime-cu11==11.7.99",
+    "nvidia-cudnn-cu11==8.5.0.96",
+    "nvidia-cufft-cu11==10.9.0.58",
+    "nvidia-curand-cu11==10.2.10.91",
+    "nvidia-cusolver-cu11==11.4.0.1",
+    "nvidia-cusparse-cu11==11.7.4.91",
+    "nvidia-nccl-cu11==2.14.3",
+    "nvidia-nvtx-cu11==11.7.91",
+    "setuptools==74.0.0",
+    "triton==2.0.0",
+    "wheel==0.44.0",
 ]
+
 
 [project.urls]
 Documentation = "https://ai-riksarkivet.github.io/htrflow"
@@ -49,9 +74,6 @@ dev-dependencies = [
     "twine>=5.1.1",
 ]
 
-[tool.uv.sources]
-mmcv = { url = "https://github.com/AI-Riksarkivet/openmim_install/raw/main/mmcv-2.0.0-cp310-cp310-manylinux1_x86_64.whl" }
-
 [project.optional-dependencies]
 docs = [
     "mike >=2.1.1",
@@ -64,11 +86,6 @@ docs = [
     "mkdocs-swagger-ui-tag >=0.6.10"
 ]
 
-huggingface = [
-    "transformers[torch] >=4.44.1" ,
-    "huggingface-hub[cli] >=0.24.6",
-    "datasets >=2.17.1",
-]
 llm = [
     "transformers[torch] >=4.44.1" ,
     "huggingface-hub[cli] >=0.24.6",
@@ -76,51 +93,22 @@ llm = [
     "accelerate >=0.33.0",
     "bitsandbytes >=0.43.3",
 ]
-ultralytics = [
-    "ultralytics >=8.0.225",
-    "huggingface-hub[cli] >=0.24.6",
-]
-cli = [
-    "typer>=0.12.0",
-    "rich >=13.7.1",
-    "jiwer >=3.0.4",
-    "pandas >=2.2.2",
-    "pagexml-tools >=0.5.0",
-]
-
-eval = [
-    "jiwer >=3.0.4",
-    "pandas >=2.2.2",
-    "pagexml-tools >=0.5.0",
-]
 
 openmmlab=[
     "torch==2.0.0",
-    "mmcv",
+    "mmcv @ https://github.com/AI-Riksarkivet/openmim_install/raw/main/mmcv-2.0.0-cp310-cp310-manylinux1_x86_64.whl",
     "mmdet==3.1.0",
     "mmengine==0.7.2",
     "mmocr==1.0.1",
     "yapf==0.40.1",
 ]
 
-all = [
-    "transformers[torch] >=4.44.1" ,
-    "huggingface-hub[cli] >=0.24.6",
-    "datasets >=2.17.1",
-    "accelerate >=0.33.0",
-    "bitsandbytes >=0.43.3",
-    "ultralytics >=8.0.225",
-    "huggingface-hub[cli] >=0.24.6",
-    "typer>=0.12.0",
-    "rich >=13.7.1",
-    "jiwer >=3.0.4",
-    "pandas >=2.2.2",
-    "pagexml-tools >=0.5.0",
-]
-
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references = true  
 
 
 # Test configuration (tool.pytest.ini_options)

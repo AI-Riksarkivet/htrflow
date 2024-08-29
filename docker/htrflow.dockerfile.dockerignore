@@ -1,0 +1,35 @@
+# Python caches and compiled files
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+.Python
+*env
+*.env
+*.venv
+
+dist/
+docs/
+
+# Build artifacts
+pip-log.txt
+pip-delete-this-directory.txt
+.tox
+.coverage
+.coverage.*
+.cache
+*.cover
+*.log
+
+# Version control and testing
+*.git
+.mypy_cache
+.pytest_cache
+.hypothesis
+.ruff_cache
+
+# Additional patterns
+nosetests.xml
+coverage.xml

@@ -1,23 +1,20 @@
-FROM airiksarkivet/cuda-12-py310:0.0.1
+FROM huggingface/transformers-pytorch-gpu:4.41.2
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/
 
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
-
-ENV UV_SYSTEM_PYTHON=1
 
 WORKDIR /app
 
-RUN uv pip install htrflow"[all,openmmlab]"
+RUN uv venv --python 3.10.14
 
-# ADD uv.lock /app/uv.lock
-# ADD pyproject.toml /app/pyproject.toml
 
-# RUN --mount=type=cache,target=/root/.cache/uv \
-#     uv sync --all-extras --frozen --no-install-project
+ADD uv.lock /app/uv.lock
+ADD pyproject.toml /app/pyproject.toml
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-install-project --extra openmmlab
 
-# ADD . /app
-# RUN --mount=type=cache,target=/root/.cache/uv \
-#     uv sync --frozen --all-extras
+COPY src LICENSE README.md examples /app/
 
-# ENV PATH="/app/.venv/bin:$PATH"
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --extra openmmlab
 
-CMD ["uv", "run", "htrflow", "--help"]
+ENV PATH="/app/.venv/bin:$PATH"

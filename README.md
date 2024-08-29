@@ -65,6 +65,7 @@ pip install htrflow"[all,openmmlab]"
 Requirements:
   - [uv](https://docs.astral.sh/uv/) or pip
   - Python 3.10
+  - With GPU: CUDA >=11.8 (can still run on CPU)
 
 Clone this repository and run
 ```sh
