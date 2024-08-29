@@ -10,11 +10,6 @@ import typer
 import yaml
 from typing_extensions import Annotated
 
-from htrflow.evaluate import evaluate
-from htrflow.models import hf_utils
-from htrflow.pipeline.pipeline import Pipeline
-from htrflow.pipeline.steps import auto_import
-
 
 app = typer.Typer(
     name="htrflow",
@@ -78,6 +73,12 @@ def run_pipeline(
     ] = LogLevel.info,
 ):
     """Run a HTRFlow pipeline"""
+
+    # Slow imports! Only import after all CLI arguments have been resolved.
+    from htrflow.models import hf_utils
+    from htrflow.pipeline.pipeline import Pipeline
+    from htrflow.pipeline.steps import auto_import
+
     setup_pipeline_logging(logfile, loglevel)
 
     with open(pipeline, "r") as file:
@@ -140,6 +141,7 @@ def run_evaluation(
             collection.save(run_dir, "page")
             candidates.append(os.path.join(run_dir, collection.label))
 
+    from htrflow.evaluate import evaluate
     df = evaluate(gt, *candidates)
     df.to_csv(os.path.join(run_dir, "evaluation_results.csv"))
 
