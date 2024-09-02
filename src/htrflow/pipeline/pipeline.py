@@ -12,6 +12,7 @@ class Pipeline:
     def __init__(self, steps: Sequence[PipelineStep]):
         self.steps = steps
         self.pickle_path = None
+        self.do_backup = False
         for step in self.steps:
             step.parent_pipeline = self
 
@@ -29,13 +30,16 @@ class Pipeline:
             try:
                 collection = step.run(collection)
             except Exception:
-                logger.error(
-                    "Pipeline failed on step %s. A backup collection is saved at %s",
-                    step_name,
-                    self.pickle_path,
-                )
+                if self.pickle_path:
+                    logger.error(
+                        "Pipeline failed on step %s. A backup collection is saved at %s",
+                        step_name,
+                        self.pickle_path,
+                    )
                 raise
-            self.pickle_path = pickle_collection(collection)
+
+            if self.do_backup:
+                self.pickle_path = pickle_collection(collection)
         return collection
 
     def metadata(self):

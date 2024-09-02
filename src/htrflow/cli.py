@@ -71,6 +71,9 @@ def run_pipeline(
     loglevel: Annotated[
         LogLevel, typer.Option(help="Loglevel", case_sensitive=False)
     ] = LogLevel.info,
+    backup: Annotated[
+        bool, typer.Option(help="Save a pickled backup after each pipeline step.")
+    ] = False
 ):
     """Run a HTRFlow pipeline"""
 
@@ -85,7 +88,7 @@ def run_pipeline(
         config = yaml.safe_load(file)
     hf_utils.HF_CONFIG |= config.get("huggingface_config", {})
     pipe = Pipeline.from_config(config)
-
+    pipe.do_backup = backup
     volume = auto_import(inputs)
 
     if "labels" in config:
