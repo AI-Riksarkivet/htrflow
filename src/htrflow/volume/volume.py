@@ -358,4 +358,6 @@ def paths2pages(paths: Sequence[str]) -> list[PageNode]:
 
 def _common_basename(paths: Sequence[str]):
     """Given a sequence of paths, returns the name of their first shared parent directory"""
-    return os.path.basename(os.path.commonpath(paths))
+    if len(paths) > 1:
+        return os.path.basename(os.path.commonpath(paths))
+    return os.path.basename(os.path.dirname(paths[0]))
