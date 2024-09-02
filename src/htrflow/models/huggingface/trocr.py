@@ -30,7 +30,7 @@ class TrOCR(BaseModel):
         processor: str | None = None,
         model_kwargs: dict[str, Any] | None = None,
         processor_kwargs: dict[str, Any] | None = None,
-        device: str | None = None,
+        **kwargs,
     ):
         """Initialize a TrOCR model
 
@@ -45,7 +45,7 @@ class TrOCR(BaseModel):
             kwargs: Additional kwargs which are forwarded to BaseModel's
                 __init__.
         """
-        super().__init__(device)
+        super().__init__(**kwargs)
 
         # Initialize model
         model_kwargs = HF_CONFIG | (model_kwargs or {})

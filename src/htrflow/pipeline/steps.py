@@ -57,15 +57,15 @@ class Inference(PipelineStep):
 
     @classmethod
     def from_config(cls, config):
-        name = config["model"].lower()
+        name = config.pop("model").lower()
         if name not in MODELS:
             model_names = [model.__name__ for model in all_models()]
             msg = f"Model {name} is not supported. The available models are: {', '.join(model_names)}."
             logger.error(msg)
             raise NotImplementedError(msg)
-        init_kwargs = config.get("model_settings", {})
         model = MODELS[name]
-        generation_kwargs = config.get("generation_settings", {})
+        generation_kwargs = config.pop("generation_settings", {})
+        init_kwargs = config.pop("model_settings", {}) | config
         return cls(model, init_kwargs, generation_kwargs)
 
     def run(self, collection):

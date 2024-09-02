@@ -21,8 +21,8 @@ class Satrn(BaseModel):
         self,
         model: str,
         config: str | None = None,
-        device: str | None = None,
         revision: str | None = None,
+        **kwargs,
     ) -> None:
         """
         Initialize a Satrn model.
@@ -34,9 +34,10 @@ class Satrn(BaseModel):
             config: Path to a local config.py file or to a huggingface
                 repo which contains a config.py file, for example
                 'Riksarkivet/satrn_htr'.
-            device: Model device.
+            kwargs: Additional kwargs which are forwarded to BaseModel's
+                __init__.
         """
-        super().__init__(device)
+        super().__init__(**kwargs)
 
         config = config or model
         model_weights, model_config = load_mmlabs(model, config, revision)

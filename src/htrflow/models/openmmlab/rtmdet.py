@@ -31,8 +31,8 @@ class RTMDet(BaseModel):
         self,
         model: str,
         config: str | None = None,
-        device: str | None = None,
         revision: str | None = None,
+        **kwargs,
     ) -> None:
         """
         Initialize an RTMDet model.
@@ -44,12 +44,13 @@ class RTMDet(BaseModel):
             config: Path to a local config.py file or to a huggingface
                 repo which contains a config.py file, for example
                 'Riksarkivet/rtmdet_lines'.
-            device: Model device.
             revision: A specific model revision, as a commit hash of the
                 model's huggingface repo. If None, the latest available
                 revision is used.
+            kwargs: Additional kwargs which are forwarded to BaseModel's
+                __init__.
         """
-        super().__init__(device)
+        super().__init__(**kwargs)
 
         config = config or model
         model_weights, model_config = load_mmlabs(model, config, revision)

@@ -15,11 +15,20 @@ _T = TypeVar("_T")
 
 
 class BaseModel(ABC):
-    def __init__(self, device: str | None = None):
+    def __init__(self, device: str | None = None, allow_tf32: bool = True):
+        """
+        Arguments:
+            device: Model device.
+            allow_tf32: Allow running matrix multiplications with TensorFloat-32.
+                https://huggingface.co/docs/diffusers/optimization/fp16#tensorfloat-32
+        """
         self.metadata = {"model_class": self.__class__.__name__}
         if device is None:
             device = "cuda" if torch.cuda.is_available() else "cpu"
         self.device = torch.device(device)
+
+        # Allow matrix multiplication with TensorFloat-32
+        torch.backends.cuda.matmul.allow_tf32 = allow_tf32
 
     def predict(
         self,
