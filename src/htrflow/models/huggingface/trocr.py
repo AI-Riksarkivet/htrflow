@@ -231,7 +231,8 @@ def attention_based_wordseg(tokens, heatmaps, skip_tokens=None, full_width=1):
         token_weights = [0 if token in skip_tokens else len(token) for token in tokens[word_start:word_end]]
         token_weights = torch.tensor(token_weights).to(heatmaps.device)
         token_heatmaps = heatmaps[word_start:word_end]
-        word_heatmap = torch.mul(token_heatmaps.T, token_weights).sum(axis=1)
+        token_heatmaps = token_heatmaps.permute(*torch.arange(token_heatmaps.ndim - 1, -1, -1))
+        word_heatmap = torch.mul(token_heatmaps, token_weights).sum(axis=1)
         word_heatmaps.append(word_heatmap)
 
     columns = [word_heatmap.sum(axis=1) for word_heatmap in word_heatmaps]
