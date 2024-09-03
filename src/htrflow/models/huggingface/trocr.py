@@ -142,20 +142,25 @@ class WordLevelTrOCR(TrOCR):
     """
 
     def _predict(self, images: list[np.ndarray], **generation_kwargs) -> list[Result]:
-        num_beams = generation_kwargs.pop("num_beams", 1)
-        if num_beams != 1:
-            logger.warning(
-                "WordLevelTrOCR does not support beam search (num_beams > 1). Using greedy search (num_beams = 1)."
-            )
+        config_overrides = {
+            "output_scores": True,
+            "output_attentions": True,
+            "return_dict_in_generate": True,
+            "num_beams": 1,
+            "early_stopping": False,
+            "length_penalty": None,
+        }
+
+        for key, value in config_overrides.items():
+            if key in generation_kwargs and generation_kwargs[key] != value:
+                logger.warning(
+                    "WordLevelTrOCR does not support %s=%s. Using %s=%s instead.", key, generation_kwargs[key], key, value
+                )
 
         inputs = self.processor(images, return_tensors="pt").pixel_values
         outputs = self.model.generate(
             inputs.to(self.model.device),
-            num_beams=num_beams,
-            return_dict_in_generate=True,
-            output_attentions=True,
-            output_scores=True,
-            **generation_kwargs,
+            **(generation_kwargs | config_overrides),
         )
 
         # Get the attention weights at the last decoding step
