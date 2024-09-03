@@ -154,7 +154,8 @@ class WordLevelTrOCR(TrOCR):
         for key, value in config_overrides.items():
             if key in generation_kwargs and generation_kwargs[key] != value:
                 logger.warning(
-                    "WordLevelTrOCR does not support %s=%s. Using %s=%s instead.", key, generation_kwargs[key], key, value
+                    "WordLevelTrOCR does not support %s=%s. Using %s=%s instead.",
+                    key, generation_kwargs[key], key, value
                 )
 
         inputs = self.processor(images, return_tensors="pt").pixel_values
