@@ -1,7 +1,7 @@
 import logging
 import os
 from dataclasses import dataclass
-from typing import Any, Callable, Literal
+from typing import Any, Callable, Generator, Literal
 
 from pagexml.parser import parse_pagexml_file
 
@@ -135,7 +135,9 @@ class Export(PipelineStep):
 
     def run(self, collection):
         metadata = self.parent_pipeline.metadata() if self.parent_pipeline else None
-        save_collection(collection, self.serializer, self.dest, processing_steps=metadata)
+        save_collection(
+            collection, self.serializer, self.dest, processing_steps=metadata
+        )
         return collection
 
 
@@ -269,47 +271,58 @@ class Binarization(ProcessImages):
         return binarize(image)
 
 
-def auto_import(source: Collection | list[str] | str) -> Collection:
-    """Import collection from `source`
+def auto_import(source: list[str] | str, max_size: int | None = None) -> Generator[Collection, Any, Any]:
+    """Import collection(s) from `source`
 
-    Automatically detects import type from the input. Supported types
-    are:
-        - A path to a directory with images
-        - A list of paths to images
-        - A path to a pickled collection
-        - A collection instance (returns itself)
+    Arguments:
+        source: Import source as a single path or list of paths, where
+            each path points to any of the following:
+                - a directory of images
+                - an image
+                - a pickled `Collection` instance
+        max_size: The maximum number of pages in each new collection.
+            Does not apply to pickled Collections.
+
+    Yields:
+        Collection instances created from the given source.
     """
-    if isinstance(source, Collection):
-        return source
 
     # If source is a single string, treat it as a single-item list
     # and continue
     if isinstance(source, str):
         source = [source]
 
-    if isinstance(source, list):
-        # Input is a single directory
-        if len(source) == 1:
-            if os.path.isdir(source[0]):
-                logger.info("Loading collection from directory %s", source[0])
-                return Collection.from_directory(source[0])
-            if source[0].endswith("pickle"):
-                return Collection.from_pickle(source[0])
+    paths = []
+    for path in source:
+        if path.endswith("pickle"):
+            yield Collection.from_pickle(path)
+            continue
 
-        # Input is a list of (potential) file paths, check each and
-        # keep only the ones that refers to files
-        paths = []
-        for path in source:
-            if not os.path.isfile(path):
-                logger.info("Skipping %s, not a regular file", path)
-                continue
-            paths.append(path)
+        if os.path.isdir(path):
+            files = [os.path.join(path, file) for file in sorted(os.listdir(path))]
+            yield from _create_collection_batches(files, max_size)
+            continue
 
-        if paths:
-            logger.info("Loading collection from %d file(s)", len(paths))
-            return Collection(paths)
+        paths.append(path)
+    yield from _create_collection_batches(paths, max_size)
 
-    raise ValueError(f"Could not infer import type for '{source}'")
+
+def _create_collection_batches(paths: list[str], max_size: int | None) -> Generator[Collection, Any, Any]:
+    """Create and yield collection of at most `max_size` pages"""
+    if paths:
+        max_size = max_size or len(paths)
+        for i in range(0, len(paths), max_size):
+            yield Collection(paths[i : i + max_size])
+
+
+def join_collections(collections: list[Collection]) -> Collection:
+    """Create a single `Collection` from the given collections."""
+    label = os.path.commonprefix([col.label for col in collections])
+    base = collections[0]
+    for collection in collections[1:]:
+        base.pages.append(collection.pages)
+    base.label = label
+    return base
 
 
 def all_subclasses(cls):
@@ -318,7 +331,9 @@ def all_subclasses(cls):
 
 # Mapping class name -> class
 # Ex. {segmentation: `steps.Segmentation`}
-STEPS: dict[str, PipelineStep] = {cls_.__name__.lower(): cls_ for cls_ in all_subclasses(PipelineStep)}
+STEPS: dict[str, PipelineStep] = {
+    cls_.__name__.lower(): cls_ for cls_ in all_subclasses(PipelineStep)
+}
 MODELS: dict[str, BaseModel] = {model.__name__.lower(): model for model in all_models()}
 
 

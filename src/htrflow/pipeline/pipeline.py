@@ -1,7 +1,7 @@
 import logging
 from typing import Sequence
 
-from htrflow.pipeline.steps import PipelineStep, auto_import, init_step
+from htrflow.pipeline.steps import PipelineStep, init_step
 from htrflow.serialization import pickle_collection
 
 
@@ -23,7 +23,6 @@ class Pipeline:
 
     def run(self, collection, start=0):
         """Run pipeline on collection"""
-        collection = auto_import(collection)
         for i, step in enumerate(self.steps[start:]):
             step_name = f"{step} (step {start+i+1} / {len(self.steps)})"
             logger.info("Running step %s", step_name)
