@@ -1,57 +1,42 @@
-# Demo pipeline for running text
-# Run with python3 main.py demo.yaml <input directory>
+# HTRFlow demo pipeline
+# This pipeline works well on pages with running text
 
 steps:
 
 # Region segmentation
 - step: Segmentation
   settings:
-    model: rtmdet
+    model: yolo
     model_settings:
-       model: Riksarkivet/rtmdet_regions
-       revision: 868f58e096654ceac9646a467bae55d38f757447
+       model: Riksarkivet/yolov9-regions-1
     generation_settings:
-       image_scaling_factor: 0.3
        batch_size: 32
-
-# Line segmentation
+# Line segementation
 - step: Segmentation
   settings:
-    model: rtmdet
+    model: yolo
     model_settings:
-       model: Riksarkivet/rtmdet_lines
+       model: Riksarkivet/yolov9-lines-within-regions-1
     generation_settings:
-       image_scaling_factor: 0.4
-       batch_size: 16
-       nms_downscale: 0.5
-
+        batch_size: 32
+# Text recognition
 - step: TextRecognition
   settings:
     model: WordLevelTrocr
     model_settings:
-       model: Riksarkivet/trocr-base-handwritten-swe
+       model: Riksarkivet/trocr-base-handwritten-hist-swe-2
     generation_settings:
        batch_size: 64
        num_beams: 1
-
+# Order regions by reading order
 - step: ReadingOrderMarginalia
   settings:
     two_page: always
-
-- step: RemoveLowTextConfidencePages
-  settings:
-    threshold: 0.99
-
-- step: RemoveLowTextConfidenceLines
-  settings:
-    threshold: 0.95
-
-# Export to Alto and Page XML 
+# Export to Alto and Page XML
 - step: Export
   settings:
     dest: outputs/alto
     format: alto
-
 - step: Export
   settings:
     dest: outputs/page
