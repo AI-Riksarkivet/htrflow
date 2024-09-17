@@ -5,23 +5,45 @@ on:
     types: [ published ]
 
 permissions:
-  contents: write
-  
+  contents: write  
 
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: ./.github/actions/poetry
-      - uses: actions/cache@v2
+      - name: Check out code
+        uses: actions/checkout@v4
         with:
-          key: ${{ github.ref }}
-          path: .cache
-      - name: Publish to pypi
-        run: |
-          poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
-          poetry publish --build --no-interaction
-      - name: Deploy docs
-        run: poetry run mkdocs gh-deploy --force
+          persist-credentials: true  
+          fetch-depth: 0  
+      - name: Set up uv and Python environment
+        uses: ./.github/actions/uv
+        with:
+          python-version: "3.10"
 
+      - name: Install build tools and mike
+        run: |
+          uv run pip install build twine mike
+
+      - name: Build the package
+        run: |
+          uv run python -m build --sdist --wheel
+
+      - name: Publish to PyPI
+        env:
+          TWINE_USERNAME: "__token__"
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          uv run twine upload dist/*
+
+      - name: Configure git
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Deploy docs with mike
+        env:
+          MKDOCS_GIT_COMMITTERS_APIKEY: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          latest_tag=$(git describe --tags $(git rev-list --tags --max-count=1))
+          uv run mike deploy --push --update-aliases $latest_tag latest

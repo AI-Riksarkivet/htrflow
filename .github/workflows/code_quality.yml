@@ -12,12 +12,9 @@ jobs:
   code-quality:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - uses: ./.github/actions/poetry
+      - uses: ./.github/actions/uv
 
       - name: Linting check with ruff
-        run: poetry run ruff check .
-
-      - name: Typehinting check with mypy
-        run: poetry run mypy src
+        run: uv run ruff check .

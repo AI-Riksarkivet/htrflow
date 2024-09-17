@@ -1,21 +1,38 @@
 name: Draft a release
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
 
+permissions:
+  contents: write 
 
 jobs:
   draft-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: ./.github/actions/poetry
-      - name: Publish to test-pypi
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true  
+
+      - name: Set up uv and Python environment
+        uses: ./.github/actions/uv
+
+      - name: Build documentation with mkdocs
+        run: uv run mkdocs build
+
+      - name: Get package version
+        id: get_version
+        shell: bash
         run: |
-          poetry config repositories.test-pypi https://test.pypi.org/legacy/
-          poetry config pypi-token.test-pypi ${{ secrets.TEST_PYPI_TOKEN }}
-          poetry version prerelease
-          poetry publish --build --no-interaction -r test-pypi
-      - name: Test to build docs
-        run: poetry run mkdocs build
+          VERSION=$(uv run python -c "import htrflow; print(htrflow.meta['Version'])")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-
+      - name: Create Git tag
+        env:
+          VERSION: ${{ env.VERSION }}
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git tag -a "v$VERSION" -m "Release version $VERSION"
+          git push origin "v$VERSION"

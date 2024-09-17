@@ -1,6 +1,6 @@
 [project]
 name = "htrflow"
-version = "0.1.1"
+version = "0.1.2"
 description = "htrflow is developed at Riksarkivet's AI-lab as an open-source package to simplify HTR"
 readme = "README.md"
 license = {file = "LICENSE"}
@@ -109,7 +109,6 @@ build-backend = "hatchling.build"
 
 [tool.hatch.metadata]
 allow-direct-references = true  
-
 
 # Test configuration (tool.pytest.ini_options)
 [tool.pytest.ini_options]
