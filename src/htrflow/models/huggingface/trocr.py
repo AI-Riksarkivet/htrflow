@@ -32,8 +32,7 @@ class TrOCR(BaseModel):
         processor_kwargs: dict[str, Any] | None = None,
         **kwargs,
     ):
-        """Initialize a TrOCR model
-
+        """
         Arguments:
             model: Path or name of pretrained VisisonEncoderDeocderModel.
             processor: Optional path or name of pretrained TrOCRProcessor.
@@ -69,15 +68,15 @@ class TrOCR(BaseModel):
         )
 
     def _predict(self, images: list[np.ndarray], **generation_kwargs) -> list[Result]:
-        """Perform inference on `images`
+        """TrOCR-specific prediction method.
+
+        This method is used by `predict()` and should typically not be
+        called directly.
 
         Arguments:
             images: Input images.
             **generation_kwargs: Optional keyword arguments that are
                 forwarded to the model's .generate() method.
-
-        Returns:
-            The predicted texts and confidence scores as a list of `Result` instances.
         """
 
         # Prepare generation keyword arguments: Generally, all kwargs are
@@ -135,10 +134,26 @@ class TrOCR(BaseModel):
 
 
 class WordLevelTrOCR(TrOCR):
-    """A wrapper of TrOCR which outputs words instead of lines.
+    """A version of TrOCR which outputs words instead of lines.
 
     This TrOCR wrapper uses the model's attention weights to estimate
-    word boundaries. See notebook ... for more details.
+    word boundaries. See notebook [TODO: link] for more details. It
+    does not support beam search, but can otherwise be used as a drop-
+    in replacement of TrOCR.
+    
+    Example usage with the `TextRecognition` pipeline step:
+    ```yaml
+    - step: TextRecognition
+      settings:
+        model: WordLevelTrOCR
+        model_kwargs:
+          ...
+        processor: ...
+        processor_kwargs:
+          ...
+        generation_settings:
+          batch_size: 32
+    ```
     """
 
     def _predict(self, images: list[np.ndarray], **generation_kwargs) -> list[Result]:

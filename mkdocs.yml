@@ -30,27 +30,21 @@ nav:
     - Tutorials:
         - The internals: "notebooks/demo.ipynb"
 
-  - API Reference:
-    -  api/index.md
-    - Volume: api/volume/volume.md
-    - Node: api/volume/node.md
-    - Results: api/results/results.md
-    - Utils: 
-        - Draw: api/utils/draw.md
-        - Geometry: api/utils/geometry.md
-        - Image processing: api/utils/imgproc.md
-        - Layout: api/utils/layout.md
+  - Reference:
+    - reference/index.md
+    - Models: reference/models.md
+    - Pipeline steps: reference/pipeline-steps.md
+    - Export formats: reference/export-formats.md
 
-
-  - Integrations:
-    - integrations/index.md
+  # - Integrations:
+    # - integrations/index.md
     # - IIIF: integrations/iiif.md
     # - Search: integrations/search.md
     # - HaaS: integrations/haas.md
     # - Gradio: integrations/spaces.md
 
-  - Resources:
-    - resources/index.md
+  # - Resources:
+    # - resources/index.md
     # - Open Source:
     #   - Models: resources/models.md
     #   - Datasets: resources/datasets.md
@@ -116,20 +110,21 @@ plugins:
       default_handler: python
       handlers:
         python:
+          paths: [src/htrflow]
           options:
+            merge_init_into_class: True
+            show_signature: False
             show_symbol_type_heading: True
             show_symbol_type_toc: True
             show_root_toc_entry: True
             show_root_heading: True
             show_root_full_path: False
             show_source: True
-            show_category_heading: True
+            show_category_heading: False
             show_bases: True
-          selection:
             filters:
-              - "!^_" # exclude all members starting with _
-
-
+              - "!^_"
+              - "^_predict$"
   - mkdocs-jupyter:
       kernel_name: python3
       include_source: True
@@ -185,6 +180,7 @@ markdown_extensions:
   - md_in_html
   - toc:
       permalink: true
+      toc_depth: 3
   - pymdownx.arithmatex:
       generic: true
   - pymdownx.betterem:

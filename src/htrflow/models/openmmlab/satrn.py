@@ -14,7 +14,16 @@ logger = logging.getLogger(__name__)
 
 class Satrn(BaseModel):
     """
-    HTRFLOW adapter of Openmmlabs' Satrn model
+    HTRFlow adapter of Openmmlabs' Satrn model
+
+    Example usage with the `TextRecognition` pipeline step:
+    ```yaml
+    - step: TextRecognition
+      settings:
+        model: Satrn
+        model_settings:
+          model: Riksarkivet/satrn_htr
+    ```
     """
 
     def __init__(
@@ -25,8 +34,6 @@ class Satrn(BaseModel):
         **kwargs,
     ) -> None:
         """
-        Initialize a Satrn model.
-
         Arguments:
             model: Path to a local .pth model weights file or to a
                 huggingface repo which contains a .pth file, for example
@@ -35,7 +42,7 @@ class Satrn(BaseModel):
                 repo which contains a config.py file, for example
                 'Riksarkivet/satrn_htr'.
             kwargs: Additional kwargs which are forwarded to BaseModel's
-                __init__.
+                `__init__`.
         """
         super().__init__(**kwargs)
 
@@ -63,6 +70,17 @@ class Satrn(BaseModel):
         )
 
     def _predict(self, images: list[NumpyImage], **kwargs) -> list[Result]:
+        """
+        Satrn-specific prediction method
+
+        This method is used by `predict()` and should typically not be
+        called directly.
+
+        Arguments:
+            images: Input images
+            kwargs: Additional keyword arguments that are forwarded to
+                `mmocr.apis.TextRecInferencer.__call__()`.
+        """
         outputs = self.model(images, batch_size=len(images), return_datasamples=False, progress_bar=False, **kwargs)
         results = []
         for prediction in outputs["predictions"]:

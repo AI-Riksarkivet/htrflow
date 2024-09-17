@@ -23,6 +23,7 @@ class RTMDet(BaseModel):
 
     This model can be used for region and line segmentation. Riksarkivet
     provides two pre-trained RTMDet models:
+
         -   https://huggingface.co/Riksarkivet/rtmdet_lines
         -   https://huggingface.co/Riksarkivet/rtmdet_regions
     """
@@ -35,8 +36,6 @@ class RTMDet(BaseModel):
         **kwargs,
     ) -> None:
         """
-        Initialize an RTMDet model.
-
         Arguments:
             model: Path to a local .pth model weights file or to a
                 huggingface repo which contains a .pth file, for example
@@ -89,7 +88,10 @@ class RTMDet(BaseModel):
         **kwargs,
     ) -> list[Result]:
         """
-        Do inference.
+        RTMDet-specific prediction method
+
+        This method is used by `predict()` and should typically not be
+        called directly.
 
         Arguments:
             images: List of input images

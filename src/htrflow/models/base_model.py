@@ -15,11 +15,24 @@ _T = TypeVar("_T")
 
 
 class BaseModel(ABC):
+    """
+    Model base class
+
+    This is the abstract base class of HTRFlow models. It handles batching
+    of inputs, some shared initialization arguments and generic logging.
+
+    Concrete model implementations bases this class and defines their
+    prediction method in `_predict()`.
+    """
     def __init__(self, device: str | None = None, allow_tf32: bool = True):
         """
         Arguments:
-            device: Model device.
+            device: Model device as a string, recognizable by torch. Defaults
+                to `None`, which sets the device to `cuda` or `cpu` depending
+                on availability.
             allow_tf32: Allow running matrix multiplications with TensorFloat-32.
+                This speeds up inference at the expense of inference quality.
+                Read more here:
                 https://huggingface.co/docs/diffusers/optimization/fp16#tensorfloat-32
         """
         self.metadata = {"model_class": self.__class__.__name__}
@@ -43,7 +56,8 @@ class BaseModel(ABC):
         Takes an arbitrary number of inputs and runs batched inference.
         The inputs can be streamed from an iterator and don't need to
         be simultaneously read into memory. Prints a progress bar using
-        tqdm.
+        `tqdm`. This is a template method which uses the model-specific
+        `_predict(...)`.
 
         Arguments:
             images: Input images
@@ -56,7 +70,7 @@ class BaseModel(ABC):
             tqdm_kwargs: Optional keyword arguments to control the
                 progress bar.
             **kwargs: Optional keyword arguments that are forwarded to
-                the model specific prediction method.
+                the model specific prediction method `_predict(...)`.
         """
 
         batch_size = max(batch_size, 1)  # make sure batch size is at least 1
