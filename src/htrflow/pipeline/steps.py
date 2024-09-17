@@ -95,9 +95,7 @@ class ImportSegmentation(PipelineStep):
         pages = []
         for page in collection:
             try:
-                pages.append(
-                    parse_pagexml_file(os.path.join(self.source, page.label + ".xml"))
-                )
+                pages.append(parse_pagexml_file(os.path.join(self.source, page.label + ".xml")))
             except ValueError:
                 pages.append(None)
 
@@ -135,9 +133,7 @@ class Export(PipelineStep):
 
     def run(self, collection):
         metadata = self.parent_pipeline.metadata() if self.parent_pipeline else None
-        save_collection(
-            collection, self.serializer, self.dest, processing_steps=metadata
-        )
+        save_collection(collection, self.serializer, self.dest, processing_steps=metadata)
         return collection
 
 
@@ -331,9 +327,7 @@ def all_subclasses(cls):
 
 # Mapping class name -> class
 # Ex. {segmentation: `steps.Segmentation`}
-STEPS: dict[str, PipelineStep] = {
-    cls_.__name__.lower(): cls_ for cls_ in all_subclasses(PipelineStep)
-}
+STEPS: dict[str, PipelineStep] = {cls_.__name__.lower(): cls_ for cls_ in all_subclasses(PipelineStep)}
 MODELS: dict[str, BaseModel] = {model.__name__.lower(): model for model in all_models()}
 
 

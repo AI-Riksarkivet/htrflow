@@ -24,6 +24,7 @@ class BaseModel(ABC):
     Concrete model implementations bases this class and defines their
     prediction method in `_predict()`.
     """
+
     def __init__(self, device: str | None = None, allow_tf32: bool = True):
         """
         Arguments:

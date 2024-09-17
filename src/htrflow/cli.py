@@ -55,11 +55,18 @@ def setup_pipeline_logging(logfile: str | None, loglevel: LogLevel):
 @app.command("pipeline")
 def run_pipeline(
     pipeline: Annotated[str, typer.Argument(help="Path to a HTRFlow pipeline YAML file")],
-    inputs: Annotated[list[str], typer.Argument(help="Paths to input images. May be paths to directories of images or paths to single images.")],
-    logfile: Annotated[str, typer.Option(help="Where to write logs to. If not provided, logs will be printed to the standard output.")] = None,
+    inputs: Annotated[
+        list[str],
+        typer.Argument(help="Paths to input images. May be paths to directories of images or paths to single images."),
+    ],
+    logfile: Annotated[
+        str, typer.Option(help="Where to write logs to. If not provided, logs will be printed to the standard output.")
+    ] = None,
     loglevel: Annotated[LogLevel, typer.Option(help="Loglevel", case_sensitive=False)] = LogLevel.info,
     backup: Annotated[bool, typer.Option(help="Save a pickled backup after each pipeline step.")] = False,
-    batch_output: Annotated[int | None, typer.Option(help="Write continuous output in batches of this size (number of images).")] = None,
+    batch_output: Annotated[
+        int | None, typer.Option(help="Write continuous output in batches of this size (number of images).")
+    ] = None,
 ):
     """Run a HTRFlow pipeline"""
 
@@ -88,15 +95,27 @@ def run_pipeline(
 
     total_time = toc - tic
     n_pages = sum(len(collection.pages) for collection in processed)
-    logger.info("Processed %d pages in %d seconds (average %.3f seconds per page)", n_pages, total_time, total_time/n_pages if n_pages > 0 else -1.0)
+    logger.info(
+        "Processed %d pages in %d seconds (average %.3f seconds per page)",
+        n_pages,
+        total_time,
+        total_time / n_pages if n_pages > 0 else -1.0,
+    )
 
     return processed
 
 
 @app.command("evaluate")
 def run_evaluation(
-    gt: Annotated[str, typer.Argument(help="Path to directory with ground truth files. Should have two subdirectories `images` and `xmls`.")],
-    candidates: Annotated[list[str], typer.Argument(help="Paths to pipelines or directories containing already generated Page XMLs.")],
+    gt: Annotated[
+        str,
+        typer.Argument(
+            help="Path to directory with ground truth files. Should have two subdirectories `images` and `xmls`."
+        ),
+    ],
+    candidates: Annotated[
+        list[str], typer.Argument(help="Paths to pipelines or directories containing already generated Page XMLs.")
+    ],
 ):
     """
     Evaluate HTR transcriptions against ground truth

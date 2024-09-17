@@ -140,7 +140,7 @@ class WordLevelTrOCR(TrOCR):
     word boundaries. See notebook [TODO: link] for more details. It
     does not support beam search, but can otherwise be used as a drop-
     in replacement of TrOCR.
-    
+
     Example usage with the `TextRecognition` pipeline step:
     ```yaml
     - step: TextRecognition
@@ -170,7 +170,10 @@ class WordLevelTrOCR(TrOCR):
             if key in generation_kwargs and generation_kwargs[key] != value:
                 logger.warning(
                     "WordLevelTrOCR does not support %s=%s. Using %s=%s instead.",
-                    key, generation_kwargs[key], key, value
+                    key,
+                    generation_kwargs[key],
+                    key,
+                    value,
                 )
 
         inputs = self.processor(images, return_tensors="pt").pixel_values
