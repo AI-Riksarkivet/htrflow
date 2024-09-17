@@ -32,8 +32,8 @@ nav:
 
   - Reference:
     - reference/index.md
-    - Models: reference/models.md
     - Pipeline steps: reference/pipeline-steps.md
+    - Models: reference/models.md
     - Export formats: reference/export-formats.md
 
   # - Integrations:

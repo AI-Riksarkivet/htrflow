@@ -1,7 +1,7 @@
 import logging
 import os
 from dataclasses import dataclass
-from typing import Any, Callable, Generator, Literal
+from typing import Any, Callable, Literal
 
 from pagexml.parser import parse_pagexml_file
 
@@ -16,6 +16,7 @@ from htrflow.utils.imgproc import binarize, write
 from htrflow.utils.layout import estimate_printspace, is_twopage
 from htrflow.volume.node import Node
 from htrflow.volume.volume import Collection
+from htrflow.utils.imgproc import NumpyImage
 
 
 logger = logging.getLogger(__name__)
@@ -28,7 +29,12 @@ class StepMetadata:
 
 
 class PipelineStep:
-    """Pipeline step base class"""
+    """
+    Pipeline step base class
+
+    Pipeline steps are implemented by subclassing this class and
+    overriding the `run()` method.
+    """
 
     parent_pipeline = None
     metadata: StepMetadata | None = None
@@ -38,13 +44,37 @@ class PipelineStep:
         return cls(**config)
 
     def run(self, collection: Collection) -> Collection:
-        """Run step"""
+        """
+        Run the pipeline step
+
+        Arguments:
+            collection: Input collection
+
+        Returns:
+            A new collection, updated with the results of the pipeline step.
+        """
 
     def __str__(self):
         return f"{self.__class__.__name__}"
 
 
 class Inference(PipelineStep):
+    """
+    Run model inference
+
+    This is a generic pipeline step for any type of model inference.
+    This step always runs the model on the images of the collection's
+    leaf nodes.
+
+    Example YAML:
+    ```yaml
+    - step: Inference
+      settings:
+        model: DiT
+        model_settings:
+          model: ...
+    ```
+    """
     def __init__(self, model_class, model_kwargs, generation_kwargs):
         self.model_class = model_class
         self.model_kwargs = model_kwargs
@@ -77,9 +107,19 @@ class Inference(PipelineStep):
 
 
 class ImportSegmentation(PipelineStep):
-    """Import segmentation from PageXML file
+    """
+    Import segmentation from PageXML files.
 
-    This step replicates the line segmentation from a PageXML file.
+    This step replicates the line segmentation from PageXML files.
+    It can be used to import ground truth segmentation for
+    evaluation purposes.
+
+    Example YAML:
+    ```yaml
+    - step: ImportSegmentation
+      settings:
+        source: /path/to/pageXMLs
+    ```
     """
 
     def __init__(self, source: str):
@@ -112,14 +152,63 @@ class ImportSegmentation(PipelineStep):
 
 
 class Segmentation(Inference):
+    """
+    Run a segmentation model.
+
+    This step runs on the output from the previous model. This makes it
+    possible to chain steps. Here is an example:
+
+    ```yaml
+    - step: Segmentation
+      settings:
+        model: RTMDet
+        model_settings:
+          model: Riksarkivet/rtmdet_regions
+    - step: Segmentation
+      settings:
+        model: RTMDet
+        model_settings:
+          model: Riksarkivet/rtmdet_lines
+    ```
+    Here, the first `Segmentation` step is applied on the original image.
+    It creates regions from the full page. The next segmentation step creates
+    lines from each region.
+    """
+
     pass
 
 
 class TextRecognition(Inference):
+    """
+    Run a text recognition model
+
+    Example YAML:
+    ```yaml
+    - step: TextRecognition
+      settings:
+        model: TrOCR
+    ```
+    """
     pass
 
 
 class WordSegmentation(PipelineStep):
+    """
+    Segment lines into words
+
+    This step segments lines of text into words. It estimates the word
+    boundaries from the recognized text, which means that this step
+    must be run after a line-based text recognition model.
+
+    See also `<models.huggingface.trocr.WordLevelTrOCR>`, which is a
+    version of TrOCR that outputs word-level text directly using a more
+    sophisticated method.
+
+    Example YAML:
+    ```yaml
+    - step: WordSegmentation
+    ```
+    """
     def run(self, collection):
         results = simple_word_segmentation(collection.active_leaves())
         collection.update(results)
@@ -127,7 +216,33 @@ class WordSegmentation(PipelineStep):
 
 
 class Export(PipelineStep):
-    def __init__(self, dest, format, **serializer_kwargs):
+    """
+    Export results.
+
+    Exports the current state of the collection in the given format.
+    This step is typically the last step of a pipeline, however, it can
+    be inserted at any pipeline stage. For example, you could put an
+    `Export` step before a post processing step in order to save a copy
+    without post processing. A pipeline can include as many `Export`
+    steps as you like.
+
+    See [Export formats](export-formats.md) or the <serialization.serialization>
+    module for more details about each export format.
+
+    Example:
+    ```yaml
+    - step: Export
+      settings:
+        format: Alto
+        dest: alto-outputs
+    ```
+    """
+    def __init__(self, dest: str, format: Literal["alto", "page", "txt", "json"], **serializer_kwargs):
+        """
+        Arguments:
+            dest: Output directory.
+            format: Output format as a string.
+        """
         self.serializer = get_serializer(format, **serializer_kwargs)
         self.dest = dest
 
@@ -138,7 +253,8 @@ class Export(PipelineStep):
 
 
 class ReadingOrderMarginalia(PipelineStep):
-    """Apply reading order
+    """
+    Order regions and lines by reading order.
 
     This step orders the pages' first- and second-level segments
     (corresponding to regions and lines). Both the regions and their
@@ -177,13 +293,26 @@ class ReadingOrderMarginalia(PipelineStep):
 
 
 class ExportImages(PipelineStep):
-    """Export the collection's images
+    """
+    Export the collection's images.
 
     This step writes all existing images (regions, lines, etc.) in the
-    collection to disk.
-    """
+    collection to disk. The exported images are the images that have
+    been passed to previous `Inference` steps and the images that would
+    be passed to a following `Inference` step.
 
-    def __init__(self, dest):
+    Example YAML:
+    ```yaml
+    - step: ExportImages
+      settings:
+        dest: exported_images
+    ```
+    """
+    def __init__(self, dest: str):
+        """
+        Arguments:
+            dest: Destination directory.
+        """
         self.dest = dest
         os.makedirs(self.dest, exist_ok=True)
 
@@ -200,16 +329,37 @@ class ExportImages(PipelineStep):
 
 
 class Break(PipelineStep):
-    """Break the pipeline! Used for testing."""
+    """
+    Break the pipeline! Used for testing.
+
+    Example YAML:
+    ```yaml
+    - step: Break
+    ```
+    """
 
     def run(self, collection):
         raise Exception
 
 
 class Prune(PipelineStep):
-    """Remove nodes based on a given condition"""
+    """
+    Remove nodes based on a given condition.
+
+    This is a generic pruning (filtering) step which removes nodes
+    (segments, lines, words) based on the given condition. The
+    condition is a function `f` such that `f(node) == True` if `node`
+    should be removed from the tree. This step runs `f` on all nodes,
+    at all segmentation levels. See the `RemoveLowTextConfidence[Lines|Regions|Pages]`
+    steps for examples of how to formulate `condition`.
+    """
 
     def __init__(self, condition: Callable[[Node], bool]):
+        """
+        Arguments:
+            condition: A function `f` such that `f(node) == True` if
+                `node` should be removed from the document tree.
+        """
         self.condition = condition
 
     def run(self, collection):
@@ -220,31 +370,83 @@ class Prune(PipelineStep):
 
 
 class RemoveLowTextConfidenceLines(Prune):
-    """Remove all lines with text confidence score below `threshold`"""
+    """
+    Remove all lines with text confidence score below `threshold`.
 
-    def __init__(self, threshold):
+    Example YAML:
+    ```yaml
+    - step: RemoveLowTextConfidenceLines
+      settings:
+        threshold: 0.8
+    ```
+    """
+
+    def __init__(self, threshold: float):
+        """
+        Arguments:
+            threshold: Confidence score threshold.
+        """
         super().__init__(lambda node: node.is_line() and metrics.line_text_confidence(node) < threshold)
 
 
 class RemoveLowTextConfidenceRegions(Prune):
-    """Remove all regions where the average text confidence score is below `threshold`"""
+    """
+    Remove all regions where the average text confidence score is below `threshold`.
 
-    def __init__(self, threshold):
+    Example YAML:
+    ```yaml
+    - step: RemoveLowTextConfidenceRegions
+      settings:
+        threshold: 0.8
+    ```    
+    """
+
+    def __init__(self, threshold: float):
+        """
+        Arguments:
+            threshold: Confidence score threshold.
+        """
         super().__init__(
             lambda node: all(child.is_line() for child in node) and metrics.average_text_confidence(node) < threshold
         )
 
 
 class RemoveLowTextConfidencePages(Prune):
-    """Remove all pages where the average text confidence score is below `threshold`"""
+    """
+    Remove all pages where the average text confidence score is below `threshold`.
 
-    def __init__(self, threshold):
+    Example YAML:
+    ```yaml
+    - step: RemoveLowTextConfidencePages
+      settings:
+        threshold: 0.8
+    ```    
+    """
+
+    def __init__(self, threshold: float):
+        """
+        Arguments:
+            threshold: Confidence score threshold.
+        """
         super().__init__(
             lambda node: node.parent and node.parent.is_root() and metrics.average_text_confidence(node) < threshold
         )
 
 
 class ProcessImages(PipelineStep):
+    """
+    Base for image preprocessing steps.
+
+    This is a base class for all image preprocessing steps. Subclasses
+    define their image processing operation by overriding the `op()`
+    method. This step does not alter the original image. Instead, a new
+    copy of the image is saved in the directory specified by 
+    `ProcessImages.output_directory`. The `PageNode`'s image path is
+    then updated to point to the new processed image.
+
+    Attributes:
+        output_directory: Where to write the processed images.
+    """
     output_directory: str
 
     def run(self, collection):
@@ -256,69 +458,79 @@ class ProcessImages(PipelineStep):
             page.path = write(os.path.join(dest, image_name), new_image)
         return collection
 
-    def op(self, image):
+    def op(self, image: NumpyImage) -> NumpyImage:
+        """
+        Perform the image processing operation on `image`.
+
+        Arguments:
+            image: Input image.
+
+        Returns:
+            A processed version of `image`.
+        """
         pass
 
 
 class Binarization(ProcessImages):
+    """
+    Binarize images.
+    
+    Runs image binarization on the collection's images. Saves the
+    resulting images in a directory named `binarized`. All subsequent
+    pipeline steps will use the binarized
+
+    Example YAML:
+    ```yaml
+    - step: Binarization
+    ```
+    """
     output_directory = "binarized"
 
     def op(self, image):
         return binarize(image)
 
 
-def auto_import(source: list[str] | str, max_size: int | None = None) -> Generator[Collection, Any, Any]:
-    """Import collection(s) from `source`
+def auto_import(source: Collection | list[str] | str) -> Collection:
+    """Import collection from `source`
 
-    Arguments:
-        source: Import source as a single path or list of paths, where
-            each path points to any of the following:
-                - a directory of images
-                - an image
-                - a pickled `Collection` instance
-        max_size: The maximum number of pages in each new collection.
-            Does not apply to pickled Collections.
-
-    Yields:
-        Collection instances created from the given source.
+    Automatically detects import type from the input. Supported types
+    are:
+        - A path to a directory with images
+        - A list of paths to images
+        - A path to a pickled collection
+        - A collection instance (returns itself)
     """
+    if isinstance(source, Collection):
+        return source
 
     # If source is a single string, treat it as a single-item list
     # and continue
     if isinstance(source, str):
         source = [source]
 
-    paths = []
-    for path in source:
-        if path.endswith("pickle"):
-            yield Collection.from_pickle(path)
-            continue
+    if isinstance(source, list):
+        # Input is a single directory
+        if len(source) == 1:
+            if os.path.isdir(source[0]):
+                logger.info("Loading collection from directory %s", source[0])
+                return Collection.from_directory(source[0])
+            if source[0].endswith("pickle"):
+                return Collection.from_pickle(source[0])
 
-        if os.path.isdir(path):
-            files = [os.path.join(path, file) for file in sorted(os.listdir(path))]
-            yield from _create_collection_batches(files, max_size)
-            continue
+        # Input is a list of (potential) file paths, check each and
+        # keep only the ones that refers to files
+        paths = []
+        for path in source:
+            if not os.path.isfile(path):
+                logger.info("Skipping %s, not a regular file", path)
+                continue
+            paths.append(path)
 
-        paths.append(path)
-    yield from _create_collection_batches(paths, max_size)
+        if paths:
+            logger.info("Loading collection from %d file(s)", len(paths))
+            return Collection(paths)
 
-
-def _create_collection_batches(paths: list[str], max_size: int | None) -> Generator[Collection, Any, Any]:
-    """Create and yield collection of at most `max_size` pages"""
-    if paths:
-        max_size = max_size or len(paths)
-        for i in range(0, len(paths), max_size):
-            yield Collection(paths[i : i + max_size])
-
-
-def join_collections(collections: list[Collection]) -> Collection:
-    """Create a single `Collection` from the given collections."""
-    label = os.path.commonprefix([col.label for col in collections])
-    base = collections[0]
-    for collection in collections[1:]:
-        base.pages.append(collection.pages)
-    base.label = label
-    return base
+    raise ValueError(f"Could not infer import type for '{source}'")
 
 
 def all_subclasses(cls):
