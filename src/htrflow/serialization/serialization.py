@@ -104,19 +104,34 @@ class Serializer:
 
 
 class AltoXML(Serializer):
-    """Alto XML serializer
+    """Alto XML serializer.
 
-    This serializer uses a jinja template to produce alto XML files
-    according to version 4.4 of the alto standard.
+    This serializer uses a jinja template to produce Alto XML files
+    according to version 4.4 of the Alto schema.
 
-    Alto files require one level of segmentation. Pages with nested
-    segmentation (regions within regions) will be flattened so that
-    only the outermost regions are rendered. Pages without segmentation
-    will result in an empty alto file.
+    # Features
+    - Uses Alto version 4.4.
+    - Includes detailed processing metadata in the `<Description>` block.
+    - Supports rendering of region locations (printspace and margins).
+    To enable this, first make sure that the regions are tagged by
+    calling `layout.label_regions(...)` before serialization.
+    - Will always produce a file, but the file may be empty.
 
-    This format supports rendering of region locations (printspace and
-    margins). To enable this, call layout.label_regions(...) before
-    serialization.
+    # Limitations
+    - Two-level segmentation: The Alto schema only supports two-level
+    segmentation, i.e. pages with regions and lines. Pages with deeper
+    segmentation will be flattened so that only the innermost regions
+    are rendered.
+    - Only includes text confidence at the page level.
+
+    # Examples
+    Example usage with the `Export` pipeline step:
+    ```yaml
+    - step: Export
+      settings:
+        dest: alto-ouptut
+        format: alto
+    ```
     """
 
     extension = ".xml"
@@ -168,13 +183,28 @@ class AltoXML(Serializer):
 class PageXML(Serializer):
     """Page XML serializer
 
-    This serializer uses a jinja template to produce page XML files.
+    This serializer uses a jinja template to produce Page XML files
+    according to the 2019-07-15 version of the schema.
 
-    Page files require at least one level of segmentation. Pages without
-    segmentation will not result in an output file (since Page XML cannot
-    be empty).
+    # Features
+    - Includes line confidence scores.
+    - Supports nested segmentation.
+
+    # Limitations
+    - Will not create an output file if the page is not serializable,
+    for example if it does not contain any regions. (This behaviour
+    differs from the Alto serializer, which instead would produce an
+    empty file.)
+
+    # Examples
+    Example usage with the `Export` pipeline step:
+    ```yaml
+    - step: Export
+      settings:
+        dest: page-ouptut
+        format: page
+    ```
     """
-
     extension = ".xml"
     format_name = "page"
 
@@ -209,18 +239,33 @@ class PageXML(Serializer):
 
 
 class Json(Serializer):
-    """Simple JSON serializer"""
+    """
+    JSON serializer
 
+    This serializer extracts all content from the collection and saves
+    it as json. The resulting json file(s) include properties that are
+    not supported by Alto or Page XML, such as region confidence scores.
+
+    # Examples
+    Example usage with the `Export` pipeline step:
+    ```yaml
+    - step: Export
+      settings:
+        dest: json-ouptut
+        format: json
+        one_file: False
+        indent: 2
+    ```
+    """
     extension = ".json"
     format_name = "json"
 
     def __init__(self, one_file=False, indent=4):
-        """Initialize JSON serializer
-
-        Args:
+        """
+        Arguments:
             one_file: Export all pages of the collection to the same file.
                 Defaults to False.
-            indent: The output json file's indentation level
+            indent: The indentation level of the output json file(s).
         """
         self.one_file = one_file
         self.indent = indent
@@ -244,6 +289,22 @@ class Json(Serializer):
 
 
 class PlainText(Serializer):
+    """
+    Plain text serializer
+
+    This serializer extracts all text content from the collection and
+    saves it as plain text. All other data (metadata, coordinates, 
+    geometries, confidence scores, and so on) is discarded.
+
+    # Examples
+    Example usage with the `Export` pipeline step:
+    ```yaml
+    - step: Export
+      settings:
+        dest: text-ouptut
+        format: txt
+    ```
+    """
     extension = ".txt"
     format_name = "txt"
 
