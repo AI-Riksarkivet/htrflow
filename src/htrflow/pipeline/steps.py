@@ -293,7 +293,6 @@ class OrderLines(PipelineStep):
     """
     Order lines top-down.
     """
-
     def run(self, collection):
         for page in collection:
             for node in page.traverse():

@@ -11,21 +11,19 @@ use_directory_urls: false
 extra_css:
   - stylesheets/extra.css
 
-
-# Copyright
-copyright: Copyright &copy; 2024  <a href="https://github.com/AI-Riksarkivet/htrflow" target="_blank">© AI Riksarkivet.</a>
-
 # Page tree
 nav:
   - HTRflow: index.md
   - 🚀 Getting started :
     - Installation: getting_started/installation.md
     - Quickstart: getting_started/quick_start.md
-    - Data structure: getting_started/data_structure.md
-    - Models: getting_started/models.md
     - Pipeline: getting_started/pipeline.md
-    - CLI: getting_started/cli.md
-    - Serialization: getting_started/serialization.md
+    - Models: getting_started/models.md
+    - Document model: getting_started/document_model.md
+    # - CLI: getting_started/cli.md
+    # - Serialization: getting_started/serialization.md
+    # - Tutorials:
+    #     - The internals: "notebooks/demo.ipynb"
 
   - Reference:
     - Pipeline steps: reference/pipeline-steps.md
@@ -138,8 +136,6 @@ plugins:
         - "$"
         - ">"
 
-
-
 extra:
   generator: false
   version:
@@ -155,7 +151,7 @@ extra:
       link: https://www.linkedin.com/company/national-archives-in-sweden-riksarkivet-
       name: Linkedin 
     - icon: fontawesome/brands/python
-      link: https://pypi.org/htrflow/
+      link: https://pypi.org/project/htrflow/
       name: PyPi
     - icon: fontawesome/brands/docker
       link: https://hub.docker.com/u/airiksarkivet

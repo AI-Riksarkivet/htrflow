@@ -76,7 +76,4 @@ Read the [Quickstart guide](getting_started/quick_start.md) to get started.
 
 Here are some example outputs and pipelines.
 
-### Handwritten text (HTR)
-
-### Printed text (OCR)
-
+--8<-- "docs/getting_started/pipeline.md:examples"
