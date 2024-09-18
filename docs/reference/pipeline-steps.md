@@ -1,5 +1,7 @@
+This page lists HTRFlow's built-in pipeline steps.
 
-## Base pipeline step
+
+## Base step
 ::: pipeline.steps.PipelineStep
     options:
         heading_level: 3

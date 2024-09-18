@@ -30,7 +30,7 @@ class StepMetadata:
 
 class PipelineStep:
     """
-    Pipeline step base class
+    Pipeline step base class.
 
     Pipeline steps are implemented by subclassing this class and
     overriding the `run()` method.
@@ -127,7 +127,7 @@ class ImportSegmentation(PipelineStep):
         Arguments:
             source: Path to a directory with PageXML files. The XML files
                 must have the same names as the input image files (ignoring
-                the file extension)
+                the file extension).
         """
         self.source = source
 
@@ -155,26 +155,17 @@ class Segmentation(Inference):
     """
     Run a segmentation model.
 
-    This step runs on the output from the previous model. This makes it
-    possible to chain steps. Here is an example:
+    See [Segmentation models](models.md#segmentation-models) for available models.
 
+    Example YAML:
     ```yaml
     - step: Segmentation
       settings:
-        model: RTMDet
+        model: yolo
         model_settings:
-          model: Riksarkivet/rtmdet_regions
-    - step: Segmentation
-      settings:
-        model: RTMDet
-        model_settings:
-          model: Riksarkivet/rtmdet_lines
+          model: Riksarkivet/yolov9-regions-1
     ```
-    Here, the first `Segmentation` step is applied on the original image.
-    It creates regions from the full page. The next segmentation step creates
-    lines from each region.
     """
-
     pass
 
 
@@ -182,6 +173,8 @@ class TextRecognition(Inference):
     """
     Run a text recognition model
 
+    See [Text recognition models](models.md#text-recognition-models) for available models.
+    
     Example YAML:
     ```yaml
     - step: TextRecognition
@@ -226,7 +219,7 @@ class Export(PipelineStep):
     without post processing. A pipeline can include as many `Export`
     steps as you like.
 
-    See [Export formats](export-formats.md) or the <serialization.serialization>
+    See [Export formats](export-formats.md) or the `<serialization.serialization>`
     module for more details about each export format.
 
     Example:
