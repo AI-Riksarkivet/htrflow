@@ -37,7 +37,7 @@ ___
 <img src="assets/ai_lab.png" width="20%" height="20%" align="right" />
 
 
-AIRA, the AI-lab at Riksarkivet (The Swedish National Archives), presents **Htrflow** !
+AIRA, the AI-lab at Riksarkivet (The Swedish National Archives), presents **Htrflow**!
 
 
 An open-source framework designed to enhance productivity and flexibility for both Handwritten Text Recognition (HTR) and Optical Character Recogntion (OCR). It is easy to learn, delivers high performance, and is ready for seamless integration and scaling in production environments.
@@ -53,26 +53,23 @@ An open-source framework designed to enhance productivity and flexibility for bo
 - **Ease of Learning**: Simple and intuitive design that is easy to learn.
 - **Robustness**: Production-ready code that has been thoroughly tested.
 - **Standards-Based**: Supports various industry standard formats such as XML and JSON (and more).
-___
+<!-- nämn Alto och Page XML-->
 
 
+## Installation
+Install HTRFlow with pip:
+```
+pip install htrflow
+```
+For more details, see the [Installation guide](getting_started/installation.md).
 
+## Getting started
+Read the [Quickstart guide](getting_started/quick_start.md) to get started.
 
-## Ecosystem (WIP)
+## Examples
+Here are some example outputs and pipelines.
 
-=== "Htrflow as a Service (WIP)"
+### Handwritten text (HTR)
 
-    Cloud Native support
+### Printed text (OCR)
 
-    <div align="center"">
-    <img src="assets/placeholder.jpg" width="100%"/>
-    </div>
-
-=== "Htrflow Sandbox (WIP)"
-
-    GUI, developed in Svelte and Gradio (WIP)
-
-
-    <div align="center"">
-    <img src="assets/sandbox.png" width="80%"/>
-    </div>
