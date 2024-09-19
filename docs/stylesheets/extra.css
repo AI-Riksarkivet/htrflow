@@ -35,3 +35,7 @@ body[data-md-color-primary="black"] .svg_image svg rect {
   animation: heart 1000ms infinite;
 }
 
+
+.hide-title{
+  display: none;
+}

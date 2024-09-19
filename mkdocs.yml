@@ -1,5 +1,5 @@
 # Project information
-site_name: "Riksarkivet - Htrflow Docs"
+site_name: "HTRflow"
 site_url: https://ai-riksarkivet.github.io/htrflow/latest/
 site_author: "AI Riksarkivet"
 site_description: "AIRA has developed an open source framework to make HTR easier to productionize."
@@ -17,21 +17,17 @@ copyright: Copyright &copy; 2024  <a href="https://github.com/AI-Riksarkivet/htr
 
 # Page tree
 nav:
-  - HTRFlow: index.md
-  - Getting Started:
-    - getting_started/index.md
+  - HTRflow: index.md
+  - 🚀 Getting started :
     - Installation: getting_started/installation.md
     - Quickstart: getting_started/quick_start.md
-    - Data Structure: getting_started/data_structure.md
+    - Data structure: getting_started/data_structure.md
     - Models: getting_started/models.md
     - Pipeline: getting_started/pipeline.md
     - CLI: getting_started/cli.md
     - Serialization: getting_started/serialization.md
-    - Tutorials:
-        - The internals: "notebooks/demo.ipynb"
 
   - Reference:
-    - reference/index.md
     - Pipeline steps: reference/pipeline-steps.md
     - Models: reference/models.md
     - Export formats: reference/export-formats.md
@@ -51,10 +47,8 @@ nav:
     # - Use Cases: resources/cases.md
 
   - Help:
-    - help/index.md
     - FAQ: help/faq.md
     - Contribution: help/contributing.md
-    - License: help/license.md
   
 
 # Configuration
@@ -138,8 +132,11 @@ plugins:
         - read_json
       enabled: True
   - git-revision-date-localized
-  - termynal
   - swagger-ui-tag
+  - termynal:
+      prompt_literal_start:
+        - "$"
+        - ">"
 
 
 

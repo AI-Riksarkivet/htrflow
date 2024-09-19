@@ -2,8 +2,7 @@ version: "3.8"
 
 services:
   htrflow:
-    image: htrflow-test
-
+    image: docker/htrflow.dockerfile
     deploy:
       resources:
         reservations:
@@ -16,21 +15,12 @@ services:
       [
         "/bin/sh",
         "-c",
-        "htrflow pipeline pipeline/im-pipeline.yaml input/1107 --logfile logs/htrflow/htrflow_1107.log",
+        "htrflow pipeline pipeline/demo.yaml input --logfile logs/htrflow/htrflow.log",
       ]
 
     volumes:
-      - ./input-volume:/app/input
+      - ./examples/images/pages:/app/input 
       - ./output-volume:/app/outputs
       - ./logs-volume:/app/logs
-      - ./pipeline:/app/pipeline
+      - ./examples/pipelines:/app/pipeline
       - ./.cache:/app/models
-
-configs:
-  config.yaml:
-    external: false
-    file: im-pipeline.yaml
-
-networks:
-  default:
-    driver: bridge

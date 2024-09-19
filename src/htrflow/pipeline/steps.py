@@ -12,11 +12,10 @@ from htrflow.postprocess.reading_order import order_regions
 from htrflow.postprocess.word_segmentation import simple_word_segmentation
 from htrflow.results import Result
 from htrflow.serialization import get_serializer, save_collection
-from htrflow.utils.imgproc import binarize, write
+from htrflow.utils.imgproc import NumpyImage, binarize, write
 from htrflow.utils.layout import estimate_printspace, is_twopage
 from htrflow.volume.node import Node
 from htrflow.volume.volume import Collection
-from htrflow.utils.imgproc import NumpyImage
 
 
 logger = logging.getLogger(__name__)
@@ -75,6 +74,7 @@ class Inference(PipelineStep):
           model: ...
     ```
     """
+
     def __init__(self, model_class, model_kwargs, generation_kwargs):
         self.model_class = model_class
         self.model_kwargs = model_kwargs
@@ -166,6 +166,7 @@ class Segmentation(Inference):
           model: Riksarkivet/yolov9-regions-1
     ```
     """
+
     pass
 
 
@@ -174,7 +175,7 @@ class TextRecognition(Inference):
     Run a text recognition model
 
     See [Text recognition models](models.md#text-recognition-models) for available models.
-    
+
     Example YAML:
     ```yaml
     - step: TextRecognition
@@ -182,6 +183,7 @@ class TextRecognition(Inference):
         model: TrOCR
     ```
     """
+
     pass
 
 
@@ -202,6 +204,7 @@ class WordSegmentation(PipelineStep):
     - step: WordSegmentation
     ```
     """
+
     def run(self, collection):
         results = simple_word_segmentation(collection.active_leaves())
         collection.update(results)
@@ -230,6 +233,7 @@ class Export(PipelineStep):
         dest: alto-outputs
     ```
     """
+
     def __init__(self, dest: str, format: Literal["alto", "page", "txt", "json"], **serializer_kwargs):
         """
         Arguments:
@@ -301,6 +305,7 @@ class ExportImages(PipelineStep):
         dest: exported_images
     ```
     """
+
     def __init__(self, dest: str):
         """
         Arguments:
@@ -391,7 +396,7 @@ class RemoveLowTextConfidenceRegions(Prune):
     - step: RemoveLowTextConfidenceRegions
       settings:
         threshold: 0.8
-    ```    
+    ```
     """
 
     def __init__(self, threshold: float):
@@ -413,7 +418,7 @@ class RemoveLowTextConfidencePages(Prune):
     - step: RemoveLowTextConfidencePages
       settings:
         threshold: 0.8
-    ```    
+    ```
     """
 
     def __init__(self, threshold: float):
@@ -433,13 +438,14 @@ class ProcessImages(PipelineStep):
     This is a base class for all image preprocessing steps. Subclasses
     define their image processing operation by overriding the `op()`
     method. This step does not alter the original image. Instead, a new
-    copy of the image is saved in the directory specified by 
+    copy of the image is saved in the directory specified by
     `ProcessImages.output_directory`. The `PageNode`'s image path is
     then updated to point to the new processed image.
 
     Attributes:
         output_directory: Where to write the processed images.
     """
+
     output_directory: str
 
     def run(self, collection):
@@ -467,7 +473,7 @@ class ProcessImages(PipelineStep):
 class Binarization(ProcessImages):
     """
     Binarize images.
-    
+
     Runs image binarization on the collection's images. Saves the
     resulting images in a directory named `binarized`. All subsequent
     pipeline steps will use the binarized
@@ -477,6 +483,7 @@ class Binarization(ProcessImages):
     - step: Binarization
     ```
     """
+
     output_directory = "binarized"
 
     def op(self, image):
@@ -543,9 +550,7 @@ def all_subclasses(cls):
 
 # Mapping class name -> class
 # Ex. {segmentation: `steps.Segmentation`}
-STEPS: dict[str, PipelineStep] = {
-    cls_.__name__.lower(): cls_ for cls_ in all_subclasses(PipelineStep)
-}
+STEPS: dict[str, PipelineStep] = {cls_.__name__.lower(): cls_ for cls_ in all_subclasses(PipelineStep)}
 MODELS: dict[str, BaseModel] = {model.__name__.lower(): model for model in all_models()}
 
 

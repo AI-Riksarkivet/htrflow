@@ -205,6 +205,7 @@ class PageXML(Serializer):
         format: page
     ```
     """
+
     extension = ".xml"
     format_name = "page"
 
@@ -257,6 +258,7 @@ class Json(Serializer):
         indent: 2
     ```
     """
+
     extension = ".json"
     format_name = "json"
 
@@ -293,7 +295,7 @@ class PlainText(Serializer):
     Plain text serializer
 
     This serializer extracts all text content from the collection and
-    saves it as plain text. All other data (metadata, coordinates, 
+    saves it as plain text. All other data (metadata, coordinates,
     geometries, confidence scores, and so on) is discarded.
 
     # Examples
@@ -305,6 +307,7 @@ class PlainText(Serializer):
         format: txt
     ```
     """
+
     extension = ".txt"
     format_name = "txt"
 

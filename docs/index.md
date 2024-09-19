@@ -1,9 +1,10 @@
 ---
-icon: octicons/archive
+# icon: octicons/archive
 hide:
   - navigation
 ---
 
+<h1 class="hide-title">Htrflow</h1>
 
 <div align="center"">
 <img src="assets/background_htrflow_2.png" width="90%"/>
@@ -13,22 +14,18 @@ hide:
 <p align="center">
     <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/AI-Riksarkivet/htrflow">
     <img alt="License" src="https://img.shields.io/github/license/AI-Riksarkivet/htrflow">
-    <a href="https://circleci.com/gh/AI-Riksarkivet/htrflow">
-        <img alt="Build" src="https://img.shields.io/github/AI-Riksarkivet/htrflow/main">
+    <a href="https://github.com/AI-Riksarkivet/htrflow/actions/workflows/tests.yml">
+        <img alt="Tests" src="https://github.com/AI-Riksarkivet/htrflow/actions/workflows/tests.yml/badge.svg">
     </a>
-    <a href="https://github.com/AI-Riksarkivet/htrflow/releases">
-        <img alt="GitHub release" src="https://img.shields.io/github/release/AI-Riksarkivet/htrflow.svg">
+    <a href="https://github.com/AI-Riksarkivet/htrflow/actions/workflows/publish-pypi.yml">
+        <img alt="PyPI" src="https://github.com/AI-Riksarkivet/htrflow/actions/workflows/publish-pypi.yml/badge.svg">
     </a>
-    <a href="https://github.com/AI-Riksarkivet/htrflow/releases">
-        <img alt="GitHub docs" src="https://img.shields.io/github/docs/AI-Riksarkivet/htrflow.svg">
+    <a href="https://github.com/AI-Riksarkivet/htrflow/actions/workflows/deploy-docs.yml">
+        <img alt="Deploy Docs" src="https://github.com/AI-Riksarkivet/htrflow/actions/workflows/deploy-docs.yml/badge.svg">
     </a>
 </p>
 
 ___
-
-!!! Warning "Docs: Work in progress!"
-
-    [Htrflow](https://pypi.org/project/htrflow/) has a stable release, but the docs is still under development.
 
 
 ## Htrflow
@@ -41,6 +38,9 @@ AIRA, the AI-lab at Riksarkivet (The Swedish National Archives), presents **Htrf
 
 
 An open-source framework designed to enhance productivity and flexibility for both Handwritten Text Recognition (HTR) and Optical Character Recogntion (OCR). It is easy to learn, delivers high performance, and is ready for seamless integration and scaling in production environments.
+
+___
+
 
 <!-- <img src="assets/riks.png" width="10%" height="10%" align="right" /> -->
 

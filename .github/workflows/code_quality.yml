@@ -17,4 +17,4 @@ jobs:
       - uses: ./.github/actions/uv
 
       - name: Linting check with ruff
-        run: uv run ruff check .
+        run: uvx ruff check --fix

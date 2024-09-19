@@ -1,5 +1,4 @@
-name: Test Python 🐍 before build
-
+name: Pytest
 on:
   push:
     branches:

@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: cuda-check-
+spec:
+  entrypoint: cuda-check
+  templates:
+    - name: cuda-check
+      container:
+        name: cuda-check
+        image: ...:5002/airiksarkivet/htrflow:v0.1.2
+        imagePullPolicy: Always
+        resources:
+          limits:
+            nvidia.com/gpu: 1 
+        env:
+        - name: NVIDIA_VISIBLE_DEVICES
+          value: "1"
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            while true; do
+              echo "Running in an infinite loop. Press Ctrl+C to exit."
+              sleep 1
+            done
+
+  podSpecPatch: '{"containers":[{"name":"main","resources":{"limits":{"cpu":"48"},"requests":{"cpu":"8"}}}],"runtimeClassName":"nvidia"}'
