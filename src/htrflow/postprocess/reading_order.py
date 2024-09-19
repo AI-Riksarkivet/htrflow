@@ -91,3 +91,8 @@ def left_right_top_down(bboxes: Sequence[Bbox], line_spacing: float | None = 1.0
         ys = [y // threshold for y in ys]
 
     return sorted(range(len(bboxes)), key=lambda i: (ys[i], xs[i]))
+
+
+def top_down(bboxes: Sequence[Bbox]):
+    """Order bounding boxes top-down"""
+    return sorted(range(len(bboxes)), key=lambda i: bboxes[i].center.y)

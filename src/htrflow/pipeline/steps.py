@@ -8,7 +8,7 @@ from pagexml.parser import parse_pagexml_file
 from htrflow.models.base_model import BaseModel
 from htrflow.models.importer import all_models
 from htrflow.postprocess import metrics
-from htrflow.postprocess.reading_order import order_regions
+from htrflow.postprocess.reading_order import order_regions, top_down
 from htrflow.postprocess.word_segmentation import simple_word_segmentation
 from htrflow.results import Result
 from htrflow.serialization import get_serializer, save_collection
@@ -286,6 +286,20 @@ class ReadingOrderMarginalia(PipelineStep):
             for region in page:
                 region.children = order_regions(region.children, printspace, is_twopage=False)
         collection.relabel()
+        return collection
+
+
+class OrderLines(PipelineStep):
+    """
+    Order lines top-down.
+    """
+
+    def run(self, collection):
+        for page in collection:
+            for node in page.traverse():
+                if node.is_region():
+                    order = top_down([child.bbox for child in node])
+                    node.children = [node.children[i] for i in order]
         return collection
 
 
