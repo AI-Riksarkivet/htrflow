@@ -37,10 +37,8 @@ ___
 AIRA, the AI-lab at Riksarkivet (The Swedish National Archives), presents **Htrflow**!
 
 
-An open-source framework designed to enhance productivity and flexibility for both Handwritten Text Recognition (HTR) and Optical Character Recogntion (OCR). It is easy to learn, delivers high performance, and is ready for seamless integration and scaling in production environments.
-
+An open-source framework designed to enhance productivity and flexibility for both Handwritten Text Recognition (HTR) and Optical Character Recogntion (OCR). It is easy to use, delivers high performance!
 ___
-
 
 <!-- <img src="assets/riks.png" width="10%" height="10%" align="right" /> -->
 
@@ -56,6 +54,11 @@ ___
 <!-- nämn Alto och Page XML-->
 
 
+<div align="center"">
+<img src="assets/pipeline_sketch.png" width="90%"/>
+</div>
+
+
 ## Installation
 Install HTRFlow with pip:
 ```
@@ -67,6 +70,10 @@ For more details, see the [Installation guide](getting_started/installation.md).
 Read the [Quickstart guide](getting_started/quick_start.md) to get started.
 
 ## Examples
+
+
+<img src="assets/ai_lab_2.png" width="40%" height="40%" align="right" />
+
 Here are some example outputs and pipelines.
 
 ### Handwritten text (HTR)

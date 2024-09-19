@@ -42,7 +42,7 @@ Great! Read [Quickstart](quick_start.md) to learn to use the `htrflow pipeline` 
     We natively support Huggingface and Ultraytics model, but if you want to also openmmlab models:
 
     ```sh
-    pip install htrflow[all]" 
+    pip install htrflow[openmmlab]" 
     ```
 
     > Note that this forces torch to 2.0.0, since openmmlabs depends on it for now..
@@ -55,7 +55,7 @@ Great! Read [Quickstart](quick_start.md) to learn to use the `htrflow pipeline` 
     ```sh
     #pip install uv
 
-    uv pip install htrflow[all]" 
+    uv pip install htrflow[openmmlab]" 
     ```
 
 
@@ -69,7 +69,7 @@ Requirements:
 
 Clone this repository and run:
 ```sh
-uv pip install -e .[all]
+uv pip install -e .
 
 ```
 This will install the HTRflow package in a virtual environment.
