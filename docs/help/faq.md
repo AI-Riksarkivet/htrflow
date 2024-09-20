@@ -10,7 +10,7 @@
 
 ### How to contact us?
 
-- You can reach us at this email address: **ai.riksarkivet.se**
+- You can reach us at this email address: **ai@riksarkivet.se**
 
 
 ### Does HTRflow train models?

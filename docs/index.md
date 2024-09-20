@@ -28,13 +28,13 @@ hide:
 ___
 
 
-## Htrflow
+## HTRflow
 
 <!-- ![Image title](assets/labrat.png){ align=right width="300" } -->
-<img src="assets/ai_lab.png" width="20%" height="20%" align="right" />
+<img src="assets/lab.png" width="20%" height="20%" align="right" />
 
 
-AIRA, the AI-lab at Riksarkivet (The Swedish National Archives), presents **Htrflow**!
+AIRA, the AI-lab at Riksarkivet (The Swedish National Archives), presents **HTRflow**!
 
 
 An open-source framework designed to enhance productivity and flexibility for both Handwritten Text Recognition (HTR) and Optical Character Recogntion (OCR). It is easy to use, delivers high performance!
@@ -55,12 +55,12 @@ ___
 
 
 <div align="center"">
-<img src="assets/pipeline_sketch.png" width="90%"/>
+<img src="assets/pipeline.png" width="90%"/>
 </div>
 
 
 ## Installation
-Install HTRFlow with pip:
+Install HTRflow with pip:
 ```
 pip install htrflow
 ```
@@ -72,7 +72,7 @@ Read the [Quickstart guide](getting_started/quick_start.md) to get started.
 ## Examples
 
 
-<img src="assets/ai_lab_2.png" width="40%" height="40%" align="right" />
+<img src="assets/worker.png" width="30%" height="30%" align="right" />
 
 Here are some example outputs and pipelines.
 
