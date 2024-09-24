@@ -70,12 +70,12 @@ def run_pipeline(
 ):
     """Run a HTRFlow pipeline"""
 
+    logger = setup_pipeline_logging(logfile, loglevel)
+
     # Slow imports! Only import after all CLI arguments have been resolved.
     from htrflow.models import hf_utils
     from htrflow.pipeline.pipeline import Pipeline
     from htrflow.pipeline.steps import auto_import
-
-    logger = setup_pipeline_logging(logfile, loglevel)
 
     with open(pipeline, "r") as file:
         config = yaml.safe_load(file)

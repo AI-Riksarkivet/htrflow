@@ -30,6 +30,6 @@ def all_models():
         models += [RTMDet, Satrn]
 
     except ModuleNotFoundError:
-        logger.exception()
+        logger.exception("Could not import OpenMMLab models RTMDet and Satrn.")
 
     return models
