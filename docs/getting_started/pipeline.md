@@ -35,14 +35,14 @@ A pipeline is a sequence of pipeline steps. HTRflow offers two ways of defining 
 
 
 ### YAML
-YAML pipelines are used with HTRflow's CLI and offers a no-code interface to HTRflow. Here is a one-step HTRflow yaml pipeline that would run `ExampleStep()`:
-```yaml
+YAML pipelines are used with HTRflow's CLI and offers a no-code interface to HTRflow. Here is a one-step YAML pipeline that would run `ExampleStep()`:
+```yaml title="pipeline.yaml"
 steps:
 - step: ExampleStep
 ```
 
 Arguments can be passed to steps by adding `settings`. Any key-value pairs under `settings` are forwarded to the step's constructor. This pipeline would run `ExampleStep()` followed by `ExampleStepWithArgument(value=0.5)`:
-```yaml
+```yaml title="pipeline.yaml"
 steps:
 - step: ExampleStep
 - step: ExampleStepWithArgument
@@ -54,6 +54,7 @@ Use the `htrflow pipeline` command to run a YAML pipeline:
 ```bash
 htrflow pipeline path/to/pipeline.yaml path/to/inputs
 ```
+The `path/to/inputs` should point to a single image (for example, `images/image0.jpg`) or a directory of images (for example, `images`).
 
 ### Python
 Pipelines can also be defined directly in Pyhton code. The above pipeline is equivalent to this code snippet:
