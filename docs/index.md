@@ -7,7 +7,7 @@ hide:
 <h1 class="hide-title">Htrflow</h1>
 
 <div align="center"">
-<img src="assets/background_htrflow_2.png" width="90%"/>
+<img src="assets/background_htrflow_2.png"/>
 </div>
 
 
@@ -30,29 +30,17 @@ ___
 
 ## HTRflow
 
-<!-- ![Image title](assets/labrat.png){ align=right width="300" } -->
 <img src="assets/lab.png" width="20%" height="20%" align="right" />
 
-
-AIRA, the AI-lab at Riksarkivet (The Swedish National Archives), presents **HTRflow**!
-
-
-An open-source framework designed to enhance productivity and flexibility for both Handwritten Text Recognition (HTR) and Optical Character Recogntion (OCR). It is easy to use, delivers high performance!
-___
-
-<!-- <img src="assets/riks.png" width="10%" height="10%" align="right" /> -->
-
+HTRflow is an open source tool for HTR and OCR developed by the AI lab at the National Archives of Sweden (*Riksarkivet*).
 
 ## Key features
-- **Standardization**: Avoid reinventing the wheel by standardizing HTR and OCR processes.
-- **Intuitive Design**: User-friendly and intuitive interface. 
-- **Collaboration**: Facilitate seamless collaboration both internally and with external partners within the humanities space.
-- **Modular Design**: Employ the "Lego principle" to create building blocks for specific document types using “blueprints.”
-- **Ease of Learning**: Simple and intuitive design that is easy to learn.
-- **Robustness**: Production-ready code that has been thoroughly tested.
-- **Standards-Based**: Supports various industry standard formats such as XML and JSON (and more).
-<!-- nämn Alto och Page XML-->
 
+- **Flexibility**: Customize the HTR/OCR process for different kinds of materials.
+- **Compatibility**: HTRflow supports all models trained by the AI lab - and more!
+- **YAML pipelines**: HTRflow YAML pipelines are easy to create, modify and share.
+- **Export**: Export results as Alto XML, Page XML, plain text or JSON.
+- **Evaluation**: Compare results from different pipelines with ground truth.
 
 <div align="center"">
 <img src="assets/pipeline.png" width="90%"/>
@@ -69,11 +57,4 @@ For more details, see the [Installation guide](getting_started/installation.md).
 ## Getting started
 Read the [Quickstart guide](getting_started/quick_start.md) to get started.
 
-## Examples
-
-
 <img src="assets/worker.png" width="30%" height="30%" align="right" />
-
-Here are some example outputs and pipelines.
-
---8<-- "docs/getting_started/pipeline.md:examples"
