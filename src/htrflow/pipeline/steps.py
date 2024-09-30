@@ -44,7 +44,7 @@ class PipelineStep:
 
     def run(self, collection: Collection) -> Collection:
         """
-        Run the pipeline step
+        Run the pipeline step.
 
         Arguments:
             collection: Input collection
@@ -59,7 +59,7 @@ class PipelineStep:
 
 class Inference(PipelineStep):
     """
-    Run model inference
+    Run model inference.
 
     This is a generic pipeline step for any type of model inference.
     This step always runs the model on the images of the collection's
@@ -172,7 +172,7 @@ class Segmentation(Inference):
 
 class TextRecognition(Inference):
     """
-    Run a text recognition model
+    Run a text recognition model.
 
     See [Text recognition models](models.md#text-recognition-models) for available models.
 
@@ -181,6 +181,8 @@ class TextRecognition(Inference):
     - step: TextRecognition
       settings:
         model: TrOCR
+        model_settings:
+          model: Riksarkivet/trocr-base-handwritten-hist-swe-2
     ```
     """
 
@@ -189,7 +191,7 @@ class TextRecognition(Inference):
 
 class WordSegmentation(PipelineStep):
     """
-    Segment lines into words
+    Segment lines into words.
 
     This step segments lines of text into words. It estimates the word
     boundaries from the recognized text, which means that this step
@@ -292,6 +294,13 @@ class ReadingOrderMarginalia(PipelineStep):
 class OrderLines(PipelineStep):
     """
     Order lines top-down.
+
+    This step orders the lines within each region top-down.
+
+    Example YAML:
+    ```yaml
+    - step: OrderLines
+    ```
     """
     def run(self, collection):
         for page in collection:
@@ -489,7 +498,7 @@ class Binarization(ProcessImages):
 
     Runs image binarization on the collection's images. Saves the
     resulting images in a directory named `binarized`. All subsequent
-    pipeline steps will use the binarized
+    pipeline steps will use the binarized images.
 
     Example YAML:
     ```yaml

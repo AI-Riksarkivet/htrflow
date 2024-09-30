@@ -51,6 +51,10 @@ This page lists HTRFlow's built-in pipeline steps.
     options:
         heading_level: 3
 
+::: pipeline.steps.OrderLines
+    options:
+        heading_level: 3
+
 ::: pipeline.steps.WordSegmentation
     options:
         heading_level: 3
