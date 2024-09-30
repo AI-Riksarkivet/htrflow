@@ -17,11 +17,26 @@ logger = logging.getLogger(__name__)
 
 class TrOCR(BaseModel):
     """
-    HTRFLOW adapter of the tranformer-based OCR model TrOCR.
+    HTRflow adapter of the tranformer-based OCR model TrOCR.
 
     Uses huggingface's implementation of TrOCR. For further
     information, see
     https://huggingface.co/docs/transformers/model_doc/trocr.
+
+    Example usage with the `TextRecognition` step:
+    ```yaml
+    - step: TextRecognition
+      settings:
+        model: TrOCR
+        model_settings:
+          model: Riksarkivet/trocr-base-handwritten-hist-swe-2
+          device: cpu
+          model_kwargs:
+            revision: 6ecbb5d643430385e1557001ae78682936f8747f
+        generation_settings:
+          batch_size: 8
+          num_beams: 1
+    ```
     """
 
     def __init__(
@@ -71,7 +86,8 @@ class TrOCR(BaseModel):
         """TrOCR-specific prediction method.
 
         This method is used by `predict()` and should typically not be
-        called directly.
+        called directly. However, `predict()` forwards additional kwargs
+        to this method.
 
         Arguments:
             images: Input images.
@@ -141,18 +157,18 @@ class WordLevelTrOCR(TrOCR):
     does not support beam search, but can otherwise be used as a drop-
     in replacement of TrOCR.
 
-    Example usage with the `TextRecognition` pipeline step:
+    Example usage with the `TextRecognition` step:
     ```yaml
     - step: TextRecognition
       settings:
         model: WordLevelTrOCR
-        model_kwargs:
-          ...
-        processor: ...
-        processor_kwargs:
-          ...
+        model_settings:
+          model: Riksarkivet/trocr-base-handwritten-hist-swe-2
+          device: cpu
+          model_kwargs:
+            revision: 6ecbb5d643430385e1557001ae78682936f8747f
         generation_settings:
-          batch_size: 32
+          batch_size: 8
     ```
     """
 
