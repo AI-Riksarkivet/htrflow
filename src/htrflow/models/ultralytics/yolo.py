@@ -13,7 +13,36 @@ logger = logging.getLogger(__name__)
 
 
 class YOLO(BaseModel):
+    """
+    HTRflow adapter of Ultralytics' YOLO model
+
+    Example usage with the `Segmentation` step:
+    ```yaml
+    - step: Segmentation
+      settings:
+        model: YOLO
+        model_settings:
+          model: Riksarkivet/yolov9-regions-1
+          revision: 7c44178d85926b4a096c55c89bf224855a201fbf
+          device: cpu
+        generation_settings:
+          batch_size: 8
+    ```
+
+    `generation_settings` accepts the same arguments as `YOLO.predict()`.
+    See the [Ultralytics documentation](https://docs.ultralytics.com/modes/predict/#inference-arguments)
+    for a list of supported arguments.
+    """
+
     def __init__(self, model: str, revision: str | None = None, **kwargs) -> None:
+        """
+        Arguments:
+            model: Path to a YOLO model. The path can be a path to a
+                local .pt model file (for example, `my-model.py`) or an
+                indentifier of a Huggingface repo contatining a .pt
+                model file (for example, `Riksarkivet/yolov9-regions-1`).
+            revision: Optional revision of the Huggingface repository.
+        """
         super().__init__(**kwargs)
 
         model_file = load_ultralytics(model, revision)
