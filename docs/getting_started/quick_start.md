@@ -111,6 +111,8 @@ The first run may take some time because the two models need to be downloaded. T
     fortsättning på detsamma.
     ```
 
+🎉 You have successfully created your first HTRflow pipeline!
+
 ## Next steps
 - Learn more about [pipelines](pipeline.md)
 - Check out all [pipeline steps](../reference/pipeline-steps.md)

@@ -54,7 +54,13 @@ pip install htrflow
 ```
 For more details, see the [Installation guide](getting_started/installation.md).
 
-## Getting started
-Read the [Quickstart guide](getting_started/quick_start.md) to get started.
+## Getting Started
 
 <img src="assets/worker.png" width="30%" height="30%" align="right" />
+
+
+Ready to build your own pipeline for your documents? Head over to the [Quickstart guide](getting_started/quick_start.md) to get started with HTRflow.
+
+The guide will walk you through setting up your first pipeline, utilizing pre-trained models, and seamlessly running HTR/OCR tasks. With the HTRflow CLI (Command Line Interface), you can quickly set up pipelines using `pipeline.yaml` files as your "blueprints."
+
+
