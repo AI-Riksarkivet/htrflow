@@ -66,8 +66,6 @@ theme:
     - content.tabs.link
     - content.code.annotation
     - content.code.copy
-    - content.action.edit
-    - content.action.view
     - content.code.annotate
     - announce.dismiss
     - toc.follow
