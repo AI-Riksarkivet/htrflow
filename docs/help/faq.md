@@ -15,10 +15,10 @@
 
 ### Does HTRflow train models?
 
-- No! HTRflow is used to faciliate inference for HTR in a simplifed pipeline design and structure your results for seamless serialization of you choice, go to Getting started / [Models](https://ai-riksarkivet.github.io/htrflow/latest/getting_started/models.html) for more information.
+- No! HTRflow is used to faciliate inference for HTR in a simplifed pipeline design and structure your results for seamless serialization of you choice, go to [Getting started / Models](getting_started/models.md) for more information.
 
 
 ### How does HTRflow compare to Transkribus, Kraken or Escriptorium?
 
-- HTRflow distinguishes itself by focusing on abstractions and the use of the pipeline pattern, see Getting started / [Pipeline](https://ai-riksarkivet.github.io/htrflow/latest/getting_started/pipeline.html) for more information.
+- HTRflow distinguishes itself by focusing on abstractions and the use of the pipeline pattern, see [Getting started / Pipeline](getting_started/pipeline.md) for more information.
 

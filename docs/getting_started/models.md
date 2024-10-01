@@ -3,14 +3,27 @@
 
 ## Supported Models
 
-HTRflow natively supports specific models from the following frameworks: Ultralytics, Hugging Face, and OpenMMLab. Riksarkivet provides several ready-to-use models available on [Hugging Face](https://huggingface.co/Riksarkivet).
+HTRflow natively supports specific models from the following frameworks: Ultralytics, Hugging Face, and OpenMMLab.
 
 !!! tip
     For a complete list of predefined models compatible with our [Pipeline steps](../reference/pipeline-steps.md), see the [Model reference](../reference/models.md).
 
+## Riksarkivet Models
+
+ Riksarkivet provides several ready-to-use models available on [Hugging Face](https://huggingface.co/Riksarkivet).
+
+Here are some of the different materials the models were trained on:
+
+<iframe
+  src="https://huggingface.co/datasets/Riksarkivet/test_images_demo/embed/viewer/default/train"
+  frameborder="0"
+  width="100%"
+  height="560px"
+></iframe>
+
 ## OpenMMLab Models
 
-To use OpenMMLab models, specific dependencies need to be installed, including `torch`, `mmcv`, `mmdet`, `mmengine`, `mmocr`, and `yapf`. Follow the instructions below to ensure the correct versions are installed.
+To use OpenMMLab models (e.g SATRN), specific dependencies need to be installed, including `torch`, `mmcv`, `mmdet`, `mmengine`, `mmocr`, and `yapf`. Follow the instructions below to ensure the correct versions are installed.
 
 !!! Note
     OpenMMLab requires a specific PyTorch version. Make sure you have `pytorch==2.0.0` installed:

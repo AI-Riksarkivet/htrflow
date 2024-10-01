@@ -99,6 +99,13 @@ steps:
     dest: outputs
 ```
 
+Example output from segmentation step:
+
+<figure markdown="span">
+![Scan of a late 19th century handwritten letter](../assets/line_seg_letter_line.png){: style="height:400px;" }
+<figcaption>A letter dated 1882. <a href="https://sok.riksarkivet.se/bildvisning/Brev_451511_1512_01">Source</a>. </figcaption>
+</figure>
+
 
 ### Nested segmentation
 Segmentation steps can be chained to create a nested segmentation. In this pipeline, the first `Segmentation` step uses a model that segments the page into regions. Those regions are then segmented into lines by another model in the next `Segmentation` step. Inference steps such as `Segmentation` and `TextRecognition` always works on the leaf nodes of the [document tree](document_model.md), so the `TextRecognition` step will only transcribe the line images, and not the regions. This pipeline uses two `Export` steps to export the results as both plain text and Alto XML.
@@ -130,6 +137,15 @@ steps:
     format: alto
     dest: alto-outputs
 ```
+
+Example output from multiple (nested) segmentation steps:
+
+<figure markdown="span">
+![Scan of from Bergskollegium archive 16th century handwritten page](../assets/bergskollegium.png){: style="height:400px;" }
+<figcaption>A page from Bergskollegium dated 1698. <a href="https://sok.riksarkivet.se/bildvisning/40004028_00007">Source</a>. </figcaption>
+</figure>
+
+
 
 ## Example snippets
 This section provides some example snippets that can be pasted into an existing pipeline. For more details and pipeline steps, read the [Pipeline steps reference](../reference/pipeline-steps.md).
