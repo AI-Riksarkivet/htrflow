@@ -27,7 +27,7 @@ steps:
   # Debugging step: List installed packages and files
   - script: |
       ls -la
-      pip list
+      uv pip show transformers
     displayName: 'List installed packages and files for debugging'
 
   # Run tox environments using uv with verbose pytest output
