@@ -24,14 +24,9 @@ steps:
       uv sync --dev
     displayName: 'Install project dependencies with uv'
 
-  # Debugging step: List installed packages and files
-  - script: |
-      ls -la
-      uv pip show transformers
-    displayName: 'List installed packages and files for debugging'
-
   # Run tox environments using uv with verbose pytest output
   - script: |
+      source ~/.local/share/uv/venv/bin/activate
       uv tool install tox --with tox-uv
       export PATH=$PATH:~/.local/bin
       tox -v
