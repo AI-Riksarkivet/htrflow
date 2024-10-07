@@ -8,8 +8,9 @@ pool:
 
 steps:
   - script: |
-      curl -sSL https://install.astral.sh | bash
-    displayName: 'Install uv'
+      python -m pip install --upgrade pip
+      pip install uv
+    displayName: 'Install uv using pip'
 
   - script: |
       uv python install 3.12
