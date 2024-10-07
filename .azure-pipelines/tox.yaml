@@ -9,6 +9,11 @@ pool:
 steps:
 
   - script: |
+      apt-get update
+      apt-get install -y python3 python3-pip
+    displayName: 'Install Python 3 and pip on k8s agent'
+
+  - script: |
       python3 -m pip install --upgrade pip
       pip3 install uv
     displayName: 'Install uv using pip'
