@@ -8,6 +8,12 @@ pool:
   name: k8s
 
 steps:
+
+  - script: |
+      sudo apt-get update
+      sudo apt-get install -y libgl1-mesa-glx
+    displayName: 'Install OpenCV system dependencies'
+
   # Install uv using pip
   - script: |
       python3 -m pip install --upgrade pip
@@ -31,7 +37,7 @@ steps:
 
   # Run tox environments using 'uv tool run'
   - script: |
-      uv run pytest
+      uv tool run tox -v
     displayName: 'Run tox environments for Python 3.12, 3.11, and 3.10 using uv'
 
   # Publish test results
