@@ -8,12 +8,6 @@ pool:
   name: k8s
 
 steps:
-  # Install Python 3, pip, and system dependencies
-  - script: |
-      apt-get update
-      apt-get install -y python3 python3-pip libglib2.0-0 libsm6 libxext6 libxrender-dev
-    displayName: 'Install Python 3 and pip on k8s agent'
-
   # Install uv using pip
   - script: |
       python3 -m pip install --upgrade pip
@@ -27,21 +21,15 @@ steps:
 
   # Install project dependencies using uv
   - script: |
-      uv sync --all-extras --dev
+      uv sync --dev
     displayName: 'Install project dependencies with uv'
 
   # Run tox environments using uv with verbose pytest output
   - script: |
       uv tool install tox --with tox-uv
       export PATH=$PATH:~/.local/bin
-      tox -v -- --tb=long -ra
+      tox -v
     displayName: 'Run tox environments for Python 3.12, 3.11, and 3.10 using uv'
-
-  # Debugging step: List installed packages and files
-  - script: |
-      ls -la
-      pip list
-    displayName: 'List installed packages and files for debugging'
 
   # Publish test results
   - task: PublishTestResults@2
