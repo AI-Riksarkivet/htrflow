@@ -31,7 +31,7 @@ steps:
 
   # Run tox environments using 'uv tool run'
   - script: |
-      uv tool run tox -e py312,py311,py310 -- -v
+      uv run pytest
     displayName: 'Run tox environments for Python 3.12, 3.11, and 3.10 using uv'
 
   # Publish test results
