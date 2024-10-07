@@ -52,6 +52,8 @@ dev-dependencies = [
     "python-dotenv >=1.0.1",
     "ruff >=0.6.2",
     "uv>=0.4.12",
+    "lorem",
+    "tox-uv>=1.13.0",
 ]
 
 [project.optional-dependencies]
@@ -131,3 +133,10 @@ warn_redundant_casts = true
 warn_return_any = true
 warn_unreachable = true
 warn_unused_configs = true
+
+[tool.tox]
+env_list = ["3.12", "3.11","3.10"]
+
+[tool.tox.env_run_base]
+description = "Run test under {base_python}"
+commands = [["pytest"]]

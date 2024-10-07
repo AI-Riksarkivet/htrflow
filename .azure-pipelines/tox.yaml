@@ -1,0 +1,30 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  name: k8s
+
+steps:
+  - script: |
+      curl -sSL https://install.astral.sh | bash
+    displayName: 'Install uv'
+
+  - script: |
+      uv python install 3.12
+    displayName: 'Set up Python 3.12 using uv'
+
+  - script: |
+      uv sync --all-extras --dev
+    displayName: 'Install project dependencies with uv'
+
+  - script: |
+      tox
+    displayName: 'Run tox environments for Python 3.12, 3.11, and 3.10 using uv'
+
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFiles: '**/TEST-*.xml'
+    condition: succeededOrFailed()
+    displayName: 'Publish Test Results'
