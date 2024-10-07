@@ -10,8 +10,8 @@ pool:
 steps:
 
   - script: |
-      sudo apt-get update
-      sudo apt-get install -y libgl1-mesa-glx
+      apt-get update
+      apt-get install -y libgl1-mesa-glx
     displayName: 'Install OpenCV system dependencies'
 
   # Install uv using pip
