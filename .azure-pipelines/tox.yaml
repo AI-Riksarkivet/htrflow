@@ -30,18 +30,18 @@ steps:
       uv sync --all-extras --dev
     displayName: 'Install project dependencies with uv'
 
-  # Debugging step: List installed packages and files
-  - script: |
-      ls -la
-      pip list
-    displayName: 'List installed packages and files for debugging'
-
   # Run tox environments using uv with verbose pytest output
   - script: |
       uv tool install tox --with tox-uv
       export PATH=$PATH:~/.local/bin
       tox -v -- --tb=long -ra
     displayName: 'Run tox environments for Python 3.12, 3.11, and 3.10 using uv'
+
+  # Debugging step: List installed packages and files
+  - script: |
+      ls -la
+      pip list
+    displayName: 'List installed packages and files for debugging'
 
   # Publish test results
   - task: PublishTestResults@2
