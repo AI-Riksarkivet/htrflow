@@ -8,12 +8,12 @@ Installed
 ```
 
 ## With pip
-Install HTRFlow with [pip](https://pypi.org/project/htrflow):
+Install HTRflow with [pip](https://pypi.org/project/htrflow):
 ```bash
 pip install htrflow
 ```
 
-Verify the installation of HTRFlow with `htrflow --help`. If the installation was successful, the following message is shown:
+Verify the installation of HTRflow with `htrflow --help`. If the installation was successful, the following message is shown:
 
 <!-- termynal -->
 ```
@@ -28,7 +28,7 @@ Verify the installation of HTRFlow with `htrflow --help`. If the installation wa
 ╰--------------------------------------------------------------╯
 ╭- Commands ---------------------------------------------------╮
 │ evaluate   Evaluate HTR transcriptions against ground truth  │
-│ pipeline   Run a HTRFlow pipeline                            │
+│ pipeline   Run a HTRflow pipeline                            │
 ╰--------------------------------------------------------------╯
 
 ```
@@ -131,7 +131,7 @@ volumes:
   - ./.cache:/app/models                     # Models cache
 ```
 
-- **`./examples/images/pages:/app/input`**: Maps your local `examples/images/pages` directory to `/app/input` inside the container. This is where HTRFlow reads input images.
+- **`./examples/images/pages:/app/input`**: Maps your local `examples/images/pages` directory to `/app/input` inside the container. This is where HTRflow reads input images.
 - **`./output-volume:/app/outputs`**: Maps to `/app/outputs` inside the container for output files.
 - **`./logs-volume:/app/logs`**: Maps to `/app/logs` inside the container for application logs.
 - **`./examples/pipelines:/app/pipeline`**: Provides pipeline configuration files to the container.

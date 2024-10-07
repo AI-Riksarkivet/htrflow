@@ -236,7 +236,12 @@ class Export(PipelineStep):
     ```
     """
 
-    def __init__(self, dest: str, format: Literal["alto", "page", "txt", "json"], **serializer_kwargs):
+    def __init__(
+        self,
+        dest: str,
+        format: Literal["alto", "page", "txt", "json"],
+        **serializer_kwargs,
+    ):
         """
         Arguments:
             dest: Output directory.
@@ -302,6 +307,7 @@ class OrderLines(PipelineStep):
     - step: OrderLines
     ```
     """
+
     def run(self, collection):
         for page in collection:
             for node in page.traverse():
@@ -541,6 +547,7 @@ def auto_import(source: list[str] | str, max_size: int | None = None) -> Generat
 
         if os.path.isdir(path):
             files = [os.path.join(path, file) for file in sorted(os.listdir(path))]
+
             yield from _create_collection_batches(files, max_size)
             continue
 

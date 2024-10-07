@@ -10,11 +10,11 @@ RUN uv venv --python 3.10.14
 ADD uv.lock /app/uv.lock
 ADD pyproject.toml /app/pyproject.toml
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-install-project --extra openmmlab
+    uv sync --frozen --no-install-project
 
 COPY src LICENSE README.md examples /app/
 
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --extra openmmlab
+    uv sync --frozen 
 
 ENV PATH="/app/.venv/bin:$PATH"

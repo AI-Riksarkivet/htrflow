@@ -1,4 +1,4 @@
-This page lists HTRFlow's built-in pipeline steps.
+This page lists HTRflow's built-in pipeline steps.
 
 
 ## Base step

@@ -18,7 +18,7 @@ class BaseModel(ABC):
     """
     Model base class
 
-    This is the abstract base class of HTRFlow models. It handles batching
+    This is the abstract base class of HTRflow models. It handles batching
     of inputs, some shared initialization arguments and generic logging.
 
     Concrete model implementations bases this class and defines their

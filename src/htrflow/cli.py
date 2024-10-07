@@ -54,19 +54,33 @@ def setup_pipeline_logging(logfile: str | None, loglevel: LogLevel):
 
 @app.command("pipeline")
 def run_pipeline(
-    pipeline: Annotated[str, typer.Argument(help="Path to a HTRFlow pipeline YAML file")],
+    pipeline: Annotated[
+        str, typer.Argument(help="Path to a HTRFlow pipeline YAML file")
+    ],
     inputs: Annotated[
         list[str],
-        typer.Argument(help="Paths to input images. May be paths to directories of images or paths to single images."),
+        typer.Argument(
+            help="Paths to input images. May be paths to directories of images or paths to single images."
+        ),
     ],
     logfile: Annotated[
-        str, typer.Option(help="Where to write logs to. If not provided, logs will be printed to the standard output.")
+        str,
+        typer.Option(
+            help="Where to write logs to. If not provided, logs will be printed to the standard output."
+        ),
     ] = None,
-    loglevel: Annotated[LogLevel, typer.Option(help="Loglevel", case_sensitive=False)] = LogLevel.info,
-    backup: Annotated[bool, typer.Option(help="Save a pickled backup after each pipeline step.")] = False,
+    loglevel: Annotated[
+        LogLevel, typer.Option(help="Loglevel", case_sensitive=False)
+    ] = LogLevel.info,
+    backup: Annotated[
+        bool, typer.Option(help="Save a pickled backup after each pipeline step.")
+    ] = False,
     batch_output: Annotated[
-        int | None, typer.Option(help="Write continuous output in batches of this size (number of images).")
-    ] = None,
+        int | None,
+        typer.Option(
+            help="Write continuous output in batches of this size (number of images)."
+        ),
+    ] = 1,
 ):
     """Run a HTRFlow pipeline"""
 
@@ -114,7 +128,10 @@ def run_evaluation(
         ),
     ],
     candidates: Annotated[
-        list[str], typer.Argument(help="Paths to pipelines or directories containing already generated Page XMLs.")
+        list[str],
+        typer.Argument(
+            help="Paths to pipelines or directories containing already generated Page XMLs."
+        ),
     ],
 ):
     """
@@ -142,7 +159,9 @@ def run_evaluation(
             shutil.copy(pipe, os.path.join(pipeline_dir, pipeline_name + ".yaml"))
 
             # Run the pipeline
-            collections = run_pipeline(pipe, images, logfile=os.path.join(pipeline_dir, "htrflow.log"))
+            collections = run_pipeline(
+                pipe, images, logfile=os.path.join(pipeline_dir, "htrflow.log")
+            )
             collection = join_collections(collections)
             collection.label = pipeline_name
 

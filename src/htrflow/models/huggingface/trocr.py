@@ -104,11 +104,12 @@ class TrOCR(BaseModel):
         generation_kwargs["return_dict_in_generate"] = True
 
         # Do inference
-        model_inputs = self.processor(images, return_tensors="pt").pixel_values
-        model_outputs = self.model.generate(model_inputs.to(self.model.device), **generation_kwargs)
+        with torch.no_grad():
+            model_inputs = self.processor(images, return_tensors="pt").pixel_values
+            model_outputs = self.model.generate(model_inputs.to(self.model.device), **generation_kwargs)
 
-        texts = self.processor.batch_decode(model_outputs.sequences, skip_special_tokens=True)
-        scores = self._compute_sequence_scores(model_outputs)
+            texts = self.processor.batch_decode(model_outputs.sequences, skip_special_tokens=True)
+            scores = self._compute_sequence_scores(model_outputs)
 
         # Assemble and return a list of Result objects from the prediction outputs.
         # `texts` and `scores` are flattened lists so we need to iterate over them in steps.

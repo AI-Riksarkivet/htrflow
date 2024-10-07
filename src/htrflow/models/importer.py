@@ -15,18 +15,13 @@ def all_models():
     Returns a list of all implemented and installed model classes.
     """
 
-    models = [
-        DiT,
-        LLavaNext,
-        TrOCR,
-        WordLevelTrOCR,
-        YOLO
-    ]
+    models = [DiT, LLavaNext, TrOCR, WordLevelTrOCR, YOLO]
 
     # Import openmmlabs models if available
     try:
         from htrflow.models.openmmlab.rtmdet import RTMDet
         from htrflow.models.openmmlab.satrn import Satrn
+
         models += [RTMDet, Satrn]
 
     except ModuleNotFoundError:

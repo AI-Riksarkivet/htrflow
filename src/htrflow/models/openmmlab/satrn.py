@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 class Satrn(BaseModel):
     """
-    HTRFlow adapter of Openmmlabs' Satrn model
+    HTRflow adapter of Openmmlabs' Satrn model
 
     Example usage with the `TextRecognition` pipeline step:
     ```yaml
@@ -81,7 +81,13 @@ class Satrn(BaseModel):
             kwargs: Additional keyword arguments that are forwarded to
                 `mmocr.apis.TextRecInferencer.__call__()`.
         """
-        outputs = self.model(images, batch_size=len(images), return_datasamples=False, progress_bar=False, **kwargs)
+        outputs = self.model(
+            images,
+            batch_size=len(images),
+            return_datasamples=False,
+            progress_bar=False,
+            **kwargs,
+        )
         results = []
         for prediction in outputs["predictions"]:
             texts = prediction["text"]

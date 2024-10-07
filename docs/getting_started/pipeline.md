@@ -1,7 +1,7 @@
 # Pipeline
 
 ## Pipeline steps
-HTRFlow pipelines operate on [`Collection`](document_model.md) instances. A `Collection` represents one or several input images. Each pipeline step takes a `Collection` and returns an updated `Collection`. Here is a toy example of a pipeline step:
+HTRflow pipelines operate on [`Collection`](document_model.md) instances. A `Collection` represents one or several input images. Each pipeline step takes a `Collection` and returns an updated `Collection`. Here is a toy example of a pipeline step:
 
 ```python
 class ExampleStep(PipelineStep):

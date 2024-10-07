@@ -1,15 +1,15 @@
 # Quickstart
 
-## Running HTRFlow
+## Running HTRflow
 
-Once HTRFlow is installed, run it with:
+Once HTRflow is installed, run it with:
 ```
 htrflow pipeline <path/to/pipeline.yaml> <path/to/image>
 ```
-The `pipeline` sub-command tells HTRFlow to apply the pipeline defined in `pipeline.yaml` on `image.jpg`. To get started, try the example pipeline in the next section.
+The `pipeline` sub-command tells HTRflow to apply the pipeline defined in `pipeline.yaml` on `image.jpg`. To get started, try the example pipeline in the next section.
 
 ## An example pipeline
-Here is an example of an HTRFlow pipeline:
+Here is an example of an HTRflow pipeline:
 ```yaml title="pipeline.yaml"
 steps:
 - step: Segmentation
