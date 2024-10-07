@@ -29,7 +29,7 @@ steps:
   - script: |
       uv tool install tox --with tox-uv
       export PATH=$PATH:~/.local/bin
-      tox
+      tox -v
     displayName: 'Run tox environments for Python 3.12, 3.11, and 3.10 using uv'
 
   - task: PublishTestResults@2
