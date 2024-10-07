@@ -10,7 +10,7 @@ steps:
 
   - script: |
       python3 -m pip install --upgrade pip
-      pip install uv
+      pip3 install uv
     displayName: 'Install uv using pip'
 
   - script: |
