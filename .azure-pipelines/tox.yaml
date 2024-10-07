@@ -1,3 +1,4 @@
+# tox.yaml
 trigger:
   branches:
     include:
@@ -7,31 +8,42 @@ pool:
   name: k8s
 
 steps:
-
+  # Install Python 3, pip, and system dependencies
   - script: |
       apt-get update
       apt-get install -y python3 python3-pip libglib2.0-0 libsm6 libxext6 libxrender-dev
-    displayName: 'Install Python 3, pip, and system dependencies on k8s agent'
+    displayName: 'Install Python 3 and pip on k8s agent'
 
+  # Install uv using pip
   - script: |
       python3 -m pip install --upgrade pip
       pip3 install uv
     displayName: 'Install uv using pip'
 
+  # Set up Python 3.12 using uv
   - script: |
       uv python install 3.12
     displayName: 'Set up Python 3.12 using uv'
 
+  # Install project dependencies using uv
   - script: |
       uv sync --all-extras --dev
     displayName: 'Install project dependencies with uv'
 
+  # Debugging step: List installed packages and files
+  - script: |
+      ls -la
+      pip list
+    displayName: 'List installed packages and files for debugging'
+
+  # Run tox environments using uv with verbose pytest output
   - script: |
       uv tool install tox --with tox-uv
       export PATH=$PATH:~/.local/bin
-      tox -v -- --tb=short -ra
+      tox -v -- --tb=long -ra
     displayName: 'Run tox environments for Python 3.12, 3.11, and 3.10 using uv'
 
+  # Publish test results
   - task: PublishTestResults@2
     inputs:
       testResultsFiles: '**/TEST-*.xml'
