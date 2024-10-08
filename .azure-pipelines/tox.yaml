@@ -7,42 +7,32 @@ trigger:
 pool:
   name: k8s
 
-steps:
+resources:
+  repositories:
+    - repository: tox
+      type: github
+      endpoint: github
+      name: tox-dev/azure-pipelines-template
+      ref: refs/tags/0.2
 
-  - script: |
-      apt-get update
-      apt-get install -y libgl1-mesa-glx
-    displayName: 'Install OpenCV system dependencies'
+jobs:
+  - template: run-tox-env.yml@tox
+    parameters:
+      tox_version: ""
+      jobs:
+        py312:
+          image: [linux]
 
-  # Install uv using pip
-  - script: |
-      python3 -m pip install --upgrade pip
-      pip3 install uv
-    displayName: 'Install uv using pip'
+        py311:
+          image: [linux]
 
-  # Set up Python 3.12 using uv
-  - script: |
-      uv python install 3.12
-    displayName: 'Set up Python 3.12 using uv'
+        py310:
+          image: [linux]
 
-  # Install project dependencies using uv
-  - script: |
-      uv sync --dev
-    displayName: 'Install project dependencies with uv'
-
-  # Install tox using uv
-  - script: |
-      uv tool install tox --with tox-uv
-    displayName: 'Install tox using uv'
-
-  # Run tox environments using 'uv tool run'
-  - script: |
-      uv tool run tox -v
-    displayName: 'Run tox environments for Python 3.12, 3.11, and 3.10 using uv'
-
-  # Publish test results
-  - task: PublishTestResults@2
-    inputs:
-      testResultsFiles: '**/TEST-*.xml'
-    condition: succeededOrFailed()
-    displayName: 'Publish Test Results'
+      # Publish test results for this job
+      steps:
+        - task: PublishTestResults@2
+          inputs:
+            testResultsFiles: '**/TEST-*.xml'
+          condition: succeededOrFailed()
+          displayName: 'Publish Test Results'
