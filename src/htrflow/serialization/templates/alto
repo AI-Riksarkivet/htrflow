@@ -8,9 +8,9 @@
                     {%- endif %}
                     {%- for line in node.children %}
                     <TextLine ID="{{ line.label }}"  HPOS="{{ line.coord.x }}" VPOS="{{ line.coord.y }}" HEIGHT="{{ line.height}}" WIDTH="{{ line.width }}">
-                        {%- if node.polygon|length > 4 %}
+                        {%- if line.polygon|length > 4 %}
                         <Shape>
-                            <Polygon POINTS="{% for point in node.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}"/>
+                            <Polygon POINTS="{% for point in line.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}"/>
                         </Shape>
                         {%- endif %}
                         {%- if line.children %}
