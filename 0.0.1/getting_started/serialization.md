@@ -1,3 +1,0 @@
-# Serialization
-
-## Support output formats..
