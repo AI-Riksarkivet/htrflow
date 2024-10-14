@@ -199,19 +199,13 @@ class WordLevelTrOCR(TrOCR):
             **(generation_kwargs | config_overrides),
         )
 
-        # Get the attention weights at the last decoding step
-        attentions = torch.stack(outputs.cross_attentions[-1])
-        n_tokens = attentions.shape[3]
-        # Aggregate all attention weights for each token. Here, we use the
-        # mean of the attention heads at each layer (axis 2) to get one set of
-        # weights per token and layer, and then summing over the layers (axis 0)
-        # to get one set of weights per token.
-        attentions = attentions.mean(axis=2).sum(axis=0)
+        attentions = aggregate_attentions(outputs.cross_attentions)
 
         # Create heatmaps by reshaping the weights dimension (size n_patches * n_patches + 1)
         # to (n_patches, n_patches) and discard the extra first patch.
         encoder_config = self.model.config.encoder
         n_patches = int(encoder_config.image_size / encoder_config.encoder_stride)
+        n_tokens = len(outputs.cross_attentions)
         heatmaps = torch.reshape(attentions[:, :, 1:], (-1, n_tokens, n_patches, n_patches))
 
         lines = self.processor.batch_decode(outputs.sequences, skip_special_tokens=True)
@@ -277,6 +271,37 @@ def attention_based_wordseg(tokens, heatmaps, skip_tokens=None, full_width=1):
 
     intersections = [0] + _find_intersections(columns) + [1]
     return [x * full_width for x in intersections]
+
+
+def aggregate_attentions(cross_attention: tuple[tuple[torch.Tensor]]) -> torch.Tensor:
+    """
+    Combine cross_attention output to one attention tensor per token
+
+    The `cross_attentions` outputted by `model.generate(output_attentions=True)`
+    is a tuple (one per each token) of tuples (one per each layer) of attention
+    matrices (tensors of shape (batch_size, num_heads, generated_length,
+    input_sequence_length)).
+
+    This function aggregates all this information into a tensor of shape
+    (num_tokens, input_sequence_length), by for each token:
+        1. Summing the attention weights of all layers
+        2. Taking the mean attention weights of all attention heads
+    This method of aggregation is a result of quite limited trial and error -
+    it seems to work fine for the task, but there are most certainly other,
+    possibly better, methods.
+
+    Args:
+        cross_attention: Cross attention weights as outputted by
+            `model.generate(output_attentions=True)`
+
+    Returns:
+        A tensor of shape (num_tokens, input_sequence_length) with aggregated
+        attention weights for each token.
+    """
+    aggregated = []
+    for token_attention in cross_attention:
+        aggregated.append(torch.stack(token_attention).mean(axis=2).sum(axis=0)[:, -1, :])
+    return torch.stack(aggregated)
 
 
 def _find_intersections(columns):
