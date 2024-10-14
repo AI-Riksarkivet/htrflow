@@ -1,0 +1,21 @@
+# HTR pipeline
+
+steps:
+
+- step: TextRecognition
+  settings:
+    model: Satrn 
+    model_settings:
+       model: Riksarkivet/satrn_htr
+    generation_settings:
+       batch_size: 1
+       num_beams: 1
+
+- step: TextRecognition
+  settings:
+    model: TrOCR 
+    model_settings:
+       model: Riksarkivet/trocr-base-handwritten-hist-swe-2
+    generation_settings:
+       batch_size: 1
+       num_beams: 1

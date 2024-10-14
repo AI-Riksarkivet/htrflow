@@ -13,6 +13,11 @@ Install HTRflow with [pip](https://pypi.org/project/htrflow):
 pip install htrflow
 ```
 
+Requirements:
+
+- Python >=3.10 and <3.13 (Python 3.10 is required for OpenMMLab)
+- With GPU: CUDA >=11.8 (required due to PyTorch 2.0, can still run on CPU)
+
 Verify the installation of HTRflow with `htrflow --help`. If the installation was successful, the following message is shown:
 
 <!-- termynal -->
@@ -53,12 +58,11 @@ Requirements:
 
 - [uv](https://docs.astral.sh/uv/) or pip
 - Python 3.10
-- With GPU: CUDA >=11.8 (can still run on CPU)
+- With GPU: CUDA >=11.8 (required due to PyTorch 2.0, can still run on CPU)
 
 Clone this repository and run:
 ```sh
-uv pip install -e .
-
+uv pip install -e .  # or you can run: uv sync
 ```
 This will install the HTRflow package in a virtual environment.
 
