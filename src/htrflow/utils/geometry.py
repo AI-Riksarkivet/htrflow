@@ -312,12 +312,20 @@ def bbox2mask(bbox: Bbox, shape: tuple[int, int]) -> Mask:
     return mask
 
 
-def polygons2masks(mask: Mask, polygons: Iterable[Polygon]) -> list[Mask]:
-    mask_height, mask_width = mask.shape[:2]
-    masks = []
-    for point in polygons:
-        polygon = np.round(point).astype(np.int32)
-        temp_mask = np.zeros((mask_height, mask_width), dtype=np.uint8)
-        cv2.fillPoly(temp_mask, [polygon], color=255)
-        masks.append(temp_mask)
-    return masks
+def polygon2mask(polygon: Polygon, shape: tuple[int, int] | None = None) -> Mask:
+    """Compute mask from polygon
+
+    Arguments:
+        polygon: Input polygon
+        shape: Shape of the desired mask as a (h, w) tuple.
+            If not given, the shape will default to the smallest
+            possible shape that encloses the input polygon.
+    """
+    if shape is None:
+        bbox = polygon.bbox()
+        shape = bbox.ymax, bbox.xmax
+
+    mask = np.zeros(shape, dtype=np.int32)
+    if len(polygon) > 0:
+        mask = cv2.fillPoly(mask, [polygon.as_nparray()], color=255)
+    return mask

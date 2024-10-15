@@ -11,7 +11,7 @@ import numpy as np
 import numpy.typing as npt
 import requests
 
-from htrflow.utils.geometry import Bbox, Mask
+from htrflow.utils.geometry import Bbox, Mask, Polygon, polygon2mask
 
 
 NumpyImage: TypeAlias = np.ndarray  # TODO make non-generic
@@ -68,6 +68,20 @@ def mask(
         idx = crop(idx, Bbox(0, 0, image.shape[1], image.shape[0]))
     image[idx] = fill
     return image
+
+
+def polygon_mask(image: npt.NDArray[Any], polygon: Polygon):
+    """
+    Apply polygon mask to image
+
+    Arguments:
+        image: Input image
+        polygon: Polygon to use as mask
+
+    Returns:
+        A copy of `image` with everything outside `polygon` is masked.
+    """
+    return mask(image, polygon2mask(polygon, image.shape[:2]))
 
 
 def resize(image: npt.NDArray[Any], shape: tuple[int, int]) -> npt.NDArray[Any]:

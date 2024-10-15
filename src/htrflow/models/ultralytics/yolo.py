@@ -2,8 +2,7 @@ import logging
 
 import numpy as np
 from ultralytics import YOLO as UltralyticsYOLO
-from ultralytics.engine.results import Results as UltralyticsResults
-
+import cv2
 from htrflow.models.base_model import BaseModel
 from htrflow.models.hf_utils import commit_hash_from_path, load_ultralytics
 from htrflow.results import Result
@@ -57,23 +56,70 @@ class YOLO(BaseModel):
 
         self.metadata.update({"model": model, "model_version": commit_hash_from_path(model_file)})
 
-    def _predict(self, images: list[np.ndarray], **kwargs) -> list[Result]:
+    def _predict(
+        self, images: list[np.ndarray], use_polygons: bool = True, polygon_approx_level: float = 0.005, **kwargs
+    ) -> list[Result]:
+        """
+        Run inference.
+
+        Arguments:
+            images: Input images
+            use_polygons: Wheter to include output polygons (if available), default True.
+            polygon_approx_level: A parameter which controls the maximum distance between the original polygon
+                and the approximated low-resolution polygon, as a fraction of the original polygon arc length.
+                Example: With `polygon_approx_level=0.005` and a generated polygon with arc length 100, the
+                approximated polygon will not differ more than 0.5 units from the original.
+            **kwargs: Keyword arguments forwarded to the inner YOLO model instance.
+        """
         outputs = self.model(images, stream=True, verbose=False, **kwargs)
-        return [self._create_segmentation_result(image, output) for image, output in zip(images, outputs)]
 
-    def _create_segmentation_result(self, image: np.ndarray, output: UltralyticsResults) -> Result:
-        bboxes = scores = class_labels = None
-        if output.boxes is not None:
-            bboxes = output.boxes.xyxy.int().tolist()
-            scores = output.boxes.conf.tolist()
-            class_labels = [output.names[label] for label in output.boxes.cls.tolist()]
+        results = []
+        for image, output in zip(images, outputs):
+            polygons = bboxes = scores = class_labels = None
+            if output.boxes is not None:
+                bboxes = output.boxes.xyxy.int().tolist()
+                scores = output.boxes.conf.tolist()
+                class_labels = [output.names[label] for label in output.boxes.cls.tolist()]
 
-        polygons = output.masks.xy if output.masks is not None else []
-        return Result.segmentation_result(
-            image.shape[:2],
-            bboxes=bboxes,
-            polygons=polygons,
-            scores=scores,
-            labels=class_labels,
-            metadata=self.metadata,
-        )
+            if use_polygons:
+                if output.masks is None:
+                    logger.warning("`use_polygons` was set to True but the model did not return any polygons.")
+                else:
+                    polygons = _simplify_polygons(output.masks.xy, polygon_approx_level)
+
+            result = Result.segmentation_result(
+                image.shape[:2],
+                bboxes=bboxes,
+                polygons=polygons,
+                scores=scores,
+                labels=class_labels,
+                metadata=self.metadata,
+            )
+            results.append(result)
+        return results
+
+
+def _simplify_polygons(polygons, approx_level):
+    result = []
+
+    for polygon in polygons:
+        # This happens sometimes - trying to approximate will lead to exceptions,
+        # but we still need to keep it so that the resulting polygons align with
+        # the other result data (boxes, scores, and so on)
+        if len(polygon) == 0:
+            result.append(polygon)
+            continue
+
+        perimeter = cv2.arcLength(polygon, True)
+        approx = cv2.approxPolyDP(polygon, approx_level * perimeter, True)
+        if len(approx) < 4:
+            logger.warning(
+                "A %d-point polygon was approximated to %d points with `approx_level`=%f. Consider using a lower"
+                " `approx_level`.",
+                len(polygon),
+                len(approx),
+                approx_level,
+            )
+
+        result.append(approx.squeeze())
+    return result

@@ -83,6 +83,11 @@ class Segment:
             if bbox is None:
                 bbox = polygon.bbox()
 
+            # Create a mask from the polygon
+            if mask is None and orig_shape:
+                mask = geometry.polygon2mask(polygon, orig_shape)
+                mask = imgproc.crop(mask, Bbox(*bbox))
+
         self.bbox = geometry.Bbox(*bbox)
         self.polygon = polygon
         self.mask = mask
