@@ -206,7 +206,7 @@ class WordLevelTrOCR(TrOCR):
         encoder_config = self.model.config.encoder
         n_patches = int(encoder_config.image_size / encoder_config.encoder_stride)
         n_tokens = len(outputs.cross_attentions)
-        heatmaps = torch.reshape(attentions[:, :, 1:], (-1, n_tokens, n_patches, n_patches))
+        heatmaps = torch.reshape(attentions[:, :, 1:], (n_tokens, -1, n_patches, n_patches))
 
         lines = self.processor.batch_decode(outputs.sequences, skip_special_tokens=True)
         line_scores = self._compute_sequence_scores(outputs)
@@ -221,7 +221,7 @@ class WordLevelTrOCR(TrOCR):
             words = [word if len(word) else " " for word in lines[i].split(" ")]
 
             height, width = images[i].shape[:2]
-            spaces = attention_based_wordseg(tokens, heatmaps[i], special_tokens, width)
+            spaces = attention_based_wordseg(tokens, heatmaps[:, i, :, :], special_tokens, width)
             word_boundaries = list(zip(spaces, spaces[1:]))
 
             if any(start >= end_ for start, end_ in word_boundaries):
@@ -242,35 +242,52 @@ class WordLevelTrOCR(TrOCR):
         return results
 
 
-def attention_based_wordseg(tokens, heatmaps, skip_tokens=None, full_width=1):
-    tokens = tokens[1:]
+def attention_based_wordseg(
+    tokens: list[str], heatmaps: torch.Tensor, skip_tokens: list[str] | None = None, image_width: int = 1
+) -> list[float]:
+    """
+    Estimate word segmentation based on attention scores
+
+    Arguments:
+        tokens: list of N tokens
+        heatmaps: tensor of attention weights for each token, shape (N, img_height, img_width)
+        skip_tokens: list of tokens to not include in word attention scores
+        image_width: the width of the original image
+
+    Returns:
+        An estimated word segmenation as a list of x-coordinates of the estimated spaces,
+        including 0 and `image_width`.
+    """
+
+    tokens = tokens[1:]  # Skip the first special token
     n_tokens = len(tokens)
     heatmaps = heatmaps[:n_tokens]
     if skip_tokens is None:
         skip_tokens = []
 
-    # Subtract the mean from the heatmaps.
-    heatmaps -= heatmaps.mean(axis=0)
-    heatmaps[heatmaps < 0] = 0
+    # Sum along the columns to get attention scores along the x axis
+    xaxis_attention_scores = heatmaps.sum(axis=1)  #  (N, img_width)
+
+    # Denoise attention scores by only keeping the high attention scores
+    xaxis_attention_scores -= xaxis_attention_scores.mean(axis=0)
+    xaxis_attention_scores[xaxis_attention_scores < 0] = 0
 
     # Token indices of spaces / word boundaries
     spaces = [i for i, token in enumerate(tokens) if token.startswith(" ") and len(token) > 1]
 
-    word_heatmaps = []
+    # Create word attention scores by doing a weighted sum over the token attention scores
+    word_attention_scores = []
     for word_start, word_end in zip([0] + spaces, spaces + [n_tokens]):
         token_weights = [0 if token in skip_tokens else len(token) for token in tokens[word_start:word_end]]
-        token_weights = torch.tensor(token_weights).to(heatmaps.device)
-        token_heatmaps = heatmaps[word_start:word_end]
-        token_heatmaps = token_heatmaps.permute(*torch.arange(token_heatmaps.ndim - 1, -1, -1))
-        word_heatmap = torch.mul(token_heatmaps, token_weights).sum(axis=1)
-        word_heatmaps.append(word_heatmap)
+        token_weights = torch.tensor(token_weights).reshape(-1, 1).to(heatmaps.device)
+        word_attention_scores.append((token_weights * xaxis_attention_scores[word_start:word_end]).sum(axis=0))
+    word_attention_scores = torch.stack(word_attention_scores)  # (n_words, img_width)
 
-    columns = [word_heatmap.sum(axis=1) for word_heatmap in word_heatmaps]
-    columns = torch.stack(columns)
-    columns = torch.div(columns.T, columns.max(axis=1).values).T
+    # Normalize word attention scores such that each score is in (0, 1]
+    normalized_word_attention_scores = torch.div(word_attention_scores.T, word_attention_scores.max(axis=1).values).T
 
-    intersections = [0] + _find_intersections(columns) + [1]
-    return [x * full_width for x in intersections]
+    intersections = [0] + _find_intersections(normalized_word_attention_scores) + [1]
+    return [x * image_width for x in intersections]
 
 
 def aggregate_attentions(cross_attention: tuple[tuple[torch.Tensor]]) -> torch.Tensor:
