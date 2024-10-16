@@ -55,6 +55,7 @@ dev-dependencies = [
     "uv>=0.4.12",
     "lorem",
     "tox-uv>=1.13.0",
+    "hera"
 ]
 
 [project.optional-dependencies]
