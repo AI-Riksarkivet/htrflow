@@ -81,6 +81,12 @@ def run_pipeline(
             help="Write continuous output in batches of this size (number of images)."
         ),
     ] = 1,
+    label: Annotated[
+        str | None,
+        typer.Option(
+            help="Collection label"
+        ),
+    ] = None,
 ):
     """Run a HTRFlow pipeline"""
 
@@ -91,32 +97,36 @@ def run_pipeline(
     from htrflow.pipeline.pipeline import Pipeline
     from htrflow.pipeline.steps import auto_import
 
-    with open(pipeline, "r") as file:
-        config = yaml.safe_load(file)
+    if isinstance(pipeline, Pipeline):
+        pipe = pipeline
+        config = {}
+    else:
+        with open(pipeline, "r") as file:
+            config = yaml.safe_load(file)
+        pipe = Pipeline.from_config(config)
 
     hf_utils.HF_CONFIG |= config.get("huggingface_config", {})
-    pipe = Pipeline.from_config(config)
     pipe.do_backup = backup
 
     tic = time.time()
     collections = auto_import(inputs, max_size=batch_output)
-    processed = []
+    n_pages = 0
     for collection in collections:
         if "labels" in config:
             collection.set_label_format(**config["labels"])
-        processed.append(pipe.run(collection))
+        if label:
+            collection.label = label
+        collection = pipe.run(collection)
+        n_pages += len(collection.pages)
     toc = time.time()
 
     total_time = toc - tic
-    n_pages = sum(len(collection.pages) for collection in processed)
     logger.info(
         "Processed %d pages in %d seconds (average %.3f seconds per page)",
         n_pages,
         total_time,
         total_time / n_pages if n_pages > 0 else -1.0,
     )
-
-    return processed
 
 
 @app.command("evaluate")
@@ -139,7 +149,8 @@ def run_evaluation(
     """
 
     from htrflow.evaluate import evaluate
-    from htrflow.pipeline.steps import join_collections
+    from htrflow.pipeline.pipeline import Pipeline
+    from htrflow.pipeline.steps import Export
 
     run_name = datetime.now().strftime("run_%Y%m%d_%H%M%S")
     run_dir = os.path.join("evaluation", run_name)
@@ -158,17 +169,15 @@ def run_evaluation(
             os.mkdir(pipeline_dir)
             shutil.copy(pipe, os.path.join(pipeline_dir, pipeline_name + ".yaml"))
 
-            # Run the pipeline
-            collections = run_pipeline(
-                pipe, images, logfile=os.path.join(pipeline_dir, "htrflow.log")
-            )
-            collection = join_collections(collections)
-            collection.label = pipeline_name
+            with open(pipe, "r") as file:
+                pipeline = Pipeline.from_config(yaml.safe_load(file))
+            pipeline.steps.append(Export(run_dir, "page"))
 
-            # Save PageXMLs in `run_dir` and add the path to the XMLs to
-            # the candidates
-            collection.save(run_dir, "page")
-            candidates.append(os.path.join(run_dir, collection.label))
+            # Run the pipeline
+            run_pipeline(
+                pipeline, images, logfile=os.path.join(pipeline_dir, "htrflow.log"), label=pipeline_name
+            )
+            candidates.append(os.path.join(run_dir, pipeline_name))
 
     df = evaluate(gt, *candidates)
     df.to_csv(os.path.join(run_dir, "evaluation_results.csv"))
