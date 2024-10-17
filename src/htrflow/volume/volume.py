@@ -6,7 +6,6 @@ import logging
 import os
 import pickle
 from abc import ABC, abstractmethod
-from functools import lru_cache
 from itertools import chain
 from typing import Generator, Iterable, Iterator, Sequence
 
@@ -43,6 +42,7 @@ class ImageNode(node.Node, ABC):
         self.bbox = Bbox(0, 0, width, height).move(coord)
         self.mask = mask
         self.polygon = self._compute_polygon(polygon)
+        self._image = None
 
     def _compute_polygon(self, polygon: Polygon | None):
         if polygon:
@@ -64,10 +64,28 @@ class ImageNode(node.Node, ABC):
             s += f": {self.text}"
         return s
 
+    def clear_images(self):
+        for node in self.traverse():
+            del node._image
+            node._image = None
+
+    def rescale(self, ratio):
+        self.height = int(self.height * ratio)
+        self.width = int(self.width * ratio)
+        self.coord = self.coord.rescale(ratio)
+        self.bbox = self.bbox.rescale(ratio)
+        self.polygon = self.polygon.rescale(ratio)
+
     @property
+    def image(self) -> "NamedImage":
+        """The image this node represents"""
+        if self._image is None:
+            self._image = self._generate_image()
+        return NamedImage(self._image, self.label)
+
     @abstractmethod
-    def image(self) -> np.ndarray:
-        """Image of the region this node represents"""
+    def _generate_image(self):
+        pass
 
     @property
     def text(self) -> str | None:
@@ -95,6 +113,8 @@ class ImageNode(node.Node, ABC):
     def create_segments(self, segments: Sequence[Segment]) -> None:
         """Segment this node"""
         self.children = [SegmentNode(segment, self) for segment in segments]
+        del self._image
+        self._image = None
 
     def contains_text(self) -> bool:
         """Return True if this"""
@@ -123,16 +143,21 @@ class SegmentNode(ImageNode):
         super().__init__(bbox.height, bbox.width, bbox.p1, segment.polygon, segment.mask, parent)
         self.add_data(segment=segment, **segment.data)
         self.segment = segment
+        self._image = self._generate_image()
 
-    @property
-    def image(self) -> "NamedImage":
-        """The image this node represents"""
+    def _generate_image(self):
         bbox = self.segment.bbox
         mask = self.segment.mask
         img = imgproc.crop(self.parent.image, bbox)
         if mask is not None:
             img = imgproc.mask(img, mask)
-        return NamedImage(img, self.label)
+        return img
+
+    def rescale(self, ratio):
+        super().rescale(ratio)
+        self.segment.polygon.rescale(ratio)
+        self.segment.bbox.rescale(ratio)
+
 
 
 class PageNode(ImageNode):
@@ -142,7 +167,9 @@ class PageNode(ImageNode):
         self.path = image_path
         label = os.path.basename(image_path).split(".")[0]
         image = imgproc.read(self.path)
-        height, width = image.shape[:2]
+        self.original_shape = image.shape[:2]
+        self.ratio = 1
+        height, width = self.original_shape
         super().__init__(height, width, label=label)
         page_id = label.split("_")[-1]
         self.add_data(
@@ -152,10 +179,23 @@ class PageNode(ImageNode):
             image_name=label,
         )
 
-    @property
-    @lru_cache(maxsize=1)
-    def image(self):
-        return NamedImage(imgproc.read(self.path), self.label)
+    def set_size(self, size):
+        h, w = self.original_shape
+        width_ratio = w / size[1]
+        height_ratio = h / size[0]
+        ratio = 1 / max(width_ratio, height_ratio)
+        self.ratio = ratio
+        self.shape = int(h * ratio), int(w * ratio)
+        self.height, self.width = self.shape
+        logger.info("Resized %s from %s to %s", self.label, (h, w), self.shape)
+
+    def to_original_shape(self):
+        self.height, self.width = self.original_shape
+        for node in self:
+            node.rescale(1 / self.ratio)
+
+    def _generate_image(self):
+        return imgproc.rescale_linear(imgproc.read(self.path), self.ratio)
 
 
 class Collection:
@@ -193,6 +233,10 @@ class Collection:
             i, *rest = idx
             return self.pages[i][rest]
         return self.pages[idx]
+
+    def set_size(self, size):
+        for page in self:
+            page.set_size(size)
 
     def traverse(self, filter):
         return chain(*[page.traverse(filter) for page in self])
