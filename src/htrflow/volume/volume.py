@@ -253,7 +253,7 @@ class Collection:
         if self.pages:
             max_depth = max(page.max_depth() for page in self)
             for leaf in self.leaves():
-                if leaf.depth() == max_depth:
+                if leaf.depth == max_depth:
                     yield leaf
 
     def update(self, results: list[Result]) -> None:

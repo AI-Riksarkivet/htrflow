@@ -35,6 +35,7 @@ class Node:
         self.parent = parent
         self.children = []
         self.data = {}
+        self.depth = 0 if parent is None else parent.depth + 1
 
         self._id = f"node{id(self)}"  # A unique ID to fall back on if labels are not set
         self._local_label = label  # A local label, may not be unique within the tree
@@ -153,23 +154,12 @@ class Node:
             return
 
         def label_func(node: "Node") -> str:
-            depth = node.depth()
+            depth = node.depth
             if depth > len(level_labels):
                 return default
             return level_labels[depth - 1]
 
         self.relabel(label_func, **kwargs)
-
-    def depth(self) -> int:
-        """Depth of node
-
-        The number of edges (or "generations") between this node and
-        the root node. The depth of the root node is 0. The depth of
-        its children is 1, and so on.
-        """
-        if self.parent is None:
-            return 0
-        return self.parent.depth() + 1
 
     def add_data(self, **data) -> None:
         """Add data to node
@@ -259,7 +249,7 @@ class Node:
                 given condition. Defaults to True.
 
         Example: To remove all nodes at depth 2, use
-            node.prune(lambda node: node.depth() == 2)
+            node.prune(lambda node: node.depth == 2)
         """
         nodes = self.traverse(filter=condition)
         for node in nodes:
@@ -277,7 +267,7 @@ class Node:
 
     def max_depth(self) -> int:
         """Return the max depth of the tree starting at this node"""
-        return max(node.depth() for node in self.leaves())
+        return max(node.depth for node in self.leaves())
 
     def is_root(self) -> bool:
         """True if this node is a root node"""

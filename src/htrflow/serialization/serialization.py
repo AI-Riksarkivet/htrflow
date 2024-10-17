@@ -79,7 +79,7 @@ class Serializer:
             depending on the serialization method.
         """
         for page in collection:
-            page.prune(lambda node: node.is_leaf() and node.depth() != page.max_depth())
+            page.prune(lambda node: node.is_leaf() and node.depth != page.max_depth())
         collection.relabel()
 
         outputs = []

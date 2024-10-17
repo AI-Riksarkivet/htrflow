@@ -63,7 +63,7 @@ def test_node_prune():
     root = two_layer_tree(n_children)
 
     def filter_(node):
-        return node.depth() > 1
+        return node.depth > 1
 
     root.prune(filter_)
     assert not any(filter_(node) for node in root.traverse())
