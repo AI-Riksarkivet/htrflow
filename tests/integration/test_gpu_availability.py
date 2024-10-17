@@ -1,9 +1,6 @@
 import pytest
 import torch
 
-SELECTOR_ARGO_SERVER_URL = "http://localhost:2746"
-SELECTOR_SERVICE_ACCOUNT = "htrflow-service-account"
-
 
 @pytest.mark.gpu
 def test_gpu_availability():

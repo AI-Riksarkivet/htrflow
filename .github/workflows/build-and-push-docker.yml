@@ -1,4 +1,4 @@
-name: Build and Push Image
+name: Build and Push Images
 
 on:
   release:
@@ -33,15 +33,16 @@ jobs:
           echo "Commit SHA (short): $short_sha"
           echo "short_sha=$short_sha" >> $GITHUB_ENV
 
-      - name: Build the Docker image
+      # Build and push the htrflow.dockerfile image with both 'latest' and Git tag + commit hash
+      - name: Build and push htrflow image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/htrflow:latest .
-
-      - name: Tag the Docker image with Git tag and commit hash
-        run: |
+          docker build -f docker/htrflow.dockerfile -t ${{ secrets.DOCKERHUB_USERNAME }}/htrflow:latest .
           docker tag ${{ secrets.DOCKERHUB_USERNAME }}/htrflow:latest ${{ secrets.DOCKERHUB_USERNAME }}/htrflow:$latest_tag-$short_sha
-
-      - name: Push Docker images to Docker Hub
-        run: |
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/htrflow:latest
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/htrflow:$latest_tag-$short_sha
+
+      # Build and push the htrflow_openmmlab.dockerfile image with Git tag and commit hash
+      - name: Build and push htrflow_openmmlab image
+        run: |
+          docker build -f docker/htrflow_openmmlab.dockerfile -t ${{ secrets.DOCKERHUB_USERNAME }}/htrflow_openmmlab:$latest_tag-$short_sha .
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/htrflow_openmmlab:$latest_tag-$short_sha

@@ -1,0 +1,52 @@
+# HTRFlow demo pipeline
+# This pipeline works well on pages with running text
+
+steps:
+
+# Region segmentation
+- step: Segmentation
+  settings:
+    model: yolo
+    model_settings:
+       model: Riksarkivet/yolov9-regions-1
+    generation_settings:
+       batch_size: 1
+# Line segementation
+- step: Segmentation
+  settings:
+    model: yolo
+    model_settings:
+       model: Riksarkivet/yolov9-lines-within-regions-1
+    generation_settings:
+        batch_size: 1
+# Text recognition
+- step: TextRecognition
+  settings:
+    model: WordLevelTrocr
+    model_settings:
+       model: Riksarkivet/trocr-base-handwritten-hist-swe-2
+    generation_settings:
+       batch_size: 1
+       num_beams: 1
+# Order regions by reading order
+- step: ReadingOrderMarginalia
+  settings:
+    two_page: always
+# Export to Alto and Page XML
+- step: Export
+  settings:
+    dest: outputs/alto
+    format: alto
+- step: Export
+  settings:
+    dest: outputs/page
+    format: page
+
+# Sets label format to regionX_lineY_wordZ
+labels:
+  level_labels:
+    - region
+    - line
+    - word
+  sep: _
+  template: "{label}{number}"
