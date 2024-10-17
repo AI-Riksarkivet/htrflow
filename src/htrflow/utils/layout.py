@@ -73,6 +73,8 @@ def estimate_printspace(image: np.ndarray, window: int = 150) -> Bbox:
         mids = levels_sorted[int(len(levels) * a) : int((1 - a) * len(levels))]
         gray = np.mean(mids)
 
+        i = j = None
+
         # Find the first point where the lightness drops below `gray`, and
         # stays rather stable below it. The intuition here is that the
         # printspace is generally darker than the average gray point.
@@ -86,7 +88,7 @@ def estimate_printspace(image: np.ndarray, window: int = 150) -> Bbox:
             if np.median(levels[j - window : j]) < gray < np.median(levels[j : j + window]):
                 break
 
-        if i > j:
+        if i is None or j is None or i > j:
             i = 0
             j = image.shape[1 - axis]
             logger.warning(f"Could not find printspace along axis {axis}.")
