@@ -199,6 +199,17 @@ class WordLevelTrOCR(TrOCR):
             **(generation_kwargs | config_overrides),
         )
 
+        # Warn if `max_new_tokens` was given and the limit was reached
+        n_tokens = outputs.sequences.shape[1]
+        max_new_tokens = generation_kwargs.get("max_new_tokens")
+        if max_new_tokens and n_tokens >= max_new_tokens + 1:  # +1 to account for the BOS token
+            logger.warning(
+                "The longest sequence of this batch has %d tokens, which is the"
+                " maximum length, as specified by `max_new_tokens=%d`. This may"
+                " indicate that the sequence was truncated.",
+                n_tokens, max_new_tokens
+            )
+
         attentions = aggregate_attentions(outputs.cross_attentions)
 
         # Create heatmaps by reshaping the weights dimension (size n_patches * n_patches + 1)
