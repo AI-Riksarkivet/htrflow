@@ -518,6 +518,41 @@ class Binarization(ProcessImages):
         return binarize(image)
 
 
+class Resize(PipelineStep):
+    """
+    Resize images.
+
+    The images are sized to fit a rectangle of shape (max_height, max_width),
+    while keeping their original aspect ratio.
+
+    Note that the original shape is always restored before exporting. This
+    means that any geometries in the exported files (for example, polygons
+    in Alto and Page XMLs) will be given with respect to the original size.
+
+    Example YAML:
+    ```yaml
+    - step: Resize
+      settings:
+        max_height: 1000
+        max_width: 1000
+    ```
+    """
+
+    def __init__(self, max_height: int, max_width: int):
+        """
+        Arguments:
+            max_height: Maximum height of the resized image.
+            max_width: Maximum width of the resized image.
+        """
+        self.max_width = max_width
+        self.max_height = max_height
+
+    def run(self, collection):
+        for page in collection:
+            page.set_size((self.max_height, self.max_width))
+        return collection
+
+
 def auto_import(source: list[str] | str, max_size: int | None = None) -> Generator[Collection, Any, Any]:
     """Import collection(s) from `source`
 

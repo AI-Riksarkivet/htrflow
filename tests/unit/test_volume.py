@@ -151,3 +151,10 @@ def test_pickling(demo_collection_segmented_nested):
     assert isinstance(vol, volume.Collection)  # sanity check
     assert all(p1 == p2 for p1, p2 in zip(vol[0, 0].polygon[0], demo_collection_segmented_nested[0, 0].polygon[0]))
     assert vol[0, 0, 0].label == demo_collection_segmented_nested[0, 0, 0].label
+
+
+def test_resize(demo_collection_segmented_nested_with_text):
+    size = (100, 100)
+    demo_collection_segmented_nested_with_text.set_size(size)
+    for node in demo_collection_segmented_nested_with_text.traverse(filter=lambda _: True):
+        assert node.coord.x + node.width <= size[1] and node.coord.y + node.height <= size[0]

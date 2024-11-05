@@ -69,12 +69,27 @@ class ImageNode(node.Node, ABC):
             del node._image
             node._image = None
 
-    def rescale(self, ratio):
+    def rescale(self, ratio: float):
+        """
+        Rescale node
+
+        Scales the geometry-related attributes of this node and its children
+        by the given factor.
+
+        Arguments:
+            ratio: Scale factor.
+        """
         self.height = int(self.height * ratio)
         self.width = int(self.width * ratio)
         self.coord = self.coord.rescale(ratio)
         self.bbox = self.bbox.rescale(ratio)
         self.polygon = self.polygon.rescale(ratio)
+        if self.mask is not None:
+            self.mask = imgproc.rescale_linear(self.mask, ratio)
+        if self._image is not None:
+            self._image = imgproc.rescale_linear(self._image, ratio)
+        for node in self.children:
+            node.rescale(ratio)
 
     @property
     def image(self) -> "NamedImage":
@@ -155,9 +170,7 @@ class SegmentNode(ImageNode):
 
     def rescale(self, ratio):
         super().rescale(ratio)
-        self.segment.polygon.rescale(ratio)
-        self.segment.bbox.rescale(ratio)
-
+        self.segment.rescale(ratio)
 
 
 class PageNode(ImageNode):
@@ -179,23 +192,32 @@ class PageNode(ImageNode):
             image_name=label,
         )
 
-    def set_size(self, size):
-        h, w = self.original_shape
-        width_ratio = w / size[1]
-        height_ratio = h / size[0]
-        ratio = 1 / max(width_ratio, height_ratio)
-        self.ratio = ratio
-        self.shape = int(h * ratio), int(w * ratio)
-        self.height, self.width = self.shape
-        logger.info("Resized %s from %s to %s", self.label, (h, w), self.shape)
+    def set_size(self, size: tuple[int, int]) -> None:
+        """
+        Set the maximum size of the page
 
-    def to_original_shape(self):
-        self.height, self.width = self.original_shape
-        for node in self:
-            node.rescale(1 / self.ratio)
+        The page is downsized to fit the given dimensions, while keeping
+        the original apect ratio. For example, a 1000x800 page would be
+        resized to 500x400 given size=(500,500).
+
+        Arguments:
+            size: The desired size in pixels as a (max_height, max_width) tuple.
+        """
+        old_width = self.width
+        old_height = self.height
+        width_ratio = old_width / size[1]
+        height_ratio = old_height / size[0]
+        ratio = 1 / max(width_ratio, height_ratio)
+        self.rescale(ratio)
+        logger.info("Resized %s from (%d, %d) to (%d, %d)", self.label, old_height, old_width, self.height, self.width)
+
+    def to_original_size(self):
+        """Restore the page's orginal size"""
+        self.set_size(self.original_shape)
 
     def _generate_image(self):
-        return imgproc.rescale_linear(imgproc.read(self.path), self.ratio)
+        ratio = self.width / self.original_shape[1]
+        return imgproc.rescale_linear(imgproc.read(self.path), ratio)
 
 
 class Collection:
@@ -234,7 +256,17 @@ class Collection:
             return self.pages[i][rest]
         return self.pages[idx]
 
-    def set_size(self, size):
+    def set_size(self, size: tuple[int, int]):
+        """
+        Set the maximum size of the collection's pages
+
+        The pages are downsized to fit the given dimensions, while keeping
+        the original apect ratio. For example, a 1000x800 image would be
+        resized to 500x400 given size=(500,500).
+
+        Arguments:
+            size: The desired size in pixels as a (max_height, max_width) tuple.
+        """
         for page in self:
             page.set_size(size)
 
