@@ -561,32 +561,21 @@ def auto_import(source: list[str] | str, max_size: int | None = None) -> Generat
             each path points to any of the following:
                 - a directory of images
                 - an image
-                - a pickled `Collection` instance
         max_size: The maximum number of pages in each new collection.
-            Does not apply to pickled Collections.
 
     Yields:
         Collection instances created from the given source.
     """
-
-    # If source is a single string, treat it as a single-item list
-    # and continue
-    if isinstance(source, str):
-        source = [source]
-
     paths = []
     for path in source:
-        if path.endswith("pickle"):
-            yield Collection.from_pickle(path)
-            continue
-
         if os.path.isdir(path):
             files = [os.path.join(path, file) for file in sorted(os.listdir(path))]
-
-            yield from _create_collection_batches(files, max_size)
+            paths.extend(files)
+            logger.info("Found %d files in input directory '%s'", len(files), path)
             continue
-
         paths.append(path)
+
+    logger.info("Importing %d input images with batch size %d", len(paths), max_size)
     yield from _create_collection_batches(paths, max_size)
 
 
