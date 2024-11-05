@@ -5,6 +5,7 @@ import socket
 import time
 from datetime import datetime
 from enum import Enum
+from typing import Iterable
 
 import typer
 import yaml
@@ -54,43 +55,36 @@ def setup_pipeline_logging(logfile: str | None, loglevel: LogLevel):
 
 @app.command("pipeline")
 def run_pipeline(
-    pipeline: Annotated[
-        str, typer.Argument(help="Path to a HTRFlow pipeline YAML file")
-    ],
+    pipeline: Annotated[str, typer.Argument(help="Path to a HTRFlow pipeline YAML file")],
     inputs: Annotated[
-        list[str],
-        typer.Argument(
-            help="Paths to input images. May be paths to directories of images or paths to single images."
-        ),
-    ],
+        list[str] | None,
+        typer.Argument(help="Paths to input images. May be paths to directories of images or paths to single images."),
+    ] = None,
     logfile: Annotated[
         str,
-        typer.Option(
-            help="Where to write logs to. If not provided, logs will be printed to the standard output."
-        ),
+        typer.Option(help="Where to write logs to. If not provided, logs will be printed to the standard output."),
     ] = None,
-    loglevel: Annotated[
-        LogLevel, typer.Option(help="Loglevel", case_sensitive=False)
-    ] = LogLevel.info,
-    backup: Annotated[
-        bool, typer.Option(help="Save a pickled backup after each pipeline step.")
-    ] = False,
+    loglevel: Annotated[LogLevel, typer.Option(help="Loglevel", case_sensitive=False)] = LogLevel.info,
+    backup: Annotated[bool, typer.Option(help="Save a pickled backup after each pipeline step.")] = False,
     batch_output: Annotated[
         int | None,
-        typer.Option(
-            help="Write continuous output in batches of this size (number of images)."
-        ),
+        typer.Option(help="Write continuous output in batches of this size (number of images)."),
     ] = 1,
     label: Annotated[
         str | None,
+        typer.Option(help="Collection label"),
+    ] = None,
+    inputs_file: Annotated[
+        str | None,
         typer.Option(
-            help="Collection label"
+            help="A text file containing newline-separated paths to input images. Requires INPUTS to be empty."
         ),
     ] = None,
 ):
     """Run a HTRFlow pipeline"""
 
     logger = setup_pipeline_logging(logfile, loglevel)
+    inputs = get_inputs(inputs, inputs_file)
 
     # Slow imports! Only import after all CLI arguments have been resolved.
     from htrflow.models import hf_utils
@@ -139,9 +133,7 @@ def run_evaluation(
     ],
     candidates: Annotated[
         list[str],
-        typer.Argument(
-            help="Paths to pipelines or directories containing already generated Page XMLs."
-        ),
+        typer.Argument(help="Paths to pipelines or directories containing already generated Page XMLs."),
     ],
 ):
     """
@@ -174,13 +166,50 @@ def run_evaluation(
             pipeline.steps.append(Export(run_dir, "page"))
 
             # Run the pipeline
-            run_pipeline(
-                pipeline, images, logfile=os.path.join(pipeline_dir, "htrflow.log"), label=pipeline_name
-            )
+            run_pipeline(pipeline, images, logfile=os.path.join(pipeline_dir, "htrflow.log"), label=pipeline_name)
             candidates.append(os.path.join(run_dir, pipeline_name))
 
     df = evaluate(gt, *candidates)
     df.to_csv(os.path.join(run_dir, "evaluation_results.csv"))
+
+
+def get_inputs(inputs: list[str] | None, inputs_file: str | None) -> Iterable[str]:
+    """
+    Get inputs from the CLI arguments `inputs` and `inputs_file`
+
+    The HTRflow CLI accepts inputs in two formats: Either as a list of paths,
+    given as positional arguments:
+
+        $ htrflow pipeline pipeline.yaml image1.jpg image2.jpg image3.jpg
+
+    or as a path to a text file containing the same information. In this case,
+    the file is given with the argument --inputs-file:
+
+        $ htrflow pipeline pipeline.yaml --inputs-file=inputs.txt
+
+    This function parses the two arguments and returns a list of input paths.
+
+    Arguments:
+        inputs: The list of inputs given as positional arguments
+        inputs_file: Path to a text file containing inputs
+
+    Raises:
+        typer.BadParameter if both `inputs` and `inputs_file` are None, or
+        if both are given.
+    """
+    if inputs is not None:
+        if inputs_file:
+            raise typer.BadParameter(
+                f"Please provide only one of INPUTS and --inputs-file (got INPUTS={inputs} and --inputs-file={inputs_file})"
+            )
+        return inputs
+
+    if inputs_file:
+        with open(inputs_file, "r") as f:
+            inputs = map(str.strip, f.readlines())
+        return inputs
+
+    raise typer.BadParameter("Missing input files. Please provide either INPUTS or --inputs-file.")
 
 
 if __name__ == "__main__":
