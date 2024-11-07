@@ -107,7 +107,7 @@ def _simplify_polygons(polygons, approx_level):
         # but we still need to keep it so that the resulting polygons align with
         # the other result data (boxes, scores, and so on)
         if len(polygon) == 0:
-            result.append(polygon)
+            result.append(None)
             continue
 
         perimeter = cv2.arcLength(polygon, True)
