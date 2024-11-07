@@ -30,11 +30,13 @@ class Pipeline:
                 collection = step.run(collection)
             except Exception:
                 if self.pickle_path:
-                    logger.error(
+                    logger.exception(
                         "Pipeline failed on step %s. A backup collection is saved at %s",
                         step_name,
                         self.pickle_path,
                     )
+                else:
+                    logger.exception("Pipeline failed on step %s", step_name)
                 raise
 
             if self.do_backup:

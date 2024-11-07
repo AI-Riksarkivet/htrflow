@@ -16,6 +16,7 @@ app = typer.Typer(
     name="htrflow",
     add_completion=False,
     help="CLI inferface for htrflow",
+    pretty_exceptions_enable=False
 )
 
 
