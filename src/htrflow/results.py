@@ -67,24 +67,17 @@ class Segment:
         if all(item is None for item in (bbox, mask, polygon)):
             raise ValueError("Cannot create a Segment without bbox, mask or polygon")
 
-        # Mask (and possibly bbox) is given: The mask is assumed to be aligned
-        # with the original image. The bounding box is discarded (if given) and
-        # recomputed from the mask. A polygon is also inferred from the mask.
-        # The mask is then converted to a local mask.
+        # Mask is given: Compute a polygon and a bounding box from the mask
         if mask is not None:
             bbox = geometry.mask2bbox(mask)
             polygon = geometry.mask2polygon(mask)
             mask = imgproc.crop(mask, bbox)
 
-        if polygon is not None:
+        # Polygon is given: Compute a bounding box and possibly mask
+        elif polygon is not None:
             polygon = geometry.Polygon(polygon)
-
-            # Use the polygon's bounding box if no other bounding box was provided
-            if bbox is None:
-                bbox = polygon.bbox()
-
-            # Create a mask from the polygon
-            if mask is None and orig_shape:
+            bbox = polygon.bbox()
+            if orig_shape:
                 mask = geometry.polygon2mask(polygon, orig_shape)
                 mask = imgproc.crop(mask, Bbox(*bbox))
 
