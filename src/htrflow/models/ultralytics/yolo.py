@@ -103,10 +103,9 @@ def _simplify_polygons(polygons, approx_level):
     result = []
 
     for polygon in polygons:
-        # This happens sometimes - trying to approximate will lead to exceptions,
-        # but we still need to keep it so that the resulting polygons align with
-        # the other result data (boxes, scores, and so on)
-        if len(polygon) == 0:
+        # Ensure polygons are at least four points by replacing bad
+        # polygons with None to use the bounding box instead.
+        if len(polygon) < 4:
             result.append(None)
             continue
 

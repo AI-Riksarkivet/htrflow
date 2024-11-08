@@ -265,7 +265,9 @@ class Result:
         """
         segments = []
         for item in _zip_longest_none(bboxes, masks, scores, labels, polygons):
-            segments.append(Segment(*item, orig_shape=orig_shape))
+            segment = Segment(*item, orig_shape=orig_shape)
+            if segment.bbox.area > 0:
+                segments.append(segment)
         return cls(metadata, segments=segments)
 
     @classmethod
