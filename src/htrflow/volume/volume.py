@@ -92,11 +92,11 @@ class ImageNode(node.Node, ABC):
             node.rescale(ratio)
 
     @property
-    def image(self) -> "NamedImage":
+    def image(self):
         """The image this node represents"""
         if self._image is None:
             self._image = self._generate_image()
-        return NamedImage(self._image, self.label)
+        return self._image
 
     @abstractmethod
     def _generate_image(self):
@@ -389,25 +389,6 @@ class ImageGenerator:
 
     def __len__(self) -> int:
         return len(self._nodes)
-
-
-class NamedImage(np.ndarray):
-    """An image (numpy array) with a `name` attribute
-
-    This class is a thin wrapper around `np.ndarray` which adds a
-    name attribute. It follows an example found in the numpy docs:
-    https://numpy.org/doc/stable/user/basics.subclassing.html#slightly-more-realistic-example-attribute-added-to-existing-array
-    """
-
-    def __new__(cls, image: np.ndarray, name: str = "untitled_image"):
-        obj = np.asarray(image).view(cls)
-        obj.name = name
-        return obj
-
-    def __array_finalize__(self, obj):
-        if obj is None:
-            return
-        self.name = getattr(obj, "name", None)
 
 
 def paths2pages(paths: Sequence[str]) -> list[PageNode]:

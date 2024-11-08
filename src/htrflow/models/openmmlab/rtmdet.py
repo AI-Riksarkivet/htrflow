@@ -153,11 +153,5 @@ class RTMDet(BaseModel):
             metadata=self.metadata,
         )
 
-        logger.info(
-            "%s (%d x %d): Found %d segments, kept %d after NMS",
-            getattr(image, "name", "unlabelled image"),
-            *orig_shape,
-            len(sample.scores),
-            len(result.segments),
-        )
+        logger.info("Found %d segments, kept %d after NMS", len(sample.scores), len(result.segments))
         return result
