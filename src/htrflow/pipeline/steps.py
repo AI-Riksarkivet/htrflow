@@ -474,6 +474,7 @@ class FilterRegionsBySize(Prune):
         max_width: 100
     ```
     """
+
     def __init__(
         self, min_height: int = 0, min_width: int = 0, max_height: int | None = None, max_width: int | None = None
     ):
@@ -509,13 +510,14 @@ class FilterRegionsByShape(Prune):
         max_ratio: 10
     ```
     """
+
     def __init__(self, min_ratio: float = 0.0, max_ratio: float = math.inf):
         """
         Arguments:
             min_ratio: Minimum width-to-height ratio.
             max_ratio: Maximum width-to-height ratio.
         """
-        super().__init__(lambda node: node.is_leaf() and not (min_ratio < node.width/node.height < max_ratio))
+        super().__init__(lambda node: node.is_leaf() and not (min_ratio < node.width / node.height < max_ratio))
 
 
 class ProcessImages(PipelineStep):
