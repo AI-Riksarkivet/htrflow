@@ -184,9 +184,8 @@ class PageNode(ImageNode):
         self.ratio = 1
         height, width = self.original_shape
         super().__init__(height, width, label=label)
-        page_id = label.split("_")[-1]
+
         self.add_data(
-            page_id=page_id,
             file_name=os.path.basename(image_path),
             image_path=image_path,
             image_name=label,
