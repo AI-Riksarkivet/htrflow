@@ -10,7 +10,7 @@ steps:
     model_settings:
        model: Riksarkivet/yolov9-regions-1
     generation_settings:
-       batch_size: 32
+       batch_size: 2
 # Line segementation
 - step: Segmentation
   settings:
@@ -18,7 +18,7 @@ steps:
     model_settings:
        model: Riksarkivet/yolov9-lines-within-regions-1
     generation_settings:
-        batch_size: 32
+        batch_size: 2
 # Text recognition
 - step: TextRecognition
   settings:
@@ -26,7 +26,7 @@ steps:
     model_settings:
        model: Riksarkivet/trocr-base-handwritten-hist-swe-2
     generation_settings:
-       batch_size: 64
+       batch_size: 4
        num_beams: 1
 # Order regions by reading order
 - step: ReadingOrderMarginalia
