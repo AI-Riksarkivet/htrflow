@@ -222,7 +222,9 @@ class WordLevelTrOCR(TrOCR):
         n_tokens = len(outputs.cross_attentions)
         heatmaps = torch.reshape(attentions[:, :, 1:], (n_tokens, -1, n_patches, n_patches))
 
-        lines = self.processor.batch_decode(outputs.sequences, skip_special_tokens=True)
+        lines = self.processor.batch_decode(
+            outputs.sequences, skip_special_tokens=True, cleanup_tokenization_spaces=False
+        )
         line_scores = self._compute_sequence_scores(outputs)
         special_tokens = {*self.processor.tokenizer.special_tokens_map.values()}
         results = []
@@ -238,7 +240,7 @@ class WordLevelTrOCR(TrOCR):
             spaces = attention_based_wordseg(tokens, heatmaps[:, i, :, :], special_tokens, width)
             word_boundaries = list(zip(spaces, spaces[1:]))
 
-            if any(start >= end_ for start, end_ in word_boundaries):
+            if len(word_boundaries) != len(words) or any(start >= end_ for start, end_ in word_boundaries):
                 word_boundaries = [(0, width) for _ in words]
                 logger.warning("Word segmentation failed on line with detected text: %s", lines[i])
 
