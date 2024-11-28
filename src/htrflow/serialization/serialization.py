@@ -138,9 +138,14 @@ class AltoXML(Serializer):
     extension = ".xml"
     format_name = "alto"
 
-    def __init__(self):
-        env = Environment(loader=FileSystemLoader([_TEMPLATES_DIR, "."]))
-        self.template = env.get_template("alto")
+    def __init__(self, template_dir=_TEMPLATES_DIR, template_name="alto"):
+        """
+        Arguments:
+            template_dir: Name of template directory.
+            template_name: Name of template file in `template_dir`.
+        """
+        env = Environment(loader=FileSystemLoader([template_dir, "."]))
+        self.template = env.get_template(template_name)
         self.schema = os.path.join(_SCHEMA_DIR, "alto-4-4.xsd")
 
     def _serialize(self, page: PageNode, **metadata) -> str:
@@ -210,9 +215,14 @@ class PageXML(Serializer):
     extension = ".xml"
     format_name = "page"
 
-    def __init__(self):
-        env = Environment(loader=FileSystemLoader([_TEMPLATES_DIR, "."]))
-        self.template = env.get_template("page")
+    def __init__(self, template_dir=_TEMPLATES_DIR, template_name="page"):
+        """
+        Arguments:
+            template_dir: Name of template directory.
+            template_name: Name of template file in `template_dir`.
+        """
+        env = Environment(loader=FileSystemLoader([template_dir, "."]))
+        self.template = env.get_template(template_name)
         self.schema = os.path.join(_SCHEMA_DIR, "pagecontent.xsd")
 
     def _serialize(self, page: PageNode, **metadata):
