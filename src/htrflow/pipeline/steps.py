@@ -1,5 +1,6 @@
 import logging
 import os
+import math
 from dataclasses import dataclass
 from typing import Any, Callable, Generator, Literal
 
@@ -432,9 +433,7 @@ class RemoveLowTextConfidenceRegions(Prune):
         Arguments:
             threshold: Confidence score threshold.
         """
-        super().__init__(
-            lambda node: all(child.is_line() for child in node) and metrics.average_text_confidence(node) < threshold
-        )
+        super().__init__(lambda node: node.is_region() and metrics.average_text_confidence(node) < threshold)
 
 
 class RemoveLowTextConfidencePages(Prune):
@@ -457,6 +456,66 @@ class RemoveLowTextConfidencePages(Prune):
         super().__init__(
             lambda node: node.parent and node.parent.is_root() and metrics.average_text_confidence(node) < threshold
         )
+
+
+class FilterRegionsBySize(Prune):
+    """
+    Filter regions by size.
+
+    Removes all leaf nodes that are smaller or larger than the given size.
+
+    Example YAML:
+    ```yaml
+    - step: FilterRegionsBySize
+      settings:
+        min_height: 10
+        min_width: 10
+        max_height: 100
+        max_width: 100
+    ```
+    """
+    def __init__(
+        self, min_height: int = 0, min_width: int = 0, max_height: int | None = None, max_width: int | None = None
+    ):
+        """
+        Arguments:
+            min_height: Minimum region height in pixels.
+            min_width: Minimum region width in pixels.
+            max_height: Maximum region height in pixels.
+            max_width: Maximum region width in pixels.
+        """
+        max_height = max_height or math.inf
+        max_width = max_width or math.inf
+
+        super().__init__(
+            lambda node: node.is_leaf()
+            and not ((min_height < node.height < max_height) and (min_width < node.width < max_width))
+        )
+
+
+class FilterRegionsByShape(Prune):
+    """
+    Filter regions by shape.
+
+    Removes all leaf nodes that are wider or taller than the given aspect ratio(s).
+    For example, if we want to filter out all regions that are more than twice as
+    tall as they are wide, we set the `min_ratio` to 0.5 (1:2 width-to-height ratio).
+
+    Example YAML:
+    ```yaml
+    - step: FilterRegionsByShape
+      settings:
+        min_ratio: 1
+        max_ratio: 10
+    ```
+    """
+    def __init__(self, min_ratio: float = 0.0, max_ratio: float = math.inf):
+        """
+        Arguments:
+            min_ratio: Minimum width-to-height ratio.
+            max_ratio: Maximum width-to-height ratio.
+        """
+        super().__init__(lambda node: node.is_leaf() and not (min_ratio < node.width/node.height < max_ratio))
 
 
 class ProcessImages(PipelineStep):
