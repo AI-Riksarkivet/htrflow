@@ -132,14 +132,16 @@ class TrOCR(BaseModel):
         It follows example #1 found here:
         https://discuss.huggingface.co/t/announcement-generation-get-probabilities-for-generated-output/30075
         """
+        beam_indices = getattr(outputs, "beam_indices", None)
         transition_scores = self.model.decoder.compute_transition_scores(
             outputs.sequences,
             outputs.scores,
-            beam_indices=getattr(outputs, "beam_indices", None),
+            beam_indices=beam_indices,
             normalize_logits=True,
         )
 
-        length_penalty = self.model.generation_config.length_penalty
+        is_beam_search = beam_indices is not None
+        length_penalty = self.model.generation_config.length_penalty if is_beam_search else 1.0
         # In output from greedy decoding, padding tokens have a transition score
         # of negative infinity. To "hide" them from the score computation
         # they are set to 0 instead.
@@ -207,7 +209,8 @@ class WordLevelTrOCR(TrOCR):
                 "The longest sequence of this batch has %d tokens, which is the"
                 " maximum length, as specified by `max_new_tokens=%d`. This may"
                 " indicate that the sequence was truncated.",
-                n_tokens, max_new_tokens
+                n_tokens,
+                max_new_tokens,
             )
 
         attentions = aggregate_attentions(outputs.cross_attentions)
