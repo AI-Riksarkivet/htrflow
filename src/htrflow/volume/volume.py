@@ -101,12 +101,6 @@ class ImageNode(Node, ABC):
         del self._image
         self._image = None
 
-    def contains_text(self) -> bool:
-        """Return True if this"""
-        if self.text is not None:
-            return True
-        return any(child.contains_text() for child in self.children)
-
     def has_regions(self) -> bool:
         return all(child.text is None for child in self.children)
 
