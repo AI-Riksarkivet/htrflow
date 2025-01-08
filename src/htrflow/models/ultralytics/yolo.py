@@ -1,8 +1,9 @@
 import logging
 
+import cv2
 import numpy as np
 from ultralytics import YOLO as UltralyticsYOLO
-import cv2
+
 from htrflow.models.base_model import BaseModel
 from htrflow.models.hf_utils import commit_hash_from_path, load_ultralytics
 from htrflow.results import Result

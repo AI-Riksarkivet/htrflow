@@ -51,9 +51,7 @@ class LLavaNext(BaseModel):
 
         processor = processor or model
 
-        self.processor = LlavaNextProcessor.from_pretrained(
-            processor, cache_dir=self.cache_dir, token=True
-        )
+        self.processor = LlavaNextProcessor.from_pretrained(processor, cache_dir=self.cache_dir, token=True)
 
         self.prompt = prompt
 
@@ -73,20 +71,14 @@ class LLavaNext(BaseModel):
 
     def _predict(self, images: list[np.ndarray], **generation_kwargs) -> list[Result]:
         generation_kwargs = self._prepare_generation_kwargs(**generation_kwargs)
-        metadata = self.metadata | (
-            {"generation_args": generation_kwargs} if generation_kwargs else {}
-        )
+        metadata = self.metadata | ({"generation_args": generation_kwargs} if generation_kwargs else {})
 
         prompts = [self.prompt] * len(images)
 
-        model_inputs = self.processor(
-            prompts, images=images, return_tensors="pt", padding=True
-        ).to(self.model.device)
+        model_inputs = self.processor(prompts, images=images, return_tensors="pt", padding=True).to(self.model.device)
         model_outputs = self.model.generate(**model_inputs, **generation_kwargs)
 
-        texts = self.processor.batch_decode(
-            model_outputs.sequences, skip_special_tokens=True
-        )
+        texts = self.processor.batch_decode(model_outputs.sequences, skip_special_tokens=True)
 
         scores = model_outputs.sequences_scores.tolist()
         step = generation_kwargs["num_return_sequences"]
@@ -155,16 +147,10 @@ class LLavaNext(BaseModel):
             texts_chunk = texts[i : i + step]
             scores_chunk = scores[i : i + step]
 
-            without_prompt_texts_chunk = [
-                re.sub(r"\[INST\].*?\[/INST\]", "", text) for text in texts_chunk
-            ]
+            without_prompt_texts_chunk = [re.sub(r"\[INST\].*?\[/INST\]", "", text) for text in texts_chunk]
 
-            recognized_text = RecognizedText(
-                texts=without_prompt_texts_chunk, scores=scores_chunk
-            )
-            result = Result.text_recognition_result(
-                metadata=metadata, text=recognized_text
-            )
+            recognized_text = RecognizedText(texts=without_prompt_texts_chunk, scores=scores_chunk)
+            result = Result.text_recognition_result(metadata=metadata, text=recognized_text)
             results.append(result)
         return results
 
