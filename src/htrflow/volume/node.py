@@ -37,14 +37,29 @@ class Node:
         self.data = {}
         self.depth = 0 if parent is None else parent.depth + 1
 
-        self._id = f"node{id(self)}"  # A unique ID to fall back on if labels are not set
-        self._local_label = label  # A local label, may not be unique within the tree
-        self._global_label: str | None = None  # A global label created by chaining the ancestors' local labels
+        self._label = label
+        self._long_label = None
 
     @property
-    def label(self) -> str:
-        """The node's label. May be altered with node.relabel()"""
-        return self._global_label or self._local_label or self._id
+    def label(self):
+        return self._long_label or self._label
+
+    def relabel(self):
+        """Relabel the tree
+
+        Assigns unique labels to this node and its children based on
+        the labels given at initialization and their position in the tree.
+
+        root              root
+        ├── node    =>    ├── root_node0
+        └── node          └── root_node1
+
+        """
+        counter = defaultdict(lambda: count(0))
+        for child in self:
+            idx = next(counter[child._label])
+            child._long_label = f"{self.label}_{child._label}{idx}"
+            child.relabel()
 
     def __getitem__(self, i: int | Iterable[int]):
         """Enables tuple indexing of tree
@@ -62,104 +77,6 @@ class Node:
     def __iter__(self) -> Iterator["Node"]:
         """Enables the syntax `for child in node`"""
         return iter(self.children)
-
-    def relabel(
-        self,
-        label_func: Callable[["Node"], str] = lambda _: "node",
-        template: str = "{label}{number}",
-        sep: str = "_",
-        prefix: str = "",
-        _counter=None,
-    ) -> None:
-        """Relabel the children of this node
-
-        Assigns unique labels to the nodes of the tree. The nodes gets
-        their label by appending to their parent's label. This
-        overwrites the existing label, which is set to "node" at
-        initialization.
-
-        (Example) By calling node.relabel() with the default arguments
-        on the root node, the tree would be relabeled as:
-
-        root                         root
-         ├── node                     ├── root_node0
-         |    └── node                |    └── root_node0_node0
-         └── node          ->         └── root_node1
-              ├── node                     ├── root_node1_node0
-              └── node                     └── root_node1_node1
-
-        Note that this function does not change the label of the root
-        node.
-
-        Arguments:
-            label_func: A function `f(node) -> str` that returns a
-                descriptive label of `node`.
-            template: A template for each node's appended section. It
-                must include formatting placeholders for `label` and
-                `number`, where `label` is placeholder for the label
-                returned by `label_func` and `number` is a serial number
-                assigned to the node. Defaults to "{label}{number}",
-                which yields sections like "node2" or "line3". See
-                str.format() for the formatting syntax.
-            sep: A separator character that is inserted between each
-                entry, defaults to "_".
-            prefix: A prefix that is added to all labels.
-            _counter: An argument used in recursive calls to this
-                function. Should always be None elsewise. It keeps
-                track of which labels exist and what numbers the next
-                labels should get.
-        """
-        if _counter is None:
-            _counter = defaultdict(lambda: count(0))
-            if self._local_label:
-                prefix += self._local_label
-
-        long_template = f"{prefix}{sep}{template}".strip(sep)
-        for child in self:
-            label = label_func(child)
-            unnumbered_label = long_template.format(label=label, number="X")
-            number = next(_counter[unnumbered_label])
-            child._local_label = template.format(label=label, number=number)
-            child._global_label = long_template.format(label=label, number=number)
-            child.relabel(label_func, template, sep, child._global_label, _counter)
-
-    def relabel_levels(self, level_labels: list[str] | None = None, default: str = "node", **kwargs) -> None:
-        """Relabel nodes level-by-level
-
-        A simple way to assign labels whenever all nodes at the same
-        depth (same level) share the same descriptive label. For
-        example, if all nodes on the first level correspond to regions,
-        and all nodes on the second level correspond to lines, passing
-        level_labels = ["region", "line"] would yield:
-
-        node                         node
-         ├── node                     ├── node_region0
-         |    └── node                |    └── node_region0_line0
-         └── node          ->         └── region1
-              ├── node                     ├── node_region1_line0
-              └── node                     └── node_region1_line1
-
-        Arguments:
-            level_labels: A list of strings where the i:th element
-                describes the nodes at the i:th level of the tree.
-            default: A default label to assign whenever the tree is
-                deeper than the number of passed level_labels. Defaults
-                to "node".
-            **kwargs: Optional formatting keyword arguments that are
-                forwarded to node.relabel(). See node.relabel() for
-                details.
-        """
-        if level_labels is None:
-            self.relabel(lambda _: default)
-            return
-
-        def label_func(node: "Node") -> str:
-            depth = node.depth
-            if depth > len(level_labels):
-                return default
-            return level_labels[depth - 1]
-
-        self.relabel(label_func, **kwargs)
 
     def add_data(self, **data) -> None:
         """Add data to node

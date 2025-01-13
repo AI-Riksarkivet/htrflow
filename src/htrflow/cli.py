@@ -102,8 +102,6 @@ def run_pipeline(
     collections = auto_import(inputs, max_size=batch_output)
     n_pages = 0
     for collection in collections:
-        if "labels" in config:
-            collection.set_label_format(**config["labels"])
         if label:
             collection.label = label
         collection = pipe.run(collection)

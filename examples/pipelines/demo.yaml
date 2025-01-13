@@ -41,12 +41,3 @@ steps:
   settings:
     dest: outputs/page
     format: page
-
-# Sets label format to regionX_lineY_wordZ
-labels:
-  level_labels:
-    - region
-    - line
-    - word
-  sep: _
-  template: "{label}{number}"

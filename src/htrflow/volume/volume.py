@@ -116,7 +116,8 @@ class SegmentNode(ImageNode):
 
     def __init__(self, segment: Segment, parent: ImageNode):
         segment.move(parent.coord)
-        super().__init__(parent=parent)
+        label = segment.class_label or "region"
+        super().__init__(parent=parent, label=label)
         self.add_data(**segment.data)
         self._segment = segment
         self._image = None
@@ -143,7 +144,6 @@ class SegmentNode(ImageNode):
             "bbox": asdict(self.bbox),
             "polygon": str(self.polygon),
         }
-
 
 
 class PageNode(ImageNode):
@@ -180,12 +180,7 @@ class Collection:
     pages: list[PageNode]
     _DEFAULT_LABEL = "untitled_collection"
 
-    def __init__(
-        self,
-        paths: Sequence[str],
-        label: str | None = None,
-        label_format: dict[str, str] | None = None,
-    ):
+    def __init__(self, paths: Sequence[str], label: str | None = None):
         """Initialize collection
 
         Arguments:
@@ -194,13 +189,9 @@ class Collection:
                 the label will be set to the input paths' first shared
                 parent directory, and if no such directory exists, it will
                 default to "untitled_collection".
-            label_format: What label format that should be used with this
-                collection, as a dictionary of keyword arguments. See
-                Node.relabel_levels for options.
         """
         self.pages = paths2pages(paths)
         self.label = label or _common_basename(paths) or Collection._DEFAULT_LABEL
-        self._label_format = label_format or {}
         logger.info("Initialized collection '%s' with %d pages", label, len(self.pages))
 
     def __iter__(self) -> Iterator[PageNode]:
@@ -304,12 +295,9 @@ class Collection:
         """
         serialization.save_collection(self, serializer, directory)
 
-    def set_label_format(self, **kwargs):
-        self._label_format = kwargs
-
     def relabel(self):
         for page in self:
-            page.relabel_levels(**self._label_format)
+            page.relabel()
 
 
 class ImageGenerator:
