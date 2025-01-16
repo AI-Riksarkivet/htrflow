@@ -73,6 +73,24 @@ Here are links to the documentation for each OpenMMLab package used in HTRflow:
 - [mmengine](https://mmengine.readthedocs.io/en/latest/)
 - [mmcv](https://mmcv.readthedocs.io/en/latest/)
 
+## Teklia Models
+
+To use Teklia models (currently only PyLaia), specific dependencies need to be installed, including `pylaia`.  Follow the instructions below to ensure the correct versions are installed.
+
+!!! Note
+    Pylaia requires a specific PyTorch version. Make sure you have `pytorch==1.13.0` installed:
+
+    ```bash
+    pip install -U torch==1.13.0
+    ```
+
+!!! Note
+    Pylaia requires a specific Python version. Make sure you have `pytorch=<1.13.0` 
+
+Link to the documentation for PyLaia from Teklia:
+
+- [PyLaia](https://atr.pages.teklia.com/pylaia/get_started/)
+
 ## Custom Models
 
 If your model (or framework) is not supported, you can implement a custom model in HTRflow. Below is a basic example:
