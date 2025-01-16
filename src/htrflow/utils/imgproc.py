@@ -146,6 +146,40 @@ def binarize(image: npt.NDArray[Any]) -> npt.NDArray[Any]:
     return cv2.cvtColor(threshold, cv2.COLOR_GRAY2BGR)
 
 
+def pad_image(
+    img: np.ndarray,
+    pad_left: int = 0,
+    pad_right: int = 0,
+    pad_top: int = 0,
+    pad_bottom: int = 0,
+    padding_color: tuple[int, int, int] = (255, 255, 255),
+) -> np.ndarray:
+    """
+    Pads an image in specified directions.
+
+    Args:
+        img (np.ndarray): Input image in NumPy format (e.g., BGR or grayscale).
+        pad_left (int, optional): Pixels to add to the left. Defaults to 0.
+        pad_right (int, optional): Pixels to add to the right. Defaults to 0.
+        pad_top (int, optional): Pixels to add to the top. Defaults to 0.
+        pad_bottom (int, optional): Pixels to add to the bottom. Defaults to 0.
+        padding_color (tuple[int, int, int], optional): Padding color in BGR (white=(255, 255, 255)).
+
+    Returns:
+        np.ndarray: The padded image.
+    """
+    padded_img = cv2.copyMakeBorder(
+        img,
+        top=pad_top,
+        bottom=pad_bottom,
+        left=pad_left,
+        right=pad_right,
+        borderType=cv2.BORDER_CONSTANT,
+        value=padding_color,
+    )
+    return padded_img
+
+
 def is_http_url(string: str) -> bool:
     """Check if the string is a valid HTTP URL."""
     return re.match(r"^https?://", string, re.IGNORECASE) is not None

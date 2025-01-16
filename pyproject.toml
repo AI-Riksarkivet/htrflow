@@ -31,7 +31,6 @@ dependencies = [
     "huggingface-hub[cli] >=0.24.6",
     "ultralytics >=8.0.225",
     "pydantic>=2.9.2",
-    "pylaia>=1.0.7",
 ]
 
 
@@ -69,9 +68,8 @@ docs = [
     "termynal >=0.12.1",
     "mkdocs-swagger-ui-tag >=0.6.10"
 ]
-
 teklia = [
-    "pylaia >=1.1.2",
+    "pylaia>=1.1.2",
 ]
 
 [build-system]

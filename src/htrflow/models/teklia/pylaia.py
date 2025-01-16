@@ -7,15 +7,16 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile, mkdtemp
 from uuid import uuid4
 
+import cv2
 import numpy as np
 import pydantic
 from huggingface_hub import model_info, snapshot_download
 from laia.common.arguments import CommonArgs, DataArgs, DecodeArgs, TrainerArgs
 from laia.scripts.htr.decode_ctc import run as decode
-from PIL import Image
 
 from htrflow.models.base_model import BaseModel
 from htrflow.results import Result
+from htrflow.utils.imgproc import pad_image
 
 
 logger = logging.getLogger(__name__)
@@ -90,8 +91,12 @@ class PyLaia(BaseModel):
         Args:
             images (list[np.ndarray]):
                 List of images as NumPy arrays (e.g., shape [H, W, C]).
-            **decode_kwargs:
-                Optional decoding kwargs (e.g., batch_size, temperature, etc.)
+            batch_size (int, optional):
+                Batch size for decoding. Defaults to 1.
+            reading_order (str, optional):
+                Reading order for text recognition. Defaults to "LTR".
+            num_workers (int, optional):
+                Number of workers for parallel processing. Defaults to `multiprocessing.cpu_count()`.
 
         Returns:
             list[Result]:
@@ -99,7 +104,7 @@ class PyLaia(BaseModel):
                 optionally confidence scores.
         """
 
-        temperature = decode_kwargs.get("temperature", 2.0)
+        temperature = decode_kwargs.get("temperature", 1.0)
         batch_size = decode_kwargs.get("batch_size", 1)
         reading_order = decode_kwargs.get("reading_order", "LTR")
         num_workers = decode_kwargs.get("num_workers", multiprocessing.cpu_count())
@@ -107,7 +112,6 @@ class PyLaia(BaseModel):
         common_args = CommonArgs(
             checkpoint="weights.ckpt",
             train_path=str(self.model_dir),
-            experiment_dirname="",
         )
 
         data_args = DataArgs(
@@ -128,14 +132,17 @@ class PyLaia(BaseModel):
             **self.language_model_params.model_dump(),
         )
 
+        # Note: PyLaia's 'decode' function expects disk-based file paths rather than in-memory data.
+        # Because it is tightly integrated as a CLI tool, we must create temporary image files
+        # and pass their paths to the PyLaia decoder. Otherwise, PyLaia cannot process these images.
         tmp_images_dir = Path(mkdtemp())
         logger.debug(f"Created temp folder for images: {tmp_images_dir}")
 
         image_ids = [str(uuid4()) for _ in images]
 
         for img_id, np_img in zip(image_ids, images):
-            pil_img = Image.fromarray(np_img)
-            pil_img.save(tmp_images_dir / f"{img_id}.jpg")
+            padded_img = _ensure_min_width(np_img, 120, 125)  # Just to fix the min pixel width issue
+            cv2.imwrite(str(tmp_images_dir / f"{img_id}.jpg"), padded_img)
 
         with NamedTemporaryFile() as pred_stdout, NamedTemporaryFile() as img_list:
             Path(img_list.name).write_text("\n".join(image_ids))
@@ -294,17 +301,22 @@ def _detect_language_model(model_dir: Path) -> tuple[bool, LanguageModelParams]:
     return use_language_model, language_model_params
 
 
-if __name__ == "__main__":
-    import cv2
+def _ensure_min_width(img: np.ndarray, min_width: int, target_width: int) -> np.ndarray:
+    """
+    Ensures an image meets a minimum width by padding if necessary.
 
-    image = cv2.imread("rimes_test.jpg")
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    Args:
+        img (np.ndarray): Input image.
+        min_width (int): Minimum width before padding.
+        target_width (int): Final width after padding.
 
-    model_name = "./.cache/models--Teklia--pylaia-rimes/snapshots/270d9e1d4ccfa1047a4e617f2af3df40f3074fed"
-    # model_name= "Teklia/pylaia-rimes"
-
-    model = PyLaia(model=model_name)
-
-    results = model.predict([image] * 100, batch_size=16)
-
-    print(results[0].data)
+    Returns:
+        np.ndarray: The padded image (if needed).
+    """
+    _, width = img.shape[:2]
+    if width < min_width:
+        total_pad = target_width - width
+        left_pad = total_pad // 2
+        right_pad = total_pad - left_pad
+        return pad_image(img, pad_left=left_pad, pad_right=right_pad)
+    return img
