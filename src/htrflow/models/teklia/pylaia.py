@@ -26,7 +26,7 @@ class PyLaia(BaseModel):
     """
     A minimal HTRflow-style model wrapper around PyLaia.
 
-    Uses teklia's implementation of PyLaia. For further
+    Uses Teklia's implementation of PyLaia. For further
     information, see:
     https://atr.pages.teklia.com/pylaia/usage/prediction/#decode-arguments
 
@@ -112,6 +112,7 @@ class PyLaia(BaseModel):
         common_args = CommonArgs(
             checkpoint="weights.ckpt",
             train_path=str(self.model_dir),
+            experiment_dirname="",
         )
 
         data_args = DataArgs(
@@ -192,6 +193,7 @@ class LanguageModelParams(pydantic.BaseModel):
     language_model_path: str = ""
     lexicon_path: str = ""
     tokens_path: str = ""
+
 
 
 class PyLaiaModelInfo(pydantic.BaseModel):

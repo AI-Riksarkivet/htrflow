@@ -85,7 +85,7 @@ To use Teklia models (currently only PyLaia), specific dependencies need to be i
     ```
 
 !!! Note
-    Pylaia requires a specific Python version. Make sure you have `pytorch=<1.13.0` 
+    Pylaia requires a specific Python version. Make sure you have `python=<3.10` 
 
 Link to the documentation for PyLaia from Teklia:
 

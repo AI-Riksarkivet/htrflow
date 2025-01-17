@@ -69,7 +69,7 @@ docs = [
     "mkdocs-swagger-ui-tag >=0.6.10"
 ]
 teklia = [
-    "pylaia>=1.1.2",
+    "pylaia==1.1.2"
 ]
 
 [build-system]
