@@ -7,7 +7,7 @@ from huggingface_hub.file_download import repo_folder_name
 
 
 def _fix_mmlab_dict_file(config_path: str, dictionary_path: str) -> None:
-    from mmengine.config import Config
+    from mmengine.config import Config  # type: ignore
 
     cfg = Config.fromfile(config_path)
     cfg.dictionary["dict_file"] = dictionary_path

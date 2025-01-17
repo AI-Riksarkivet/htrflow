@@ -13,10 +13,7 @@ from typing_extensions import Annotated
 
 
 app = typer.Typer(
-    name="htrflow",
-    add_completion=False,
-    help="CLI inferface for htrflow",
-    pretty_exceptions_enable=False
+    name="htrflow", add_completion=False, help="CLI inferface for htrflow", pretty_exceptions_enable=False
 )
 
 

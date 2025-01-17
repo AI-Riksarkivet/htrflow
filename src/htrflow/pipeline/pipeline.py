@@ -24,7 +24,7 @@ class Pipeline:
     def run(self, collection, start=0):
         """Run pipeline on collection"""
         for i, step in enumerate(self.steps[start:]):
-            step_name = f"{step} (step {start+i+1} / {len(self.steps)})"
+            step_name = f"{step} (step {start + i + 1} / {len(self.steps)})"
             logger.info("Running step %s", step_name)
             try:
                 collection = step.run(collection)

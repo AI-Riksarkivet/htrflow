@@ -71,10 +71,6 @@ source .venv/bin/activate # activate virtual environment
 
 ```
 
-## OpenMMLab
-
-To use OpenMMLab models u need to seperatly install it, see  [Models/ OpenMMLab reference](../getting_started/models.md#openmmlab-models).
-
 
 ## Docker 
 

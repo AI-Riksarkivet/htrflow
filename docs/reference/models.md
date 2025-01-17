@@ -16,6 +16,11 @@
     options:
         heading_level: 3
 
+::: models.teklia.pylaia.PyLaia
+    options:
+        heading_level: 3
+
+
 ## Segmentation models
 ::: models.openmmlab.rtmdet.RTMDet
     options:

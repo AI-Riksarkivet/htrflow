@@ -1,0 +1,16 @@
+# HTR pipeline
+
+steps:
+
+- step: TextRecognition
+  settings:
+    model: PyLaia 
+    model_settings:
+       model: Teklia/pylaia-rimes
+    generation_settings:
+       batch_size: 1
+       temperature: 1
+- step: Export
+  settings:
+    dest: outputs/page
+    format: page

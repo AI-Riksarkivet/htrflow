@@ -28,7 +28,7 @@ def generate_random_masks(num_masks, image_size=(200, 200), num_classes=3):
     random.seed(42)
     np.random.seed(42)
     masks = []
-    classes = [f"class_{i+1}" for i in range(num_classes)]
+    classes = [f"class_{i + 1}" for i in range(num_classes)]
     for _ in range(num_masks):
         w, h = random.randint(20, 100), random.randint(20, 40)  # Random width and height
         x, y = random.randint(0, image_size[0] - w), random.randint(0, image_size[1] - h)  # Random position
