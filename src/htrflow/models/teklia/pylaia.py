@@ -16,7 +16,7 @@ from laia.scripts.htr.decode_ctc import run as decode
 
 from htrflow.models.base_model import BaseModel
 from htrflow.results import Result
-from htrflow.utils.imgproc import pad_image
+from htrflow.utils import imgproc
 
 
 logger = logging.getLogger(__name__)
@@ -54,6 +54,7 @@ class PyLaia(BaseModel):
         self,
         model: str,
         revision: str | None = None,
+        use_binary_lm: bool = False,
         **kwargs,
     ):
         """
@@ -64,12 +65,14 @@ class PyLaia(BaseModel):
                 - syms.txt
                 - (optionally) language_model.arpa.gz, lexicon.txt, tokens.txt
             revision: Optional revision of the Huggingface repository.
+            use_binary_lm (bool): Whether to use binary language model format (default: False),
+                                  see `get_pylaia_model` for more info.
             kwargs:
                 Additional kwargs passed to BaseModel.__init__ (e.g., 'device').
         """
         super().__init__(**kwargs)
 
-        model_info_dict = get_pylaia_model(model, revision=revision)
+        model_info_dict: PyLaiaModelInfo = get_pylaia_model(model, revision=revision, use_binary_lm=use_binary_lm)
         self.model_dir = model_info_dict.model_dir
         model_version = model_info_dict.model_version
         self.use_language_model = model_info_dict.use_language_model
@@ -79,6 +82,7 @@ class PyLaia(BaseModel):
             {
                 "model": model,
                 "model_version": model_version,
+                "use_binary_lm": use_binary_lm,
             }
         )
 
@@ -142,7 +146,7 @@ class PyLaia(BaseModel):
         image_ids = [str(uuid4()) for _ in images]
 
         for img_id, np_img in zip(image_ids, images):
-            padded_img = _ensure_min_width(np_img, 120, 125)  # Just to fix the min pixel width issue
+            padded_img = _ensure_min_height(np_img, 128)  # Just to fix the min pixel height (defaults to 128)
             cv2.imwrite(str(tmp_images_dir / f"{img_id}.jpg"), padded_img)
 
         with NamedTemporaryFile() as pred_stdout, NamedTemporaryFile() as img_list:
@@ -195,7 +199,6 @@ class LanguageModelParams(pydantic.BaseModel):
     tokens_path: str = ""
 
 
-
 class PyLaiaModelInfo(pydantic.BaseModel):
     """
     Pydantic model specifying what `get_pylaia_model` should return.
@@ -213,6 +216,7 @@ def get_pylaia_model(
     model: str,
     revision: str | None = None,
     cache_dir: str | None = ".cache",
+    use_binary_lm: bool = False,
 ) -> PyLaiaModelInfo:
     """
     Encapsulates logic for retrieving a PyLaia model (from either a local path
@@ -230,6 +234,10 @@ def get_pylaia_model(
             If None, the default branch or tag is used.
         cache_dir (str | None, optional):
             Path to the folder where cached files are stored. Defaults to ".cache".
+        use_binary_lm (bool, optional):
+            Whether to use binary language model format. Defaults to False.
+            The binary format is from converting the `language_model.arpa.gz`, see https://atr.pages.teklia.com/pylaia/usage/language_models/
+            to compiled version using kenlm, see https://github.com/kpu/kenlm
 
     Returns:
         PyLaiaModelInfo: A data class with these fields:
@@ -240,11 +248,12 @@ def get_pylaia_model(
     """
 
     model_dir, model_version = _download_or_local_path(model, revision, cache_dir)
-    use_language_model, language_model_params = _detect_language_model(model_dir)
+    use_language_model, language_model_params = _detect_language_model(model_dir, use_binary_lm)
 
     logger.debug(f"Model directory: {model_dir}")
     logger.debug(f"Model version: {model_version}")
     logger.debug(f"Use language model: {use_language_model}")
+    logger.debug(f"Using binary language model: {use_binary_lm}")
 
     return PyLaiaModelInfo(
         model_dir=model_dir,
@@ -279,46 +288,78 @@ def _download_or_local_path(
         return downloaded_dir, version_sha
 
 
-def _detect_language_model(model_dir: Path) -> tuple[bool, LanguageModelParams]:
+def _detect_language_model(model_dir: Path, use_binary_lm: bool) -> tuple[bool, LanguageModelParams]:
     """
     Checks if 'tokens.txt' is present in the model_dir, and if so,
     updates language model parameters accordingly.
+
+    The language model can be in either ARPA format (compressed with gzip) or binary format.
+    To create these files:
+    1. First create an ARPA model using KenLM:
+       ```bash
+       ./kenlm/build/bin/lmplz --order 6 --text corpus_characters.txt --arpa language_model.arpa
+       ```
+    2. Then either:
+       - For ARPA format: Compress it with gzip
+         ```bash
+         gzip language_model.arpa  # Creates language_model.arpa.gz
+         ```
+       - For binary format: Convert to binary using KenLM
+         ```bash
+         ./kenlm/build/bin/build_binary language_model.arpa language_model.binary
+         ```
+
+    Args:
+        model_dir (Path): Directory containing the model files
+        use_binary_lm (bool): Whether to use binary language model format from KenLM
+
+    Returns:
+        tuple[bool, LanguageModelParams]: Whether a language model exists and its parameters
     """
     tokens_file = model_dir / "tokens.txt"
     use_language_model = tokens_file.exists()
-    language_model_params = {"language_model_weight": 1.0}
+
+    language_model_params = LanguageModelParams(language_model_weight=1.0, is_binary_lm=use_binary_lm)
 
     if use_language_model:
-        arpa_file = model_dir / "language_model.arpa.gz"
+        if use_binary_lm:
+            lm_file = model_dir / "language_model.binary"
+        else:
+            lm_file = model_dir / "language_model.arpa.gz"
+
         lexicon_file = model_dir / "lexicon.txt"
 
-        language_model_params.update(
-            {
-                "language_model_path": str(arpa_file) if arpa_file.exists() else "",
-                "lexicon_path": str(lexicon_file) if lexicon_file.exists() else "",
-                "tokens_path": str(tokens_file),
-            }
+        language_model_params = LanguageModelParams(
+            language_model_weight=1.0,
+            language_model_path=str(lm_file) if lm_file.exists() else "",
+            lexicon_path=str(lexicon_file) if lexicon_file.exists() else "",
+            tokens_path=str(tokens_file),
+            is_binary_lm=use_binary_lm,
         )
 
     return use_language_model, language_model_params
 
 
-def _ensure_min_width(img: np.ndarray, min_width: int, target_width: int) -> np.ndarray:
+def _ensure_min_height(img: np.ndarray, min_height: int) -> np.ndarray:
     """
-    Ensures an image meets a minimum width by padding if necessary.
+    Ensures an image meets a minimum height by resizing it if necessary.
+
+    This function is specifically designed to ensure compatibility with PyLaia models,
+    which require images to have a height of at least 128 pixels.
 
     Args:
-        img (np.ndarray): Input image.
-        min_width (int): Minimum width before padding.
-        target_width (int): Final width after padding.
+        img (np.ndarray): Input image as a NumPy array.
+        min_height (int): Minimum height in pixels required for the image.
 
     Returns:
-        np.ndarray: The padded image (if needed).
+        np.ndarray: The resized image if the original height is less than `min_height`.
+                    Otherwise, the original image is returned unchanged.
     """
-    _, width = img.shape[:2]
-    if width < min_width:
-        total_pad = target_width - width
-        left_pad = total_pad // 2
-        right_pad = total_pad - left_pad
-        return pad_image(img, pad_left=left_pad, pad_right=right_pad)
+    if img.shape[0] < min_height:
+        aspect_ratio = img.shape[1] / img.shape[0]
+        new_heigt = int(min_height * aspect_ratio)
+        new_shape = (min_height, new_heigt)
+
+        return imgproc.resize(img, new_shape)
+
     return img
