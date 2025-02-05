@@ -73,6 +73,7 @@ class PyLaia(BaseModel):
         super().__init__(**kwargs)
 
         model_info_dict: PyLaiaModelInfo = get_pylaia_model(model, revision=revision, use_binary_lm=use_binary_lm)
+        self.model = model_info_dict
         self.model_dir = model_info_dict.model_dir
         model_version = model_info_dict.model_version
         self.use_language_model = model_info_dict.use_language_model
@@ -99,6 +100,9 @@ class PyLaia(BaseModel):
                 Batch size for decoding. Defaults to 1.
             reading_order (str, optional):
                 Reading order for text recognition. Defaults to "LTR".
+            resize_input_height (int, optional):
+                If set, resizes input images to the specified height,
+                while maintaining aspect ratio. If `-1`, resizing is skipped. Defaults to 128.
             num_workers (int, optional):
                 Number of workers for parallel processing. Defaults to `multiprocessing.cpu_count()`.
 
@@ -111,6 +115,7 @@ class PyLaia(BaseModel):
         temperature = decode_kwargs.get("temperature", 1.0)
         batch_size = decode_kwargs.get("batch_size", 1)
         reading_order = decode_kwargs.get("reading_order", "LTR")
+        resize_input_height = decode_kwargs.get("resize_input_height", 128)
         num_workers = decode_kwargs.get("num_workers", multiprocessing.cpu_count())
 
         common_args = CommonArgs(
@@ -146,8 +151,8 @@ class PyLaia(BaseModel):
         image_ids = [str(uuid4()) for _ in images]
 
         for img_id, np_img in zip(image_ids, images):
-            padded_img = _ensure_min_height(np_img, 128)  # Just to fix the min pixel height (defaults to 128)
-            cv2.imwrite(str(tmp_images_dir / f"{img_id}.jpg"), padded_img)
+            rezied_img = _ensure_fixed_height(np_img, resize_input_height)
+            cv2.imwrite(str(tmp_images_dir / f"{img_id}.jpg"), rezied_img)
 
         with NamedTemporaryFile() as pred_stdout, NamedTemporaryFile() as img_list:
             Path(img_list.name).write_text("\n".join(image_ids))
@@ -340,26 +345,16 @@ def _detect_language_model(model_dir: Path, use_binary_lm: bool) -> tuple[bool, 
     return use_language_model, language_model_params
 
 
-def _ensure_min_height(img: np.ndarray, min_height: int) -> np.ndarray:
+def _ensure_fixed_height(img: np.ndarray, target_height: int = 128) -> np.ndarray:
+    """Ensures an image is always resized to a fixed height, maintaining aspect ratio.
+
+    If target_height is -1, the function returns the original image without resizing.
     """
-    Ensures an image meets a minimum height by resizing it if necessary.
-
-    This function is specifically designed to ensure compatibility with PyLaia models,
-    which require images to have a height of at least 128 pixels.
-
-    Args:
-        img (np.ndarray): Input image as a NumPy array.
-        min_height (int): Minimum height in pixels required for the image.
-
-    Returns:
-        np.ndarray: The resized image if the original height is less than `min_height`.
-                    Otherwise, the original image is returned unchanged.
-    """
-    if img.shape[0] < min_height:
+    if target_height > 0:
         aspect_ratio = img.shape[1] / img.shape[0]
-        new_heigt = int(min_height * aspect_ratio)
-        new_shape = (min_height, new_heigt)
-
+        new_width = int(target_height * aspect_ratio)
+        new_shape = (target_height, new_width)
         return imgproc.resize(img, new_shape)
 
     return img
+
