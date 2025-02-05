@@ -1,0 +1,5 @@
+Model Name,Description,Task
+[Riksarkivet/rtmdet_regions](https://huggingface.co/Riksarkivet/rtmdet_regions),,instance segmentation and object detection
+[Riksarkivet/rtmdet_lines](https://huggingface.co/Riksarkivet/rtmdet_lines),,instance segmentation and object detection
+[Riksarkivet/satrn_htr](https://huggingface.co/https://huggingface.co/Riksarkivet/satrn_htr),,image-to-text
+
