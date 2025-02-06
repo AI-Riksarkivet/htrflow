@@ -18,7 +18,7 @@
                         <String ID="{{ word.label }}"  HPOS="{{ word.coord.x }}" VPOS="{{ word.coord.y }}" HEIGHT="{{ word.height}}" WIDTH="{{ word.width }}" CONTENT="{{ xmlescape(word.text) }}" />
                         {%- endfor %}
                         {%- else %}
-                        <String HPOS="{{ line.coord.x }}" VPOS="{{ line.coord.y }}" HEIGHT="{{ line.height}}" WIDTH="{{ line.width }}" CONTENT="{{ xmlescape(line.text) }}"/>
+                        <String HPOS="{{ line.coord.x }}" VPOS="{{ line.coord.y }}" HEIGHT="{{ line.height}}" WIDTH="{{ line.width }}" CONTENT="{{ xmlescape(line.text) }}" WC=" {{ line.text_result.top_score() }}"/>
                         {%- endif %}
                     </TextLine>
                     {%- endfor %}
