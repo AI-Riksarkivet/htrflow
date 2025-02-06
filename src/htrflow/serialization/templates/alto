@@ -1,14 +1,14 @@
 {%- macro render(nodes) -%}
     {% for node in nodes  %}
                 <TextBlock ID="{{ node.label }}" HPOS="{{ node.coord.x }}" VPOS="{{ node.coord.y }}" HEIGHT="{{ node.height}}" WIDTH="{{ node.width }}" CS="false">
-                    {%- if node.polygon|length > 4 %}
+                    {%- if node.polygon|length > 2 %}
                     <Shape>
                         <Polygon POINTS="{% for point in node.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}"/>
                     </Shape>
                     {%- endif %}
                     {%- for line in node.children %}
                     <TextLine ID="{{ line.label }}"  HPOS="{{ line.coord.x }}" VPOS="{{ line.coord.y }}" HEIGHT="{{ line.height}}" WIDTH="{{ line.width }}">
-                        {%- if line.polygon|length > 4 %}
+                        {%- if line.polygon|length > 2 %}
                         <Shape>
                             <Polygon POINTS="{% for point in line.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}"/>
                         </Shape>
