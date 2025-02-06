@@ -1,6 +1,6 @@
 {%- macro render(nodes) -%}
     {% for node in nodes  %}
-                <TextBlock ID="{{ node.label }}" HPOS="{{ node.coord.x }}" VPOS="{{ node.coord.y }}" HEIGHT="{{ node.height}}" WIDTH="{{ node.width }}">
+                <TextBlock ID="{{ node.label }}" HPOS="{{ node.coord.x }}" VPOS="{{ node.coord.y }}" HEIGHT="{{ node.height}}" WIDTH="{{ node.width }}" CS="false">
                     {%- if node.polygon|length > 4 %}
                     <Shape>
                         <Polygon POINTS="{% for point in node.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}"/>
