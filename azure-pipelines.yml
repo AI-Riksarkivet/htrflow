@@ -1,0 +1,116 @@
+trigger:
+  branches:
+    include:
+      - '*'  
+
+pr:
+  branches:
+    include:
+      - main  
+
+variables:
+  UV_CACHE_DIR: '$(Pipeline.Workspace)/.uv-cache'
+
+jobs:
+
+  - job: SecretLeaks
+    displayName: "Secret Leaks"
+    pool:
+      name: 'k8s'
+    steps:
+      - checkout: self
+        fetchDepth: 0 
+
+      - script: |
+          echo "Running trufflehog secret scanning..."
+          trufflehog --version
+          trufflehog --regex --entropy=True .
+        displayName: "Run Secret Scanning with trufflehog"
+
+  - job: CodeQuality
+    displayName: "Code Quality"
+    pool:
+      name: 'k8s'
+    steps:
+      - checkout: self
+
+      - task: Cache@2
+        inputs:
+          key: 'uv | "$(Agent.OS)" | uv.lock'
+          restoreKeys: |
+            uv | "$(Agent.OS)"
+          path: '$(UV_CACHE_DIR)'
+        displayName: "Restore uv Cache"
+
+      - script: |
+          echo "Setting UV_CACHE_DIR to $(UV_CACHE_DIR)"
+          echo "Upgrading pip and installing uv..."
+          python -m pip install --upgrade pip
+          pip install uv
+        displayName: "Install dependencies with uv"
+
+      - script: |
+          echo "Running ruff linting via uvx..."
+          uvx ruff check --fix
+        displayName: "Linting check with ruff"
+
+      - task: Cache@2
+        inputs:
+          key: 'uv | "$(Agent.OS)" | uv.lock'
+          path: '$(UV_CACHE_DIR)'
+        displayName: "Save uv Cache"
+
+  - job: Pytest
+    displayName: "Pytest"
+    pool:
+      name: 'k8s'
+    strategy:
+      matrix:
+        python3.10:
+          pythonVersion: "3.10"
+        python3.11:
+          pythonVersion: "3.11"
+        python3.12:
+          pythonVersion: "3.12"
+    steps:
+      - checkout: self
+
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '$(pythonVersion)'
+        displayName: "Use Python $(pythonVersion)"
+
+      - task: Cache@2
+        inputs:
+          key: 'uv | "$(Agent.OS)" | uv.lock'
+          restoreKeys: |
+            uv | "$(Agent.OS)"
+          path: '$(UV_CACHE_DIR)'
+        displayName: "Restore uv Cache"
+
+      - script: |
+          echo "Setting UV_CACHE_DIR to $(UV_CACHE_DIR)"
+          echo "Upgrading pip and installing uv..."
+          python -m pip install --upgrade pip
+          pip install uv
+          echo "Installing project dependencies with uv..."
+          uv sync --dev
+        displayName: "Install dependencies with uv"
+
+      - script: |
+          echo "Running tests (excluding gpu and openmmlab)..."
+          # The --junitxml flag makes pytest output results in XML format
+          uv run pytest -m "not gpu and not openmmlab" --junitxml=test_results.xml
+        displayName: "Run tests with pytest"
+
+      - task: PublishTestResults@2
+        inputs:
+          testResultsFiles: "**/test_results.xml"
+          testRunTitle: "htrflow Pytest $(pythonVersion) - $(Build.BuildNumber)"
+        condition: succeededOrFailed()
+
+      - task: Cache@2
+        inputs:
+          key: 'uv | "$(Agent.OS)" | uv.lock'
+          path: '$(UV_CACHE_DIR)'
+        displayName: "Save uv Cache"
