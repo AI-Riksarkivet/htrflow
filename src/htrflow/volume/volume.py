@@ -15,13 +15,13 @@ from htrflow import serialization
 from htrflow.results import TEXT_RESULT_KEY, RecognizedText, Result, Segment
 from htrflow.utils import imgproc
 from htrflow.utils.geometry import Bbox, Mask, Point, Polygon, mask2polygon
-from htrflow.volume import node
+from htrflow.volume.node import Node
 
 
 logger = logging.getLogger(__name__)
 
 
-class ImageNode(node.Node, ABC):
+class ImageNode(Node, ABC):
     parent: "ImageNode | None"
     children: list["ImageNode"]
 

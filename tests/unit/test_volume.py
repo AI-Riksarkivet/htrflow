@@ -2,20 +2,21 @@ import pickle
 
 import pytest
 
-from htrflow.volume import node, volume
+from htrflow.volume import volume
+from htrflow.volume.node import Node
 
 
 def one_layer_tree(n_children=3):
-    root = node.Node()
-    root.children = [node.Node(root) for _ in range(n_children)]
+    root = Node()
+    root.children = [Node(root) for _ in range(n_children)]
     return root
 
 
 def two_layer_tree(n_children=3):
-    root = node.Node()
-    root.children = [node.Node(root) for _ in range(n_children)]
+    root = Node()
+    root.children = [Node(root) for _ in range(n_children)]
     for child in root.children:
-        child.children = [node.Node(child) for _ in range(n_children)]
+        child.children = [Node(child) for _ in range(n_children)]
     return root
 
 

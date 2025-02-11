@@ -1,6 +1,8 @@
 import pytest
 import typer
+
 from htrflow import cli
+
 
 INPUTS = [f"file{i}" for i in range(10)]
 

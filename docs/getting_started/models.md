@@ -75,7 +75,11 @@ Here are links to the documentation for each OpenMMLab package used in HTRflow:
 
 ## Teklia Models
 
-To use Teklia models (currently only PyLaia), specific dependencies need to be installed, including `pylaia`.  Follow the instructions below to ensure the correct versions are installed.
+To use models from Teklia (currently only PyLaia), specific dependencies need to be installed, including `pylaia`.  Follow the instructions below to ensure the correct versions are installed.
+
+```bash
+pip install -U pylaia
+```
 
 !!! Note
     Pylaia requires a specific PyTorch version. Make sure you have `pytorch==1.13.0` installed:

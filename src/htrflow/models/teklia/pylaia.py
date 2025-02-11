@@ -357,4 +357,3 @@ def _ensure_fixed_height(img: np.ndarray, target_height: int = 128) -> np.ndarra
         return imgproc.resize(img, new_shape)
 
     return img
-
