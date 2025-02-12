@@ -53,7 +53,7 @@ def setup_pipeline_logging(logfile: str | None, loglevel: LogLevel):
 
 @app.command("pipeline")
 def run_pipeline(
-    pipeline: Annotated[str, typer.Argument(help="Path to a HTRFlow pipeline YAML file")],
+    pipeline: Annotated[str, typer.Argument(help="Path to a HTRflow pipeline YAML file")],
     inputs: Annotated[
         list[str] | None,
         typer.Argument(help="Paths to input images. May be paths to directories of images or paths to single images."),
@@ -79,7 +79,7 @@ def run_pipeline(
         ),
     ] = None,
 ):
-    """Run a HTRFlow pipeline"""
+    """Run a HTRflow pipeline"""
 
     logger = setup_pipeline_logging(logfile, loglevel)
     inputs = get_inputs(inputs, inputs_file)
