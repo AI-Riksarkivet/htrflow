@@ -1,6 +1,6 @@
 [project]
 name = "htrflow"
-version = "0.2.4"
+version = "0.2.5"
 description = "htrflow is developed at Riksarkivet's AI-lab as an open-source package to simplify HTR"
 readme = "README.md"
 license = {file = "LICENSE"}
@@ -27,12 +27,11 @@ dependencies = [
     "jiwer >=3.0.4",
     "pandas",
     "pagexml-tools >=0.5.0",
-    "transformers[torch] >=4.48.3",
+    "transformers[torch] >=4.47",
     "huggingface-hub[cli] >=0.28.1",
     "ultralytics >=8.3.74",
     "pydantic>=2.10.6",
 ]
-
 
 [project.urls]
 Documentation = "https://ai-riksarkivet.github.io/htrflow"

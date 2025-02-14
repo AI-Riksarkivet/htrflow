@@ -6,7 +6,6 @@ from typing import Optional, Union
 
 import numpy as np
 import torch
-from huggingface_hub import model_info
 from transformers import (
     LlavaNextForConditionalGeneration,
     LlavaNextProcessor,
@@ -15,6 +14,7 @@ from transformers import (
 )
 
 from htrflow.models.base_model import BaseModel
+from htrflow.models.hf_utils import get_model_info
 from htrflow.results import RecognizedText, Result
 from htrflow.utils import imgproc
 
@@ -62,10 +62,10 @@ class LLavaNext(BaseModel):
         self.metadata.update(
             {
                 "model": model,
-                "model_version": model_info(model).sha,
                 "prompt": prompt,
                 "processor": processor,
-                "processor_version": model_info(processor).sha,
+                "model_version": get_model_info(model),
+                "processor_version": get_model_info(processor),
             }
         )
 

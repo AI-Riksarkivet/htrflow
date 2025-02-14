@@ -60,16 +60,19 @@ Requirements:
 - Python 3.10
 - With GPU: CUDA >=11.8 (required due to PyTorch 2.0, can still run on CPU)
 
-Clone this repository and run:
 ```sh
-uv pip install -e .  # or you can run: uv sync
+uv venv #or uv venv --python 3.10
 ```
-This will install the HTRflow package in a virtual environment.
 
 ```sh
 source .venv/bin/activate # activate virtual environment
-
 ```
+
+Clone this repository and run:
+```sh
+uv sync
+```
+This will install the HTRflow package in a virtual environment.
 
 
 ## Docker 

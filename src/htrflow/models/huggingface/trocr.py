@@ -3,12 +3,11 @@ from typing import Any
 
 import numpy as np
 import torch
-from huggingface_hub import model_info
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 from transformers.utils import ModelOutput
 
 from htrflow.models.base_model import BaseModel
-from htrflow.models.hf_utils import HF_CONFIG
+from htrflow.models.hf_utils import HF_CONFIG, get_model_info
 from htrflow.results import Result
 
 
@@ -76,9 +75,9 @@ class TrOCR(BaseModel):
         self.metadata.update(
             {
                 "model": model,
-                "model_version": model_info(model).sha,
+                "model_version": get_model_info(model),
                 "processor": processor,
-                "processor_version": model_info(processor).sha,
+                "processor_version": get_model_info(processor),
             }
         )
 
@@ -223,7 +222,9 @@ class WordLevelTrOCR(TrOCR):
         heatmaps = torch.reshape(attentions[:, :, 1:], (n_tokens, -1, n_patches, n_patches))
 
         lines = self.processor.batch_decode(
-            outputs.sequences, skip_special_tokens=True, cleanup_tokenization_spaces=False
+            outputs.sequences,
+            skip_special_tokens=True,
+            cleanup_tokenization_spaces=False,
         )
         line_scores = self._compute_sequence_scores(outputs)
         special_tokens = {*self.processor.tokenizer.special_tokens_map.values()}
@@ -259,7 +260,10 @@ class WordLevelTrOCR(TrOCR):
 
 
 def attention_based_wordseg(
-    tokens: list[str], heatmaps: torch.Tensor, skip_tokens: list[str] | None = None, image_width: int = 1
+    tokens: list[str],
+    heatmaps: torch.Tensor,
+    skip_tokens: list[str] | None = None,
+    image_width: int = 1,
 ) -> list[float]:
     """
     Estimate word segmentation based on attention scores

@@ -2,7 +2,7 @@ import fnmatch
 import os
 import string
 
-from huggingface_hub import hf_hub_download, list_repo_files
+from huggingface_hub import hf_hub_download, list_repo_files, model_info
 from huggingface_hub.file_download import repo_folder_name
 
 
@@ -157,6 +157,23 @@ def _list_repo_files(repo_id: str) -> list[str]:
     if HF_CONFIG["local_files_only"]:
         return _list_cached_repo_files(repo_id)
     return list_repo_files(repo_id, token=HF_CONFIG["token"])
+
+
+def get_model_info(model_id):
+    """
+    Args:
+        model_id: String representing either a local path or model ID (and processor)
+
+    Returns:
+        String: model version/hash or local path
+    """
+    if os.path.exists(model_id):
+        return "local"
+
+    try:
+        return model_info(model_id).sha
+    except Exception as e:
+        raise ValueError(f"Invalid model identifier: {model_id}. Error: {e}")
 
 
 # Configuration settings for communications with the huggingface hub

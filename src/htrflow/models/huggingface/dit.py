@@ -3,11 +3,10 @@ from typing import Literal
 
 import numpy as np
 import torch
-from huggingface_hub import model_info
 from transformers import AutoImageProcessor, AutoModelForImageClassification
 
 from htrflow.models.base_model import BaseModel
-from htrflow.models.hf_utils import HF_CONFIG
+from htrflow.models.hf_utils import HF_CONFIG, get_model_info
 from htrflow.results import Result
 
 
@@ -64,9 +63,9 @@ class DiT(BaseModel):
         self.metadata.update(
             {
                 "model": model,
-                "model_version": model_info(model).sha,
+                "model_version": get_model_info(model),
                 "processor": processor,
-                "processor_version": model_info(processor).sha,
+                "processor_version": get_model_info(processor),
             }
         )
 

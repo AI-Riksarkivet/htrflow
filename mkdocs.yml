@@ -19,7 +19,7 @@ nav:
     - Quickstart: getting_started/quick_start.md
     - Pipeline: getting_started/pipeline.md
     - Models: getting_started/models.md
-    - Document model: getting_started/document_model.md
+    - Collection: getting_started/collection.md
     # - CLI: getting_started/cli.md
     # - Serialization: getting_started/serialization.md
     # - Tutorials:
