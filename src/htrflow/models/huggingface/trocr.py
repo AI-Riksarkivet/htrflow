@@ -62,6 +62,7 @@ class TrOCR(BaseModel):
 
         # Initialize model
         model_kwargs = HF_CONFIG | (model_kwargs or {})
+        self.decoding = model_kwargs.pop("decoding", None)
         self.model = VisionEncoderDecoderModel.from_pretrained(model, **model_kwargs)
         self.model.to(self.device)
         logger.info("Initialized TrOCR model from %s on device %s.", model, self.model.device)
@@ -116,6 +117,13 @@ class TrOCR(BaseModel):
         results = []
         metadata = self.metadata | {"generation_kwargs": generation_kwargs}
         step = generation_kwargs["num_return_sequences"]
+
+        # Create the option to create a clean decoded text. Important for historical sources/models.
+        # For example you can add generation_kwargs['decoding'] = 'unicode-escape'
+        if self.decoding:
+            for i, text in enumerate(texts):
+                texts[i] = text.encode("utf-8").decode(self.decoding)
+
         for i in range(0, len(texts), step):
             texts_chunk = texts[i : i + step]
             scores_chunk = scores[i : i + step]
