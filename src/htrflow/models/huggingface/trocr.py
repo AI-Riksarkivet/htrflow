@@ -122,7 +122,14 @@ class TrOCR(BaseModel):
         # For example you can add generation_kwargs['decoding'] = 'unicode-escape'
         if self.decoding:
             for i, text in enumerate(texts):
-                texts[i] = text.encode("utf-8").decode(self.decoding)
+                try:
+                    texts[i] = text.encode("utf-8").decode(self.decoding)
+                except UnicodeEncodeError as e:
+                    logger.warning(
+                        "Text %s could not be decoded with decoding '%s'. Error: %s",
+                        text, self.decoding, e
+                    )
+                    pass
 
         for i in range(0, len(texts), step):
             texts_chunk = texts[i : i + step]
