@@ -178,7 +178,7 @@ class PageNode(ImageNode):
 
     def __init__(self, image_path: str):
         self.path = image_path
-        label = os.path.basename(image_path).split(".")[0]
+        label = os.path.splitext(os.path.basename(image_path))[0]
         image = imgproc.read(self.path)
         self.original_shape = image.shape[:2]
         self.ratio = 1
