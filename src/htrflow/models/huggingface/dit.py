@@ -63,9 +63,9 @@ class DiT(BaseModel):
         self.metadata.update(
             {
                 "model": model,
-                "model_version": get_model_info(model),
+                "model_version": get_model_info(model, model_kwargs.get("revision", None)),
                 "processor": processor,
-                "processor_version": get_model_info(processor),
+                "processor_version": get_model_info(processor, processor_kwargs.get("revision", None)),
             }
         )
 

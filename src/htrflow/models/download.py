@@ -8,6 +8,7 @@ import string
 
 from huggingface_hub import hf_hub_download, list_repo_files, model_info
 from huggingface_hub.constants import HF_HUB_CACHE, HF_HUB_OFFLINE
+from huggingface_hub.errors import LocalEntryNotFoundError
 from huggingface_hub.file_download import repo_folder_name
 
 
@@ -164,18 +165,28 @@ def _list_repo_files(repo_id: str) -> list[str]:
     return list_repo_files(repo_id)
 
 
-def get_model_info(model_id):
+def get_model_info(repo_id: str, revision: str | None = None) -> str | None:
     """
-    Args:
-        model_id: String representing either a local path or model ID (and processor)
+    Get a commit hash from a HF repo ID.
+
+    Arguments:
+        repo_id: HF repo ID.
+        revision: HF repo revision.
 
     Returns:
-        String: model version/hash or local path
+        A commit hash if available, else None.
     """
-    if os.path.exists(model_id):
-        return "local"
 
+    # Call HF API if we are online
+    if not HF_HUB_OFFLINE:
+        return model_info(repo_id, revision=revision).sha
+
+    # If we're offline and using a previously cached model, we use the commit
+    # hash found in the cached model's path.
     try:
-        return model_info(model_id).sha
-    except Exception as e:
-        raise ValueError(f"Invalid model identifier: {model_id}. Error: {e}")
+        cached_path = hf_hub_download(repo_id, revision)    # will return a cached path if it exists
+        return commit_hash_from_path(cached_path)
+    except LocalEntryNotFoundError:
+        pass
+
+    return None
