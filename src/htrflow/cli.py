@@ -85,7 +85,6 @@ def run_pipeline(
     inputs = get_inputs(inputs, inputs_file)
 
     # Slow imports! Only import after all CLI arguments have been resolved.
-    from htrflow.models import hf_utils
     from htrflow.pipeline.pipeline import Pipeline
     from htrflow.pipeline.steps import auto_import
 
@@ -97,7 +96,6 @@ def run_pipeline(
             config = yaml.safe_load(file)
         pipe = Pipeline.from_config(config)
 
-    hf_utils.HF_CONFIG |= config.get("huggingface_config", {})
     pipe.do_backup = backup
 
     tic = time.time()

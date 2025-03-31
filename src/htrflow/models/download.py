@@ -1,8 +1,13 @@
+"""
+Utilities for downloading models from the Huggingface Hub.
+"""
+
 import fnmatch
 import os
 import string
 
 from huggingface_hub import hf_hub_download, list_repo_files, model_info
+from huggingface_hub.constants import HF_HUB_CACHE, HF_HUB_OFFLINE
 from huggingface_hub.file_download import repo_folder_name
 
 
@@ -100,7 +105,7 @@ def _hf_hub_download_matching_file(repo_id: str, pattern: str, revision: str | N
     repo_files = _list_repo_files(repo_id)
     for file_ in repo_files:
         if fnmatch.fnmatch(file_, pattern):
-            return hf_hub_download(repo_id, file_, revision=revision, **HF_CONFIG)
+            return hf_hub_download(repo_id, file_, revision=revision)
     raise FileNotFoundError(
         (
             "Could not find any file that matches the pattern '%s' in "
@@ -119,7 +124,7 @@ def _cached_repo_path(repo_id: str) -> str:
     download the given repository to.
     """
     repo_dir = repo_folder_name(repo_id=repo_id, repo_type="model")
-    return os.path.join(HF_CONFIG["cache_dir"], repo_dir)
+    return os.path.join(HF_HUB_CACHE, repo_dir)
 
 
 def _list_cached_repo_files(repo_id: str) -> list[str]:
@@ -154,9 +159,9 @@ def _list_repo_files(repo_id: str) -> list[str]:
     Returns:
         A list of all available files in the given repo.
     """
-    if HF_CONFIG["local_files_only"]:
+    if HF_HUB_OFFLINE:
         return _list_cached_repo_files(repo_id)
-    return list_repo_files(repo_id, token=HF_CONFIG["token"])
+    return list_repo_files(repo_id)
 
 
 def get_model_info(model_id):
@@ -174,11 +179,3 @@ def get_model_info(model_id):
         return model_info(model_id).sha
     except Exception as e:
         raise ValueError(f"Invalid model identifier: {model_id}. Error: {e}")
-
-
-# Configuration settings for communications with the huggingface hub
-HF_CONFIG = {
-    "cache_dir": ".cache",
-    "local_files_only": False,
-    "token": False,
-}

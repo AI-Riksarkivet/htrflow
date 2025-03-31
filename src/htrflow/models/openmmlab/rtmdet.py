@@ -8,7 +8,7 @@ from mmdet.structures import DetDataSample
 from mmengine.structures import InstanceData
 
 from htrflow.models.base_model import BaseModel
-from htrflow.models.hf_utils import commit_hash_from_path, load_mmlabs
+from htrflow.models.download import commit_hash_from_path, load_mmlabs
 from htrflow.models.openmmlab.utils import SuppressOutput
 from htrflow.results import Result
 from htrflow.utils.imgproc import NumpyImage, resize

@@ -6,7 +6,7 @@ import torch
 from transformers import AutoImageProcessor, AutoModelForImageClassification
 
 from htrflow.models.base_model import BaseModel
-from htrflow.models.hf_utils import HF_CONFIG, get_model_info
+from htrflow.models.download import get_model_info
 from htrflow.results import Result
 
 
@@ -45,14 +45,14 @@ class DiT(BaseModel):
         super().__init__(device)
 
         # Initialize model
-        model_kwargs = HF_CONFIG | (model_kwargs or {})
+        model_kwargs = model_kwargs or {}
         self.model = AutoModelForImageClassification.from_pretrained(model, **model_kwargs)
         self.model.to(self.device)
         logger.info("Initialized DiT model from %s on device %s.", model, self.device)
 
         # Initialize processor
         processor = processor or model
-        processor_kwargs = HF_CONFIG | (processor_kwargs or {})
+        processor_kwargs = processor_kwargs or {}
         self.processor = AutoImageProcessor.from_pretrained(processor, **processor_kwargs)
         logger.info(
             "Initialized DiT processor from %s. Initialization parameters: %s",

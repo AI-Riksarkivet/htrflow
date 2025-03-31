@@ -14,7 +14,7 @@ from transformers import (
 )
 
 from htrflow.models.base_model import BaseModel
-from htrflow.models.hf_utils import get_model_info
+from htrflow.models.download import get_model_info
 from htrflow.results import RecognizedText, Result
 from htrflow.utils import imgproc
 

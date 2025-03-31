@@ -7,7 +7,7 @@ from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 from transformers.utils import ModelOutput
 
 from htrflow.models.base_model import BaseModel
-from htrflow.models.hf_utils import HF_CONFIG, get_model_info
+from htrflow.models.download import get_model_info
 from htrflow.results import Result
 
 
@@ -61,7 +61,7 @@ class TrOCR(BaseModel):
         super().__init__(**kwargs)
 
         # Initialize model
-        model_kwargs = HF_CONFIG | (model_kwargs or {})
+        model_kwargs = model_kwargs or {}
         self.decoding = model_kwargs.pop("decoding", None)
         self.model = VisionEncoderDecoderModel.from_pretrained(model, **model_kwargs)
         self.model.to(self.device)
@@ -69,7 +69,7 @@ class TrOCR(BaseModel):
 
         # Initialize processor
         processor = processor or model
-        processor_kwargs = HF_CONFIG | (processor_kwargs or {})
+        processor_kwargs = processor_kwargs or {}
         self.processor = TrOCRProcessor.from_pretrained(processor, **processor_kwargs)
         logger.info("Initialized TrOCR processor from %s.", processor)
 

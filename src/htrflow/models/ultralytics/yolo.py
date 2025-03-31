@@ -5,7 +5,7 @@ import numpy as np
 from ultralytics import YOLO as UltralyticsYOLO
 
 from htrflow.models.base_model import BaseModel
-from htrflow.models.hf_utils import commit_hash_from_path, load_ultralytics
+from htrflow.models.download import commit_hash_from_path, load_ultralytics
 from htrflow.results import Result
 
 
