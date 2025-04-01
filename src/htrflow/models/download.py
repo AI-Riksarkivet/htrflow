@@ -8,7 +8,7 @@ import string
 
 from huggingface_hub import hf_hub_download, list_repo_files, model_info
 from huggingface_hub.constants import HF_HUB_CACHE, HF_HUB_OFFLINE
-from huggingface_hub.errors import LocalEntryNotFoundError
+from huggingface_hub.errors import LocalEntryNotFoundError, HFValidationError
 from huggingface_hub.file_download import repo_folder_name
 
 
@@ -177,9 +177,12 @@ def get_model_info(repo_id: str, revision: str | None = None) -> str | None:
         A commit hash if available, else None.
     """
 
-    # Call HF API if we are online
+    # Try to call HF API if we are online
     if not HF_HUB_OFFLINE:
-        return model_info(repo_id, revision=revision).sha
+        try:
+            return model_info(repo_id, revision=revision).sha
+        except HFValidationError:
+            return None
 
     # If we're offline and using a previously cached model, we use the commit
     # hash found in the cached model's path.
