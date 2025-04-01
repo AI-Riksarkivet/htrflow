@@ -184,7 +184,8 @@ def get_model_info(repo_id: str, revision: str | None = None) -> str | None:
     # If we're offline and using a previously cached model, we use the commit
     # hash found in the cached model's path.
     try:
-        cached_path = hf_hub_download(repo_id, "config.json", revision=revision)    # will return a cached path if it exists
+        # `hf_hub_download` returns the path to the last cached version
+        cached_path = hf_hub_download(repo_id, "config.json", revision=revision)
         return commit_hash_from_path(cached_path)
     except LocalEntryNotFoundError:
         pass
