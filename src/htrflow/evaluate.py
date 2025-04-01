@@ -94,7 +94,7 @@ class Metric:
         try:
             return self.compute(self._preprocess(gt), self._preprocess(candidate))
         except (ValueError, GEOSException):
-            return {key: None for key in self.best}
+            return dict.fromkeys(self.best, None)
 
     def compute(self, gt: Any, candidate: Any) -> dict[str, Any]:
         pass
