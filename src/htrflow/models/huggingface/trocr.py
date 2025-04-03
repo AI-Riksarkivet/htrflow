@@ -219,9 +219,9 @@ class WordLevelTrOCR(TrOCR):
         )
 
         # Warn if `max_new_tokens` was given and the limit was reached
-        n_tokens = outputs.sequences.shape[1]
+        n_tokens = outputs.sequences.shape[1] - 1   # -1 to ignore BOS token
         max_new_tokens = generation_kwargs.get("max_new_tokens")
-        if max_new_tokens and n_tokens >= max_new_tokens + 1:  # +1 to account for the BOS token
+        if max_new_tokens and n_tokens >= max_new_tokens:
             logger.warning(
                 "The longest sequence of this batch has %d tokens, which is the"
                 " maximum length, as specified by `max_new_tokens=%d`. This may"
@@ -230,14 +230,18 @@ class WordLevelTrOCR(TrOCR):
                 max_new_tokens,
             )
 
+        # Shape `(n_output_tokens, batch_size, n_image_patches + 1)`
         attentions = aggregate_attentions(outputs.cross_attentions)
 
-        # Create heatmaps by reshaping the weights dimension (size n_patches * n_patches + 1)
-        # to (n_patches, n_patches) and discard the extra first patch.
-        encoder_config = self.model.config.encoder
-        n_patches = int(encoder_config.image_size / encoder_config.encoder_stride)
-        n_tokens = len(outputs.cross_attentions)
-        heatmaps = torch.reshape(attentions[:, :, 1:], (n_tokens, -1, n_patches, n_patches))
+        # Calculate the shape of the attention heatmap
+        image_shape = self.processor.feature_extractor.size
+        patch_size = self.model.config.encoder.patch_size
+        heatmap_height = image_shape["height"] // patch_size
+        heatmap_width = image_shape["width"] // patch_size
+
+        # Create heatmaps by discarding the extra token (the first token) and reshaping the last
+        # dimension to match the original image shape.
+        heatmaps = torch.reshape(attentions[:, :, 1:], (n_tokens, -1, heatmap_height, heatmap_width))
 
         lines = self.processor.batch_decode(
             outputs.sequences,
