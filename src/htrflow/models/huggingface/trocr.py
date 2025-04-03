@@ -82,6 +82,9 @@ class TrOCR(BaseModel):
             }
         )
 
+        # Map `compute_transition_scores` method from decoder to model
+        self.compute_transition_scores = self.model.decoder.compute_transition_scores
+
     def _predict(self, images: list[np.ndarray], **generation_kwargs) -> list[Result]:
         """TrOCR-specific prediction method.
 
@@ -147,7 +150,7 @@ class TrOCR(BaseModel):
         https://discuss.huggingface.co/t/announcement-generation-get-probabilities-for-generated-output/30075
         """
         beam_indices = getattr(outputs, "beam_indices", None)
-        transition_scores = self.model.decoder.compute_transition_scores(
+        transition_scores = self.compute_transition_scores(
             outputs.sequences,
             outputs.scores,
             beam_indices=beam_indices,
