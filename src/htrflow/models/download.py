@@ -8,7 +8,7 @@ import string
 
 from huggingface_hub import hf_hub_download, list_repo_files, model_info
 from huggingface_hub.constants import HF_HUB_CACHE, HF_HUB_OFFLINE
-from huggingface_hub.errors import LocalEntryNotFoundError, HFValidationError
+from huggingface_hub.errors import HFValidationError, LocalEntryNotFoundError
 from huggingface_hub.file_download import repo_folder_name
 
 
