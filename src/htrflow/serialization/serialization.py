@@ -287,7 +287,7 @@ class Json(Serializer):
         def default(obj):
             return {k: v for k, v in obj.__dict__.items() if k not in ["mask", "_image", "parent"]}
 
-        return json.dumps(page.asdict() | metadata, default=default, indent=self.indent)
+        return json.dumps(page.asdict() | metadata, default=default, indent=self.indent, ensure_ascii=False)
 
     def serialize_collection(self, collection: Collection, **metadata):
         if self.one_file:
@@ -295,6 +295,7 @@ class Json(Serializer):
             doc = json.dumps(
                 {"collection_label": collection.label, "pages": pages},
                 indent=self.indent,
+                ensure_ascii=False,
             )
             filename = collection.label + self.extension
             return [(doc, filename)]
