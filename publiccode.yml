@@ -1,0 +1,58 @@
+publiccodeYmlVersion: "0.4"
+name: HTRflow
+url: https://github.com/AI-Riksarkivet/htrflow
+softwareVersion: 0.2.4
+releaseDate: 2025-02-14
+logo: https://github.com/AI-Riksarkivet/htrflow/raw/main/docs/assets/background_htrflow_2.png?raw=true
+platforms:
+  - linux
+categories:
+  - workflow-management
+  - document-management
+  - data-analytics
+usedBy:
+  - Swedish National Archives
+developmentStatus: beta
+softwareType: standalone/backend
+description:
+  en:
+    localisedName: HTRflow
+    shortDescription: HTRflow is an open source pipeline for transcription of
+      handwritten-, typed- or printed scanned texts.
+    longDescription: >-
+      HTRflow is an open source tool for HTR and OCR developed by the AI lab at
+      the National Archives of Sweden (Riksarkivet).
+
+
+      Key features¶
+
+      Flexibility: Customize the HTR/OCR process for different kinds of
+      materials.
+
+      Compatibility: HTRflow supports all models trained by the AI lab - and
+      more!
+
+      YAML pipelines: HTRflow YAML pipelines are easy to create, modify and
+      share.
+
+      Export: Export results as Alto XML, Page XML, plain text or JSON.
+
+      Evaluation: Compare results from different pipelines with ground truth.
+    documentation: https://ai-riksarkivet.github.io/htrflow/latest/
+    features:
+      - "Flexibility: Customize the HTR/OCR process for different kinds of
+        materials."
+      - "Compatibility: HTRflow supports many kinds of AI-model architectures"
+      - "Export: Export results in a number of standard formats for HTR/OCR:ed
+        texts"
+      - "Evaluation: Compare results from different pipelines with ground truth."
+    screenshots:
+      - https://ai-riksarkivet.github.io/htrflow/latest/assets/pipeline.png
+legal:
+  license: EUPL-1.2
+maintenance:
+  type: internal
+localisation:
+  localisationReady: true
+  availableLanguages:
+    - en
