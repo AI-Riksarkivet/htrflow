@@ -46,24 +46,16 @@ class Point:
         # Enables tuple-like indexing
         return (self.x, self.y)[i]
 
-    def move(self, dest: "Point | tuple[int, int]") -> "Point":
-        """Move point to `dest`
+    def __add__(self, other: "Point | tuple[int, int]") -> "Point":
+        other = Point(*other)
+        return Point(self.x + other.x, self.y + other.y)
 
-        Arguments:
-            dest: A (dx, dy) tuple or Point specifying where to move.
+    def __sub__(self, other: "Point | tuple[int, int]") -> "Point":
+        other = Point(*other)
+        return Point(self.x - other.x, self.y - other.y)
 
-        Returns:
-            A copy of this Point instance moved `dx` along the x-axis
-            and `dy` along the y-axis.
-
-        Example:
-        ```
-        >>> Point(1, 2).move((10, 10))
-        Point(11, 12)
-        ```
-        """
-        dx, dy = dest
-        return Point(self.x + dx, self.y + dy)
+    def __neg__(self) -> "Point":
+        return Point(-self.x, -self.y)
 
     def rescale(self, factor: float):
         """Rescale point by multiplying its coordinates with `factor`"""
@@ -222,7 +214,7 @@ class Polygon:
             A copy of the polygon with its coordinates shifted
             `dx` and `dy` in the x- and y-axis, respectively.
         """
-        return Polygon(point.move(dest) for point in self)
+        return Polygon(point + dest for point in self)
 
     def bbox(self) -> Bbox:
         """The smallest bounding box that encloses the polygon"""

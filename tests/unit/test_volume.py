@@ -76,30 +76,6 @@ def test_update_wrong_type(demo_image):
         root.update(5)
 
 
-def test_update_nested_segmentation_coordinates(demo_collection_segmented_nested):
-    page = demo_collection_segmented_nested[0]
-    segment = page[0]
-    nested_segment = page[0, 0]
-    parent_x = segment.coord.x
-    nested_segment_x_relative_to_parent = nested_segment.segment.bbox[0]
-    assert nested_segment.coord.x == parent_x + nested_segment_x_relative_to_parent
-
-    parent_y = segment.coord.y
-    nested_segment = page[0, 0]
-    nested_segment_y_relative_to_parent = nested_segment.segment.bbox[1]
-    assert nested_segment.coord.y == parent_y + nested_segment_y_relative_to_parent
-
-
-def test_polygon_nested(demo_collection_segmented_nested):
-    page = demo_collection_segmented_nested[0]
-    node = page[0]
-    nested_node = page[0, 0]
-    # .polygon attribute should be relative to original image
-    # but segment.polygon should be relative to parent
-    expected_polygon = [(node.coord.x + x, node.coord.y + y) for x, y in nested_node.segment.polygon]
-    assert all(p1[0] == p2[0] for p1, p2 in zip(nested_node.polygon, expected_polygon))
-
-
 def test_polygon_not_nested(demo_collection_segmented):
     ...
     # page = demo_collection_segmented[0]
@@ -152,10 +128,3 @@ def test_pickling(demo_collection_segmented_nested):
     assert isinstance(vol, volume.Collection)  # sanity check
     assert all(p1 == p2 for p1, p2 in zip(vol[0, 0].polygon[0], demo_collection_segmented_nested[0, 0].polygon[0]))
     assert vol[0, 0, 0].label == demo_collection_segmented_nested[0, 0, 0].label
-
-
-def test_resize(demo_collection_segmented_nested_with_text):
-    size = (100, 100)
-    demo_collection_segmented_nested_with_text.set_size(size)
-    for node in demo_collection_segmented_nested_with_text.traverse(filter=lambda _: True):
-        assert node.coord.x + node.width <= size[1] and node.coord.y + node.height <= size[0]

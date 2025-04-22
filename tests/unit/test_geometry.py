@@ -20,16 +20,21 @@ def test_point_init():
     assert p1 == p2
 
 
-def test_point_move():
-    p1 = geometry.Point(0, 0)
-    p2 = p1.move((1, 1))
-    assert p2 == geometry.Point(1, 1)
+def test_point_add():
+    p1 = geometry.Point(1, 2)
+    p2 = geometry.Point(5, 6)
+    assert p1 + p2 == geometry.Point(6, 8)
 
 
-def test_point_move_immutable():
-    p = geometry.Point(0, 0)
-    p.move((1, 1))
-    assert p == geometry.Point(0, 0)
+def test_point_sub():
+    p1 = geometry.Point(1, 2)
+    p2 = geometry.Point(5, 6)
+    assert p1 - p2 == geometry.Point(-4, -4)
+
+
+def test_point_neg():
+    p1 = geometry.Point(1, 2)
+    assert -p1 == geometry.Point(-1, -2)
 
 
 def test_bbox_height_width():

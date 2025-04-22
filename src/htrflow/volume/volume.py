@@ -14,7 +14,7 @@ import numpy as np
 from htrflow import serialization
 from htrflow.results import TEXT_RESULT_KEY, RecognizedText, Result, Segment
 from htrflow.utils import imgproc
-from htrflow.utils.geometry import Bbox, Mask, Point, Polygon, mask2polygon
+from htrflow.utils.geometry import Bbox, Point, Polygon
 from htrflow.volume.node import Node
 
 
@@ -22,40 +22,30 @@ logger = logging.getLogger(__name__)
 
 
 class ImageNode(Node, ABC):
-    parent: "ImageNode | None"
-    children: list["ImageNode"]
 
-    def __init__(
-        self,
-        height: int,
-        width: int,
-        coord: Point = Point(0, 0),
-        polygon: Polygon | None = None,
-        mask: Mask | None = None,
-        parent: "ImageNode | None" = None,
-        label: str | None = None,
-    ):
-        super().__init__(parent=parent, label=label)
-        self.height = height
-        self.width = width
-        self.coord = coord
-        self.bbox = Bbox(0, 0, width, height).move(coord)
-        self.mask = mask
-        self.polygon = self._compute_polygon(polygon)
-        self._image = None
+    @property
+    def coord(self) -> Point:
+        """Coordinate of this node's top left corner, relative to original image"""
+        return self.bbox.p1
 
-    def _compute_polygon(self, polygon: Polygon | None):
-        if polygon:
-            if self.parent:
-                polygon = polygon.move(self.parent.coord)
-            return polygon
+    @property
+    def width(self) -> int:
+        """Width of this node"""
+        return self.bbox.width
 
-        if self.parent and self.parent.mask is not None:
-            x, y = self.parent.coord
-            cropped_mask = imgproc.crop(self.parent.mask, self.bbox.move((-x, -y)))
-            if cropped_mask.any():
-                return mask2polygon(cropped_mask).move(self.coord)
+    @property
+    def height(self) -> int:
+        """Height of this node"""
+        return self.bbox.height
 
+    @property
+    @abstractmethod
+    def bbox(self) -> Bbox:
+        """Bounding box of this node"""
+        pass
+
+    @property
+    def polygon(self) -> Polygon:
         return self.bbox.polygon()
 
     def __str__(self) -> str:
@@ -65,41 +55,20 @@ class ImageNode(Node, ABC):
         return s
 
     def clear_images(self):
+        """Remove cached images"""
         for node in self.traverse():
             del node._image
             node._image = None
-
-    def rescale(self, ratio: float):
-        """
-        Rescale node
-
-        Scales the geometry-related attributes of this node and its children
-        by the given factor.
-
-        Arguments:
-            ratio: Scale factor.
-        """
-        self.height = int(self.height * ratio)
-        self.width = int(self.width * ratio)
-        self.coord = self.coord.rescale(ratio)
-        self.bbox = self.bbox.rescale(ratio)
-        self.polygon = self.polygon.rescale(ratio)
-        if self.mask is not None:
-            self.mask = imgproc.rescale_linear(self.mask, ratio)
-        if self._image is not None:
-            self._image = imgproc.rescale_linear(self._image, ratio)
-        for node in self.children:
-            node.rescale(ratio)
 
     @property
     def image(self):
         """The image this node represents"""
         if self._image is None:
-            self._image = self._generate_image()
+            self._image = self._load_image()
         return self._image
 
     @abstractmethod
-    def _generate_image(self):
+    def _load_image(self):
         pass
 
     @property
@@ -150,27 +119,27 @@ class ImageNode(Node, ABC):
 class SegmentNode(ImageNode):
     """A node representing a segment of a page"""
 
-    segment: Segment
-    parent: ImageNode
-
     def __init__(self, segment: Segment, parent: ImageNode):
-        bbox = segment.bbox.move(parent.coord)
-        super().__init__(bbox.height, bbox.width, bbox.p1, segment.polygon, segment.mask, parent)
-        self.add_data(segment=segment, **segment.data)
-        self.segment = segment
-        self._image = self._generate_image()
+        segment.move(parent.coord)
+        super().__init__(parent=parent)
+        self.add_data(**segment.data)
+        self._segment = segment
+        self._image = None
 
-    def _generate_image(self):
-        bbox = self.segment.bbox
-        mask = self.segment.mask
-        img = imgproc.crop(self.parent.image, bbox)
+    @property
+    def bbox(self) -> Bbox:
+        return self._segment.bbox
+
+    @property
+    def polygon(self) -> Polygon:
+        return self._segment.polygon
+
+    def _load_image(self):
+        img = imgproc.crop(self.parent.image, self.bbox.move(-self.parent.coord))
+        mask = self._segment.mask
         if mask is not None:
             img = imgproc.mask(img, mask)
         return img
-
-    def rescale(self, ratio):
-        super().rescale(ratio)
-        self.segment.rescale(ratio)
 
 
 class PageNode(ImageNode):
@@ -178,45 +147,23 @@ class PageNode(ImageNode):
 
     def __init__(self, image_path: str):
         self.path = image_path
+        self._image = None
         label = os.path.splitext(os.path.basename(image_path))[0]
-        image = imgproc.read(self.path)
-        self.original_shape = image.shape[:2]
-        self.ratio = 1
-        height, width = self.original_shape
-        super().__init__(height, width, label=label)
 
+        super().__init__(parent=None, label=label)
         self.add_data(
             file_name=os.path.basename(image_path),
             image_path=image_path,
             image_name=label,
         )
 
-    def set_size(self, size: tuple[int, int]) -> None:
-        """
-        Set the maximum size of the page
+    @property
+    def bbox(self) -> Bbox:
+        height, width = self.image.shape[:2]
+        return Bbox(0, 0, width, height)
 
-        The page is downsized to fit the given dimensions, while keeping
-        the original apect ratio. For example, a 1000x800 page would be
-        resized to 500x400 given size=(500,500).
-
-        Arguments:
-            size: The desired size in pixels as a (max_height, max_width) tuple.
-        """
-        old_width = self.width
-        old_height = self.height
-        width_ratio = old_width / size[1]
-        height_ratio = old_height / size[0]
-        ratio = 1 / max(width_ratio, height_ratio)
-        self.rescale(ratio)
-        logger.info("Resized %s from (%d, %d) to (%d, %d)", self.label, old_height, old_width, self.height, self.width)
-
-    def to_original_size(self):
-        """Restore the page's orginal size"""
-        self.set_size(self.original_shape)
-
-    def _generate_image(self):
-        ratio = self.width / self.original_shape[1]
-        return imgproc.rescale_linear(imgproc.read(self.path), ratio)
+    def _load_image(self):
+        return imgproc.read(self.path)
 
 
 class Collection:
@@ -254,20 +201,6 @@ class Collection:
             i, *rest = idx
             return self.pages[i][rest]
         return self.pages[idx]
-
-    def set_size(self, size: tuple[int, int]):
-        """
-        Set the maximum size of the collection's pages
-
-        The pages are downsized to fit the given dimensions, while keeping
-        the original apect ratio. For example, a 1000x800 image would be
-        resized to 500x400 given size=(500,500).
-
-        Arguments:
-            size: The desired size in pixels as a (max_height, max_width) tuple.
-        """
-        for page in self:
-            page.set_size(size)
 
     def traverse(self, filter):
         return chain(*[page.traverse(filter) for page in self])

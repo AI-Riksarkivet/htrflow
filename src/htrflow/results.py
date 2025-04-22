@@ -5,7 +5,7 @@ from typing import Any, Callable, Iterable, Sequence
 import numpy as np
 
 from htrflow.utils import geometry, imgproc
-from htrflow.utils.geometry import Bbox, Mask, Polygon
+from htrflow.utils.geometry import Bbox, Mask, Point, Polygon
 
 
 class Segment:
@@ -82,7 +82,7 @@ class Segment:
                 mask = imgproc.crop(mask, Bbox(*bbox))
 
         self.bbox = geometry.Bbox(*bbox)
-        self.polygon = polygon
+        self.polygon = polygon or self.bbox.polygon()
         self.mask = mask
         self.score = score
         self.class_label = class_label
@@ -136,6 +136,13 @@ class Segment:
         self.bbox = self.bbox.rescale(factor)
         if self.polygon is not None:
             self.polygon = self.polygon.rescale(factor)
+
+    def move(self, dest: Point):
+        if self.bbox is not None:
+            self.bbox = self.bbox.move(dest)
+        if self.polygon is not None:
+            self.polygon = self.polygon.move(dest)
+
 
 
 @dataclass

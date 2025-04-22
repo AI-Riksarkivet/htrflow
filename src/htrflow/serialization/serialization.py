@@ -84,7 +84,6 @@ class Serializer:
 
         outputs = []
         for page in collection:
-            page.to_original_size()
             doc = self.serialize(page, **metadata)
             if doc is None:
                 continue
