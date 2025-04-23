@@ -284,8 +284,7 @@ class Json(Serializer):
 
     def _serialize(self, page: PageNode, **metadata):
         def default(obj):
-            return {k: v for k, v in obj.__dict__.items() if k not in ["mask", "_image", "parent"]}
-
+            return obj.__dict__
         return json.dumps(page.asdict() | metadata, default=default, indent=self.indent, ensure_ascii=False)
 
     def serialize_collection(self, collection: Collection, **metadata):

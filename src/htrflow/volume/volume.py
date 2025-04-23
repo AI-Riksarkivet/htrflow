@@ -6,6 +6,7 @@ import logging
 import os
 import pickle
 from abc import ABC, abstractmethod
+from dataclasses import asdict
 from itertools import chain
 from typing import Generator, Iterable, Iterator, Sequence
 
@@ -141,6 +142,15 @@ class SegmentNode(ImageNode):
             img = imgproc.mask(img, mask)
         return img
 
+    def asdict(self) -> dict:
+        return super().asdict() | {
+            "segmentation_label": self._segment.class_label,
+            "segmentation_confidence": self._segment.score,
+            "bbox": asdict(self.bbox),
+            "polygon": str(self.polygon),
+        }
+
+
 
 class PageNode(ImageNode):
     """A node representing a page / input image"""
@@ -164,6 +174,12 @@ class PageNode(ImageNode):
 
     def _load_image(self):
         return imgproc.read(self.path)
+
+    def asdict(self) -> dict:
+        return super().asdict() | {
+            "height": self.height,
+            "width": self.width,
+        }
 
 
 class Collection:

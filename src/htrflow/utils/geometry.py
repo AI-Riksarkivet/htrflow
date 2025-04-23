@@ -204,6 +204,9 @@ class Polygon:
         """
         self.points = [Point(*point) for point in points]
 
+    def __str__(self) -> str:
+        return " ".join(f"{x},{y}" for x, y in self)
+
     def move(self, dest: tuple[int, int] | Point) -> "Polygon":
         """Move polygon to `dest`
 
