@@ -8,13 +8,14 @@ from transformers import DonutProcessor, VisionEncoderDecoderModel
 
 from htrflow.models.base_model import BaseModel
 from htrflow.models.download import get_model_info
+from htrflow.models.huggingface.mixins import ConfidenceMixin
 from htrflow.results import Result
 
 
 logger = logging.getLogger(__name__)
 
 
-class Donut(BaseModel):
+class Donut(BaseModel, ConfidenceMixin):
     """
     HTRflow adapter of Donut model.
     """
@@ -59,6 +60,8 @@ class Donut(BaseModel):
         self.metadata["processor"] = processor
         self.metadata["processor_version"]= get_model_info(processor, processor_kwargs.get("revision", None))
 
+        self.compute_transition_scores = self.model.decoder.compute_transition_scores
+
     def _predict(self, images: list[np.ndarray], **generation_kwargs) -> list[Result]:
 
         # Prepare generation kwargs
@@ -79,16 +82,24 @@ class Donut(BaseModel):
         prompts = [self.prompt for _ in images]
         pixel_values = self.processor(images, prompts, return_tensors="pt").pixel_values
         outputs = self.model.generate(pixel_values.to(self.model.device), **generation_kwargs)
+        scores = self.compute_sequence_confidence_score(outputs)
 
         # Construct results
         results = []
-        for sequence in self.processor.batch_decode(outputs.sequences):
+        for sequence, score in zip(self.processor.batch_decode(outputs.sequences), scores):
             sequence = sequence.replace(self.processor.tokenizer.eos_token, "")
             sequence = sequence.replace(self.processor.tokenizer.pad_token, "")
             sequence = re.sub(r"<.*?>", "", sequence, count=1).strip()
             data = self.processor.token2json(sequence)
-            results.append(Result(data=data))
-        return results
+            results.append(data | {"confidence_score": score})
+
+        chunked_results = []
+        chunk_size = generation_kwargs.get("num_return_sequences", 1)
+        for i in range(0, len(results), chunk_size):
+            chunk = results[i:i+chunk_size]
+            chunked_results.append(Result(data={"donut_result": chunk}))
+
+        return chunked_results
 
 
 def warn_when_overridden(kwargs: dict, overrides: dict):

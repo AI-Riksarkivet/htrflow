@@ -4,17 +4,17 @@ from typing import Any
 import numpy as np
 import torch
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel
-from transformers.utils import ModelOutput
 
 from htrflow.models.base_model import BaseModel
 from htrflow.models.download import get_model_info
+from htrflow.models.huggingface.mixins import ConfidenceMixin
 from htrflow.results import Result
 
 
 logger = logging.getLogger(__name__)
 
 
-class TrOCR(BaseModel):
+class TrOCR(BaseModel, ConfidenceMixin):
     """
     HTRflow adapter of the tranformer-based OCR model TrOCR.
 
@@ -112,7 +112,7 @@ class TrOCR(BaseModel):
             model_outputs = self.model.generate(model_inputs.to(self.model.device), **generation_kwargs)
 
             texts = self.processor.batch_decode(model_outputs.sequences, skip_special_tokens=True)
-            scores = self._compute_sequence_scores(model_outputs)
+            scores = self.compute_sequence_confidence_score(model_outputs)
 
         # Assemble and return a list of Result objects from the prediction outputs.
         # `texts` and `scores` are flattened lists so we need to iterate over them in steps.
@@ -140,33 +140,6 @@ class TrOCR(BaseModel):
             result = Result.text_recognition_result(metadata, texts_chunk, scores_chunk)
             results.append(result)
         return results
-
-    def _compute_sequence_scores(self, outputs: ModelOutput):
-        """Compute normalized prediction score for each output sequence
-
-        This function computes the normalized sequence scores from the output.
-        (Contrary to sequence_scores, which returns unnormalized scores)
-        It follows example #1 found here:
-        https://discuss.huggingface.co/t/announcement-generation-get-probabilities-for-generated-output/30075
-        """
-        beam_indices = getattr(outputs, "beam_indices", None)
-        transition_scores = self.compute_transition_scores(
-            outputs.sequences,
-            outputs.scores,
-            beam_indices=beam_indices,
-            normalize_logits=True,
-        )
-
-        is_beam_search = beam_indices is not None
-        length_penalty = self.model.generation_config.length_penalty if is_beam_search else 1.0
-        # In output from greedy decoding, padding tokens have a transition score
-        # of negative infinity. To "hide" them from the score computation
-        # they are set to 0 instead.
-        transition_scores[outputs.sequences[:, 1:] == self.model.generation_config.pad_token_id] = 0
-        transition_scores = transition_scores.cpu()
-        output_length = np.sum(transition_scores.numpy() < 0, axis=1)
-        scores = transition_scores.sum(axis=1) / (output_length**length_penalty)
-        return np.exp(scores).tolist()
 
 
 class WordLevelTrOCR(TrOCR):
@@ -248,7 +221,7 @@ class WordLevelTrOCR(TrOCR):
             skip_special_tokens=True,
             cleanup_tokenization_spaces=False,
         )
-        line_scores = self._compute_sequence_scores(outputs)
+        line_scores = self.compute_sequence_confidence_score(outputs)
         special_tokens = {*self.processor.tokenizer.special_tokens_map.values()}
         results = []
 
