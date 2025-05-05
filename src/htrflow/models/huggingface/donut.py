@@ -83,15 +83,16 @@ class Donut(BaseModel, ConfidenceMixin):
         pixel_values = self.processor(images, prompts, return_tensors="pt").pixel_values
         outputs = self.model.generate(pixel_values.to(self.model.device), **generation_kwargs)
         scores = self.compute_sequence_confidence_score(outputs)
+        token_scores = self.compute_confidence_per_token(outputs)
 
         # Construct results
         results = []
-        for sequence, score in zip(self.processor.batch_decode(outputs.sequences), scores):
+        for sequence, score, token_scores in zip(self.processor.batch_decode(outputs.sequences), scores, token_scores):
             sequence = sequence.replace(self.processor.tokenizer.eos_token, "")
             sequence = sequence.replace(self.processor.tokenizer.pad_token, "")
             sequence = re.sub(r"<.*?>", "", sequence, count=1).strip()
             data = self.processor.token2json(sequence)
-            results.append(data | {"confidence_score": score})
+            results.append(data | {"sequence_confidence_score": score, "token_confidence_scores": token_scores})
 
         chunked_results = []
         chunk_size = generation_kwargs.get("num_return_sequences", 1)
