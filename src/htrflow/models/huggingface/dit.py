@@ -92,7 +92,7 @@ class DiT(BaseModel):
         return [
             Result(
                 metadata=self.metadata,
-                data=[{"classification": self._get_labels(logits, return_format)}],
+                data={"classification": self._get_labels(logits, return_format)},
             )
             for logits in batch_logits
         ]
