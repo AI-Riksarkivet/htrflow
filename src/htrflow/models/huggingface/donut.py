@@ -80,8 +80,12 @@ class Donut(BaseModel, ConfidenceMixin):
 
         # Run inference
         prompts = [self.prompt for _ in images]
-        pixel_values = self.processor(images, prompts, return_tensors="pt").pixel_values
-        outputs = self.model.generate(pixel_values.to(self.model.device), **generation_kwargs)
+        inputs = self.processor(images, prompts, return_tensors="pt")
+        outputs = self.model.generate(
+            inputs.pixel_values.to(self.model.device),
+            decoder_input_ids=inputs.input_ids.to(self.model.device),
+            **generation_kwargs
+        )
         scores = self.compute_sequence_confidence_score(outputs)
         token_scores = self.compute_confidence_per_token(outputs)
 
