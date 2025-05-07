@@ -41,9 +41,10 @@ class ConfidenceMixin:
         transition_scores = np.exp(transition_scores.cpu()).tolist()
         result = []
         for sequence, scores in zip(outputs.sequences, transition_scores):
-            tokens = self.processor.batch_decode(sequence)
-            # shift tokens 1 step to discard the BOS token
-            result.append(list(zip(tokens[1:], scores)))
+            prompt_end_index = len(sequence) - len(scores)
+            tokens = self.processor.batch_decode(sequence, skip_special_tokens=True)
+            pairs = zip(tokens[prompt_end_index:], scores)
+            result.append([pair for pair in pairs if pair[0]])
         return result
 
     def _compute_transition_scores(self, outputs):
@@ -54,8 +55,10 @@ class ConfidenceMixin:
             beam_indices=beam_indices,
             normalize_logits=True,
         )
+        prompt_end_index = outputs.sequences.shape[1] - transition_scores.shape[1]
+        sequences = outputs.sequences[:, prompt_end_index:]
         # In output from greedy decoding, padding tokens have a transition score
         # of negative infinity. To "hide" them from the score computation
         # they are set to 0 instead.
-        transition_scores[outputs.sequences[:, 1:] == self.model.generation_config.pad_token_id] = 0
+        transition_scores[sequences == self.model.generation_config.pad_token_id] = 0
         return transition_scores
