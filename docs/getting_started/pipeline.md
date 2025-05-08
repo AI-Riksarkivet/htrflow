@@ -354,17 +354,3 @@ An `Export` step can be placed within a pipeline to export partial results. Here
     format: txt
     dest: cleaned-outputs
 ```
-
-
-### Setting node labels
-The nodes in the document tree are by default labelled `nodeX` where `X` is a serial number unique among the node's siblings. The IDs in Alto XML and Page XML outputs are derived from these node labels. The following snippet sets the labels to `regionX_lineY_wordZ` instead:
-
-```yaml
-labels:
-  level_labels:
-    - region  # first level nodes are labelled "region"
-    - line    # second-level nodes are labelled "line"
-    - word    # third-level nodes are labelled "word" 
-  sep: _
-  template: "{label}{number}"
-```
