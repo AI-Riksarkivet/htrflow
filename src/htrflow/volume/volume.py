@@ -151,7 +151,7 @@ class PageNode(ImageNode):
 
     def __init__(self, image_path: str):
         self.path = image_path
-        self._image = None
+        self._image = self._load_image()
         label = os.path.splitext(os.path.basename(image_path))[0]
 
         super().__init__(parent=None, label=label)
