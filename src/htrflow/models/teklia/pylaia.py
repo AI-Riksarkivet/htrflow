@@ -178,7 +178,9 @@ class PyLaia(BaseModel):
         for line in decode_output_lines:
             match = self.LINE_PREDICTION.match(line)
             if not match:
-                logger.warning("Could not parse line: %s", line)
+                logger.warning("Could not parse line: %s. Returning empty string.", line)
+                empty_result = Result.text_recognition_result(metadata, [""], [0.0])
+                results.append(empty_result)
                 continue
             _, score_str, text = match.groups()  # _ = image_id
 
