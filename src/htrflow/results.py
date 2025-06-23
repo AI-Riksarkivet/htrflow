@@ -8,6 +8,9 @@ from htrflow.utils import geometry, imgproc
 from htrflow.utils.geometry import Bbox, Mask, Point, Polygon
 
 
+TEXT_RESULT_KEY = "text_result"
+
+
 class Segment:
     """Segment class
 
@@ -144,7 +147,6 @@ class Segment:
             self.polygon = self.polygon.move(dest)
 
 
-
 @dataclass
 class RecognizedText:
     """Recognized text class
@@ -210,6 +212,25 @@ class Result:
         """Rescale the Result's segments"""
         for segment in self.segments:
             segment.rescale(factor)
+
+    @property
+    def text_result(self) -> RecognizedText | None:
+        """The RecognizedText object, if available."""
+        return self.data.get(TEXT_RESULT_KEY)
+
+    @property
+    def texts(self) -> list[str]:
+        """A list of recognized text candidates. Returns empty list if no text result."""
+        if self.text_result:
+            return self.text_result.texts
+        return []
+
+    @property
+    def confidences(self) -> list[float]:
+        """A list of confidence scores for the recognized text. Returns empty list if no text result."""
+        if self.text_result:
+            return self.text_result.scores
+        return []
 
     @property
     def bboxes(self) -> Sequence[Bbox]:
@@ -336,6 +357,3 @@ class Result:
 def _zip_longest_none(*items: Iterable[Any] | None, fillvalue=None):
     """zip_longest() but treats None as an empty list"""
     return zip_longest(*[[] if item is None else item for item in items], fillvalue=fillvalue)
-
-
-TEXT_RESULT_KEY = "text_result"

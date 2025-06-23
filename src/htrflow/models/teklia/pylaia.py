@@ -151,7 +151,7 @@ class PyLaia(BaseModel):
         image_ids = [str(uuid4()) for _ in images]
 
         for img_id, np_img in zip(image_ids, images):
-            rezied_img = _ensure_fixed_height(np_img, resize_input_height)
+            rezied_img = self._ensure_fixed_height(np_img, resize_input_height)
             cv2.imwrite(str(tmp_images_dir / f"{img_id}.jpg"), rezied_img)
 
         with NamedTemporaryFile() as pred_stdout, NamedTemporaryFile() as img_list:
@@ -195,6 +195,19 @@ class PyLaia(BaseModel):
         logger.debug(f"PyLaia recognized {len(results)} lines of text.")
 
         return results
+
+    def _ensure_fixed_height(self, img: np.ndarray, target_height: int = 128) -> np.ndarray:
+        """Ensures an image is always resized to a fixed height, maintaining aspect ratio.
+
+        If target_height is -1, the function returns the original image without resizing.
+        """
+        if target_height > 0:
+            aspect_ratio = img.shape[1] / img.shape[0]
+            new_width = int(target_height * aspect_ratio)
+            new_shape = (target_height, new_width)
+            return imgproc.resize(img, new_shape)
+
+        return img
 
 
 class LanguageModelParams(pydantic.BaseModel):
@@ -288,9 +301,9 @@ def _download_or_local_path(
         logger.info(f"Downloading/loading PyLaia model '{model}' from the Hugging Face Hub...")
         downloaded_dir = Path(snapshot_download(repo_id=model, revision=revision, cache_dir=cache_dir))
         if revision:
-            version_sha = model_info(model, revision=revision).sha
+            version_sha = str(model_info(model, revision=revision).sha)
         else:
-            version_sha = model_info(model).sha
+            version_sha = str(model_info(model).sha)
 
         return downloaded_dir, version_sha
 
@@ -341,21 +354,12 @@ def _detect_language_model(model_dir: Path, use_binary_lm: bool) -> tuple[bool, 
             language_model_path=str(lm_file) if lm_file.exists() else "",
             lexicon_path=str(lexicon_file) if lexicon_file.exists() else "",
             tokens_path=str(tokens_file),
-            is_binary_lm=use_binary_lm,
         )
 
     return use_language_model, language_model_params
 
 
-def _ensure_fixed_height(img: np.ndarray, target_height: int = 128) -> np.ndarray:
-    """Ensures an image is always resized to a fixed height, maintaining aspect ratio.
-
-    If target_height is -1, the function returns the original image without resizing.
-    """
-    if target_height > 0:
-        aspect_ratio = img.shape[1] / img.shape[0]
-        new_width = int(target_height * aspect_ratio)
-        new_shape = (target_height, new_width)
-        return imgproc.resize(img, new_shape)
-
-    return img
+def create_noise_image(dimensions: tuple[int, int, int]) -> np.ndarray:
+    """Creates a random noise image, as seen in the pytest file."""
+    width, height, channels = dimensions
+    return np.random.randint(0, 256, (height, width, channels), dtype=np.uint8)
