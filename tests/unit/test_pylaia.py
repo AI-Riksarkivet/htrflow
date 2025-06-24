@@ -1,6 +1,9 @@
 import numpy as np
 import pytest
 
+
+pytest.importorskip("laia", reason="Teklia dependencies not installed")
+
 from htrflow.models.teklia.pylaia import PyLaia
 from htrflow.results import Result
 from htrflow.utils.imgproc import read

@@ -1,5 +1,9 @@
 import pytest
 
+
+pytest.importorskip("transformers", reason="Transformers dependencies not installed")
+
+
 from htrflow.models.huggingface.trocr import WordLevelTrOCR
 from htrflow.utils.imgproc import read
 
