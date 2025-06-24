@@ -357,9 +357,3 @@ def _detect_language_model(model_dir: Path, use_binary_lm: bool) -> tuple[bool, 
         )
 
     return use_language_model, language_model_params
-
-
-def create_noise_image(dimensions: tuple[int, int, int]) -> np.ndarray:
-    """Creates a random noise image, as seen in the pytest file."""
-    width, height, channels = dimensions
-    return np.random.randint(0, 256, (height, width, channels), dtype=np.uint8)
