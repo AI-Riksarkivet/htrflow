@@ -33,28 +33,27 @@ jobs:
     strategy:
       matrix:
         python3.10:
-          pythonVersion: "3.10"
+          toxEnv: "py310"
         python3.11:
-          pythonVersion: "3.11"
+          toxEnv: "py311"
         python3.12:
-          pythonVersion: "3.12"
+          toxEnv: "py312"
+        teklia-python3.10:
+          toxEnv: "teklia-py310"
     steps:
       - checkout: self
-
       - script: |
-          echo "Synchronizing project dependencies with uv..."
-          uv sync --dev
-        displayName: "Sync dependencies with uv"
-
+          echo "Installing tox with uv..."
+          uv tool install tox --with tox-uv
+        displayName: "Install tox"
       - script: |
-          echo "Running tests on Python $(pythonVersion)..."
-          uv run pytest -m "not gpu and not openmmlab and not teklia" --junitxml=test_results.xml
-        displayName: "Run tests with pytest"
-
+          echo "Running tests with tox environment: $(toxEnv)..."
+          tox -e $(toxEnv) -- --junitxml=test_results.xml
+        displayName: "Run tests with tox"
       - task: PublishTestResults@2
         inputs:
           testResultsFiles: "**/test_results.xml"
-          testRunTitle: "htrflow Pytest $(pythonVersion) - $(Build.BuildNumber)"
+          testRunTitle: "htrflow Pytest $(toxEnv) - $(Build.BuildNumber)"
         condition: succeededOrFailed()
 
   - job: SecretsCheck
