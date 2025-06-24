@@ -1,6 +1,6 @@
 [project]
 name = "htrflow"
-version = "0.2.5"
+version = "0.2.6"
 description = "htrflow is developed at Riksarkivet's AI-lab as an open-source package to simplify HTR"
 readme = "README.md"
 license = {file = "LICENSE"}
