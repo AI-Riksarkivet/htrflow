@@ -1,0 +1,41 @@
+:root {
+    --md-primary-fg-color: #1f71ba;    
+    --md-accent-fg-color: #00FFCE;
+  }
+
+
+body[data-md-color-primary="black"] .svg_image  svg  {  
+  filter: invert(100%) hue-rotate(180deg);
+}
+
+body[data-md-color-primary="black"] .svg_image svg rect {
+  fill: transparent;
+}
+
+.svg_image {
+  text-align: center;
+  width: 100%;
+}
+
+.center {
+  display: block;
+  margin: 0 auto;
+}
+
+
+@keyframes heart {
+  0%, 40%, 80%, 100% {
+    transform: scale(1);
+  }
+  20%, 60% {
+    transform: scale(1.15);
+  }
+}
+.heart {
+  animation: heart 1000ms infinite;
+}
+
+
+.hide-title{
+  display: none;
+}
