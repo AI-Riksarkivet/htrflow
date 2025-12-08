@@ -26,6 +26,13 @@ class LogLevel(str, Enum):
     error = "error"
 
 
+class OutputFormat(str, Enum):
+    alto = "alto"
+    page = "page"
+    plaintext = "txt"
+    json = "json"
+
+
 class HTRFLOWLoggingFormatter(logging.Formatter):
     """Logging formatter for HTRFLOW"""
 
@@ -72,6 +79,23 @@ def run_pipeline(
         str | None,
         typer.Option(help="Collection label"),
     ] = None,
+    output: Annotated[
+        str | None,
+        typer.Option(
+            help=(
+                "Output directory. Adds an extra `Export` step to the end of the given pipeline. Uses the format "
+                "given by --output_format, or plaintext if not given."
+            )
+        )
+    ] = None,
+    output_format: Annotated[
+        OutputFormat | None,
+        typer.Option(
+            help=(
+                "Output format. Adds an extra `Export` step to the end of the given pipeline. Writes to the directory "
+                "given by --output, or 'outputs' if not given."
+            ))
+    ] = None,
     inputs_file: Annotated[
         str | None,
         typer.Option(
@@ -86,7 +110,7 @@ def run_pipeline(
 
     # Slow imports! Only import after all CLI arguments have been resolved.
     from htrflow.pipeline.pipeline import Pipeline
-    from htrflow.pipeline.steps import auto_import
+    from htrflow.pipeline.steps import Export, auto_import
 
     if isinstance(pipeline, Pipeline):
         pipe = pipeline
@@ -95,6 +119,11 @@ def run_pipeline(
         with open(pipeline, "r") as file:
             config = yaml.safe_load(file)
         pipe = Pipeline.from_config(config)
+
+    if output or output_format:
+        output = output or "outputs"
+        output_format = output_format or "txt"
+        pipe.steps.append(Export(output, output_format))
 
     pipe.do_backup = backup
 
