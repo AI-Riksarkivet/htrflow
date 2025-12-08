@@ -48,24 +48,6 @@ def test_run_htr_pipeline(image_path, pipeline_path):
     run_pipeline_test(image_path, pipeline_path)
 
 
-@pytest.mark.openmmlab
-@pytest.mark.parametrize(
-    "image_path, pipeline_path",
-    [
-        (
-            "tests/integration/data/images/trocr_example.png",
-            "tests/integration/data/pipelines/test_gpu_hf_htr_pipeline.yaml",
-        ),
-        (
-            "tests/integration/data/images/trocr_example.png",
-            "tests/integration/data/pipelines/test_gpu_opennmlab_htr_pipeline.yaml",
-        ),
-    ],
-)
-def test_run_openmmlab_pipeline(image_path, pipeline_path):
-    run_pipeline_test(image_path, pipeline_path)
-
-
 @pytest.mark.teklia
 @pytest.mark.parametrize(
     "image_path, pipeline_path",

@@ -12,47 +12,6 @@ from huggingface_hub.errors import HFValidationError, LocalEntryNotFoundError
 from huggingface_hub.file_download import repo_folder_name
 
 
-def _fix_mmlab_dict_file(config_path: str, dictionary_path: str) -> None:
-    from mmengine.config import Config  # type: ignore
-
-    cfg = Config.fromfile(config_path)
-    cfg.dictionary["dict_file"] = dictionary_path
-    cfg.model["decoder"]["dictionary"]["dict_file"] = dictionary_path
-    cfg.dump(config_path)
-
-
-def load_mmlabs(model_id: str, config_id: str | None = None, revision: str | None = None) -> tuple[str, str]:
-    """Download mmlabs model files if not present in cache.
-
-    OpenMMLabs models need two files: a model weights file and a config file.
-    This function finds any cached versions of the given files, or, if necessary,
-    downloads the files from the huggingface hub.
-
-    Arguments:
-        model_id: Path to a local .pth model weights file or ID of a huggingface
-            repo which contains a .pth file.
-        config_id: Path to a local config.py file or ID of a huggingface repo which
-            contains a config.py file.
-
-    Returns:
-        A tuple of paths (model_path, config_path) pointing to the local model
-        and config files.
-    """
-    if os.path.exists(model_id) and config_id and os.path.exists(config_id):
-        return model_id, config_id
-
-    model = _hf_hub_download_matching_file(model_id, "*.pth", revision)
-    config = _hf_hub_download_matching_file(model_id, "config.py", revision)
-
-    try:
-        dictionary = _hf_hub_download_matching_file(model_id, "dictionary.txt", revision)
-        _fix_mmlab_dict_file(config, dictionary)
-    except FileNotFoundError:
-        pass
-
-    return model, config
-
-
 def load_ultralytics(model_id: str, revision: str | None = None) -> str:
     """Download ultralytics model if it's not present in cache.
 

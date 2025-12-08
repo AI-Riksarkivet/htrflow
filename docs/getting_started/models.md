@@ -1,68 +1,8 @@
 
 # Models
 
-## Supported Models
+Riksarkivet provides several ready-to-use models available on [Hugging Face](https://huggingface.co/Riksarkivet).
 
-HTRflow natively supports specific models from the following frameworks: Ultralytics, Hugging Face, and OpenMMLab.
-
-!!! tip
-    For a complete list of predefined models compatible with our [Pipeline steps](../reference/pipeline-steps.md), see the [Model reference](../reference/models.md).
-
-## Riksarkivet Models
-
- Riksarkivet provides several ready-to-use models available on [Hugging Face](https://huggingface.co/Riksarkivet).
-
-## OpenMMLab Models
-
-To use OpenMMLab models (e.g SATRN), specific dependencies need to be installed, including `torch`, `mmcv`, `mmdet`, `mmengine`, `mmocr`, and `yapf`. Follow the instructions below to ensure the correct versions are installed.
-
-!!! Note
-    OpenMMLab requires a specific PyTorch version. Make sure you have `pytorch==2.0.0` installed:
-
-    ```bash
-    pip install -U torch==2.0.0
-    ```
-
-You can install the OpenMMLab dependencies using either `mim` or `pip`.
-
-=== "Using mim"
-
-    The recommended method, according to OpenMMLab, is to use `mim`, which is a package and model manager.
-
-    First, install `mim`:
-
-    ```bash
-    pip install -U openmim
-    ```
-
-    Then, use `mim` to install the required packages:
-
-    ```bash
-    mim install -U mmdet
-    mim install -U mmengine
-    mim install -U mmocr
-    mim install -U mmcv
-    ```
-
-=== "Using pip"
-
-    Alternatively, you can install the dependencies using `pip`:
-
-    ```bash
-    pip install -U mmcv==2.0.0
-    pip install -U mmdet==3.1.0
-    pip install -U mmengine==0.7.2
-    pip install -U mmocr==1.0.1
-    pip install -U yapf==0.40.1
-    ```
-
-Here are links to the documentation for each OpenMMLab package used in HTRflow:
-
-- [mim](https://openmim.readthedocs.io/en/latest/)
-- [mmdet](https://mmdetection.readthedocs.io/en/latest/overview.html)
-- [mmocr](https://mmocr.readthedocs.io/en/latest/get_started/overview.html)
-- [mmengine](https://mmengine.readthedocs.io/en/latest/)
-- [mmcv](https://mmcv.readthedocs.io/en/latest/)
 
 ## Teklia Models
 

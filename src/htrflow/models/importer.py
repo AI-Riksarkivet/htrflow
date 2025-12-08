@@ -18,20 +18,7 @@ def all_models():
 
     models = [DiT, LLavaNext, TrOCR, WordLevelTrOCR, YOLO, Donut]
 
-    openmmlabs_models = []
     teklia_models = []
-
-    # Import openmmlabs models if available
-    try:
-        from htrflow.models.openmmlab.rtmdet import RTMDet
-        from htrflow.models.openmmlab.satrn import Satrn
-
-        openmmlabs_models = [RTMDet, Satrn]
-
-        models += openmmlabs_models
-
-    except ModuleNotFoundError:
-        logger.exception(f"Could not import OpenMMLab models: {openmmlabs_models}.")
 
     try:
         from htrflow.models.teklia.pylaia import PyLaia

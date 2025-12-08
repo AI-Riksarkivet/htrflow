@@ -78,7 +78,6 @@ addopts = "-v --cov htrflow --cov-report term-missing --no-cov-on-fail"
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "gpu: marks tests as gpu (deselect with '-m \"not gpu\"')",
-    "openmmlab: marks tests as openmmlab (deselect with '-m \"not openmmlab\"')",
     "teklia: marks tests as teklia (deselect with '-m \"not teklia\"')"
 ]
 pythonpath = "src"

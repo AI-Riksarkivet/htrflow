@@ -12,19 +12,12 @@
 ::: models.huggingface.trocr.WordLevelTrOCR
     options:
         heading_level: 3
-::: models.openmmlab.satrn.Satrn
-    options:
-        heading_level: 3
-
 ::: models.teklia.pylaia.PyLaia
     options:
         heading_level: 3
 
 
 ## Segmentation models
-::: models.openmmlab.rtmdet.RTMDet
-    options:
-        heading_level: 3
 ::: models.ultralytics.yolo.YOLO
     options:
         heading_level: 3
