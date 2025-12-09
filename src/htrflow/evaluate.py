@@ -1,14 +1,52 @@
 import os
 from collections import Counter
+from dataclasses import dataclass
 from typing import Any
 
 import jiwer
+import lxml.etree as ET
 import pandas as pd
-from pagexml.model.physical_document_model import PageXMLPage
-from pagexml.parser import parse_pagexml_file
 from rich import print
 from rich.table import Table
-from shapely import GEOSException, Polygon, union_all
+from shapely import Polygon, union_all
+
+
+def coords2polygon(coords: str) -> Polygon:
+    return Polygon(coord.split(",") for coord in coords.split(" "))
+
+
+class PageXMLPage:
+    def __init__(self, path):
+        self.path = path
+        self.root = ET.parse(path).getroot()
+
+    def get_all_text_regions(self):
+        for region in self.root.findall(".//TextRegion", namespaces=self.root.nsmap):
+            coords = region.find("./Coords", namespaces=self.root.nsmap).get("points")
+            polygon = coords2polygon(coords)
+            yield polygon
+
+    def get_text_lines(self):
+        for line in self.root.findall(".//TextLine", namespaces=self.root.nsmap):
+            text = line.find("./TextEquiv/Unicode", namespaces=self.root.nsmap)
+            coords = line.find("./Coords", namespaces=self.root.nsmap).get("points")
+            polygon = coords2polygon(coords)
+
+            if text is not None:
+                text = text.text
+
+            if text is None:
+                words = line.findall("./Word/TextEquiv/Unicode", namespaces=self.root.nsmap)
+                text = " ".join(word.text for word in words)
+
+            if text and polygon:
+                yield Line(text, polygon)
+
+
+@dataclass
+class Line:
+    text: str
+    polygon: Polygon
 
 
 class Ratio:
@@ -91,10 +129,7 @@ class Metric:
             A dictionary with the name(s) and value(s) of the computed
             metric. For example: {"metricA": 0.5, "metricB": 0.6}
         """
-        try:
-            return self.compute(self._preprocess(gt), self._preprocess(candidate))
-        except (ValueError, GEOSException):
-            return dict.fromkeys(self.best, None)
+        return self.compute(self._preprocess(gt), self._preprocess(candidate))
 
     def compute(self, gt: Any, candidate: Any) -> dict[str, Any]:
         pass
@@ -109,11 +144,8 @@ class TextMetric(Metric):
     def _preprocess(self, page: PageXMLPage) -> str:
         """Extract the text from `page`"""
         lines = []
-        for line in page.get_lines():
-            text = line.text
-            if text is None:
-                text = " ".join(word.text for word in line.words)
-            lines.append(text)
+        for line in page.get_text_lines():
+            lines.append(line.text)
         return "\n".join(lines)
 
 
@@ -122,7 +154,7 @@ class RegionMetric(Metric):
 
     def _preprocess(self, page: PageXMLPage) -> list[Polygon]:
         """Extract the region polygons from `page`"""
-        return [Polygon(region.coords.points) for region in page.get_all_text_regions()]
+        return list(page.get_all_text_regions())
 
 
 class LineRegionMetric(Metric):
@@ -130,7 +162,7 @@ class LineRegionMetric(Metric):
 
     def _preprocess(self, page: PageXMLPage) -> list[Polygon]:
         """Extract the line polygons from `page`"""
-        return [Polygon(line.coords.points) for line in page.get_lines()]
+        return [line.polygon for line in page.get_text_lines()]
 
 
 class LineCoverage(LineRegionMetric):
@@ -264,10 +296,8 @@ def read_xmls(directory: str) -> dict[str, PageXMLPage]:
         for file in files:
             if not file.endswith(".xml"):
                 continue
-            try:
-                page = parse_pagexml_file(os.path.join(parent, file))
-            except ValueError:
-                continue
+
+            page = PageXMLPage(os.path.join(parent, file))
             pages[file] = page
     return pages
 
@@ -295,7 +325,7 @@ def evaluate(gt_directory: str, *candidate_directories: tuple[str, ...]) -> pd.D
     dfs = []
     for candidate in candidate_directories:
         candidate_pages = read_xmls(candidate)
-        pages = [page for page in gt if page in candidate_pages and gt[page].num_words > 0]
+        pages = [page for page in gt if page in candidate_pages]
         for metric in metrics:
             values = [metric(gt[page], candidate_pages[page]) for page in pages]
             df = pd.DataFrame(values, index=pages)

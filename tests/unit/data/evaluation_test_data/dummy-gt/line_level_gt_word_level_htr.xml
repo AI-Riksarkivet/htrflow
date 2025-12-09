@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15 http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15/pagecontent.xsd">
+    <Metadata>
+        <Creator>ai@riksarkivet.se</Creator>
+        <Created>2025-12-10T08:47:54.663439</Created>
+        <LastChange>2025-12-10T08:47:54.663439</LastChange>
+    </Metadata>
+    <Page imageFilename="A0068699_00021.jpg" imageWidth="6312" imageHeight="5168">
+        <ReadingOrder>
+            <OrderedGroup id='ro'>
+            <OrderedGroupIndexed id="ro_A0068699_00021_textregion0" index="0">
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline0" index="0"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline1" index="1"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline2" index="2"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline3" index="3"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline4" index="4"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline5" index="5"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline6" index="6"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline7" index="7"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline8" index="8"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline9" index="9"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline10" index="10"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline11" index="11"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline12" index="12"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline13" index="13"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline14" index="14"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline15" index="15"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline16" index="16"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline17" index="17"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline18" index="18"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline19" index="19"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline20" index="20"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline21" index="21"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline22" index="22"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline23" index="23"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline24" index="24"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline25" index="25"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline26" index="26"/>
+            </OrderedGroupIndexed>
+            <OrderedGroupIndexed id="ro_A0068699_00021_textregion1" index="1">
+            <RegionRefIndexed regionRef="A0068699_00021_textregion1_textline0" index="0"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion1_textline1" index="1"/>
+            </OrderedGroupIndexed>
+            <OrderedGroupIndexed id="ro_A0068699_00021_textregion2" index="2">
+            <RegionRefIndexed regionRef="A0068699_00021_textregion2_textline0" index="0"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion2_textline1" index="1"/>
+            </OrderedGroupIndexed>
+            <OrderedGroupIndexed id="ro_A0068699_00021_textregion3" index="3">
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline0" index="0"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline1" index="1"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline2" index="2"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline3" index="3"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline4" index="4"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline5" index="5"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline6" index="6"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline7" index="7"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline8" index="8"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline9" index="9"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline10" index="10"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline11" index="11"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline12" index="12"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline13" index="13"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline14" index="14"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline15" index="15"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline16" index="16"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline17" index="17"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline18" index="18"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline19" index="19"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline20" index="20"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline21" index="21"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline22" index="22"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline23" index="23"/>
+            </OrderedGroupIndexed>
+            <OrderedGroupIndexed id="ro_A0068699_00021_textregion4" index="4">
+            <RegionRefIndexed regionRef="A0068699_00021_textregion4_textline0" index="0"/>
+            </OrderedGroupIndexed>
+            </OrderedGroup>
+        </ReadingOrder>
+        
+        <TextRegion id="A0068699_00021_textregion0">
+            <Coords points="1084,512 1144,4162 3136,4329 3284,3215 3234,512" />
+            <TextLine id="A0068699_00021_textregion0_textline0">
+            <Coords points="1504,577 1504,744 1796,780 1927,738 2034,798 2040,828 2088,828 2100,798 2279,732 2559,726 2720,774 2881,726 2881,655 2684,523 2607,523 2571,565 2470,583 2207,547 2201,523 1832,583" />
+            <TextEquiv conf="0.9066722640275954">
+                <Unicode>den 7 Juli</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline1">
+            <Coords points="2500,583 2237,559 2201,541 2201,523 1838,583 1504,577 1504,738 1790,780 1909,732 2034,798 2046,828 2088,828 2124,786 2279,732 2500,732" />
+            <TextEquiv conf="0.8526626299473427">
+                <Unicode>den 7 Julii</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline2">
+            <Coords points="3239,786 3174,714 2655,792 2452,750 2136,816 1742,804 1527,756 1408,798 1170,798 1170,953 1897,917 2124,959 2249,899 2690,935 2851,893 3191,917 3239,899" />
+            <TextEquiv conf="0.9396281685157043">
+                <Unicode>hon sedermera. hwarken Herr Lands¬</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline3">
+            <Coords points="3168,959 2995,881 2840,881 2673,953 2392,947 2273,881 2136,965 1295,941 1146,977 1146,1132 1349,1102 1569,1132 1784,1066 2088,1132 2350,1060 3084,1078 3168,1060" />
+            <TextEquiv conf="0.9204397340799451">
+                <Unicode>Höfdingen eller General Auditeu¬</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline4">
+            <Coords points="3168,1084 2953,1096 2881,1048 2726,1048 2565,1090 2488,1048 2345,1048 2255,1114 2100,1144 1778,1078 1581,1138 1170,1138 1170,1233 1408,1215 1671,1263 1885,1209 2058,1269 2500,1197 2744,1287 2846,1245 3168,1239" />
+            <TextEquiv conf="0.9249451841256775">
+                <Unicode>ren densammer skal tilstäldt, ty</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline5">
+            <Coords points="1146,1263 1146,1376 1563,1388 1677,1442 1838,1382 2470,1364 2571,1418 2696,1370 3168,1358 3168,1263 2738,1299 2529,1191 2088,1281 1867,1191 1665,1275 1420,1227" />
+            <TextEquiv conf="0.9736351533603387">
+                <Unicode>anhåller General Auditeuren at</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline6">
+            <Coords points="3168,1418 3120,1358 2881,1358 2649,1442 2523,1406 2488,1358 1832,1394 1694,1454 1551,1406 1283,1424 1122,1388 1122,1543 1844,1507 2052,1549 2183,1507 2368,1537 2595,1507 2786,1579 2929,1507 3168,1519" />
+            <TextEquiv conf="0.913848945484593">
+                <Unicode>Sommermåtte tilhållas ofwan¬</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline7">
+            <Coords points="1146,1543 1146,1657 1307,1686 1611,1657 1700,1692 1975,1663 2094,1692 2124,1734 2261,1669 2631,1698 3144,1645 3144,1555 3054,1502 2905,1502 2792,1585 2625,1502 2535,1502 2470,1561 2261,1502 2124,1573 1987,1591 1861,1502 1706,1502 1420,1579 1259,1502" />
+            <TextEquiv conf="0.9992946800230854">
+                <Unicode>berörde beswär ifrån sig gifwa.</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline8">
+            <Coords points="1122,1645 1122,1830 1319,1853 1408,1818 1545,1901 1677,1818 2046,1794 2261,1847 2410,1782 2643,1847 2792,1794 3078,1853 3168,1836 3168,1722 3036,1645 2619,1710 2356,1686 2136,1716 2046,1680 1683,1698 1569,1645 1331,1698" />
+            <TextEquiv conf="0.9789361783891256">
+                <Unicode>Och Resolverades. At detta re¬</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline9">
+            <Coords points="1170,1883 1170,1973 1653,1949 1951,2008 2094,1949 2500,1961 2577,2003 2780,1955 3144,1973 3144,1865 2899,1788 2762,1788 2667,1853 2517,1788 2368,1788 2267,1853 2148,1830 2112,1788 2011,1788 1963,1824 1766,1818 1557,1883 1456,1847" />
+            <TextEquiv conf="0.998504752905391">
+                <Unicode>mitteras til Herr Landshöfdin¬</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline10">
+            <Coords points="1146,1985 1146,2164 1384,2092 1802,2134 2601,2092 2786,2104 2911,2175 3024,2110 3191,2128 3191,1991 3108,1955 2917,1955 2887,1991 2679,1955 2559,2026 2327,1955 2160,1955 2022,2026 1867,2020 1772,1955 1504,1955 1444,2003" />
+            <TextEquiv conf="0.999032356503681">
+                <Unicode>gen Wälborne Baron Fredric Fri¬</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline11">
+            <Coords points="1170,2164 1170,2277 1307,2229 1545,2295 1730,2241 1903,2283 2553,2235 3144,2259 3144,2152 3018,2122 2905,2181 2792,2098 2684,2122 2058,2098 1993,2140 1879,2098 1814,2146 1700,2098 1623,2128 1313,2098" />
+            <TextEquiv conf="0.9038614480770112">
+                <Unicode>sendorf, at af BruksPatronen</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline12">
+            <Coords points="1146,2289 1146,2384 1396,2408 1593,2378 2112,2426 2720,2408 2828,2462 3048,2402 3215,2408 3215,2295 3102,2283 3060,2241 2917,2241 2863,2289 2512,2241 2464,2283 1903,2307 1796,2241 1706,2241 1569,2307 1408,2241 1241,2241" />
+            <TextEquiv conf="0.9987948380983767">
+                <Unicode>Simon Sommor, wid förelagdt wi¬</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline13">
+            <Coords points="1146,2390 1146,2533 1360,2569 1527,2521 1688,2599 1838,2539 1957,2581 2172,2527 2321,2575 2840,2533 3144,2551 3144,2432 2816,2474 2589,2408 2189,2432 2017,2408 1855,2456 1688,2384 1390,2414 1253,2360" />
+            <TextEquiv conf="0.9124783540394514">
+                <Unicode>te af Tiugu da.r Silfwerment</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline14">
+            <Coords points="1170,2575 1170,2665 1766,2665 2118,2724 2285,2676 2750,2682 2935,2736 2983,2694 3144,2682 3144,2587 2935,2557 2917,2527 2339,2593 2225,2527 1933,2599 1838,2527 1718,2605 1557,2527 1408,2527 1331,2587" />
+            <TextEquiv conf="0.9835424215524411">
+                <Unicode>infordra den af honom i Kong.</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline15">
+            <Coords points="1170,2676 1170,2867 1444,2808 1897,2832 2219,2808 2362,2861 2613,2843 2804,2903 2893,2832 3168,2832 3168,2778 2738,2700 2577,2724 2279,2688 2052,2736 1951,2700 1772,2730 1575,2647 1384,2694" />
+            <TextEquiv conf="0.9986847665171386">
+                <Unicode>Hofrätten den 13 Maji sidstledne</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline16">
+            <Coords points="2983,2694 2983,2760 3144,2760 3150,2766 3150,2784 3215,2784 3215,2694" />
+            <TextEquiv conf="0.9185599540073823">
+                <Unicode>ingifne</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline17">
+            <Coords points="1170,2873 1170,2987 1420,2951 1683,2987 1796,2945 1951,3010 2291,2957 2875,2999 3215,2969 3215,2897 2947,2814 2798,2891 2625,2855 2386,2873 2273,2814 2064,2814 1963,2855 1557,2814 1533,2843" />
+            <TextEquiv conf="0.9451218421787113">
+                <Unicode>och den 6 derpåföljande Junii com¬</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline18">
+            <Coords points="1193,2999 1193,3112 1617,3130 1957,3100 2070,3154 2207,3106 2601,3142 3168,3112 3168,3022 2959,3028 2804,2981 2690,3004 2637,2957 2464,2999 2392,2957 2178,2957 1981,3016 1903,3004 1867,2957 1736,2957 1605,3028" />
+            <TextEquiv conf="0.9979780805209536">
+                <Unicode>municerade beswärsskriften, och</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline19">
+            <Coords points="1193,3130 1193,3237 1343,3225 1414,3273 1623,3219 1861,3291 2213,3231 2631,3285 2935,3255 3191,3291 3191,3142 3078,3142 3036,3100 2696,3154 2482,3154 2410,3100 2178,3100 2094,3160 1987,3100 1724,3100 1557,3160" />
+            <TextEquiv conf="0.997692517465384">
+                <Unicode>den, jemte sin förklaring, til Kong.</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline20">
+            <Coords points="1217,3255 1217,3362 1366,3386 1504,3362 2046,3410 2321,3386 2506,3398 2601,3440 2762,3404 2899,3452 3144,3452 3144,3309 2708,3303 2291,3255 2255,3219 2142,3273 1927,3303 1820,3291 1688,3219 1516,3219 1432,3285 1360,3219" />
+            <TextEquiv conf="0.9889977796043046">
+                <Unicode>Hofrätten insända; och åligger</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline21">
+            <Coords points="1193,3362 1193,3535 2738,3553 2810,3589 2935,3547 3168,3553 3168,3476 2601,3452 2488,3404 1939,3440 1766,3362 1683,3386 1444,3362 1402,3398 1343,3362" />
+            <TextEquiv conf="0.9681404884309052">
+                <Unicode>BruksPatronen Sommor jem¬</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline22">
+            <Coords points="1146,3565 1146,3655 1265,3649 1593,3738 1927,3649 2189,3696 2285,3666 2696,3666 2995,3726 3096,3786 3168,3678 3168,3619 2911,3565 2804,3595 2500,3547 1408,3541 1378,3505 1337,3547" />
+            <TextEquiv conf="0.9736066885028986">
+                <Unicode>wäl sig häröfwer inom 14 dagar</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline23">
+            <Coords points="1146,3649 1146,3845 1307,3792 1402,3833 1545,3810 1677,3869 1688,3905 1861,3804 2452,3851 3048,3839 3048,3756 2726,3678 2070,3708 1993,3649 1879,3649 1844,3690 1569,3744 1408,3720 1313,3649" />
+            <TextEquiv conf="0.995978503570084">
+                <Unicode>efter undfåendet at förklara.</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline24">
+            <Coords points="1193,3833 1193,3953 1456,3953 1587,4048 1724,3965 1891,3989 2201,3941 2619,4018 2738,3977 3096,3977 3096,3869 3007,3845 2613,3839 2309,3887 1855,3792 1832,3833 1688,3887 1527,3792 1408,3839 1360,3792 1253,3792" />
+            <TextEquiv conf="0.9792541688671503">
+                <Unicode>S. d. Uplästes en af Justitiæ</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline25">
+            <Coords points="1146,3965 1146,4120 1265,4120 1349,4162 1694,4120 1951,4144 2100,4108 2189,4144 2285,4120 2595,4144 2744,4191 2846,4102 2965,4120 3096,4078 3096,4006 2977,3983 2619,4024 2362,3989 2285,3935 2166,3935 2136,3971 1969,4006 1718,3971 1629,4030 1462,4000 1372,3935" />
+            <TextEquiv conf="0.9411750400852887">
+                <Unicode>Borgmästarens Gerdelovii Enka</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline26">
+            <Coords points="3144,4078 3013,4078 3013,4096 3001,4108 2989,4108 2977,4126 2959,4132 2923,4126 2893,4108 2857,4108 2834,4126 2792,4126 2792,4287 2816,4287 2822,4263 2863,4251 2905,4251 2953,4239 2977,4245 3036,4227 3144,4215" />
+            <TextEquiv conf="0.9349024376464661">
+                <Unicode>Hustru</Unicode>
+            </TextEquiv>
+            </TextLine>
+        </TextRegion>
+        <TextRegion id="A0068699_00021_textregion1">
+            <Coords points="572,1933 572,2317 641,2317 650,2278 769,2278 779,2317 1114,2317 1114,1933" />
+            <TextLine id="A0068699_00021_textregion1_textline0">
+            <Coords points="594,1933 594,2132 685,2108 776,2108 804,2121 818,2157 853,2183 900,2196 946,2163 963,2122 953,2107 1087,2102 1087,1933 835,1933 753,1964 649,1933" />
+            <TextEquiv conf="0.2153794294311444">
+                <Unicode>und.nas</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion1_textline1">
+            <Coords points="634,2172 634,2271 737,2258 759,2274 949,2281 1019,2259 1070,2284 1070,2130 1003,2135 898,2197 743,2140 751,2130 715,2130 730,2146 725,2153 678,2154" />
+            <TextEquiv conf="0.09547703208493619">
+                <Unicode>ning</Unicode>
+            </TextEquiv>
+            </TextLine>
+        </TextRegion>
+        <TextRegion id="A0068699_00021_textregion2">
+            <Coords points="611,3787 611,4092 1025,4092 1114,4083 1163,4043 1193,4043 1193,3787" />
+            <TextLine id="A0068699_00021_textregion2_textline0">
+            <Coords points="612,3812 612,3958 682,3948 733,3968 845,3945 921,3968 1033,3927 1095,3983 1144,3991 1168,3982 1168,3831 1094,3828 1049,3799 993,3814 921,3800 831,3837 762,3825 694,3797" />
+            <TextEquiv conf="0.890490808138133">
+                <Unicode>Petter Bergers</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion2_textline1">
+            <Coords points="1077,3964 1037,3930 1013,3930 948,3966 838,3985 793,3972 727,3971 686,3950 633,3965 612,3962 612,4086 1059,4085 1077,4067" />
+            <TextEquiv conf="0.9976231703252236">
+                <Unicode>barn angde</Unicode>
+            </TextEquiv>
+            </TextLine>
+        </TextRegion>
+        <TextRegion id="A0068699_00021_textregion3">
+            <Coords points="3412,552 3412,4171 4260,4171 4980,4004 5414,4063 5532,3905 5532,552" />
+            <TextLine id="A0068699_00021_textregion3_textline0">
+            <Coords points="4121,568 4121,715 4319,721 4455,778 4528,778 4635,721 4754,693 4862,699 4862,552 4223,552 4217,563" />
+            <TextEquiv conf="0.9355851613524288">
+                <Unicode>den 7 Julii.</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline1">
+            <Coords points="3420,761 3420,964 3674,902 3883,981 4025,942 4132,959 4211,913 4353,959 4669,902 4783,964 4952,902 5105,942 5184,908 5427,942 5427,800 5314,749 5077,789 4867,721 4845,755 4517,800 3991,755 3963,721 3787,772" />
+            <TextEquiv conf="0.9907237841945508">
+                <Unicode>Hustru Christina Berger och af.</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline2">
+            <Coords points="3420,1123 3680,1066 3799,1123 3946,1049 4251,1089 4353,1055 4884,1055 5026,1089 5110,1049 5427,1038 5427,959 5269,942 5224,902 5094,953 5043,947 5026,902 4896,902 4777,970 4698,902 4528,902 4375,964 4234,925 4155,970 4025,947 3878,987 3748,902 3635,902 3589,942 3420,970" />
+            <TextEquiv conf="0.9897487109695952">
+                <Unicode>Bergmästarens Thor Bellanders</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline3">
+            <Coords points="3442,1123 3442,1213 3872,1224 3997,1196 4324,1247 4585,1185 5009,1236 5127,1196 5427,1185 5427,1038 5229,1072 5127,1038 5003,1106 4737,1038 4551,1077 4375,1038 4274,1100 3934,1038 3838,1106 3663,1089" />
+            <TextEquiv conf="0.9478673663216889">
+                <Unicode>enka Ädla och Wälbördiga Fru</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline4">
+            <Coords points="3420,1224 3420,1371 3878,1360 3980,1417 4183,1338 4432,1366 5472,1321 5472,1224 5342,1174 4980,1247 4749,1230 4613,1174 4483,1174 4302,1264 4036,1219 4002,1174 3866,1241 3702,1241 3601,1202" />
+            <TextEquiv conf="0.9653390834431087">
+                <Unicode>Anna Sophia Kinninmundt in¬</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline5">
+            <Coords points="5495,1343 4986,1371 4884,1338 4415,1377 4223,1354 3985,1405 3912,1377 3420,1383 3420,1558 3578,1501 3753,1518 3917,1479 4064,1547 4172,1507 4308,1547 4432,1496 4992,1462 5258,1518 5495,1490" />
+            <TextEquiv conf="0.9913837773267339">
+                <Unicode>gifwen Suppliqve, deruti de anhål¬</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline6">
+            <Coords points="3420,1564 3420,1660 3646,1682 3861,1637 3980,1733 4115,1637 4432,1620 4511,1649 4573,1620 4698,1688 4794,1637 4935,1682 5065,1620 5450,1620 5450,1564 5207,1535 5065,1468 4946,1468 4992,1513 4901,1558 4635,1501 4432,1507 4313,1552 4172,1513 4059,1552 3957,1468 3906,1468 3776,1535 3578,1513" />
+            <TextEquiv conf="0.9210796169015952">
+                <Unicode>la, at Justiteæ Borgmästaren i</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline7">
+            <Coords points="3442,1665 3442,1835 3555,1796 3980,1784 4370,1818 4545,1756 5495,1779 5495,1654 5105,1603 4935,1688 4788,1665 4692,1699 4590,1649 4443,1671 4415,1603 4330,1665 4115,1649 3997,1716 3770,1660 3629,1694" />
+            <TextEquiv conf="0.9307520382217682">
+                <Unicode>Gefle Ädle och Lagfarne Hans Onn¬</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline8">
+            <Coords points="3442,1948 3680,1954 3595,1976 3595,2005 3708,2005 3685,1948 3895,1965 4177,1914 5472,1903 5472,1796 5410,1762 4935,1762 4867,1796 4488,1762 4443,1807 4296,1829 4127,1796 3533,1807 3442,1841" />
+            <TextEquiv conf="0.9568923210056374">
+                <Unicode>berg och Stads Secreteraren der¬</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline9">
+            <Coords points="3420,1960 3420,2107 3578,2067 3872,2107 3991,2056 4245,2067 4375,2129 4562,2050 5009,2027 5291,2095 5405,2067 5405,1897 5297,1897 5229,1937 4980,1897 4907,1943 4392,1943 4240,1897 3906,1971 3782,1960 3652,2016" />
+            <TextEquiv conf="0.9861464925971748">
+                <Unicode>sammastädes Johan Nordenlöf¬</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline10">
+            <Coords points="5450,2073 5286,2101 5094,2033 4850,2033 4794,2073 4607,2033 4381,2135 4274,2078 4115,2095 3985,2061 3782,2129 3589,2073 3420,2112 3420,2242 3753,2214 3946,2248 4070,2208 4573,2186 4760,2225 5014,2174 5410,2180 5450,2174" />
+            <TextEquiv conf="0.9620610209616196">
+                <Unicode>Kunde förordnas til Förmynda¬</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline11">
+            <Coords points="5472,2203 5433,2169 4986,2169 4935,2214 4726,2248 4590,2197 4392,2237 4087,2214 3946,2254 3753,2225 3420,2248 3420,2367 3900,2389 4036,2327 4381,2321 4528,2378 4681,2304 4913,2378 5048,2293 5195,2338 5291,2304 5433,2333 5472,2304" />
+            <TextEquiv conf="0.9819463839495237">
+                <Unicode>re för afledne Häradshöfdingens</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline12">
+            <Coords points="5472,2361 5342,2304 5258,2304 5224,2344 5150,2304 5009,2304 4952,2367 4873,2384 4726,2304 4641,2304 4511,2389 4087,2338 3912,2395 3442,2372 3442,2519 4030,2480 4149,2536 4274,2474 4477,2497 4946,2435 5371,2463 5472,2440" />
+            <TextEquiv conf="0.9590550464725782">
+                <Unicode>Petter Bergers och Fru Eva Bea¬</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline13">
+            <Coords points="5427,2508 5224,2440 5110,2480 5020,2440 4884,2440 4822,2480 4675,2440 4472,2508 4274,2485 4149,2542 3810,2485 3465,2525 3465,2683 4698,2587 4794,2621 5088,2570 5393,2587" />
+            <TextEquiv conf="0.9111355316264165">
+                <Unicode>ta Kinninmundts efterlem¬</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline14">
+            <Coords points="5472,2621 5269,2553 5144,2553 4709,2644 4358,2615 4110,2666 3465,2672 3465,2819 3804,2757 3985,2791 4370,2751 4483,2808 4596,2746 5178,2706 5472,2717" />
+            <TextEquiv conf="0.999103168728314">
+                <Unicode>nade 3ne omyndige barn Söner¬</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline15">
+            <Coords points="5382,2740 5337,2712 5116,2712 5099,2740 4975,2740 4845,2791 4551,2779 4477,2813 4370,2757 4030,2802 3816,2762 3719,2808 3623,2785 3533,2830 3442,2813 3442,2938 3912,2938 4019,2904 4545,2881 4743,2915 4907,2864 5382,2859" />
+            <TextEquiv conf="0.9985176386169582">
+                <Unicode>ne Petter Robert och Anders</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline16">
+            <Coords points="5495,2887 5195,2847 4958,2921 4539,2893 4019,2910 3895,2960 3442,2955 3442,3102 3866,3062 4121,3102 4234,3051 5224,2994 5314,3028 5495,2989" />
+            <TextEquiv conf="0.9784642434471148">
+                <Unicode>Bernhard samt dottren Marga¬</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline17">
+            <Coords points="5472,3040 5438,3006 5337,3006 5320,3034 4884,3006 4811,3040 4234,3068 4098,3113 3974,3068 3465,3107 3465,3237 3731,3226 3923,3288 4257,3187 4590,3170 4709,3232 4884,3147 5161,3192 5291,3130 5433,3153 5472,3130" />
+            <TextEquiv conf="0.9982194627993046">
+                <Unicode>reta Christina Berger; Och Re¬</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline18">
+            <Coords points="5427,3141 5229,3141 5139,3221 4850,3141 4681,3249 4522,3192 4138,3226 3923,3294 3719,3243 3465,3243 3465,3418 3589,3379 4002,3351 4438,3390 4585,3322 4709,3351 4799,3305 5427,3300" />
+            <TextEquiv conf="0.9995329058559983">
+                <Unicode>solverades, at som förbemälte</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline19">
+            <Coords points="5427,3300 5212,3334 4777,3300 4709,3356 4579,3334 4438,3401 4042,3356 3804,3396 3595,3384 3465,3430 3465,3611 3646,3520 3917,3560 4053,3503 4189,3554 4387,3469 4635,3458 4833,3503 5133,3430 5229,3475 5427,3435" />
+            <TextEquiv conf="0.9369571426809729">
+                <Unicode>Häradshöfdingen Bergers omyn¬</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline20">
+            <Coords points="5472,3481 5444,3435 5297,3435 5229,3481 5167,3435 5020,3435 4833,3509 4641,3469 4398,3475 4189,3560 4036,3515 3906,3571 3663,3526 3488,3594 3488,3679 3550,3679 3652,3746 3782,3656 4160,3650 4296,3611 4438,3679 4652,3599 4946,3633 5043,3611 5178,3656 5269,3611 5438,3616" />
+            <TextEquiv conf="0.9936565128791862">
+                <Unicode>dige icke äro af Adeligit stånd;</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline21">
+            <Coords points="5472,3639 5127,3662 5043,3616 4941,3633 4890,3594 4630,3594 4455,3690 4308,3622 3963,3679 3833,3662 3652,3729 3510,3684 3510,3831 3765,3854 3912,3797 4064,3820 4336,3786 4443,3837 4517,3797 4958,3746 5405,3735 5472,3712" />
+            <TextEquiv conf="0.9922307138108898">
+                <Unicode>Altså kan Kong. Hofrätten med</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline22">
+            <Coords points="5450,3792 5048,3729 4952,3775 4754,3775 4443,3848 4330,3792 4081,3848 3951,3803 3776,3859 3465,3837 3465,3978 3934,3933 4076,3990 4313,3927 4472,3927 4771,3978 4884,4040 5082,3910 5450,3910" />
+            <TextEquiv conf="0.9990967601291824">
+                <Unicode>denna ansökning sig icke be¬</Unicode>
+            </TextEquiv>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline23">
+            <Coords points="3465,3995 3465,4148 3527,4125 3685,4120 3714,4131 3748,4165 3929,4165 3946,4131 3957,4018 3934,3973 3951,3956 3951,3933 3759,3933 3753,3956 3669,3956 3663,3933 3618,3933 3618,3950 3578,3978" />
+            <TextEquiv conf="0.9879046523085397">
+                <Unicode>fatta.</Unicode>
+            </TextEquiv>
+            </TextLine>
+        </TextRegion>
+        <TextRegion id="A0068699_00021_textregion4">
+            <Coords points="5582,394 5582,621 5730,621 5730,591 5749,572 5759,572 5759,562 5769,552 5769,394" />
+            <TextLine id="A0068699_00021_textregion4_textline0">
+            <Coords points="5602,394 5582,413 5582,567 5597,577 5597,600 5637,600 5679,619 5702,619 5708,616 5708,607 5724,599 5753,563 5753,394" />
+            <TextEquiv conf="0.9940180321991131">
+                <Unicode>3.</Unicode>
+            </TextEquiv>
+            </TextLine>
+        </TextRegion>
+      
+    </Page>
+</PcGts>

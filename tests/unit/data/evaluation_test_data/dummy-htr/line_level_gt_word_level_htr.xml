@@ -1,0 +1,1615 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15 http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15/pagecontent.xsd">
+    <Metadata>
+        <Creator>ai@riksarkivet.se</Creator>
+        <Created>2025-12-10T08:50:06.684035</Created>
+        <LastChange>2025-12-10T08:50:06.684035</LastChange>
+    </Metadata>
+    <Page imageFilename="A0068699_00021.jpg" imageWidth="6312" imageHeight="5168">
+        <ReadingOrder>
+            <OrderedGroup id='ro'>
+            <OrderedGroupIndexed id="ro_A0068699_00021_textregion0" index="0">
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline0" index="0"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline1" index="1"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline2" index="2"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline3" index="3"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline4" index="4"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline5" index="5"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline6" index="6"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline7" index="7"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline8" index="8"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline9" index="9"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline10" index="10"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline11" index="11"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline12" index="12"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline13" index="13"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline14" index="14"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline15" index="15"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline16" index="16"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline17" index="17"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline18" index="18"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline19" index="19"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline20" index="20"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline21" index="21"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline22" index="22"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline23" index="23"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline24" index="24"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline25" index="25"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion0_textline26" index="26"/>
+            </OrderedGroupIndexed>
+            <OrderedGroupIndexed id="ro_A0068699_00021_textregion1" index="1">
+            <RegionRefIndexed regionRef="A0068699_00021_textregion1_textline0" index="0"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion1_textline1" index="1"/>
+            </OrderedGroupIndexed>
+            <OrderedGroupIndexed id="ro_A0068699_00021_textregion2" index="2">
+            <RegionRefIndexed regionRef="A0068699_00021_textregion2_textline0" index="0"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion2_textline1" index="1"/>
+            </OrderedGroupIndexed>
+            <OrderedGroupIndexed id="ro_A0068699_00021_textregion3" index="3">
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline0" index="0"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline1" index="1"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline2" index="2"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline3" index="3"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline4" index="4"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline5" index="5"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline6" index="6"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline7" index="7"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline8" index="8"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline9" index="9"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline10" index="10"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline11" index="11"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline12" index="12"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline13" index="13"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline14" index="14"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline15" index="15"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline16" index="16"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline17" index="17"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline18" index="18"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline19" index="19"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline20" index="20"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline21" index="21"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline22" index="22"/>
+            <RegionRefIndexed regionRef="A0068699_00021_textregion3_textline23" index="23"/>
+            </OrderedGroupIndexed>
+            <OrderedGroupIndexed id="ro_A0068699_00021_textregion4" index="4">
+            <RegionRefIndexed regionRef="A0068699_00021_textregion4_textline0" index="0"/>
+            </OrderedGroupIndexed>
+            </OrderedGroup>
+        </ReadingOrder>
+        
+        <TextRegion id="A0068699_00021_textregion0">
+            <Coords points="1084,512 1144,4162 3136,4329 3284,3215 3234,512" />
+            <TextLine id="A0068699_00021_textregion0_textline0">
+            <Coords points="1504,577 1504,744 1796,780 1927,738 2034,798 2040,828 2088,828 2100,798 2279,732 2559,726 2720,774 2881,726 2881,655 2684,523 2607,523 2571,565 2470,583 2207,547 2201,523 1832,583" />
+                <Word id="A0068699_00021_textregion0_textline0_word0">
+                    <Coords points="1504,523 1676,523 1676,828 1504,828" />
+                    <TextEquiv conf="0.9060721061186013">
+                        <Unicode>den</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline0_word1">
+                    <Coords points="1676,523 2077,523 2077,828 1676,828" />
+                    <TextEquiv conf="0.9060721061186013">
+                        <Unicode>7</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline0_word2">
+                    <Coords points="2077,523 2881,523 2881,828 2077,828" />
+                    <TextEquiv conf="0.9060721061186013">
+                        <Unicode>Juli</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline1">
+            <Coords points="2500,583 2237,559 2201,541 2201,523 1838,583 1504,577 1504,738 1790,780 1909,732 2034,798 2046,828 2088,828 2124,786 2279,732 2500,732" />
+                <Word id="A0068699_00021_textregion0_textline1_word0">
+                    <Coords points="1504,523 2002,523 2002,828 1504,828" />
+                    <TextEquiv conf="0.8527559556100651">
+                        <Unicode>den</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline1_word1">
+                    <Coords points="2002,523 2085,523 2085,828 2002,828" />
+                    <TextEquiv conf="0.8527559556100651">
+                        <Unicode>7</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline1_word2">
+                    <Coords points="2085,523 2500,523 2500,828 2085,828" />
+                    <TextEquiv conf="0.8527559556100651">
+                        <Unicode>Julii</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline2">
+            <Coords points="3239,786 3174,714 2655,792 2452,750 2136,816 1742,804 1527,756 1408,798 1170,798 1170,953 1897,917 2124,959 2249,899 2690,935 2851,893 3191,917 3239,899" />
+                <Word id="A0068699_00021_textregion0_textline2_word0">
+                    <Coords points="1170,714 1428,714 1428,959 1170,959" />
+                    <TextEquiv conf="0.939489706881377">
+                        <Unicode>hon</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline2_word1">
+                    <Coords points="1428,714 2118,714 2118,959 1428,959" />
+                    <TextEquiv conf="0.939489706881377">
+                        <Unicode>sedermera.</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline2_word2">
+                    <Coords points="2118,714 2635,714 2635,959 2118,959" />
+                    <TextEquiv conf="0.939489706881377">
+                        <Unicode>hwarken</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline2_word3">
+                    <Coords points="2635,714 2980,714 2980,959 2635,959" />
+                    <TextEquiv conf="0.939489706881377">
+                        <Unicode>Herr</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline2_word4">
+                    <Coords points="2980,714 3239,714 3239,959 2980,959" />
+                    <TextEquiv conf="0.939489706881377">
+                        <Unicode>Lands¬</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline3">
+            <Coords points="3168,959 2995,881 2840,881 2673,953 2392,947 2273,881 2136,965 1295,941 1146,977 1146,1132 1349,1102 1569,1132 1784,1066 2088,1132 2350,1060 3084,1078 3168,1060" />
+                <Word id="A0068699_00021_textregion0_textline3_word0">
+                    <Coords points="1146,881 1820,881 1820,1132 1146,1132" />
+                    <TextEquiv conf="0.9204722367564587">
+                        <Unicode>Höfdingen</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline3_word1">
+                    <Coords points="1820,881 2072,881 2072,1132 1820,1132" />
+                    <TextEquiv conf="0.9204722367564587">
+                        <Unicode>eller</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline3_word2">
+                    <Coords points="2072,881 2578,881 2578,1132 2072,1132" />
+                    <TextEquiv conf="0.9204722367564587">
+                        <Unicode>General</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline3_word3">
+                    <Coords points="2578,881 3168,881 3168,1132 2578,1132" />
+                    <TextEquiv conf="0.9204722367564587">
+                        <Unicode>Auditeu¬</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline4">
+            <Coords points="3168,1084 2953,1096 2881,1048 2726,1048 2565,1090 2488,1048 2345,1048 2255,1114 2100,1144 1778,1078 1581,1138 1170,1138 1170,1233 1408,1215 1671,1263 1885,1209 2058,1269 2500,1197 2744,1287 2846,1245 3168,1239" />
+                <Word id="A0068699_00021_textregion0_textline4_word0">
+                    <Coords points="1170,1048 1419,1048 1419,1287 1170,1287" />
+                    <TextEquiv conf="0.9249142630265712">
+                        <Unicode>ren</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline4_word1">
+                    <Coords points="1419,1048 2169,1048 2169,1287 1419,1287" />
+                    <TextEquiv conf="0.9249142630265712">
+                        <Unicode>densammer</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline4_word2">
+                    <Coords points="2169,1048 2502,1048 2502,1287 2169,1287" />
+                    <TextEquiv conf="0.9249142630265712">
+                        <Unicode>skal</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline4_word3">
+                    <Coords points="2502,1048 3001,1048 3001,1287 2502,1287" />
+                    <TextEquiv conf="0.9249142630265712">
+                        <Unicode>tilstäldt,</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline4_word4">
+                    <Coords points="3001,1048 3168,1048 3168,1287 3001,1287" />
+                    <TextEquiv conf="0.9249142630265712">
+                        <Unicode>ty</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline5">
+            <Coords points="1146,1263 1146,1376 1563,1388 1677,1442 1838,1382 2470,1364 2571,1418 2696,1370 3168,1358 3168,1263 2738,1299 2529,1191 2088,1281 1867,1191 1665,1275 1420,1227" />
+                <Word id="A0068699_00021_textregion0_textline5_word0">
+                    <Coords points="1146,1191 1651,1191 1651,1442 1146,1442" />
+                    <TextEquiv conf="0.9735975456860243">
+                        <Unicode>anhåller</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline5_word1">
+                    <Coords points="1651,1191 2157,1191 2157,1442 1651,1442" />
+                    <TextEquiv conf="0.9735975456860243">
+                        <Unicode>General</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline5_word2">
+                    <Coords points="2157,1191 2915,1191 2915,1442 2157,1442" />
+                    <TextEquiv conf="0.9735975456860243">
+                        <Unicode>Auditeuren</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline5_word3">
+                    <Coords points="2915,1191 3168,1191 3168,1442 2915,1442" />
+                    <TextEquiv conf="0.9735975456860243">
+                        <Unicode>at</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline6">
+            <Coords points="3168,1418 3120,1358 2881,1358 2649,1442 2523,1406 2488,1358 1832,1394 1694,1454 1551,1406 1283,1424 1122,1388 1122,1543 1844,1507 2052,1549 2183,1507 2368,1537 2595,1507 2786,1579 2929,1507 3168,1519" />
+                <Word id="A0068699_00021_textregion0_textline6_word0">
+                    <Coords points="1122,1358 2145,1358 2145,1579 1122,1579" />
+                    <TextEquiv conf="0.9139392824032647">
+                        <Unicode>Sommermåtte</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline6_word1">
+                    <Coords points="2145,1358 2741,1358 2741,1579 2145,1579" />
+                    <TextEquiv conf="0.9139392824032647">
+                        <Unicode>tilhållas</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline6_word2">
+                    <Coords points="2741,1358 3168,1358 3168,1579 2741,1579" />
+                    <TextEquiv conf="0.9139392824032647">
+                        <Unicode>ofwan¬</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline7">
+            <Coords points="1146,1543 1146,1657 1307,1686 1611,1657 1700,1692 1975,1663 2094,1692 2124,1734 2261,1669 2631,1698 3144,1645 3144,1555 3054,1502 2905,1502 2792,1585 2625,1502 2535,1502 2470,1561 2261,1502 2124,1573 1987,1591 1861,1502 1706,1502 1420,1579 1259,1502" />
+                <Word id="A0068699_00021_textregion0_textline7_word0">
+                    <Coords points="1146,1502 1645,1502 1645,1734 1146,1734" />
+                    <TextEquiv conf="0.9992955428600465">
+                        <Unicode>berörde</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline7_word1">
+                    <Coords points="1645,1502 2061,1502 2061,1734 1645,1734" />
+                    <TextEquiv conf="0.9992955428600465">
+                        <Unicode>beswär</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline7_word2">
+                    <Coords points="2061,1502 2478,1502 2478,1734 2061,1734" />
+                    <TextEquiv conf="0.9992955428600465">
+                        <Unicode>ifrån</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline7_word3">
+                    <Coords points="2478,1502 2644,1502 2644,1734 2478,1734" />
+                    <TextEquiv conf="0.9992955428600465">
+                        <Unicode>sig</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline7_word4">
+                    <Coords points="2644,1502 3144,1502 3144,1734 2644,1734" />
+                    <TextEquiv conf="0.9992955428600465">
+                        <Unicode>gifwa.</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline8">
+            <Coords points="1122,1645 1122,1830 1319,1853 1408,1818 1545,1901 1677,1818 2046,1794 2261,1847 2410,1782 2643,1847 2792,1794 3078,1853 3168,1836 3168,1722 3036,1645 2619,1710 2356,1686 2136,1716 2046,1680 1683,1698 1569,1645 1331,1698" />
+                <Word id="A0068699_00021_textregion0_textline8_word0">
+                    <Coords points="1122,1645 1463,1645 1463,1901 1122,1901" />
+                    <TextEquiv conf="0.9789157001379648">
+                        <Unicode>Och</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline8_word1">
+                    <Coords points="1463,1645 2230,1645 2230,1901 1463,1901" />
+                    <TextEquiv conf="0.9789157001379648">
+                        <Unicode>Resolverades.</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline8_word2">
+                    <Coords points="2230,1645 2571,1645 2571,1901 2230,1901" />
+                    <TextEquiv conf="0.9789157001379648">
+                        <Unicode>At</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline8_word3">
+                    <Coords points="2571,1645 2912,1645 2912,1901 2571,1901" />
+                    <TextEquiv conf="0.9789157001379648">
+                        <Unicode>detta</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline8_word4">
+                    <Coords points="2912,1645 3168,1645 3168,1901 2912,1901" />
+                    <TextEquiv conf="0.9789157001379648">
+                        <Unicode>re¬</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline9">
+            <Coords points="1170,1883 1170,1973 1653,1949 1951,2008 2094,1949 2500,1961 2577,2003 2780,1955 3144,1973 3144,1865 2899,1788 2762,1788 2667,1853 2517,1788 2368,1788 2267,1853 2148,1830 2112,1788 2011,1788 1963,1824 1766,1818 1557,1883 1456,1847" />
+                <Word id="A0068699_00021_textregion0_textline9_word0">
+                    <Coords points="1170,1788 1745,1788 1745,2008 1170,2008" />
+                    <TextEquiv conf="0.9985057341148884">
+                        <Unicode>mitteras</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline9_word1">
+                    <Coords points="1745,1788 1992,1788 1992,2008 1745,2008" />
+                    <TextEquiv conf="0.9985057341148884">
+                        <Unicode>til</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline9_word2">
+                    <Coords points="1992,1788 2321,1788 2321,2008 1992,2008" />
+                    <TextEquiv conf="0.9985057341148884">
+                        <Unicode>Herr</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline9_word3">
+                    <Coords points="2321,1788 3144,1788 3144,2008 2321,2008" />
+                    <TextEquiv conf="0.9985057341148884">
+                        <Unicode>Landshöfdin¬</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline10">
+            <Coords points="1146,1985 1146,2164 1384,2092 1802,2134 2601,2092 2786,2104 2911,2175 3024,2110 3191,2128 3191,1991 3108,1955 2917,1955 2887,1991 2679,1955 2559,2026 2327,1955 2160,1955 2022,2026 1867,2020 1772,1955 1504,1955 1444,2003" />
+                <Word id="A0068699_00021_textregion0_textline10_word0">
+                    <Coords points="1146,1955 1572,1955 1572,2175 1146,2175" />
+                    <TextEquiv conf="0.9990298555341249">
+                        <Unicode>gen</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline10_word1">
+                    <Coords points="1572,1955 1998,1955 1998,2175 1572,2175" />
+                    <TextEquiv conf="0.9990298555341249">
+                        <Unicode>Wälborne</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline10_word2">
+                    <Coords points="1998,1955 2594,1955 2594,2175 1998,2175" />
+                    <TextEquiv conf="0.9990298555341249">
+                        <Unicode>Baron</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline10_word3">
+                    <Coords points="2594,1955 3020,1955 3020,2175 2594,2175" />
+                    <TextEquiv conf="0.9990298555341249">
+                        <Unicode>Fredric</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline10_word4">
+                    <Coords points="3020,1955 3191,1955 3191,2175 3020,2175" />
+                    <TextEquiv conf="0.9990298555341249">
+                        <Unicode>Fri¬</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline11">
+            <Coords points="1170,2164 1170,2277 1307,2229 1545,2295 1730,2241 1903,2283 2553,2235 3144,2259 3144,2152 3018,2122 2905,2181 2792,2098 2684,2122 2058,2098 1993,2140 1879,2098 1814,2146 1700,2098 1623,2128 1313,2098" />
+                <Word id="A0068699_00021_textregion0_textline11_word0">
+                    <Coords points="1170,2098 1663,2098 1663,2295 1170,2295" />
+                    <TextEquiv conf="0.903672000857012">
+                        <Unicode>sendorf,</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline11_word1">
+                    <Coords points="1663,2098 1910,2098 1910,2295 1663,2295" />
+                    <TextEquiv conf="0.903672000857012">
+                        <Unicode>at</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline11_word2">
+                    <Coords points="1910,2098 2157,2098 2157,2295 1910,2295" />
+                    <TextEquiv conf="0.903672000857012">
+                        <Unicode>af</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline11_word3">
+                    <Coords points="2157,2098 3144,2098 3144,2295 2157,2295" />
+                    <TextEquiv conf="0.903672000857012">
+                        <Unicode>BruksPatronen</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline12">
+            <Coords points="1146,2289 1146,2384 1396,2408 1593,2378 2112,2426 2720,2408 2828,2462 3048,2402 3215,2408 3215,2295 3102,2283 3060,2241 2917,2241 2863,2289 2512,2241 2464,2283 1903,2307 1796,2241 1706,2241 1569,2307 1408,2241 1241,2241" />
+                <Word id="A0068699_00021_textregion0_textline12_word0">
+                    <Coords points="1146,2241 1577,2241 1577,2462 1146,2462" />
+                    <TextEquiv conf="0.9987973796410524">
+                        <Unicode>Simon</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline12_word1">
+                    <Coords points="1577,2241 2180,2241 2180,2462 1577,2462" />
+                    <TextEquiv conf="0.9987973796410524">
+                        <Unicode>Sommor,</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline12_word2">
+                    <Coords points="2180,2241 2439,2241 2439,2462 2180,2462" />
+                    <TextEquiv conf="0.9987973796410524">
+                        <Unicode>wid</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline12_word3">
+                    <Coords points="2439,2241 3042,2241 3042,2462 2439,2462" />
+                    <TextEquiv conf="0.9987973796410524">
+                        <Unicode>förelagdt</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline12_word4">
+                    <Coords points="3042,2241 3215,2241 3215,2462 3042,2462" />
+                    <TextEquiv conf="0.9987973796410524">
+                        <Unicode>wi¬</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline13">
+            <Coords points="1146,2390 1146,2533 1360,2569 1527,2521 1688,2599 1838,2539 1957,2581 2172,2527 2321,2575 2840,2533 3144,2551 3144,2432 2816,2474 2589,2408 2189,2432 2017,2408 1855,2456 1688,2384 1390,2414 1253,2360" />
+                <Word id="A0068699_00021_textregion0_textline13_word0">
+                    <Coords points="1146,2360 1312,2360 1312,2599 1146,2599" />
+                    <TextEquiv conf="0.9126126089105515">
+                        <Unicode>te</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline13_word1">
+                    <Coords points="1312,2360 1562,2360 1562,2599 1312,2599" />
+                    <TextEquiv conf="0.9126126089105515">
+                        <Unicode>af</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline13_word2">
+                    <Coords points="1562,2360 1895,2360 1895,2599 1562,2599" />
+                    <TextEquiv conf="0.9126126089105515">
+                        <Unicode>Tiugu</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline13_word3">
+                    <Coords points="1895,2360 2228,2360 2228,2599 1895,2599" />
+                    <TextEquiv conf="0.9126126089105515">
+                        <Unicode>da.r</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline13_word4">
+                    <Coords points="2228,2360 3144,2360 3144,2599 2228,2599" />
+                    <TextEquiv conf="0.9126126089105515">
+                        <Unicode>Silfwerment</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline14">
+            <Coords points="1170,2575 1170,2665 1766,2665 2118,2724 2285,2676 2750,2682 2935,2736 2983,2694 3144,2682 3144,2587 2935,2557 2917,2527 2339,2593 2225,2527 1933,2599 1838,2527 1718,2605 1557,2527 1408,2527 1331,2587" />
+                <Word id="A0068699_00021_textregion0_textline14_word0">
+                    <Coords points="1170,2527 1745,2527 1745,2736 1170,2736" />
+                    <TextEquiv conf="0.9835335347731188">
+                        <Unicode>infordra</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline14_word1">
+                    <Coords points="1745,2527 1992,2527 1992,2736 1745,2736" />
+                    <TextEquiv conf="0.9835335347731188">
+                        <Unicode>den</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline14_word2">
+                    <Coords points="1992,2527 2157,2527 2157,2736 1992,2736" />
+                    <TextEquiv conf="0.9835335347731188">
+                        <Unicode>af</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline14_word3">
+                    <Coords points="2157,2527 2568,2527 2568,2736 2157,2736" />
+                    <TextEquiv conf="0.9835335347731188">
+                        <Unicode>honom</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline14_word4">
+                    <Coords points="2568,2527 2732,2527 2732,2736 2568,2736" />
+                    <TextEquiv conf="0.9835335347731188">
+                        <Unicode>i</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline14_word5">
+                    <Coords points="2732,2527 3144,2527 3144,2736 2732,2736" />
+                    <TextEquiv conf="0.9835335347731188">
+                        <Unicode>Kong.</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline15">
+            <Coords points="1170,2676 1170,2867 1444,2808 1897,2832 2219,2808 2362,2861 2613,2843 2804,2903 2893,2832 3168,2832 3168,2778 2738,2700 2577,2724 2279,2688 2052,2736 1951,2700 1772,2730 1575,2647 1384,2694" />
+                <Word id="A0068699_00021_textregion0_textline15_word0">
+                    <Coords points="1170,2647 1752,2647 1752,2903 1170,2903" />
+                    <TextEquiv conf="0.9986847654541698">
+                        <Unicode>Hofrätten</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline15_word1">
+                    <Coords points="1752,2647 2085,2647 2085,2903 1752,2903" />
+                    <TextEquiv conf="0.9986847654541698">
+                        <Unicode>den</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline15_word2">
+                    <Coords points="2085,2647 2252,2647 2252,2903 2085,2903" />
+                    <TextEquiv conf="0.9986847654541698">
+                        <Unicode>13</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline15_word3">
+                    <Coords points="2252,2647 2502,2647 2502,2903 2252,2903" />
+                    <TextEquiv conf="0.9986847654541698">
+                        <Unicode>Maji</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline15_word4">
+                    <Coords points="2502,2647 3168,2647 3168,2903 2502,2903" />
+                    <TextEquiv conf="0.9986847654541698">
+                        <Unicode>sidstledne</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline16">
+            <Coords points="2983,2694 2983,2760 3144,2760 3150,2766 3150,2784 3215,2784 3215,2694" />
+                <Word id="A0068699_00021_textregion0_textline16_word0">
+                    <Coords points="2983,2694 3215,2694 3215,2784 2983,2784" />
+                    <TextEquiv conf="0.9188261709654005">
+                        <Unicode>ingifne</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline17">
+            <Coords points="1170,2873 1170,2987 1420,2951 1683,2987 1796,2945 1951,3010 2291,2957 2875,2999 3215,2969 3215,2897 2947,2814 2798,2891 2625,2855 2386,2873 2273,2814 2064,2814 1963,2855 1557,2814 1533,2843" />
+                <Word id="A0068699_00021_textregion0_textline17_word0">
+                    <Coords points="1170,2814 1340,2814 1340,3010 1170,3010" />
+                    <TextEquiv conf="0.945268647808707">
+                        <Unicode>och</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline17_word1">
+                    <Coords points="1340,2814 1596,2814 1596,3010 1340,3010" />
+                    <TextEquiv conf="0.945268647808707">
+                        <Unicode>den</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline17_word2">
+                    <Coords points="1596,2814 1766,2814 1766,3010 1596,3010" />
+                    <TextEquiv conf="0.945268647808707">
+                        <Unicode>6</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline17_word3">
+                    <Coords points="1766,2814 2533,2814 2533,3010 1766,3010" />
+                    <TextEquiv conf="0.945268647808707">
+                        <Unicode>derpåföljande</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline17_word4">
+                    <Coords points="2533,2814 2959,2814 2959,3010 2533,3010" />
+                    <TextEquiv conf="0.945268647808707">
+                        <Unicode>Junii</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline17_word5">
+                    <Coords points="2959,2814 3215,2814 3215,3010 2959,3010" />
+                    <TextEquiv conf="0.945268647808707">
+                        <Unicode>com¬</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline18">
+            <Coords points="1193,2999 1193,3112 1617,3130 1957,3100 2070,3154 2207,3106 2601,3142 3168,3112 3168,3022 2959,3028 2804,2981 2690,3004 2637,2957 2464,2999 2392,2957 2178,2957 1981,3016 1903,3004 1867,2957 1736,2957 1605,3028" />
+                <Word id="A0068699_00021_textregion0_textline18_word0">
+                    <Coords points="1193,2957 1933,2957 1933,3154 1193,3154" />
+                    <TextEquiv conf="0.9979828809548188">
+                        <Unicode>municerade</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline18_word1">
+                    <Coords points="1933,2957 3003,2957 3003,3154 1933,3154" />
+                    <TextEquiv conf="0.9979828809548188">
+                        <Unicode>beswärsskriften,</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline18_word2">
+                    <Coords points="3003,2957 3168,2957 3168,3154 3003,3154" />
+                    <TextEquiv conf="0.9979828809548188">
+                        <Unicode>och</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline19">
+            <Coords points="1193,3130 1193,3237 1343,3225 1414,3273 1623,3219 1861,3291 2213,3231 2631,3285 2935,3255 3191,3291 3191,3142 3078,3142 3036,3100 2696,3154 2482,3154 2410,3100 2178,3100 2094,3160 1987,3100 1724,3100 1557,3160" />
+                <Word id="A0068699_00021_textregion0_textline19_word0">
+                    <Coords points="1193,3100 1442,3100 1442,3291 1193,3291" />
+                    <TextEquiv conf="0.9976904846834763">
+                        <Unicode>den,</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline19_word1">
+                    <Coords points="1442,3100 1859,3100 1859,3291 1442,3291" />
+                    <TextEquiv conf="0.9976904846834763">
+                        <Unicode>jemte</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline19_word2">
+                    <Coords points="1859,3100 2108,3100 2108,3291 1859,3291" />
+                    <TextEquiv conf="0.9976904846834763">
+                        <Unicode>sin</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline19_word3">
+                    <Coords points="2108,3100 2691,3100 2691,3291 2108,3291" />
+                    <TextEquiv conf="0.9976904846834763">
+                        <Unicode>förklaring,</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline19_word4">
+                    <Coords points="2691,3100 2941,3100 2941,3291 2691,3291" />
+                    <TextEquiv conf="0.9976904846834763">
+                        <Unicode>til</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline19_word5">
+                    <Coords points="2941,3100 3191,3100 3191,3291 2941,3291" />
+                    <TextEquiv conf="0.9976904846834763">
+                        <Unicode>Kong.</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline20">
+            <Coords points="1217,3255 1217,3362 1366,3386 1504,3362 2046,3410 2321,3386 2506,3398 2601,3440 2762,3404 2899,3452 3144,3452 3144,3309 2708,3303 2291,3255 2255,3219 2142,3273 1927,3303 1820,3291 1688,3219 1516,3219 1432,3285 1360,3219" />
+                <Word id="A0068699_00021_textregion0_textline20_word0">
+                    <Coords points="1217,3219 1939,3219 1939,3452 1217,3452" />
+                    <TextEquiv conf="0.9889425436075651">
+                        <Unicode>Hofrätten</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline20_word1">
+                    <Coords points="1939,3219 2501,3219 2501,3452 1939,3452" />
+                    <TextEquiv conf="0.9889425436075651">
+                        <Unicode>insända;</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline20_word2">
+                    <Coords points="2501,3219 2742,3219 2742,3452 2501,3452" />
+                    <TextEquiv conf="0.9889425436075651">
+                        <Unicode>och</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline20_word3">
+                    <Coords points="2742,3219 3144,3219 3144,3452 2742,3452" />
+                    <TextEquiv conf="0.9889425436075651">
+                        <Unicode>åligger</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline21">
+            <Coords points="1193,3362 1193,3535 2738,3553 2810,3589 2935,3547 3168,3553 3168,3476 2601,3452 2488,3404 1939,3440 1766,3362 1683,3386 1444,3362 1402,3398 1343,3362" />
+                <Word id="A0068699_00021_textregion0_textline21_word0">
+                    <Coords points="1193,3362 2345,3362 2345,3589 1193,3589" />
+                    <TextEquiv conf="0.9681135614162741">
+                        <Unicode>BruksPatronen</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline21_word1">
+                    <Coords points="2345,3362 2838,3362 2838,3589 2345,3589" />
+                    <TextEquiv conf="0.9681135614162741">
+                        <Unicode>Sommor</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline21_word2">
+                    <Coords points="2838,3362 3168,3362 3168,3589 2838,3589" />
+                    <TextEquiv conf="0.9681135614162741">
+                        <Unicode>jem¬</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline22">
+            <Coords points="1146,3565 1146,3655 1265,3649 1593,3738 1927,3649 2189,3696 2285,3666 2696,3666 2995,3726 3096,3786 3168,3678 3168,3619 2911,3565 2804,3595 2500,3547 1408,3541 1378,3505 1337,3547" />
+                <Word id="A0068699_00021_textregion0_textline22_word0">
+                    <Coords points="1146,3505 1483,3505 1483,3786 1146,3786" />
+                    <TextEquiv conf="0.973486417628192">
+                        <Unicode>wäl</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline22_word1">
+                    <Coords points="1483,3505 1651,3505 1651,3786 1483,3786" />
+                    <TextEquiv conf="0.973486417628192">
+                        <Unicode>sig</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline22_word2">
+                    <Coords points="1651,3505 2241,3505 2241,3786 1651,3786" />
+                    <TextEquiv conf="0.973486417628192">
+                        <Unicode>häröfwer</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline22_word3">
+                    <Coords points="2241,3505 2662,3505 2662,3786 2241,3786" />
+                    <TextEquiv conf="0.973486417628192">
+                        <Unicode>inom</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline22_word4">
+                    <Coords points="2662,3505 2831,3505 2831,3786 2662,3786" />
+                    <TextEquiv conf="0.973486417628192">
+                        <Unicode>14</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline22_word5">
+                    <Coords points="2831,3505 3168,3505 3168,3786 2831,3786" />
+                    <TextEquiv conf="0.973486417628192">
+                        <Unicode>dagar</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline23">
+            <Coords points="1146,3649 1146,3845 1307,3792 1402,3833 1545,3810 1677,3869 1688,3905 1861,3804 2452,3851 3048,3839 3048,3756 2726,3678 2070,3708 1993,3649 1879,3649 1844,3690 1569,3744 1408,3720 1313,3649" />
+                <Word id="A0068699_00021_textregion0_textline23_word0">
+                    <Coords points="1146,3649 1542,3649 1542,3905 1146,3905" />
+                    <TextEquiv conf="0.9959680959221499">
+                        <Unicode>efter</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline23_word1">
+                    <Coords points="1542,3649 2255,3649 2255,3905 1542,3905" />
+                    <TextEquiv conf="0.9959680959221499">
+                        <Unicode>undfåendet</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline23_word2">
+                    <Coords points="2255,3649 2572,3649 2572,3905 2255,3905" />
+                    <TextEquiv conf="0.9959680959221499">
+                        <Unicode>at</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline23_word3">
+                    <Coords points="2572,3649 3048,3649 3048,3905 2572,3905" />
+                    <TextEquiv conf="0.9959680959221499">
+                        <Unicode>förklara.</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline24">
+            <Coords points="1193,3833 1193,3953 1456,3953 1587,4048 1724,3965 1891,3989 2201,3941 2619,4018 2738,3977 3096,3977 3096,3869 3007,3845 2613,3839 2309,3887 1855,3792 1832,3833 1688,3887 1527,3792 1408,3839 1360,3792 1253,3792" />
+                <Word id="A0068699_00021_textregion0_textline24_word0">
+                    <Coords points="1193,3792 1351,3792 1351,4048 1193,4048" />
+                    <TextEquiv conf="0.9793057693409619">
+                        <Unicode>S.</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline24_word1">
+                    <Coords points="1351,3792 1589,3792 1589,4048 1351,4048" />
+                    <TextEquiv conf="0.9793057693409619">
+                        <Unicode>d.</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline24_word2">
+                    <Coords points="1589,3792 2144,3792 2144,4048 1589,4048" />
+                    <TextEquiv conf="0.9793057693409619">
+                        <Unicode>Uplästes</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline24_word3">
+                    <Coords points="2144,3792 2382,3792 2382,4048 2144,4048" />
+                    <TextEquiv conf="0.9793057693409619">
+                        <Unicode>en</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline24_word4">
+                    <Coords points="2382,3792 2540,3792 2540,4048 2382,4048" />
+                    <TextEquiv conf="0.9793057693409619">
+                        <Unicode>af</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline24_word5">
+                    <Coords points="2540,3792 3096,3792 3096,4048 2540,4048" />
+                    <TextEquiv conf="0.9793057693409619">
+                        <Unicode>Justitiæ</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline25">
+            <Coords points="1146,3965 1146,4120 1265,4120 1349,4162 1694,4120 1951,4144 2100,4108 2189,4144 2285,4120 2595,4144 2744,4191 2846,4102 2965,4120 3096,4078 3096,4006 2977,3983 2619,4024 2362,3989 2285,3935 2166,3935 2136,3971 1969,4006 1718,3971 1629,4030 1462,4000 1372,3935" />
+                <Word id="A0068699_00021_textregion0_textline25_word0">
+                    <Coords points="1146,3935 2121,3935 2121,4191 1146,4191" />
+                    <TextEquiv conf="0.941167519423059">
+                        <Unicode>Borgmästarens</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline25_word1">
+                    <Coords points="2121,3935 2689,3935 2689,4191 2121,4191" />
+                    <TextEquiv conf="0.941167519423059">
+                        <Unicode>Gerdelovii</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion0_textline25_word2">
+                    <Coords points="2689,3935 3096,3935 3096,4191 2689,4191" />
+                    <TextEquiv conf="0.941167519423059">
+                        <Unicode>Enka</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion0_textline26">
+            <Coords points="3144,4078 3013,4078 3013,4096 3001,4108 2989,4108 2977,4126 2959,4132 2923,4126 2893,4108 2857,4108 2834,4126 2792,4126 2792,4287 2816,4287 2822,4263 2863,4251 2905,4251 2953,4239 2977,4245 3036,4227 3144,4215" />
+                <Word id="A0068699_00021_textregion0_textline26_word0">
+                    <Coords points="2792,4078 3144,4078 3144,4287 2792,4287" />
+                    <TextEquiv conf="0.9347527317591584">
+                        <Unicode>Hustru</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+        </TextRegion>
+        <TextRegion id="A0068699_00021_textregion1">
+            <Coords points="572,1933 572,2317 641,2317 650,2278 769,2278 779,2317 1114,2317 1114,1933" />
+            <TextLine id="A0068699_00021_textregion1_textline0">
+            <Coords points="594,1933 594,2132 685,2108 776,2108 804,2121 818,2157 853,2183 900,2196 946,2163 963,2122 953,2107 1087,2102 1087,1933 835,1933 753,1964 649,1933" />
+                <Word id="A0068699_00021_textregion1_textline0_word0">
+                    <Coords points="594,1933 1087,1933 1087,2196 594,2196" />
+                    <TextEquiv conf="0.21494879909193734">
+                        <Unicode>und.nas</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion1_textline1">
+            <Coords points="634,2172 634,2271 737,2258 759,2274 949,2281 1019,2259 1070,2284 1070,2130 1003,2135 898,2197 743,2140 751,2130 715,2130 730,2146 725,2153 678,2154" />
+                <Word id="A0068699_00021_textregion1_textline1_word0">
+                    <Coords points="634,2130 1070,2130 1070,2284 634,2284" />
+                    <TextEquiv conf="0.0958049558087551">
+                        <Unicode>ning</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+        </TextRegion>
+        <TextRegion id="A0068699_00021_textregion2">
+            <Coords points="611,3787 611,4092 1025,4092 1114,4083 1163,4043 1193,4043 1193,3787" />
+            <TextLine id="A0068699_00021_textregion2_textline0">
+            <Coords points="612,3812 612,3958 682,3948 733,3968 845,3945 921,3968 1033,3927 1095,3983 1144,3991 1168,3982 1168,3831 1094,3828 1049,3799 993,3814 921,3800 831,3837 762,3825 694,3797" />
+                <Word id="A0068699_00021_textregion2_textline0_word0">
+                    <Coords points="612,3797 866,3797 866,3991 612,3991" />
+                    <TextEquiv conf="0.8905115085601661">
+                        <Unicode>Petter</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion2_textline0_word1">
+                    <Coords points="866,3797 1168,3797 1168,3991 866,3991" />
+                    <TextEquiv conf="0.8905115085601661">
+                        <Unicode>Bergers</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion2_textline1">
+            <Coords points="1077,3964 1037,3930 1013,3930 948,3966 838,3985 793,3972 727,3971 686,3950 633,3965 612,3962 612,4086 1059,4085 1077,4067" />
+                <Word id="A0068699_00021_textregion2_textline1_word0">
+                    <Coords points="612,3930 825,3930 825,4086 612,4086" />
+                    <TextEquiv conf="0.9976232191963572">
+                        <Unicode>barn</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion2_textline1_word1">
+                    <Coords points="825,3930 1077,3930 1077,4086 825,4086" />
+                    <TextEquiv conf="0.9976232191963572">
+                        <Unicode>angde</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+        </TextRegion>
+        <TextRegion id="A0068699_00021_textregion3">
+            <Coords points="3412,552 3412,4171 4260,4171 4980,4004 5414,4063 5532,3905 5532,552" />
+            <TextLine id="A0068699_00021_textregion3_textline0">
+            <Coords points="4121,568 4121,715 4319,721 4455,778 4528,778 4635,721 4754,693 4862,699 4862,552 4223,552 4217,563" />
+                <Word id="A0068699_00021_textregion3_textline0_word0">
+                    <Coords points="4121,552 4368,552 4368,778 4121,778" />
+                    <TextEquiv conf="0.9356340199325659">
+                        <Unicode>den</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline0_word1">
+                    <Coords points="4368,552 4491,552 4491,778 4368,778" />
+                    <TextEquiv conf="0.9356340199325659">
+                        <Unicode>7</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline0_word2">
+                    <Coords points="4491,552 4862,552 4862,778 4491,778" />
+                    <TextEquiv conf="0.9356340199325659">
+                        <Unicode>Julii.</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline1">
+            <Coords points="3420,761 3420,964 3674,902 3883,981 4025,942 4132,959 4211,913 4353,959 4669,902 4783,964 4952,902 5105,942 5184,908 5427,942 5427,800 5314,749 5077,789 4867,721 4845,755 4517,800 3991,755 3963,721 3787,772" />
+                <Word id="A0068699_00021_textregion3_textline1_word0">
+                    <Coords points="3420,721 3838,721 3838,981 3420,981" />
+                    <TextEquiv conf="0.9907174613727737">
+                        <Unicode>Hustru</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline1_word1">
+                    <Coords points="3838,721 4339,721 4339,981 3838,981" />
+                    <TextEquiv conf="0.9907174613727737">
+                        <Unicode>Christina</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline1_word2">
+                    <Coords points="4339,721 5008,721 5008,981 4339,981" />
+                    <TextEquiv conf="0.9907174613727737">
+                        <Unicode>Berger</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline1_word3">
+                    <Coords points="5008,721 5176,721 5176,981 5008,981" />
+                    <TextEquiv conf="0.9907174613727737">
+                        <Unicode>och</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline1_word4">
+                    <Coords points="5176,721 5427,721 5427,981 5176,981" />
+                    <TextEquiv conf="0.9907174613727737">
+                        <Unicode>af.</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline2">
+            <Coords points="3420,1123 3680,1066 3799,1123 3946,1049 4251,1089 4353,1055 4884,1055 5026,1089 5110,1049 5427,1038 5427,959 5269,942 5224,902 5094,953 5043,947 5026,902 4896,902 4777,970 4698,902 4528,902 4375,964 4234,925 4155,970 4025,947 3878,987 3748,902 3635,902 3589,942 3420,970" />
+                <Word id="A0068699_00021_textregion3_textline2_word0">
+                    <Coords points="3420,902 4423,902 4423,1123 3420,1123" />
+                    <TextEquiv conf="0.9897197058197811">
+                        <Unicode>Bergmästarens</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline2_word1">
+                    <Coords points="4423,902 4841,902 4841,1123 4423,1123" />
+                    <TextEquiv conf="0.9897197058197811">
+                        <Unicode>Thor</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline2_word2">
+                    <Coords points="4841,902 5427,902 5427,1123 4841,1123" />
+                    <TextEquiv conf="0.9897197058197811">
+                        <Unicode>Bellanders</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline3">
+            <Coords points="3442,1123 3442,1213 3872,1224 3997,1196 4324,1247 4585,1185 5009,1236 5127,1196 5427,1185 5427,1038 5229,1072 5127,1038 5003,1106 4737,1038 4551,1077 4375,1038 4274,1100 3934,1038 3838,1106 3663,1089" />
+                <Word id="A0068699_00021_textregion3_textline3_word0">
+                    <Coords points="3442,1038 3772,1038 3772,1247 3442,1247" />
+                    <TextEquiv conf="0.9479372313359955">
+                        <Unicode>enka</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline3_word1">
+                    <Coords points="3772,1038 4103,1038 4103,1247 3772,1247" />
+                    <TextEquiv conf="0.9479372313359955">
+                        <Unicode>Ädla</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline3_word2">
+                    <Coords points="4103,1038 4434,1038 4434,1247 4103,1247" />
+                    <TextEquiv conf="0.9479372313359955">
+                        <Unicode>och</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline3_word3">
+                    <Coords points="4434,1038 5096,1038 5096,1247 4434,1247" />
+                    <TextEquiv conf="0.9479372313359955">
+                        <Unicode>Wälbördiga</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline3_word4">
+                    <Coords points="5096,1038 5427,1038 5427,1247 5096,1247" />
+                    <TextEquiv conf="0.9479372313359955">
+                        <Unicode>Fru</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline4">
+            <Coords points="3420,1224 3420,1371 3878,1360 3980,1417 4183,1338 4432,1366 5472,1321 5472,1224 5342,1174 4980,1247 4749,1230 4613,1174 4483,1174 4302,1264 4036,1219 4002,1174 3866,1241 3702,1241 3601,1202" />
+                <Word id="A0068699_00021_textregion3_textline4_word0">
+                    <Coords points="3420,1174 3762,1174 3762,1417 3420,1417" />
+                    <TextEquiv conf="0.9651615458252759">
+                        <Unicode>Anna</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline4_word1">
+                    <Coords points="3762,1174 4189,1174 4189,1417 3762,1417" />
+                    <TextEquiv conf="0.9651615458252759">
+                        <Unicode>Sophia</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline4_word2">
+                    <Coords points="4189,1174 5301,1174 5301,1417 4189,1417" />
+                    <TextEquiv conf="0.9651615458252759">
+                        <Unicode>Kinninmundt</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline4_word3">
+                    <Coords points="5301,1174 5472,1174 5472,1417 5301,1417" />
+                    <TextEquiv conf="0.9651615458252759">
+                        <Unicode>in¬</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline5">
+            <Coords points="5495,1343 4986,1371 4884,1338 4415,1377 4223,1354 3985,1405 3912,1377 3420,1383 3420,1558 3578,1501 3753,1518 3917,1479 4064,1547 4172,1507 4308,1547 4432,1496 4992,1462 5258,1518 5495,1490" />
+                <Word id="A0068699_00021_textregion3_textline5_word0">
+                    <Coords points="3420,1338 3852,1338 3852,1558 3420,1558" />
+                    <TextEquiv conf="0.9913925865529672">
+                        <Unicode>gifwen</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline5_word1">
+                    <Coords points="3852,1338 4543,1338 4543,1558 3852,1558" />
+                    <TextEquiv conf="0.9913925865529672">
+                        <Unicode>Suppliqve,</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline5_word2">
+                    <Coords points="4543,1338 4976,1338 4976,1558 4543,1558" />
+                    <TextEquiv conf="0.9913925865529672">
+                        <Unicode>deruti</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline5_word3">
+                    <Coords points="4976,1338 5235,1338 5235,1558 4976,1558" />
+                    <TextEquiv conf="0.9913925865529672">
+                        <Unicode>de</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline5_word4">
+                    <Coords points="5235,1338 5495,1338 5495,1558 5235,1558" />
+                    <TextEquiv conf="0.9913925865529672">
+                        <Unicode>anhål¬</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline6">
+            <Coords points="3420,1564 3420,1660 3646,1682 3861,1637 3980,1733 4115,1637 4432,1620 4511,1649 4573,1620 4698,1688 4794,1637 4935,1682 5065,1620 5450,1620 5450,1564 5207,1535 5065,1468 4946,1468 4992,1513 4901,1558 4635,1501 4432,1507 4313,1552 4172,1513 4059,1552 3957,1468 3906,1468 3776,1535 3578,1513" />
+                <Word id="A0068699_00021_textregion3_textline6_word0">
+                    <Coords points="3420,1468 3673,1468 3673,1733 3420,1733" />
+                    <TextEquiv conf="0.9211597386958759">
+                        <Unicode>la,</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline6_word1">
+                    <Coords points="3673,1468 3927,1468 3927,1733 3673,1733" />
+                    <TextEquiv conf="0.9211597386958759">
+                        <Unicode>at</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline6_word2">
+                    <Coords points="3927,1468 4435,1468 4435,1733 3927,1733" />
+                    <TextEquiv conf="0.9211597386958759">
+                        <Unicode>Justiteæ</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline6_word3">
+                    <Coords points="4435,1468 5365,1468 5365,1733 4435,1733" />
+                    <TextEquiv conf="0.9211597386958759">
+                        <Unicode>Borgmästaren</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline6_word4">
+                    <Coords points="5365,1468 5450,1468 5450,1733 5365,1733" />
+                    <TextEquiv conf="0.9211597386958759">
+                        <Unicode>i</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline7">
+            <Coords points="3442,1665 3442,1835 3555,1796 3980,1784 4370,1818 4545,1756 5495,1779 5495,1654 5105,1603 4935,1688 4788,1665 4692,1699 4590,1649 4443,1671 4415,1603 4330,1665 4115,1649 3997,1716 3770,1660 3629,1694" />
+                <Word id="A0068699_00021_textregion3_textline7_word0">
+                    <Coords points="3442,1603 3784,1603 3784,1835 3442,1835" />
+                    <TextEquiv conf="0.9308322123127215">
+                        <Unicode>Gefle</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline7_word1">
+                    <Coords points="3784,1603 4126,1603 4126,1835 3784,1835" />
+                    <TextEquiv conf="0.9308322123127215">
+                        <Unicode>Ädle</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline7_word2">
+                    <Coords points="4126,1603 4297,1603 4297,1835 4126,1835" />
+                    <TextEquiv conf="0.9308322123127215">
+                        <Unicode>och</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline7_word3">
+                    <Coords points="4297,1603 4810,1603 4810,1835 4297,1835" />
+                    <TextEquiv conf="0.9308322123127215">
+                        <Unicode>Lagfarne</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline7_word4">
+                    <Coords points="4810,1603 5238,1603 5238,1835 4810,1835" />
+                    <TextEquiv conf="0.9308322123127215">
+                        <Unicode>Hans</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline7_word5">
+                    <Coords points="5238,1603 5495,1603 5495,1835 5238,1835" />
+                    <TextEquiv conf="0.9308322123127215">
+                        <Unicode>Onn¬</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline8">
+            <Coords points="3442,1948 3680,1954 3595,1976 3595,2005 3708,2005 3685,1948 3895,1965 4177,1914 5472,1903 5472,1796 5410,1762 4935,1762 4867,1796 4488,1762 4443,1807 4296,1829 4127,1796 3533,1807 3442,1841" />
+                <Word id="A0068699_00021_textregion3_textline8_word0">
+                    <Coords points="3442,1762 3780,1762 3780,2005 3442,2005" />
+                    <TextEquiv conf="0.9568541163142128">
+                        <Unicode>berg</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline8_word1">
+                    <Coords points="3780,1762 4034,1762 4034,2005 3780,2005" />
+                    <TextEquiv conf="0.9568541163142128">
+                        <Unicode>och</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline8_word2">
+                    <Coords points="4034,1762 4457,1762 4457,2005 4034,2005" />
+                    <TextEquiv conf="0.9568541163142128">
+                        <Unicode>Stads</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline8_word3">
+                    <Coords points="4457,1762 5133,1762 5133,2005 4457,2005" />
+                    <TextEquiv conf="0.9568541163142128">
+                        <Unicode>Secreteraren</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline8_word4">
+                    <Coords points="5133,1762 5472,1762 5472,2005 5133,2005" />
+                    <TextEquiv conf="0.9568541163142128">
+                        <Unicode>der¬</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline9">
+            <Coords points="3420,1960 3420,2107 3578,2067 3872,2107 3991,2056 4245,2067 4375,2129 4562,2050 5009,2027 5291,2095 5405,2067 5405,1897 5297,1897 5229,1937 4980,1897 4907,1943 4392,1943 4240,1897 3906,1971 3782,1960 3652,2016" />
+                <Word id="A0068699_00021_textregion3_textline9_word0">
+                    <Coords points="3420,1897 4329,1897 4329,2129 3420,2129" />
+                    <TextEquiv conf="0.9862471618690288">
+                        <Unicode>sammastädes</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline9_word1">
+                    <Coords points="4329,1897 4826,1897 4826,2129 4329,2129" />
+                    <TextEquiv conf="0.9862471618690288">
+                        <Unicode>Johan</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline9_word2">
+                    <Coords points="4826,1897 5405,1897 5405,2129 4826,2129" />
+                    <TextEquiv conf="0.9862471618690288">
+                        <Unicode>Nordenlöf¬</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline10">
+            <Coords points="5450,2073 5286,2101 5094,2033 4850,2033 4794,2073 4607,2033 4381,2135 4274,2078 4115,2095 3985,2061 3782,2129 3589,2073 3420,2112 3420,2242 3753,2214 3946,2248 4070,2208 4573,2186 4760,2225 5014,2174 5410,2180 5450,2174" />
+                <Word id="A0068699_00021_textregion3_textline10_word0">
+                    <Coords points="3420,2033 3842,2033 3842,2248 3420,2248" />
+                    <TextEquiv conf="0.9620463367764773">
+                        <Unicode>Kunde</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline10_word1">
+                    <Coords points="3842,2033 4519,2033 4519,2248 3842,2248" />
+                    <TextEquiv conf="0.9620463367764773">
+                        <Unicode>förordnas</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline10_word2">
+                    <Coords points="4519,2033 4773,2033 4773,2248 4519,2248" />
+                    <TextEquiv conf="0.9620463367764773">
+                        <Unicode>til</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline10_word3">
+                    <Coords points="4773,2033 5450,2033 5450,2248 4773,2248" />
+                    <TextEquiv conf="0.9620463367764773">
+                        <Unicode>Förmynda¬</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline11">
+            <Coords points="5472,2203 5433,2169 4986,2169 4935,2214 4726,2248 4590,2197 4392,2237 4087,2214 3946,2254 3753,2225 3420,2248 3420,2367 3900,2389 4036,2327 4381,2321 4528,2378 4681,2304 4913,2378 5048,2293 5195,2338 5291,2304 5433,2333 5472,2304" />
+                <Word id="A0068699_00021_textregion3_textline11_word0">
+                    <Coords points="3420,2169 3591,2169 3591,2389 3420,2389" />
+                    <TextEquiv conf="0.9819923806753873">
+                        <Unicode>re</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline11_word1">
+                    <Coords points="3591,2169 3933,2169 3933,2389 3591,2389" />
+                    <TextEquiv conf="0.9819923806753873">
+                        <Unicode>för</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline11_word2">
+                    <Coords points="3933,2169 4446,2169 4446,2389 3933,2389" />
+                    <TextEquiv conf="0.9819923806753873">
+                        <Unicode>afledne</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline11_word3">
+                    <Coords points="4446,2169 5472,2169 5472,2389 4446,2389" />
+                    <TextEquiv conf="0.9819923806753873">
+                        <Unicode>Häradshöfdingens</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline12">
+            <Coords points="5472,2361 5342,2304 5258,2304 5224,2344 5150,2304 5009,2304 4952,2367 4873,2384 4726,2304 4641,2304 4511,2389 4087,2338 3912,2395 3442,2372 3442,2519 4030,2480 4149,2536 4274,2474 4477,2497 4946,2435 5371,2463 5472,2440" />
+                <Word id="A0068699_00021_textregion3_textline12_word0">
+                    <Coords points="3442,2304 3864,2304 3864,2536 3442,2536" />
+                    <TextEquiv conf="0.9589629594718146">
+                        <Unicode>Petter</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline12_word1">
+                    <Coords points="3864,2304 4457,2304 4457,2536 3864,2536" />
+                    <TextEquiv conf="0.9589629594718146">
+                        <Unicode>Bergers</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline12_word2">
+                    <Coords points="4457,2304 4710,2304 4710,2536 4457,2536" />
+                    <TextEquiv conf="0.9589629594718146">
+                        <Unicode>och</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline12_word3">
+                    <Coords points="4710,2304 4964,2304 4964,2536 4710,2536" />
+                    <TextEquiv conf="0.9589629594718146">
+                        <Unicode>Fru</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline12_word4">
+                    <Coords points="4964,2304 5218,2304 5218,2536 4964,2536" />
+                    <TextEquiv conf="0.9589629594718146">
+                        <Unicode>Eva</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline12_word5">
+                    <Coords points="5218,2304 5472,2304 5472,2536 5218,2536" />
+                    <TextEquiv conf="0.9589629594718146">
+                        <Unicode>Bea¬</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline13">
+            <Coords points="5427,2508 5224,2440 5110,2480 5020,2440 4884,2440 4822,2480 4675,2440 4472,2508 4274,2485 4149,2542 3810,2485 3465,2525 3465,2683 4698,2587 4794,2621 5088,2570 5393,2587" />
+                <Word id="A0068699_00021_textregion3_textline13_word0">
+                    <Coords points="3465,2440 3628,2440 3628,2683 3465,2683" />
+                    <TextEquiv conf="0.9111652009382919">
+                        <Unicode>ta</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline13_word1">
+                    <Coords points="3628,2440 4691,2440 4691,2683 3628,2683" />
+                    <TextEquiv conf="0.9111652009382919">
+                        <Unicode>Kinninmundts</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline13_word2">
+                    <Coords points="4691,2440 5427,2440 5427,2683 4691,2683" />
+                    <TextEquiv conf="0.9111652009382919">
+                        <Unicode>efterlem¬</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline14">
+            <Coords points="5472,2621 5269,2553 5144,2553 4709,2644 4358,2615 4110,2666 3465,2672 3465,2819 3804,2757 3985,2791 4370,2751 4483,2808 4596,2746 5178,2706 5472,2717" />
+                <Word id="A0068699_00021_textregion3_textline14_word0">
+                    <Coords points="3465,2553 3799,2553 3799,2819 3465,2819" />
+                    <TextEquiv conf="0.9991029088897594">
+                        <Unicode>nade</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline14_word1">
+                    <Coords points="3799,2553 4050,2553 4050,2819 3799,2819" />
+                    <TextEquiv conf="0.9991029088897594">
+                        <Unicode>3ne</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline14_word2">
+                    <Coords points="4050,2553 4719,2553 4719,2819 4050,2819" />
+                    <TextEquiv conf="0.9991029088897594">
+                        <Unicode>omyndige</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline14_word3">
+                    <Coords points="4719,2553 5053,2553 5053,2819 4719,2819" />
+                    <TextEquiv conf="0.9991029088897594">
+                        <Unicode>barn</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline14_word4">
+                    <Coords points="5053,2553 5472,2553 5472,2819 5053,2819" />
+                    <TextEquiv conf="0.9991029088897594">
+                        <Unicode>Söner¬</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline15">
+            <Coords points="5382,2740 5337,2712 5116,2712 5099,2740 4975,2740 4845,2791 4551,2779 4477,2813 4370,2757 4030,2802 3816,2762 3719,2808 3623,2785 3533,2830 3442,2813 3442,2938 3912,2938 4019,2904 4545,2881 4743,2915 4907,2864 5382,2859" />
+                <Word id="A0068699_00021_textregion3_textline15_word0">
+                    <Coords points="3442,2712 3684,2712 3684,2938 3442,2938" />
+                    <TextEquiv conf="0.9985158242087353">
+                        <Unicode>ne</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline15_word1">
+                    <Coords points="3684,2712 4088,2712 4088,2938 3684,2938" />
+                    <TextEquiv conf="0.9985158242087353">
+                        <Unicode>Petter</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline15_word2">
+                    <Coords points="4088,2712 4573,2712 4573,2938 4088,2938" />
+                    <TextEquiv conf="0.9985158242087353">
+                        <Unicode>Robert</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline15_word3">
+                    <Coords points="4573,2712 4816,2712 4816,2938 4573,2938" />
+                    <TextEquiv conf="0.9985158242087353">
+                        <Unicode>och</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline15_word4">
+                    <Coords points="4816,2712 5382,2712 5382,2938 4816,2938" />
+                    <TextEquiv conf="0.9985158242087353">
+                        <Unicode>Anders</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline16">
+            <Coords points="5495,2887 5195,2847 4958,2921 4539,2893 4019,2910 3895,2960 3442,2955 3442,3102 3866,3062 4121,3102 4234,3051 5224,2994 5314,3028 5495,2989" />
+                <Word id="A0068699_00021_textregion3_textline16_word0">
+                    <Coords points="3442,2847 4126,2847 4126,3102 3442,3102" />
+                    <TextEquiv conf="0.9784408632486556">
+                        <Unicode>Bernhard</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline16_word1">
+                    <Coords points="4126,2847 4554,2847 4554,3102 4126,3102" />
+                    <TextEquiv conf="0.9784408632486556">
+                        <Unicode>samt</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline16_word2">
+                    <Coords points="4554,2847 5067,2847 5067,3102 4554,3102" />
+                    <TextEquiv conf="0.9784408632486556">
+                        <Unicode>dottren</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline16_word3">
+                    <Coords points="5067,2847 5495,2847 5495,3102 5067,3102" />
+                    <TextEquiv conf="0.9784408632486556">
+                        <Unicode>Marga¬</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline17">
+            <Coords points="5472,3040 5438,3006 5337,3006 5320,3034 4884,3006 4811,3040 4234,3068 4098,3113 3974,3068 3465,3107 3465,3237 3731,3226 3923,3288 4257,3187 4590,3170 4709,3232 4884,3147 5161,3192 5291,3130 5433,3153 5472,3130" />
+                <Word id="A0068699_00021_textregion3_textline17_word0">
+                    <Coords points="3465,3006 3715,3006 3715,3288 3465,3288" />
+                    <TextEquiv conf="0.9982249701459295">
+                        <Unicode>reta</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline17_word1">
+                    <Coords points="3715,3006 4301,3006 4301,3288 3715,3288" />
+                    <TextEquiv conf="0.9982249701459295">
+                        <Unicode>Christina</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline17_word2">
+                    <Coords points="4301,3006 5053,3006 5053,3288 4301,3288" />
+                    <TextEquiv conf="0.9982249701459295">
+                        <Unicode>Berger;</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline17_word3">
+                    <Coords points="5053,3006 5221,3006 5221,3288 5053,3288" />
+                    <TextEquiv conf="0.9982249701459295">
+                        <Unicode>Och</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline17_word4">
+                    <Coords points="5221,3006 5472,3006 5472,3288 5221,3288" />
+                    <TextEquiv conf="0.9982249701459295">
+                        <Unicode>Re¬</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline18">
+            <Coords points="5427,3141 5229,3141 5139,3221 4850,3141 4681,3249 4522,3192 4138,3226 3923,3294 3719,3243 3465,3243 3465,3418 3589,3379 4002,3351 4438,3390 4585,3322 4709,3351 4799,3305 5427,3300" />
+                <Word id="A0068699_00021_textregion3_textline18_word0">
+                    <Coords points="3465,3141 4200,3141 4200,3418 3465,3418" />
+                    <TextEquiv conf="0.9995319770342773">
+                        <Unicode>solverades,</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline18_word1">
+                    <Coords points="4200,3141 4446,3141 4446,3418 4200,3418" />
+                    <TextEquiv conf="0.9995319770342773">
+                        <Unicode>at</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline18_word2">
+                    <Coords points="4446,3141 4773,3141 4773,3418 4446,3418" />
+                    <TextEquiv conf="0.9995319770342773">
+                        <Unicode>som</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline18_word3">
+                    <Coords points="4773,3141 5427,3141 5427,3418 4773,3418" />
+                    <TextEquiv conf="0.9995319770342773">
+                        <Unicode>förbemälte</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline19">
+            <Coords points="5427,3300 5212,3334 4777,3300 4709,3356 4579,3334 4438,3401 4042,3356 3804,3396 3595,3384 3465,3430 3465,3611 3646,3520 3917,3560 4053,3503 4189,3554 4387,3469 4635,3458 4833,3503 5133,3430 5229,3475 5427,3435" />
+                <Word id="A0068699_00021_textregion3_textline19_word0">
+                    <Coords points="3465,3300 4527,3300 4527,3611 3465,3611" />
+                    <TextEquiv conf="0.9368947971671261">
+                        <Unicode>Häradshöfdingen</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline19_word1">
+                    <Coords points="4527,3300 5100,3300 5100,3611 4527,3611" />
+                    <TextEquiv conf="0.9368947971671261">
+                        <Unicode>Bergers</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline19_word2">
+                    <Coords points="5100,3300 5427,3300 5427,3611 5100,3611" />
+                    <TextEquiv conf="0.9368947971671261">
+                        <Unicode>omyn¬</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline20">
+            <Coords points="5472,3481 5444,3435 5297,3435 5229,3481 5167,3435 5020,3435 4833,3509 4641,3469 4398,3475 4189,3560 4036,3515 3906,3571 3663,3526 3488,3594 3488,3679 3550,3679 3652,3746 3782,3656 4160,3650 4296,3611 4438,3679 4652,3599 4946,3633 5043,3611 5178,3656 5269,3611 5438,3616" />
+                <Word id="A0068699_00021_textregion3_textline20_word0">
+                    <Coords points="3488,3435 3818,3435 3818,3746 3488,3746" />
+                    <TextEquiv conf="0.9936545457760091">
+                        <Unicode>dige</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline20_word1">
+                    <Coords points="3818,3435 4149,3435 4149,3746 3818,3746" />
+                    <TextEquiv conf="0.9936545457760091">
+                        <Unicode>icke</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline20_word2">
+                    <Coords points="4149,3435 4397,3435 4397,3746 4149,3746" />
+                    <TextEquiv conf="0.9936545457760091">
+                        <Unicode>äro</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline20_word3">
+                    <Coords points="4397,3435 4645,3435 4645,3746 4397,3746" />
+                    <TextEquiv conf="0.9936545457760091">
+                        <Unicode>af</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline20_word4">
+                    <Coords points="4645,3435 5141,3435 5141,3746 4645,3746" />
+                    <TextEquiv conf="0.9936545457760091">
+                        <Unicode>Adeligit</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline20_word5">
+                    <Coords points="5141,3435 5472,3435 5472,3746 5141,3746" />
+                    <TextEquiv conf="0.9936545457760091">
+                        <Unicode>stånd;</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline21">
+            <Coords points="5472,3639 5127,3662 5043,3616 4941,3633 4890,3594 4630,3594 4455,3690 4308,3622 3963,3679 3833,3662 3652,3729 3510,3684 3510,3831 3765,3854 3912,3797 4064,3820 4336,3786 4443,3837 4517,3797 4958,3746 5405,3735 5472,3712" />
+                <Word id="A0068699_00021_textregion3_textline21_word0">
+                    <Coords points="3510,3594 3918,3594 3918,3854 3510,3854" />
+                    <TextEquiv conf="0.9922403301694099">
+                        <Unicode>Altså</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline21_word1">
+                    <Coords points="3918,3594 4245,3594 4245,3854 3918,3854" />
+                    <TextEquiv conf="0.9922403301694099">
+                        <Unicode>kan</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline21_word2">
+                    <Coords points="4245,3594 4572,3594 4572,3854 4245,3854" />
+                    <TextEquiv conf="0.9922403301694099">
+                        <Unicode>Kong.</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline21_word3">
+                    <Coords points="4572,3594 5145,3594 5145,3854 4572,3854" />
+                    <TextEquiv conf="0.9922403301694099">
+                        <Unicode>Hofrätten</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline21_word4">
+                    <Coords points="5145,3594 5472,3594 5472,3854 5145,3854" />
+                    <TextEquiv conf="0.9922403301694099">
+                        <Unicode>med</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline22">
+            <Coords points="5450,3792 5048,3729 4952,3775 4754,3775 4443,3848 4330,3792 4081,3848 3951,3803 3776,3859 3465,3837 3465,3978 3934,3933 4076,3990 4313,3927 4472,3927 4771,3978 4884,4040 5082,3910 5450,3910" />
+                <Word id="A0068699_00021_textregion3_textline22_word0">
+                    <Coords points="3465,3729 3961,3729 3961,4040 3465,4040" />
+                    <TextEquiv conf="0.9990969440066325">
+                        <Unicode>denna</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline22_word1">
+                    <Coords points="3961,3729 4622,3729 4622,4040 3961,4040" />
+                    <TextEquiv conf="0.9990969440066325">
+                        <Unicode>ansökning</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline22_word2">
+                    <Coords points="4622,3729 4953,3729 4953,4040 4622,4040" />
+                    <TextEquiv conf="0.9990969440066325">
+                        <Unicode>sig</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline22_word3">
+                    <Coords points="4953,3729 5284,3729 5284,4040 4953,4040" />
+                    <TextEquiv conf="0.9990969440066325">
+                        <Unicode>icke</Unicode>
+                    </TextEquiv>
+                </Word>
+                <Word id="A0068699_00021_textregion3_textline22_word4">
+                    <Coords points="5284,3729 5450,3729 5450,4040 5284,4040" />
+                    <TextEquiv conf="0.9990969440066325">
+                        <Unicode>be¬</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+            <TextLine id="A0068699_00021_textregion3_textline23">
+            <Coords points="3465,3995 3465,4148 3527,4125 3685,4120 3714,4131 3748,4165 3929,4165 3946,4131 3957,4018 3934,3973 3951,3956 3951,3933 3759,3933 3753,3956 3669,3956 3663,3933 3618,3933 3618,3950 3578,3978" />
+                <Word id="A0068699_00021_textregion3_textline23_word0">
+                    <Coords points="3465,3933 3957,3933 3957,4165 3465,4165" />
+                    <TextEquiv conf="0.9879063930596284">
+                        <Unicode>fatta.</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+        </TextRegion>
+        <TextRegion id="A0068699_00021_textregion4">
+            <Coords points="5582,394 5582,621 5730,621 5730,591 5749,572 5759,572 5759,562 5769,552 5769,394" />
+            <TextLine id="A0068699_00021_textregion4_textline0">
+            <Coords points="5602,394 5582,413 5582,567 5597,577 5597,600 5637,600 5679,619 5702,619 5708,616 5708,607 5724,599 5753,563 5753,394" />
+                <Word id="A0068699_00021_textregion4_textline0_word0">
+                    <Coords points="5582,394 5753,394 5753,619 5582,619" />
+                    <TextEquiv conf="0.9940332195759757">
+                        <Unicode>3.</Unicode>
+                    </TextEquiv>
+                </Word>
+            </TextLine>
+        </TextRegion>
+      
+    </Page>
+</PcGts>
