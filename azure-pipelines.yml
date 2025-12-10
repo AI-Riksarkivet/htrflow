@@ -38,6 +38,8 @@ jobs:
           toxEnv: "py311"
         python3.12:
           toxEnv: "py312"
+        python3.13:
+          toxEnv: "py313"
         teklia-python3.10:
           toxEnv: "teklia-py310"
     steps:
