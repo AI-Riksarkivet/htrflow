@@ -12,7 +12,6 @@ from typing import Generator, Iterable, Iterator, Sequence
 
 import numpy as np
 
-from htrflow import serialization
 from htrflow.results import TEXT_RESULT_KEY, RecognizedText, Result, Segment
 from htrflow.utils import imgproc
 from htrflow.utils.geometry import Bbox, Point, Polygon
@@ -279,21 +278,6 @@ class Collection:
         for leaf, result in zip(leaves, results):
             leaf.update(result)
         self.relabel()
-
-    def save(
-        self,
-        directory: str = "outputs",
-        serializer: str | serialization.Serializer = "alto",
-    ) -> None:
-        """Save collection
-
-        Arguments:
-            directory: Output directory
-            serializer: What serializer to use, either a string name (e.g.,
-                "alto") or a Serializer instance. See serialization.supported_formats()
-                for available string options.
-        """
-        serialization.save_collection(self, serializer, directory)
 
     def relabel(self):
         for page in self:

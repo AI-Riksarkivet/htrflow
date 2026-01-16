@@ -112,13 +112,6 @@ def test_collection_segments_depth_none(demo_collection_segmented):
     assert all((img == leaf.image).all() for img, leaf in zip(segments, leaves))
 
 
-# Tests of volume.save()
-# More thorough serialization testing is done in test_seralization
-def test_collection_save_text(tmpdir, demo_collection_with_text):
-    demo_collection_with_text.save(tmpdir, "txt")
-    assert len(tmpdir.listdir()) == 1
-
-
 def test_pickling(demo_collection_segmented_nested):
     # TODO: there is probably a better way of ensuring that the pickled
     # volume is restored properly. Here I use an arbitrary demo volume
