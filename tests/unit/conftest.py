@@ -75,7 +75,7 @@ def demo_collection_unsegmented(demo_image):
 def demo_collection_segmented(demo_image):
     n_images = 5
     vol = volume.Collection([demo_image] * n_images)
-    result = dummy_segmentation_model(vol.images())
+    result = dummy_segmentation_model(vol.segments())
     vol.update(result)
     return vol
 
@@ -84,7 +84,7 @@ def demo_collection_segmented(demo_image):
 def demo_collection_segmented_nested(demo_image):
     n_images = 5
     vol = volume.Collection([demo_image] * n_images)
-    result = dummy_segmentation_model(vol.images())
+    result = dummy_segmentation_model(vol.segments())
     vol.update(result)
     result = dummy_segmentation_model(vol.segments())
     vol.update(result)
@@ -95,7 +95,7 @@ def demo_collection_segmented_nested(demo_image):
 def demo_collection_segmented_nested_with_text(demo_image):
     n_images = 5
     vol = volume.Collection([demo_image] * n_images)
-    result = dummy_segmentation_model(vol.images())
+    result = dummy_segmentation_model(vol.segments())
     vol.update(result)
     result = dummy_segmentation_model(vol.segments())
     vol.update(result)
@@ -108,7 +108,7 @@ def demo_collection_segmented_nested_with_text(demo_image):
 def demo_collection_with_text(demo_image):
     n_images = 1
     vol = volume.Collection([demo_image] * n_images)
-    result = dummy_text_recognition_model(vol.images())
+    result = dummy_text_recognition_model(vol.segments())
     vol.update(result)
     return vol
 

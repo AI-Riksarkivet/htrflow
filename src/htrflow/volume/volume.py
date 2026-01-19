@@ -236,10 +236,6 @@ class Collection:
     def __str__(self):
         return f"collection label: {self.label}\ncollection tree:\n" + "\n".join(child.tree2str() for child in self)
 
-    def images(self) -> "ImageGenerator":
-        """Yields the collection's original input images"""
-        return ImageGenerator(page for page in self.pages)
-
     def segments(self) -> "ImageGenerator":
         """Yield the active segments' images"""
         return ImageGenerator(self.active_leaves())
