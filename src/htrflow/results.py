@@ -132,14 +132,6 @@ class Segment:
         """The segment mask relative to the bounding box (alias for self.mask)"""
         return self.mask
 
-    def rescale(self, factor: float) -> None:
-        """Rescale the segment's mask, bounding box and polygon by `factor`"""
-        if self.mask is not None:
-            self.mask = imgproc.rescale_linear(self.mask, factor)
-        self.bbox = self.bbox.rescale(factor)
-        if self.polygon is not None:
-            self.polygon = self.polygon.rescale(factor)
-
     def move(self, dest: Point):
         if self.bbox is not None:
             self.bbox = self.bbox.move(dest)
@@ -207,11 +199,6 @@ class Result:
         self.data = data or {}
         if text is not None:
             self.data.update({TEXT_RESULT_KEY: text})
-
-    def rescale(self, factor: float):
-        """Rescale the Result's segments"""
-        for segment in self.segments:
-            segment.rescale(factor)
 
     @property
     def text_result(self) -> RecognizedText | None:
