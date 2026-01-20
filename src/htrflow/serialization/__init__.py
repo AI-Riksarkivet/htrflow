@@ -7,5 +7,4 @@ from .serialization import (
     get_serializer,
     pickle_collection,
     save_collection,
-    supported_formats,
 )

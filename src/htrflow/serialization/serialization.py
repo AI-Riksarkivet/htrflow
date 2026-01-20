@@ -13,7 +13,7 @@ import os
 import pickle
 from collections import defaultdict
 from datetime import datetime
-from typing import TYPE_CHECKING, Optional, Sequence
+from typing import TYPE_CHECKING, Optional
 
 import xmlschema
 from jinja2 import Environment, FileSystemLoader
@@ -42,11 +42,9 @@ class Serializer:
     Attributes:
         extension: The file extension associated with this format, for
             example ".txt" or ".xml"
-        format_name: The name of this format, for example "alto".
     """
 
     extension: str
-    format_name: str
 
     def serialize(self, page: PageNode, validate: bool = False, **metadata) -> str | None:
         """Serialize page
@@ -64,33 +62,6 @@ class Serializer:
             self.validate(doc)
         return doc
 
-    def serialize_collection(self, collection: Collection, **metadata) -> Sequence[tuple[str, str]]:
-        """Serialize collection
-
-        Arguments:
-            collection: Input collection
-
-        Returns:
-            A sequence of (document, filename) tuples where `document`
-            is the serialized version of collection and `filename` is a
-            suggested filename to save `document` to. Note that this
-            method may produce one file (which covers the entire
-            collection) or several files (typically one file per page),
-            depending on the serialization method.
-        """
-        for page in collection:
-            page.prune(lambda node: node.is_leaf() and node.depth != page.max_depth())
-        collection.relabel()
-
-        outputs = []
-        for page in collection:
-            doc = self.serialize(page, **metadata)
-            if doc is None:
-                continue
-            filename = os.path.join(collection.label, page.label + self.extension)
-            outputs.append((doc, filename))
-        return outputs
-
     def validate(self, doc: str) -> None:
         """Validate document"""
 
@@ -100,7 +71,6 @@ class Serializer:
         Arguments:
             page: Input page
         """
-        pass
 
 
 class AltoXML(Serializer):
@@ -130,12 +100,11 @@ class AltoXML(Serializer):
     - step: Export
       settings:
         dest: alto-ouptut
-        format: alto
+        format: AltoXML
     ```
     """
 
     extension = ".xml"
-    format_name = "alto"
 
     def __init__(self, template_dir=_TEMPLATES_DIR, template_name="alto"):
         """
@@ -207,12 +176,11 @@ class PageXML(Serializer):
     - step: Export
       settings:
         dest: page-ouptut
-        format: page
+        format: PageXML
     ```
     """
 
     extension = ".xml"
-    format_name = "page"
 
     def __init__(self, template_dir=_TEMPLATES_DIR, template_name="page"):
         """
@@ -264,40 +232,24 @@ class Json(Serializer):
       settings:
         dest: json-ouptut
         format: json
-        one_file: False
         indent: 2
     ```
     """
 
     extension = ".json"
-    format_name = "json"
 
-    def __init__(self, one_file=False, indent=4):
+    def __init__(self, indent=4):
         """
         Arguments:
-            one_file: Export all pages of the collection to the same file.
-                Defaults to False.
             indent: The indentation level of the output json file(s).
         """
-        self.one_file = one_file
         self.indent = indent
 
     def _serialize(self, page: PageNode, **metadata):
         def default(obj):
             return obj.__dict__
-        return json.dumps(page.asdict() | metadata, default=default, indent=self.indent, ensure_ascii=False)
 
-    def serialize_collection(self, collection: Collection, **metadata):
-        if self.one_file:
-            pages = [json.loads(self._serialize(page, **metadata)) for page in collection]
-            doc = json.dumps(
-                {"collection_label": collection.label, "pages": pages},
-                indent=self.indent,
-                ensure_ascii=False,
-            )
-            filename = collection.label + self.extension
-            return [(doc, filename)]
-        return super().serialize_collection(collection, **metadata)
+        return json.dumps(page.asdict() | metadata, default=default, indent=self.indent, ensure_ascii=False)
 
 
 class PlainText(Serializer):
@@ -314,12 +266,11 @@ class PlainText(Serializer):
     - step: Export
       settings:
         dest: text-ouptut
-        format: txt
+        format: plaintext
     ```
     """
 
     extension = ".txt"
-    format_name = "txt"
 
     def _serialize(self, page: PageNode, **metadata) -> str:
         lines = page.traverse(lambda node: node.is_line())
@@ -330,7 +281,7 @@ def get_metadata() -> dict:
     timestamp = datetime.utcnow().isoformat()
 
     return {
-        "creator": htrflow.meta["Author-email"],
+        "creator": htrflow.meta["Name"],
         "software_name": htrflow.meta["Name"],
         "software_version": htrflow.meta["Version"],
         "application_description": htrflow.meta["Summary"],
@@ -338,17 +289,21 @@ def get_metadata() -> dict:
     }
 
 
-def supported_formats() -> list[str]:
-    """The supported formats"""
-    return [cls.format_name for cls in Serializer.__subclasses__()]
-
-
 def get_serializer(serializer_name: str, **serializer_args) -> Serializer:
-    for cls in Serializer.__subclasses__():
-        if cls.format_name.lower() == serializer_name.lower():
-            return cls(**serializer_args)
-    msg = f"Format '{serializer_name}' is not among the supported formats: {supported_formats()}"
-    raise ValueError(msg)
+    names = {serializer.__name__.lower(): serializer for serializer in Serializer.__subclasses__()}
+
+    aliases = {
+        "alto": AltoXML,  # for backwards compatibility
+        "page": PageXML,  # for backwards compatibility
+        "txt": PlainText,  # for backwards compatibility
+        "text": PlainText,  # for convenience
+    }
+
+    serializer = (names | aliases).get(serializer_name.lower(), None)
+    if serializer is None:
+        raise ValueError(f"Format '{serializer_name}' is not among the supported formats: {', '.join(names)}")
+
+    return serializer(**serializer_args)
 
 
 def pickle_collection(collection: Collection, directory: str = ".cache", filename: Optional[str] = None):
@@ -378,17 +333,23 @@ def save_collection(collection: Collection, serializer: str | Serializer, dest: 
     Arguments:
         collection: Input collection
         serializer: What serializer to use. Takes a Serializer instance
-            or the name of the serializer as a string, see
-            serialization.supported_formats() for supported formats.
+            or the name of the serializer as a string.
         dest: Output directory
     """
+
+    for page in collection:
+        page.prune(lambda node: node.is_leaf() and node.depth != page.max_depth())
+    collection.relabel()
 
     if isinstance(serializer, str):
         serializer = get_serializer(serializer)
         logger.info("Using %s serializer with default settings", serializer.__class__.__name__)
 
-    for doc, filename in serializer.serialize_collection(collection, **metadata):
-        filename = os.path.join(dest, filename)
+    for page in collection:
+        doc = serializer.serialize(page, **metadata)
+        if doc is None:
+            continue
+        filename = os.path.join(collection.label, page.label + serializer.extension)
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         with open(filename, "w") as f:
             f.write(doc)
