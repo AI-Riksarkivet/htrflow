@@ -1,13 +1,13 @@
 import logging
 from abc import ABC, abstractmethod
 from itertools import islice
-from typing import Any, Collection, Generator, Iterable, TypeVar
+from typing import Any, Generator, Iterable, TypeVar
 
 import torch
+from PIL import Image
 from tqdm import tqdm
 
 from htrflow.results import Result
-from htrflow.utils.imgproc import NumpyImage
 
 
 logger = logging.getLogger(__name__)
@@ -57,7 +57,7 @@ class BaseModel(ABC):
 
     def predict(
         self,
-        images: Collection[NumpyImage],
+        images: list[Image],
         batch_size: int = 1,
         tqdm_kwargs: dict[str, Any] | None = None,
         **kwargs,
@@ -103,10 +103,10 @@ class BaseModel(ABC):
         return results
 
     @abstractmethod
-    def _predict(self, images: list[NumpyImage], **kwargs) -> list[Result]:
+    def _predict(self, images: list[Image], **kwargs) -> list[Result]:
         """Model specific prediction method"""
 
-    def __call__(self, images: Collection[NumpyImage], **kwargs) -> list[Result]:
+    def __call__(self, images: list[Image], **kwargs) -> list[Result]:
         """Alias for BaseModel.predict(...)"""
         return self.predict(images, **kwargs)
 

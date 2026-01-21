@@ -139,14 +139,12 @@ class Bbox:
 
     def polygon(self) -> "Polygon":
         """Return a polygon representation of the bounding box"""
-        return Polygon(
-            [
-                Point(self.xmin, self.ymin),
-                Point(self.xmax, self.ymin),
-                Point(self.xmax, self.ymax),
-                Point(self.xmin, self.ymax),
-            ]
-        )
+        return Polygon([
+            Point(self.xmin, self.ymin),
+            Point(self.xmax, self.ymin),
+            Point(self.xmax, self.ymax),
+            Point(self.xmin, self.ymax),
+        ])
 
     def move(self, dest: Point | tuple[int, int]) -> "Bbox":
         """Move bounding box to `dest`
@@ -320,7 +318,7 @@ def polygon2mask(polygon: Polygon, shape: tuple[int, int] | None = None) -> Mask
         bbox = polygon.bbox()
         shape = bbox.ymax, bbox.xmax
 
-    mask = np.zeros(shape, dtype=np.int32)
+    mask = np.zeros(shape, dtype=np.uint8)
     if len(polygon) > 0:
         mask = cv2.fillPoly(mask, [polygon.as_nparray()], color=255)
     return mask

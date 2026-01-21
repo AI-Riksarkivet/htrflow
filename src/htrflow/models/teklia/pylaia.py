@@ -7,16 +7,14 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile, mkdtemp
 from uuid import uuid4
 
-import cv2
-import numpy as np
 import pydantic
 from huggingface_hub import model_info, snapshot_download
 from laia.common.arguments import CommonArgs, DataArgs, DecodeArgs, TrainerArgs
 from laia.scripts.htr.decode_ctc import run as decode
+from PIL import Image
 
 from htrflow.models.base_model import BaseModel
 from htrflow.results import Result
-from htrflow.utils import imgproc
 
 
 logger = logging.getLogger(__name__)
@@ -89,13 +87,13 @@ class PyLaia(BaseModel):
 
         logger.info(f"Initialized PyLaiaModel from '{model}' on device '{self.device}'.")
 
-    def _predict(self, images: list[np.ndarray], **decode_kwargs) -> list[Result]:
+    def _predict(self, images: list[Image], **decode_kwargs) -> list[Result]:
         """
         PyLaia-specific prediction method: runs text recognition.
 
         Args:
-            images (list[np.ndarray]):
-                List of images as NumPy arrays (e.g., shape [H, W, C]).
+            images (list[Image]):
+                List of input images.
             batch_size (int, optional):
                 Batch size for decoding. Defaults to 1.
             reading_order (str, optional):
@@ -150,9 +148,9 @@ class PyLaia(BaseModel):
 
         image_ids = [str(uuid4()) for _ in images]
 
-        for img_id, np_img in zip(image_ids, images):
-            rezied_img = self._ensure_fixed_height(np_img, resize_input_height)
-            cv2.imwrite(str(tmp_images_dir / f"{img_id}.jpg"), rezied_img)
+        for img_id, image in zip(image_ids, images):
+            resized_img = self._ensure_fixed_height(image, resize_input_height)
+            resized_img.save(tmp_images_dir / f"{img_id}.jpg")
 
         with NamedTemporaryFile() as pred_stdout, NamedTemporaryFile() as img_list:
             Path(img_list.name).write_text("\n".join(image_ids))
@@ -196,16 +194,15 @@ class PyLaia(BaseModel):
 
         return results
 
-    def _ensure_fixed_height(self, img: np.ndarray, target_height: int = 128) -> np.ndarray:
+    def _ensure_fixed_height(self, img: Image, target_height: int = 128) -> Image:
         """Ensures an image is always resized to a fixed height, maintaining aspect ratio.
 
         If target_height is -1, the function returns the original image without resizing.
         """
         if target_height > 0:
-            aspect_ratio = img.shape[1] / img.shape[0]
+            aspect_ratio = img.height / img.width
             new_width = int(target_height * aspect_ratio)
-            new_shape = (target_height, new_width)
-            return imgproc.resize(img, new_shape)
+            return img.resize((new_width, target_height))
 
         return img
 

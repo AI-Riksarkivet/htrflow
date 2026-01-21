@@ -11,6 +11,7 @@ from itertools import chain
 from typing import Generator, Iterable, Iterator, Sequence
 
 import numpy as np
+from PIL import Image
 
 from htrflow.results import TEXT_RESULT_KEY, RecognizedText, Result, Segment
 from htrflow.utils import imgproc
@@ -22,7 +23,6 @@ logger = logging.getLogger(__name__)
 
 
 class ImageNode(Node, ABC):
-
     @property
     def coord(self) -> Point:
         """Coordinate of this node's top left corner, relative to original image"""
@@ -130,7 +130,7 @@ class SegmentNode(ImageNode):
         return self._segment.polygon
 
     def _load_image(self):
-        img = imgproc.crop(self.parent.image, self.bbox.move(-self.parent.coord))
+        img = self.parent.image.crop(self.bbox.move(-self.parent.coord))
         mask = self._segment.mask
         if mask is not None:
             img = imgproc.mask(img, mask)
@@ -162,11 +162,10 @@ class PageNode(ImageNode):
 
     @property
     def bbox(self) -> Bbox:
-        height, width = self.image.shape[:2]
-        return Bbox(0, 0, width, height)
+        return Bbox(0, 0, *self.image.size)
 
     def _load_image(self):
-        return imgproc.read(self.path)
+        return Image.open(self.path)
 
     def asdict(self) -> dict:
         return super().asdict() | {

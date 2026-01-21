@@ -109,7 +109,7 @@ def test_collection_segments_depth_none(demo_collection_segmented):
     leaves = demo_collection_segmented.leaves()
     segments = demo_collection_segmented.segments()
     # (A==B).all() checks if two arrays are equal (cannot do A==B)
-    assert all((img == leaf.image).all() for img, leaf in zip(segments, leaves))
+    assert all(img == leaf.image for img, leaf in zip(segments, leaves))
 
 
 def test_pickling(demo_collection_segmented_nested):

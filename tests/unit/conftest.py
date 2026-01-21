@@ -144,7 +144,7 @@ def dummy_mask(shape):
 
 
 def dummy_segmentation_model(images):
-    return [dummy_segmentation(image.shape[:2]) for image in images]
+    return [dummy_segmentation(image.size[::-1]) for image in images]
 
 
 def dummy_text_recognition_model(images):

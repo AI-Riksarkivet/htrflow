@@ -1,11 +1,11 @@
 import pytest
+from PIL import Image
 
 
 pytest.importorskip("transformers", reason="Transformers dependencies not installed")
 
 
 from htrflow.models.huggingface.trocr import WordLevelTrOCR
-from htrflow.utils.imgproc import read
 
 
 testdata = [
@@ -23,7 +23,7 @@ def model():
 
 @pytest.mark.parametrize("image,expected_segmentation", testdata)
 def test_wordsegmentation(model, image, expected_segmentation):
-    image = read(image)
+    image = Image.open(image)
     results = model([image])
     result = results[0]
     segmentation = [bbox.xmin for bbox in result.bboxes]

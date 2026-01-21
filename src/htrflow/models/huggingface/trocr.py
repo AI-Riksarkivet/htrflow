@@ -1,8 +1,8 @@
 import logging
 from typing import Any
 
-import numpy as np
 import torch
+from PIL import Image
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 
 from htrflow.models.base_model import BaseModel
@@ -73,19 +73,17 @@ class TrOCR(BaseModel, ConfidenceMixin):
         self.processor = TrOCRProcessor.from_pretrained(processor, **processor_kwargs)
         logger.info("Initialized TrOCR processor from %s.", processor)
 
-        self.metadata.update(
-            {
-                "model": model,
-                "model_version": get_model_info(model, model_kwargs.get("revision", None)),
-                "processor": processor,
-                "processor_version": get_model_info(processor, processor_kwargs.get("revision", None)),
-            }
-        )
+        self.metadata.update({
+            "model": model,
+            "model_version": get_model_info(model, model_kwargs.get("revision", None)),
+            "processor": processor,
+            "processor_version": get_model_info(processor, processor_kwargs.get("revision", None)),
+        })
 
         # Map `compute_transition_scores` method from decoder to model
         self.compute_transition_scores = self.model.decoder.compute_transition_scores
 
-    def _predict(self, images: list[np.ndarray], **generation_kwargs) -> list[Result]:
+    def _predict(self, images: list[Image], **generation_kwargs) -> list[Result]:
         """TrOCR-specific prediction method.
 
         This method is used by `predict()` and should typically not be
@@ -129,8 +127,7 @@ class TrOCR(BaseModel, ConfidenceMixin):
                     texts[i] = text.encode("utf-8").decode(self.decoding)
                 except UnicodeEncodeError as e:
                     logger.warning(
-                        "Text %s could not be decoded with decoding '%s'. Error: %s",
-                        text, self.decoding, e
+                        "Text %s could not be decoded with decoding '%s'. Error: %s", text, self.decoding, e
                     )
                     pass
 
@@ -165,7 +162,7 @@ class WordLevelTrOCR(TrOCR):
     ```
     """
 
-    def _predict(self, images: list[np.ndarray], **generation_kwargs) -> list[Result]:
+    def _predict(self, images: list[Image], **generation_kwargs) -> list[Result]:
         config_overrides = {
             "output_scores": True,
             "output_attentions": True,
@@ -192,7 +189,7 @@ class WordLevelTrOCR(TrOCR):
         )
 
         # Warn if `max_new_tokens` was given and the limit was reached
-        n_tokens = outputs.sequences.shape[1] - 1   # -1 to ignore BOS token
+        n_tokens = outputs.sequences.shape[1] - 1  # -1 to ignore BOS token
         max_new_tokens = generation_kwargs.get("max_new_tokens")
         if max_new_tokens and n_tokens >= max_new_tokens:
             logger.warning(
@@ -232,7 +229,7 @@ class WordLevelTrOCR(TrOCR):
             # work-around in order to decode special characters correctly.
             words = [word if len(word) else " " for word in lines[i].split(" ")]
 
-            height, width = images[i].shape[:2]
+            width, height = images[i].size
             spaces = attention_based_wordseg(tokens, heatmaps[:, i, :, :], special_tokens, width)
             word_boundaries = list(zip(spaces, spaces[1:]))
 

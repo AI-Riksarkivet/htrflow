@@ -3,46 +3,18 @@ Image processing utilities
 """
 
 import logging
-from typing import Any, TypeAlias
 
 import cv2
 import numpy as np
-import numpy.typing as npt
+from PIL import Image
 
-from htrflow.utils.geometry import Bbox, Mask, Polygon, polygon2mask
+from htrflow.utils.geometry import Polygon, polygon2mask
 
 
-NumpyImage: TypeAlias = np.ndarray  # TODO make non-generic
 logger = logging.getLogger(__name__)
 
 
-def crop(image: npt.NDArray[Any], bbox: Bbox, padding: int | None = 0) -> npt.NDArray[Any]:
-    """Crop image
-
-    Args:
-        image: The input image
-        bbox: The bounding box
-        padding: A value to pad the cropped image with if the given bounding
-            box overflows the input image. This ensures that the cropped image
-            has the same size as the bounding box. If None, no padding is used,
-            and the shape of the cropped image may not match the bounding box.
-    """
-    x1, y1, x2, y2 = bbox
-    cropped = image[y1:y2, x1:x2].copy()
-    h, w = cropped.shape[:2]
-    if padding is not None and (h < bbox.height or w < bbox.width):
-        pad_y = bbox.height - h
-        pad_x = bbox.width - w
-        cropped = np.pad(cropped, ((0, pad_y), (0, pad_x)), mode="constant", constant_values=padding)
-    return cropped
-
-
-def mask(
-    image: npt.NDArray[Any],
-    mask: Mask,
-    fill: tuple[int, int, int] = (255, 255, 255),
-    inverse: bool = False,
-) -> npt.NDArray[Any]:
+def mask(image: Image, mask: np.ndarray, fill: tuple[int, int, int] = (255, 255, 255)) -> Image:
     """Apply mask to image
 
     Returns a copy of the input image where all pixels such that mask[pixel]
@@ -51,24 +23,21 @@ def mask(
 
     Args:
         image: The input image
-        mask: The mask, a binary array, of similar shape as `image`
+        mask:
         fill: The color value to fill the masked areas with, default white
-        inverse: Fill all pixels where mask[pixel] is True instead of False
     """
-    image = image.copy()
-    idx = (mask != 0) if inverse else (mask == 0)
-    if idx.shape != image.shape[:2]:
-        logger.debug(
-            "Resizing mask to match the input image (mask %d-by-%d, image %d-by-%d)",
-            *idx.shape,
-            *image.shape[:2],
-        )
-        idx = crop(idx, Bbox(0, 0, image.shape[1], image.shape[0]))
-    image[idx] = fill
-    return image
+
+    mask = Image.fromarray(mask, mode="L")
+    if image.size != mask.size:
+        print(image.size, mask.size)
+        logger.debug("Resizing mask to match the input image")
+        mask = mask.crop((0, 0, *image.size))
+
+    fill = Image.new(image.mode, image.size, color=fill)
+    return Image.composite(image, fill, mask)
 
 
-def polygon_mask(image: npt.NDArray[Any], polygon: Polygon):
+def polygon_mask(image: Image, polygon: Polygon):
     """
     Apply polygon mask to image
 
@@ -79,23 +48,10 @@ def polygon_mask(image: npt.NDArray[Any], polygon: Polygon):
     Returns:
         A copy of `image` with everything outside `polygon` is masked.
     """
-    return mask(image, polygon2mask(polygon, image.shape[:2]))
+    return mask(image, polygon2mask(polygon, image.size[::-1]))
 
 
-def resize(image: npt.NDArray[Any], shape: tuple[int, int]) -> npt.NDArray[Any]:
-    """Resize image using nearest-neighbour interpolation
-
-    Arguments:
-        image: Input image
-        shape: Desired shape as a (height, width) tuple
-    """
-    if shape == image.shape[:2]:
-        return image
-    y, x = shape
-    return cv2.resize(image, (x, y), interpolation=cv2.INTER_NEAREST)
-
-
-def rescale(image: npt.NDArray[Any], ratio: float) -> npt.NDArray[Any]:
+def rescale(image: Image, ratio: float) -> Image:
     """Rescale image
 
     Rescales the image while keeping the aspect ratio as far as
@@ -113,7 +69,7 @@ def rescale(image: npt.NDArray[Any], ratio: float) -> npt.NDArray[Any]:
     return rescale_linear(image, length_ratio)
 
 
-def rescale_linear(image: npt.NDArray[Any], ratio: float) -> npt.NDArray[Any]:
+def rescale_linear(image: Image, ratio: float) -> Image:
     """Rescale image
 
     Rescales the image while keeping the aspect ratio intact as far as
@@ -131,79 +87,17 @@ def rescale_linear(image: npt.NDArray[Any], ratio: float) -> npt.NDArray[Any]:
             For example, with ratio=0.25 a 200x100 image would be resized to
             50x25.
     """
-    h, w = image.shape[:2]
-    return resize(image, (int(h * ratio), int(w * ratio)))
+    return Image.resize((int(image.width * ratio), int(image.height * ratio)))
 
 
-def binarize(image: npt.NDArray[Any]) -> npt.NDArray[Any]:
+def binarize(image: Image) -> Image:
     """Binarize image"""
+    image = np.asarray(image)
     img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     dst = cv2.fastNlMeansDenoising(img_gray, h=31, templateWindowSize=7, searchWindowSize=21)
     img_gray = cv2.medianBlur(dst, 3).astype("uint8")
     threshold = cv2.adaptiveThreshold(img_gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
-    return cv2.cvtColor(threshold, cv2.COLOR_GRAY2BGR)
-
-
-def pad_image(
-    img: np.ndarray,
-    pad_left: int = 0,
-    pad_right: int = 0,
-    pad_top: int = 0,
-    pad_bottom: int = 0,
-    padding_color: tuple[int, int, int] = (255, 255, 255),
-) -> np.ndarray:
-    """
-    Pads an image in specified directions.
-
-    Args:
-        img (np.ndarray): Input image in NumPy format (e.g., BGR or grayscale).
-        pad_left (int, optional): Pixels to add to the left. Defaults to 0.
-        pad_right (int, optional): Pixels to add to the right. Defaults to 0.
-        pad_top (int, optional): Pixels to add to the top. Defaults to 0.
-        pad_bottom (int, optional): Pixels to add to the bottom. Defaults to 0.
-        padding_color (tuple[int, int, int], optional): Padding color in BGR (white=(255, 255, 255)).
-
-    Returns:
-        np.ndarray: The padded image.
-    """
-    padded_img = cv2.copyMakeBorder(
-        img,
-        top=pad_top,
-        bottom=pad_bottom,
-        left=pad_left,
-        right=pad_right,
-        borderType=cv2.BORDER_CONSTANT,
-        value=padding_color,
-    )
-    return padded_img
-
-
-def read(path) -> npt.NDArray[Any]:
-    """
-    Read an image.
-
-    Args:
-        path: Path to image.
-
-    Returns:
-        np.ndarray: Image in OpenCV format.
-
-    Raises:
-        ImageImportError: If the image cannot be loaded from the given source.
-    """
-
-    img = cv2.imread(path, cv2.IMREAD_COLOR)
-    if img is None:
-        raise ImageImportError(
-            f"Could not load an image from {path}. Check that the path exists and is a valid image."
-        )
-    return img
-
-
-def write(dest: str, image: npt.NDArray[Any]) -> str:
-    cv2.imwrite(dest, image)
-    logger.info("Wrote image to %s", dest)
-    return dest
+    return Image.fromarray(cv2.cvtColor(threshold, cv2.COLOR_GRAY2BGR))
 
 
 class ImageImportError(RuntimeError):

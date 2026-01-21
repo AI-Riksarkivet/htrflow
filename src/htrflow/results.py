@@ -74,7 +74,8 @@ class Segment:
         if mask is not None:
             bbox = geometry.mask2bbox(mask)
             polygon = geometry.mask2polygon(mask)
-            mask = imgproc.crop(mask, bbox)
+            x1, y1, x2, y2 = bbox
+            mask = mask[y1:y2, x1:x2].copy()
 
         # Polygon is given: Compute a bounding box and possibly mask
         elif polygon is not None:
@@ -82,7 +83,8 @@ class Segment:
             bbox = polygon.bbox()
             if orig_shape:
                 mask = geometry.polygon2mask(polygon, orig_shape)
-                mask = imgproc.crop(mask, Bbox(*bbox))
+                x1, y1, x2, y2 = bbox
+                mask = mask[y1:y2, x1:x2].copy()
 
         self.bbox = geometry.Bbox(*bbox)
         self.polygon = polygon or self.bbox.polygon()

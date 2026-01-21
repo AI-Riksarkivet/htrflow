@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 import cv2
 import numpy as np
+from PIL import Image
 
 from htrflow.utils.geometry import Bbox
 
@@ -17,7 +18,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def estimate_printspace(image: np.ndarray, window: int = 150) -> Bbox:
+def estimate_printspace(image: Image, window: int = 150) -> Bbox:
     """Estimate printspace of page
 
     The printspace (borrowed terminology from ALTO XML) is a
@@ -45,7 +46,7 @@ def estimate_printspace(image: np.ndarray, window: int = 150) -> Bbox:
         The estimated printspace as a bounding box. If no printspace is
         detected, a bbox that covers the entire page is returned.
     """
-    image = image.copy()
+    image = np.asarray(image)
     if image.ndim > 2:
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 

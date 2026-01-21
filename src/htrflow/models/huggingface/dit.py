@@ -1,8 +1,8 @@
 import logging
 from typing import Literal
 
-import numpy as np
 import torch
+from PIL import Image
 from transformers import AutoImageProcessor, AutoModelForImageClassification
 
 from htrflow.models.base_model import BaseModel
@@ -71,7 +71,7 @@ class DiT(BaseModel):
 
     def _predict(
         self,
-        images: list[np.ndarray],
+        images: list[Image],
         return_format: Literal["argmax", "softmax"] = "softmax",
     ) -> list[Result]:
         """Perform inference on `images`

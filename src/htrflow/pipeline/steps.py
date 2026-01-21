@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import Any, Callable, Generator, Literal
 
 from pagexml.parser import parse_pagexml_file
+from PIL import Image
 
 from htrflow.models.base_model import BaseModel
 from htrflow.models.importer import all_models
@@ -13,7 +14,7 @@ from htrflow.postprocess.reading_order import order_regions, top_down
 from htrflow.postprocess.word_segmentation import simple_word_segmentation
 from htrflow.results import Result
 from htrflow.serialization import get_serializer, save_collection
-from htrflow.utils.imgproc import NumpyImage, binarize, write
+from htrflow.utils.imgproc import binarize
 from htrflow.utils.layout import estimate_printspace, is_twopage
 from htrflow.volume.node import Node
 from htrflow.volume.volume import Collection
@@ -351,7 +352,7 @@ class ExportImages(PipelineStep):
             for node in page.traverse():
                 if node.image is None:
                     continue
-                write(os.path.join(directory, f"{node.label}.{extension}"), node.image)
+                node.image.save(os.path.join(directory, f"{node.label}.{extension}"))
         return collection
 
 
@@ -543,10 +544,12 @@ class ProcessImages(PipelineStep):
             _, image_name = os.path.split(page.path)
             dest = os.path.join("processed_images", collection.label, self.output_directory)
             os.makedirs(dest, exist_ok=True)
-            page.path = write(os.path.join(dest, image_name), new_image)
+            path = os.path.join(dest, image_name)
+            new_image.save(path)
+            page.path = path
         return collection
 
-    def op(self, image: NumpyImage) -> NumpyImage:
+    def op(self, image: Image) -> Image:
         """
         Perform the image processing operation on `image`.
 

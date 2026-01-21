@@ -3,7 +3,7 @@ import re
 from functools import lru_cache
 from typing import Any
 
-import numpy as np
+from PIL import Image
 from transformers import DonutProcessor, VisionEncoderDecoderModel
 
 from htrflow.models.base_model import BaseModel
@@ -20,7 +20,8 @@ class Donut(BaseModel, ConfidenceMixin):
     HTRflow adapter of Donut model.
     """
 
-    def __init__(self,
+    def __init__(
+        self,
         model: str,
         processor: str | None = None,
         model_kwargs: dict[str, Any] | None = None,
@@ -58,12 +59,11 @@ class Donut(BaseModel, ConfidenceMixin):
         self.metadata["model"] = model
         self.metadata["model_version"] = get_model_info(model, model_kwargs.get("revision", None))
         self.metadata["processor"] = processor
-        self.metadata["processor_version"]= get_model_info(processor, processor_kwargs.get("revision", None))
+        self.metadata["processor_version"] = get_model_info(processor, processor_kwargs.get("revision", None))
 
         self.compute_transition_scores = self.model.decoder.compute_transition_scores
 
-    def _predict(self, images: list[np.ndarray], **generation_kwargs) -> list[Result]:
-
+    def _predict(self, images: list[Image], **generation_kwargs) -> list[Result]:
         # Prepare generation kwargs
         defaults = {
             "max_length": self.model.decoder.config.max_position_embeddings,
@@ -84,7 +84,7 @@ class Donut(BaseModel, ConfidenceMixin):
         outputs = self.model.generate(
             inputs.pixel_values.to(self.model.device),
             decoder_input_ids=inputs.input_ids.to(self.model.device),
-            **generation_kwargs
+            **generation_kwargs,
         )
         scores = self.compute_sequence_confidence_score(outputs)
         token_scores = self.compute_confidence_per_token(outputs)
@@ -101,7 +101,7 @@ class Donut(BaseModel, ConfidenceMixin):
         chunked_results = []
         chunk_size = generation_kwargs.get("num_return_sequences", 1)
         for i in range(0, len(results), chunk_size):
-            chunk = results[i:i+chunk_size]
+            chunk = results[i : i + chunk_size]
             chunked_results.append(Result(data={"donut_result": chunk}))
 
         return chunked_results
@@ -120,6 +120,7 @@ def warn_when_overridden(kwargs: dict, overrides: dict):
             if overrides[key] != value:
                 msg = "HTRflow Donut model does not support '%s'='%s'. Using '%s'='%s' instead."
                 _warn_once(msg, key, value, overrides[key])
+
 
 @lru_cache
 def _warn_once(msg, *args):

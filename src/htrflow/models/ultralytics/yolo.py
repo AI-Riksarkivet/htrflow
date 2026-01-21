@@ -89,7 +89,7 @@ class YOLO(BaseModel):
                     polygons = _simplify_polygons(output.masks.xy, polygon_approx_level)
 
             result = Result.segmentation_result(
-                image.shape[:2],
+                image.size[::-1],
                 bboxes=bboxes,
                 polygons=polygons,
                 scores=scores,
