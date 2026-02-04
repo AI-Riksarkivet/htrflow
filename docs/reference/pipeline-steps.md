@@ -72,7 +72,3 @@ This page lists HTRflow's built-in pipeline steps.
 ::: pipeline.steps.Break
     options:
         heading_level: 3
-
-::: pipeline.steps.ImportSegmentation
-    options:
-        heading_level: 3

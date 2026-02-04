@@ -4,7 +4,6 @@ import os
 from dataclasses import dataclass
 from typing import Any, Callable, Generator, Literal
 
-from pagexml.parser import parse_pagexml_file
 from PIL import Image
 
 from htrflow.models.base_model import BaseModel
@@ -105,51 +104,6 @@ class Inference(PipelineStep):
             self._init_model()
         result = self.model(collection.segments(), **self.generation_kwargs)
         collection.update(result)
-        return collection
-
-
-class ImportSegmentation(PipelineStep):
-    """
-    Import segmentation from PageXML files.
-
-    This step replicates the line segmentation from PageXML files.
-    It can be used to import ground truth segmentation for
-    evaluation purposes.
-
-    Example YAML:
-    ```yaml
-    - step: ImportSegmentation
-      settings:
-        source: /path/to/pageXMLs
-    ```
-    """
-
-    def __init__(self, source: str):
-        """
-        Arguments:
-            source: Path to a directory with PageXML files. The XML files
-                must have the same names as the input image files (ignoring
-                the file extension).
-        """
-        self.source = source
-
-    def run(self, collection):
-        pages = []
-        for page in collection:
-            try:
-                pages.append(parse_pagexml_file(os.path.join(self.source, page.label + ".xml")))
-            except ValueError:
-                pages.append(None)
-
-        results = []
-        for page in pages:
-            if page is None:
-                results.append(Result())
-                continue
-            shape = (page.coords.height, page.coords.width)
-            polygons = [line.coords.points for line in page.get_lines()]
-            results.append(Result.segmentation_result(shape, {}, polygons=polygons))
-        collection.update(results)
         return collection
 
 
