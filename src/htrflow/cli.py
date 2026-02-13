@@ -70,7 +70,6 @@ def run_pipeline(
         typer.Option(help="Where to write logs to. If not provided, logs will be printed to the standard output."),
     ] = None,
     loglevel: Annotated[LogLevel, typer.Option(help="Loglevel", case_sensitive=False)] = LogLevel.info,
-    backup: Annotated[bool, typer.Option(help="Save a pickled backup after each pipeline step.")] = False,
     batch_output: Annotated[
         int | None,
         typer.Option(help="Write continuous output in batches of this size (number of images)."),
@@ -86,7 +85,7 @@ def run_pipeline(
                 "Output directory. Adds an extra `Export` step to the end of the given pipeline. Uses the format "
                 "given by --output_format, or plaintext if not given."
             )
-        )
+        ),
     ] = None,
     output_format: Annotated[
         OutputFormat | None,
@@ -94,7 +93,8 @@ def run_pipeline(
             help=(
                 "Output format. Adds an extra `Export` step to the end of the given pipeline. Writes to the directory "
                 "given by --output, or 'outputs' if not given."
-            ))
+            )
+        ),
     ] = None,
     inputs_file: Annotated[
         str | None,
@@ -124,8 +124,6 @@ def run_pipeline(
         output = output or "outputs"
         output_format = output_format or "txt"
         pipe.steps.append(Export(output, output_format))
-
-    pipe.do_backup = backup
 
     tic = time.time()
     collections = auto_import(inputs, max_size=batch_output)

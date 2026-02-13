@@ -306,27 +306,6 @@ def get_serializer(serializer_name: str, **serializer_args) -> Serializer:
     return serializer(**serializer_args)
 
 
-def pickle_collection(collection: Collection, directory: str = ".cache", filename: Optional[str] = None):
-    """Pickle collection
-
-    Arguments:
-        collection: Input collection
-        directory: Where to save the pickle file
-        filename: Name of pickle file, optional. Defaults to
-            <collection label>.pickle if left as None
-
-    Returns:
-        The path to the pickled file.
-    """
-    os.makedirs(directory, exist_ok=True)
-    filename = f"{collection.label}.pickle" if filename is None else filename
-    path = os.path.join(directory, filename)
-    with open(path, "wb") as f:
-        pickle.dump(collection, f)
-    logger.info("Wrote pickled collection '%s' to %s", collection.label, path)
-    return path
-
-
 def save_collection(collection: Collection, serializer: str | Serializer, dest: str, **metadata):
     """Serialize and save collection
 
