@@ -1,7 +1,7 @@
 import random
+from string import ascii_letters
 
 import cv2
-import lorem
 import numpy as np
 import pytest
 
@@ -130,7 +130,7 @@ def dummy_text_recognition():
     n_candidates = 3
     return Result.text_recognition_result(
         {},
-        texts=[lorem.sentence() for _ in range(n_candidates)],
+        texts=["".join(random.choices(ascii_letters, k=10)) for _ in range(n_candidates)],
         scores=[random.random() for _ in range(n_candidates)],
     )
 
