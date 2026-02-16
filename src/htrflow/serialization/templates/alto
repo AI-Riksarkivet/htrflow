@@ -1,36 +1,9 @@
-{%- macro render(nodes) -%}
-    {% for node in nodes  %}
-                <TextBlock ID="{{ node.label }}" HPOS="{{ node.coord.x }}" VPOS="{{ node.coord.y }}" HEIGHT="{{ node.height}}" WIDTH="{{ node.width }}" CS="false">
-                    {%- if node.polygon|length > 2 %}
-                    <Shape>
-                        <Polygon POINTS="{% for point in node.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}"/>
-                    </Shape>
-                    {%- endif %}
-                    {%- for line in node.children %}
-                    <TextLine ID="{{ line.label }}"  HPOS="{{ line.coord.x }}" VPOS="{{ line.coord.y }}" HEIGHT="{{ line.height}}" WIDTH="{{ line.width }}">
-                        {%- if line.polygon|length > 2 %}
-                        <Shape>
-                            <Polygon POINTS="{% for point in line.polygon %}{{ point|join(',') }}{% if not loop.last %} {% endif %}{% endfor %}"/>
-                        </Shape>
-                        {%- endif %}
-                        {%- if line.children %}
-                        {%- for word in line.children %}
-                        <String ID="{{ word.label }}"  HPOS="{{ word.coord.x }}" VPOS="{{ word.coord.y }}" HEIGHT="{{ word.height}}" WIDTH="{{ word.width }}" CONTENT="{{ xmlescape(word.text) }}" />
-                        {%- endfor %}
-                        {%- else %}
-                        <String HPOS="{{ line.coord.x }}" VPOS="{{ line.coord.y }}" HEIGHT="{{ line.height}}" WIDTH="{{ line.width }}" CONTENT="{{ xmlescape(line.text) }}" WC="{{ line.text_result.top_score() }}"/>
-                        {%- endif %}
-                    </TextLine>
-                    {%- endfor %}
-                </TextBlock>
-    {%- endfor %}
-{%- endmacro -%}
 <?xml version="1.0" encoding="UTF-8"?>
 <alto xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.loc.gov/standards/alto/ns-v4#" xsi:schemaLocation="http://www.loc.gov/standards/alto/ns-v4# http://www.loc.gov/standards/alto/v4/alto-4-4.xsd">
     <Description>
         <MeasurementUnit>pixel</MeasurementUnit>
         <sourceImageInformation>
-            <fileName>{{ page.get('file_name') }}</fileName>
+            <fileName>{{ filename }}</fileName>
         </sourceImageInformation>
         <Processing ID="general">
             <processingDateTime>{{ metadata.created }}</processingDateTime>
@@ -52,57 +25,47 @@
         </Processing>
         {%- endfor %}
     </Description>
-    {%- if not page.is_leaf() %}
     <ReadingOrder>
         <OrderedGroup ID="ro">
-        {%- for node in page recursive %}
-            {%- if node.text %}
-            <ElementRef ID="ro_{{ node.label }}" REF="{{ node.label }}" />
-            {%- else %}
-            <OrderedGroup ID="ro_{{ node.label }}">{{ loop(node.children) }}
+        {%- for region in document.regions %}
+            {%- set region_index = loop.index0 %}
+            <OrderedGroup ID="ro_block{{ region_index }}">
+            {%- for line in region.regions %}
+                <ElementRef ID="ro_block{{ region_index }}_line{{ loop.index0 }}" REF="block{{ region_index }}_line{{ loop.index0 }}" />
+            {%- endfor %}
             </OrderedGroup>
-        {%- endif %}
         {%- endfor %}
         </OrderedGroup>
     </ReadingOrder>
-    {%- endif %}
     <Layout>
-        <Page WIDTH="{{ page.width }}" HEIGHT="{{ page.height }}" PC="{{ '%.4f' % page_confidence }}" PHYSICAL_IMG_NR="0" ID="_{{ page.label }}">
-            {%- if top_margin | length > 0 %}
-            <TopMargin>
-                {{ render(top_margin) }}
-            </TopMargin>
-            {%- else %}
-            <TopMargin />
-            {%- endif -%}
-            {%- if left_margin | length > 0 %}
-            <LeftMargin>
-                {{ render(left_margin) }}
-            </LeftMargin>
-            {%- else %}
-            <LeftMargin />
-            {%- endif -%}
-            {%- if right_margin | length > 0 %}
-            <RightMargin>
-                {{ render(right_margin) }}
-            </RightMargin>
-            {%- else %}
-            <RightMargin />
-            {%- endif -%}
-            {%- if bottom_margin | length > 0 %}
-            <BottomMargin>
-                {{ render(bottom_margin) }}
-            </BottomMargin>
-            {%- else %}
-            <BottomMargin />
-            {%- endif -%}
-            {%- if printspace | length > 0 %}
+        <Page WIDTH="{{ document.image.width }}" HEIGHT="{{ document.image.height }}" PHYSICAL_IMG_NR="0" ID="{{ filename }}">
             <PrintSpace>
-                {{ render(printspace) }}
+                {%- for region in document.regions %}
+                {%- set region_index = loop.index0 %}
+                {%- set bbox = region.polygon.bbox %}
+                {%- set hpos = bbox.xmin %}
+                {%- set vpos = bbox.ymin %}
+                <TextBlock ID="block_{{ region_index }}" HPOS="{{ hpos }}" VPOS="{{ vpos }}" HEIGHT="{{ bbox.height }}" WIDTH="{{ bbox.width  }}" CS="false">
+                    {%- if region.polygon.points | length != 4 %}
+                    <Shape>
+                        <Polygon POINTS="{{ region.polygon.move((hpos, vpos)) }}"/>
+                    </Shape>
+                    {%- endif %}
+                    {%- for line in region.regions %}
+                    {%- set line_index = loop.index0 %}
+                    {%- set bbox = line.polygon.bbox %}
+                    <TextLine ID="block{{ region_index }}_line{{ line_index }}"  HPOS="{{ hpos + bbox.xmin }}" VPOS="{{ vpos + bbox.ymin }}" HEIGHT="{{ bbox.height }}" WIDTH="{{ bbox.width }}">
+                        {%- if line.polygon.points | length != 4 %}
+                        <Shape>
+                            <Polygon POINTS="{{ line.polygon.move((hpos, vpos)) }}"/>
+                        </Shape>
+                        {%- endif %}
+                        <String CONTENT="{{ xmlescape(line.transcription[0].text) }}" />
+                    </TextLine>
+                    {%- endfor %}
+                </TextBlock>
+                {%- endfor %}
             </PrintSpace>
-            {%- else %}
-            <PrintSpace />
-            {%- endif %}
         </Page>
     </Layout>
 </alto>

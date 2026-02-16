@@ -10,22 +10,14 @@ from __future__ import annotations
 import json
 import logging
 import os
-import pickle
-from collections import defaultdict
 from datetime import datetime
-from typing import TYPE_CHECKING, Optional
 
 import xmlschema
 from jinja2 import Environment, FileSystemLoader
 
 import htrflow
-from htrflow.postprocess.metrics import average_text_confidence
-from htrflow.results import TEXT_RESULT_KEY
-from htrflow.utils.layout import REGION_KEY, RegionLocation
-
-
-if TYPE_CHECKING:
-    from htrflow.volume.volume import Collection, PageNode
+from htrflow.document import Document, Region
+from htrflow.utils.geometry import Bbox, Polygon
 
 
 logger = logging.getLogger(__name__)
@@ -46,18 +38,18 @@ class Serializer:
 
     extension: str
 
-    def serialize(self, page: PageNode, validate: bool = False, **metadata) -> str | None:
-        """Serialize page
+    def serialize(self, document: Document, validate: bool = False, **metadata) -> str | None:
+        """Serialize document
 
         Arguments:
-            page: Input page
+            document: Input document
             validate: If True, the generated document is passed through
                 valiadation before return.
 
         Returns:
             A string if the serialization was succesful, else None
         """
-        doc = self._serialize(page, **metadata)
+        doc = self._serialize(document, **metadata)
         if validate:
             self.validate(doc)
         return doc
@@ -65,11 +57,11 @@ class Serializer:
     def validate(self, doc: str) -> None:
         """Validate document"""
 
-    def _serialize(self, page: PageNode, **metadata) -> str | None:
+    def _serialize(self, document: Document, **metadata) -> str | None:
         """Format-specific seralization method
 
         Arguments:
-            page: Input page
+            document: Input document
         """
 
 
@@ -82,9 +74,6 @@ class AltoXML(Serializer):
     # Features
     - Uses Alto version 4.4.
     - Includes detailed processing metadata in the `<Description>` block.
-    - Supports rendering of region locations (printspace and margins).
-    To enable this, first make sure that the regions are tagged by
-    calling `layout.label_regions(...)` before serialization.
     - Will always produce a file, but the file may be empty.
 
     # Limitations
@@ -116,26 +105,10 @@ class AltoXML(Serializer):
         self.template = env.get_template(template_name)
         self.schema = os.path.join(_SCHEMA_DIR, "alto-4-4.xsd")
 
-    def _serialize(self, page: PageNode, **metadata) -> str:
-        # Find all nodes that correspond to Alto TextBlock elements and
-        # their location (if available). A TextBlock is a region whose
-        # children are text lines (and not other regions). If the node's
-        # `region_location` attribute is set, it will be rendered in the
-        # corresponding Alto group, otherwise it will be rendered in the
-        # printspace group.
-        text_blocks = defaultdict(list)
-        for node in page.traverse():
-            if node.is_region() and all(child.text for child in node):
-                text_blocks[node.get(REGION_KEY, RegionLocation.PRINTSPACE)].append(node)
-
+    def _serialize(self, document: Document, **metadata) -> str:
         return self.template.render(
-            page=page,
-            page_confidence=average_text_confidence(page),
-            printspace=text_blocks[RegionLocation.PRINTSPACE],
-            top_margin=text_blocks[RegionLocation.MARGIN_TOP],
-            bottom_margin=text_blocks[RegionLocation.MARGIN_BOTTOM],
-            left_margin=text_blocks[RegionLocation.MARGIN_LEFT],
-            right_margin=text_blocks[RegionLocation.MARGIN_RIGHT],
+            document=document,
+            filename=os.path.basename(document.image.filename),
             metadata=get_metadata(),
             processing_steps=metadata.pop("processing_steps", []),
             xmlescape=xmlescape,
@@ -192,15 +165,12 @@ class PageXML(Serializer):
         self.template = env.get_template(template_name)
         self.schema = os.path.join(_SCHEMA_DIR, "pagecontent.xsd")
 
-    def _serialize(self, page: PageNode, **metadata):
-        if page.is_leaf():
-            return None
-
+    def _serialize(self, document: Document, **metadata):
         return self.template.render(
-            page=page,
-            TEXT_RESULT_KEY=TEXT_RESULT_KEY,
+            document=document,
+            filename=os.path.basename(document.image.filename),
             metadata=get_metadata(),
-            is_text_line=lambda node: node.is_line(),
+            processing_steps=metadata.pop("processing_steps", []),
             xmlescape=xmlescape,
         )
 
@@ -238,18 +208,23 @@ class Json(Serializer):
 
     extension = ".json"
 
-    def __init__(self, indent=4):
+    def __init__(self, **kwargs):
         """
         Arguments:
-            indent: The indentation level of the output json file(s).
+            **kwargs: key word arguments forwarded to json.dumps()
         """
-        self.indent = indent
+        self.kwargs = kwargs
 
-    def _serialize(self, page: PageNode, **metadata):
-        def default(obj):
-            return obj.__dict__
+    def _serialize(self, document: Document, **metadata):
+        def default(node):
+            if isinstance(node, Polygon):
+                return str(node)
+            elif isinstance(node, Bbox):
+                return str(node)
+            attributes = {key: val for key, val in node.__dict__.items() if val}
+            return attributes
 
-        return json.dumps(page.asdict() | metadata, default=default, indent=self.indent, ensure_ascii=False)
+        return json.dumps(document, default=default, ensure_ascii=False, **self.kwargs)
 
 
 class PlainText(Serializer):
@@ -272,9 +247,15 @@ class PlainText(Serializer):
 
     extension = ".txt"
 
-    def _serialize(self, page: PageNode, **metadata) -> str:
-        lines = page.traverse(lambda node: node.is_line())
-        return "\n".join(line.text.strip() for line in lines)
+    def _serialize(self, document: Document, **metadata) -> str:
+        text = get_text(document)
+        return text
+
+
+def get_text(region: Region):
+    if not region.transcription:
+        return "\n".join(map(get_text, region.regions)) + "\n"
+    return max(region.transcription, key=lambda t: t.confidence).text
 
 
 def get_metadata() -> dict:
@@ -306,7 +287,7 @@ def get_serializer(serializer_name: str, **serializer_args) -> Serializer:
     return serializer(**serializer_args)
 
 
-def save_collection(collection: Collection, serializer: str | Serializer, dest: str, **metadata):
+def save_collection(collection: list[Document], serializer: str | Serializer, dest: str, **metadata):
     """Serialize and save collection
 
     Arguments:
@@ -316,19 +297,17 @@ def save_collection(collection: Collection, serializer: str | Serializer, dest: 
         dest: Output directory
     """
 
-    for page in collection:
-        page.prune(lambda node: node.is_leaf() and node.depth != page.max_depth())
-    collection.relabel()
-
     if isinstance(serializer, str):
         serializer = get_serializer(serializer)
         logger.info("Using %s serializer with default settings", serializer.__class__.__name__)
 
-    for page in collection:
-        doc = serializer.serialize(page, **metadata)
+    for document in collection:
+        doc = serializer.serialize(document, **metadata)
         if doc is None:
             continue
-        filename = os.path.join(collection.label, page.label + serializer.extension)
+
+        label, _ = os.path.splitext(os.path.basename(document.image.filename))
+        filename = os.path.join(dest, label + serializer.extension)
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         with open(filename, "w") as f:
             f.write(doc)
