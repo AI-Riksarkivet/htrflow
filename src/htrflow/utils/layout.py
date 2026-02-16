@@ -2,17 +2,12 @@ from __future__ import annotations
 
 import logging
 from enum import Enum
-from typing import TYPE_CHECKING
 
 import cv2
 import numpy as np
 from PIL import Image
 
 from htrflow.utils.geometry import Bbox
-
-
-if TYPE_CHECKING:
-    from htrflow.volume.volume import Collection
 
 
 logger = logging.getLogger(__name__)
@@ -181,25 +176,3 @@ def get_region_location(printspace: Bbox, region: Bbox) -> RegionLocation:
     if region.ymax >= printspace.ymax:
         return RegionLocation.MARGIN_BOTTOM
     return RegionLocation.PRINTSPACE
-
-
-def label_regions(collection: Collection):
-    """Label collection's regions
-
-    Labels each top-level segment of the collection as one of the five
-    region types specified by geometry.RegionLocation. Saves the label
-    in the node's data dictionary under `key`.
-
-    Arguments:
-        collection: Input collection
-        key: Key used to save the region label. Defaults to
-            "region_location".
-    """
-
-    for page in collection:
-        printspace = estimate_printspace(page.image)
-        for node in page:
-            node.add_data(**{REGION_KEY: get_region_location(printspace, node.bbox)})
-
-
-REGION_KEY = "region_location"
