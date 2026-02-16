@@ -17,7 +17,7 @@ from jinja2 import Environment, FileSystemLoader
 
 import htrflow
 from htrflow.document import Document, Region
-from htrflow.utils.geometry import Bbox, Polygon
+from htrflow.utils.geometry import Polygon
 
 
 logger = logging.getLogger(__name__)
@@ -78,9 +78,7 @@ class AltoXML(Serializer):
 
     # Limitations
     - Two-level segmentation: The Alto schema only supports two-level
-    segmentation, i.e. pages with regions and lines. Pages with deeper
-    segmentation will be flattened so that only the innermost regions
-    are rendered.
+    segmentation, i.e. pages with regions and lines.
     - Only includes text confidence at the page level.
 
     # Examples
@@ -219,8 +217,6 @@ class Json(Serializer):
         def default(node):
             if isinstance(node, Polygon):
                 return str(node)
-            elif isinstance(node, Bbox):
-                return str(node)
             attributes = {key: val for key, val in node.__dict__.items() if val}
             return attributes
 
@@ -248,8 +244,7 @@ class PlainText(Serializer):
     extension = ".txt"
 
     def _serialize(self, document: Document, **metadata) -> str:
-        text = get_text(document)
-        return text
+        return get_text(document)
 
 
 def get_text(region: Region):

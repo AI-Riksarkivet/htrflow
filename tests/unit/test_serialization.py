@@ -14,50 +14,20 @@ def page():
     return serialization.PageXML()
 
 
-def test_alto_unsegmented(demo_page_unsegmented, alto):
-    doc = alto.serialize(demo_page_unsegmented)
+def test_alto_regions_and_lines(document_with_regions_and_transcribed_lines, alto):
+    doc = alto.serialize(document_with_regions_and_transcribed_lines)
     alto.validate(doc)
 
 
-def test_alto_segmented(demo_page_segmented_once, alto):
-    doc = alto.serialize(demo_page_segmented_once)
-    alto.validate(doc)
-
-
-def test_alto_segmented_twice(demo_page_segmented_twice, alto):
-    doc = alto.serialize(demo_page_segmented_twice)
-    alto.validate(doc)
-
-
-def test_alto_segmented_thrice(demo_page_segmented_thrice, alto):
-    doc = alto.serialize(demo_page_segmented_thrice)
-    alto.validate(doc)
-
-
-def test_alto_escape_characters(demo_page_segmented_thrice, alto):
-    node, *_ = demo_page_segmented_thrice.leaves()
+def test_alto_escape_characters(document_with_regions_and_transcribed_lines, alto):
+    node, *_ = document_with_regions_and_transcribed_lines.leaves()
     to_be_escaped = "\"'&<>"  # these characters may not appear in the xml
     text = Text(to_be_escaped)
     text.attach(node)
-    doc = alto.serialize(demo_page_segmented_thrice)
+    doc = alto.serialize(document_with_regions_and_transcribed_lines)
     alto.validate(doc)
 
 
-def test_page_unsegmented(demo_page_unsegmented, page):
-    doc = page.serialize(demo_page_unsegmented)
-    assert doc is None
-
-
-def test_page_segmented(demo_page_segmented_once, page):
-    doc = page.serialize(demo_page_segmented_once)
-    page.validate(doc)
-
-
-def test_page_segmented_twice(demo_page_segmented_twice, page):
-    doc = page.serialize(demo_page_segmented_twice)
-    page.validate(doc)
-
-
-def test_page_segmented_thrice(demo_page_segmented_thrice, page):
-    doc = page.serialize(demo_page_segmented_thrice)
+def test_page_segmented_twice(document_with_regions_and_transcribed_lines, page):
+    doc = page.serialize(document_with_regions_and_transcribed_lines)
     page.validate(doc)
