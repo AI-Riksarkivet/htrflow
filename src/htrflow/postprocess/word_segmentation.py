@@ -1,28 +1,22 @@
-from htrflow.results import Result
-from htrflow.utils.geometry import bbox2mask
-from htrflow.utils.imgproc import mask
-from htrflow.volume.volume import SegmentNode
+from htrflow.document import Region, Text
+from htrflow.utils.geometry import Bbox
 
 
-def _simple_word_segmentation(node: SegmentNode):
-    text = node.text
+def _simple_word_segmentation(region: Region):
+    text = region.transcription[0].text
     words = text.split()
-    pixels_per_char = node.width // len(text)
+    pixels_per_char = region.polygon.width // len(text)
     x1, x2 = 0, 0
-    bboxes = []
+
+    regions = []
     for word in words:
-        x2 = min(x1 + pixels_per_char * (len(word) + 1), node.width)
-        bboxes.append((x1, 0, x2, node.height))
+        x2 = min(x1 + pixels_per_char * (len(word) + 1), region.polygon.width)
+        polygon = Bbox(x1, 0, x2, region.polygon.height).polygon()
+        region = Region(polygon=polygon, transcription=[Text(word)])
+        regions.append(region)
         x1 = x2
-    masks = [mask(node.mask, bbox2mask(bbox, node.mask.shape), fill=0) for bbox in bboxes]
-
-    return Result.word_segmentation_result(
-        orig_shape=(node.height, node.width),
-        metadata={},
-        masks=masks,
-        words=words,
-    )
+    return regions
 
 
-def simple_word_segmentation(nodes: list[SegmentNode]):
-    return [_simple_word_segmentation(node) for node in nodes]
+def simple_word_segmentation(regions: list[Region]):
+    return [_simple_word_segmentation(region) for region in regions]
