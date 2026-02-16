@@ -2,7 +2,6 @@ import logging
 
 from htrflow.models.huggingface.dit import DiT
 from htrflow.models.huggingface.donut import Donut
-from htrflow.models.huggingface.llava_next import LLavaNext
 from htrflow.models.huggingface.trocr import TrOCR, WordLevelTrOCR
 from htrflow.models.ultralytics.yolo import YOLO
 
@@ -16,7 +15,7 @@ def all_models():
     Returns a list of all implemented and installed model classes.
     """
 
-    models = [DiT, LLavaNext, TrOCR, WordLevelTrOCR, YOLO, Donut]
+    models = [DiT, TrOCR, WordLevelTrOCR, YOLO, Donut]
 
     teklia_models = []
 
