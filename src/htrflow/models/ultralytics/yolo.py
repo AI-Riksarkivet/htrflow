@@ -4,9 +4,10 @@ import cv2
 import numpy as np
 from ultralytics import YOLO as UltralyticsYOLO
 
+from htrflow.document import Region
 from htrflow.models.base_model import BaseModel
 from htrflow.models.download import commit_hash_from_path, load_ultralytics
-from htrflow.results import Result
+from htrflow.utils.geometry import Bbox, Polygon
 
 
 logger = logging.getLogger(__name__)
@@ -57,15 +58,12 @@ class YOLO(BaseModel):
 
         self.metadata.update({"model": model, "model_version": commit_hash_from_path(model_file)})
 
-    def _predict(
-        self, images: list[np.ndarray], use_polygons: bool = True, polygon_approx_level: float = 0.005, **kwargs
-    ) -> list[Result]:
+    def _predict(self, images: list[np.ndarray], polygon_approx_level: float = 0.005, **kwargs) -> list[list[Region]]:
         """
         Run inference.
 
         Arguments:
             images: Input images
-            use_polygons: Wheter to include output polygons (if available), default True.
             polygon_approx_level: A parameter which controls the maximum distance between the original polygon
                 and the approximated low-resolution polygon, as a fraction of the original polygon arc length.
                 Example: With `polygon_approx_level=0.005` and a generated polygon with arc length 100, the
@@ -75,27 +73,21 @@ class YOLO(BaseModel):
         outputs = self.model(images, stream=True, verbose=False, **kwargs)
 
         results = []
-        for image, output in zip(images, outputs):
-            polygons = bboxes = scores = class_labels = None
-            if output.boxes is not None:
-                bboxes = output.boxes.xyxy.int().tolist()
-                scores = output.boxes.conf.tolist()
-                class_labels = [output.names[label] for label in output.boxes.cls.tolist()]
+        for output in outputs:
+            if output.boxes is None:
+                results.append([])
 
-            if use_polygons:
-                if output.masks is None:
-                    logger.warning("`use_polygons` was set to True but the model did not return any polygons.")
-                else:
-                    polygons = _simplify_polygons(output.masks.xy, polygon_approx_level)
+            shapes = map(Bbox, output.boxes.xyxy.int().tolist())
+            scores = output.boxes.conf.tolist()
+            labels = [output.names[label] for label in output.boxes.cls.tolist()]
 
-            result = Result.segmentation_result(
-                image.size[::-1],
-                bboxes=bboxes,
-                polygons=polygons,
-                scores=scores,
-                labels=class_labels,
-                metadata=self.metadata,
-            )
+            if output.masks is not None:
+                shapes = map(Polygon, _simplify_polygons(output.masks.xy, polygon_approx_level))
+
+            result = [
+                Region(shape, segmentation_confidence=score, segmentation_label=label)
+                for shape, score, label in zip(shapes, scores, labels)
+            ]
             results.append(result)
         return results
 

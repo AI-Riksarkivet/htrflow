@@ -5,10 +5,11 @@ import torch
 from PIL import Image
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 
+from htrflow.document import Region, Text
 from htrflow.models.base_model import BaseModel
 from htrflow.models.download import get_model_info
 from htrflow.models.huggingface.mixins import ConfidenceMixin
-from htrflow.results import Result
+from htrflow.utils.geometry import Bbox
 
 
 logger = logging.getLogger(__name__)
@@ -73,17 +74,19 @@ class TrOCR(BaseModel, ConfidenceMixin):
         self.processor = TrOCRProcessor.from_pretrained(processor, **processor_kwargs)
         logger.info("Initialized TrOCR processor from %s.", processor)
 
-        self.metadata.update({
-            "model": model,
-            "model_version": get_model_info(model, model_kwargs.get("revision", None)),
-            "processor": processor,
-            "processor_version": get_model_info(processor, processor_kwargs.get("revision", None)),
-        })
+        self.metadata.update(
+            {
+                "model": model,
+                "model_version": get_model_info(model, model_kwargs.get("revision", None)),
+                "processor": processor,
+                "processor_version": get_model_info(processor, processor_kwargs.get("revision", None)),
+            }
+        )
 
         # Map `compute_transition_scores` method from decoder to model
         self.compute_transition_scores = self.model.decoder.compute_transition_scores
 
-    def _predict(self, images: list[Image], **generation_kwargs) -> list[Result]:
+    def _predict(self, images: list[Image], **generation_kwargs) -> list[Text]:
         """TrOCR-specific prediction method.
 
         This method is used by `predict()` and should typically not be
@@ -116,7 +119,6 @@ class TrOCR(BaseModel, ConfidenceMixin):
         # `texts` and `scores` are flattened lists so we need to iterate over them in steps.
         # This is done to ensure that the list of results correspond 1-to-1 with the list of images.
         results = []
-        metadata = self.metadata | {"generation_kwargs": generation_kwargs}
         step = generation_kwargs["num_return_sequences"]
 
         # Create the option to create a clean decoded text. Important for historical sources/models.
@@ -134,7 +136,7 @@ class TrOCR(BaseModel, ConfidenceMixin):
         for i in range(0, len(texts), step):
             texts_chunk = texts[i : i + step]
             scores_chunk = scores[i : i + step]
-            result = Result.text_recognition_result(metadata, texts_chunk, scores_chunk)
+            result = [Text(text=text, confidence=score) for text, score in zip(texts_chunk, scores_chunk)]
             results.append(result)
         return results
 
@@ -162,7 +164,7 @@ class WordLevelTrOCR(TrOCR):
     ```
     """
 
-    def _predict(self, images: list[Image], **generation_kwargs) -> list[Result]:
+    def _predict(self, images: list[Image], **generation_kwargs) -> list[list[Text]]:
         config_overrides = {
             "output_scores": True,
             "output_attentions": True,
@@ -232,23 +234,18 @@ class WordLevelTrOCR(TrOCR):
             width, height = images[i].size
             spaces = attention_based_wordseg(tokens, heatmaps[:, i, :, :], special_tokens, width)
             word_boundaries = list(zip(spaces, spaces[1:]))
-
+            line = Text(text=lines[i], confidence=line_scores[i])
             if len(word_boundaries) != len(words) or any(start >= end_ for start, end_ in word_boundaries):
-                word_boundaries = [(0, width) for _ in words]
                 logger.warning("Word segmentation failed on line with detected text: %s", lines[i])
+                results.append([line])
+                continue
 
-            results.append(
-                Result.word_segmentation_result(
-                    metadata=self.metadata,
-                    orig_shape=(height, width),
-                    words=words,
-                    word_scores=[line_scores[i] for _ in words],
-                    labels=["word" for _ in words],
-                    line=lines[i],
-                    line_score=line_scores[i],
-                    bboxes=[(start, 0, end_, height) for start, end_ in word_boundaries],
-                )
-            )
+            words = [
+                Region(Bbox(start, 0, end, height).polygon(), transcription=[Text(text=word)])
+                for (start, end), word in zip(word_boundaries, words)
+            ]
+            results.append([line] + words)
+
         return results
 
 

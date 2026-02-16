@@ -5,9 +5,6 @@ from typing import Any, Generator, Iterable, TypeVar
 
 import torch
 from PIL import Image
-from tqdm import tqdm
-
-from htrflow.results import Result
 
 
 logger = logging.getLogger(__name__)
@@ -61,7 +58,7 @@ class BaseModel(ABC):
         batch_size: int = 1,
         tqdm_kwargs: dict[str, Any] | None = None,
         **kwargs,
-    ) -> list[Result]:
+    ):
         """Perform inference on images
 
         Takes an arbitrary number of inputs and runs batched inference.
@@ -80,33 +77,18 @@ class BaseModel(ABC):
         """
 
         batch_size = max(batch_size, 1)  # make sure batch size is at least 1
-
-        n_batches = (len(images) + batch_size - 1) // batch_size
-        model_name = self.__class__.__name__
-        logger.info(
-            "Model '%s' on device '%s' received %d images in batches of %d images per batch (%d batches)",
-            model_name,
-            self.device,
-            len(images),
-            batch_size,
-            n_batches,
-        )
-
         results = []
         batches = _batch(images, batch_size)
-        desc = f"{model_name}: Running inference (batch size {batch_size})"
-        for i, batch in enumerate(tqdm(batches, desc, n_batches, **(tqdm_kwargs or {}))):
-            msg = "%s: Running inference on %d images (batch %d of %d)"
-            logger.info(msg, model_name, len(batch), i + 1, n_batches)
+        for batch in batches:
             result = self._predict(batch, **kwargs)
             results.extend(result)
         return results
 
     @abstractmethod
-    def _predict(self, images: list[Image], **kwargs) -> list[Result]:
+    def _predict(self, images: list[Image], **kwargs):
         """Model specific prediction method"""
 
-    def __call__(self, images: list[Image], **kwargs) -> list[Result]:
+    def __call__(self, images: list[Image], **kwargs):
         """Alias for BaseModel.predict(...)"""
         return self.predict(images, **kwargs)
 

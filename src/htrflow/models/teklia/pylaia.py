@@ -14,7 +14,7 @@ from laia.scripts.htr.decode_ctc import run as decode
 from PIL import Image
 
 from htrflow.models.base_model import BaseModel
-from htrflow.results import Result
+from htrflow.document import Text
 
 
 logger = logging.getLogger(__name__)
@@ -87,7 +87,7 @@ class PyLaia(BaseModel):
 
         logger.info(f"Initialized PyLaiaModel from '{model}' on device '{self.device}'.")
 
-    def _predict(self, images: list[Image], **decode_kwargs) -> list[Result]:
+    def _predict(self, images: list[Image], **decode_kwargs):
         """
         PyLaia-specific prediction method: runs text recognition.
 
@@ -171,13 +171,12 @@ class PyLaia(BaseModel):
             decode_output_lines = Path(pred_stdout.name).read_text().strip().splitlines()
 
         results = []
-        metadata = self.metadata | {"decode_kwargs": decode_kwargs}
 
         for line in decode_output_lines:
             match = self.LINE_PREDICTION.match(line)
             if not match:
                 logger.warning("Could not parse line: %s. Returning empty string.", line)
-                empty_result = Result.text_recognition_result(metadata, [""], [0.0])
+                empty_result = Text("", 0)
                 results.append(empty_result)
                 continue
             _, score_str, text = match.groups()  # _ = image_id
@@ -187,7 +186,7 @@ class PyLaia(BaseModel):
             except ValueError:
                 score_val = 0.0
 
-            result = Result.text_recognition_result(metadata, [text], [score_val])
+            result = Text(text=text, confidence=score_val)
             results.append(result)
 
         logger.debug(f"PyLaia recognized {len(results)} lines of text.")

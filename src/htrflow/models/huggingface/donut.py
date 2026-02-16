@@ -6,10 +6,10 @@ from typing import Any
 from PIL import Image
 from transformers import DonutProcessor, VisionEncoderDecoderModel
 
+from htrflow.document import Annotation
 from htrflow.models.base_model import BaseModel
 from htrflow.models.download import get_model_info
 from htrflow.models.huggingface.mixins import ConfidenceMixin
-from htrflow.results import Result
 
 
 logger = logging.getLogger(__name__)
@@ -63,7 +63,7 @@ class Donut(BaseModel, ConfidenceMixin):
 
         self.compute_transition_scores = self.model.decoder.compute_transition_scores
 
-    def _predict(self, images: list[Image], **generation_kwargs) -> list[Result]:
+    def _predict(self, images: list[Image], **generation_kwargs) -> list[Annotation]:
         # Prepare generation kwargs
         defaults = {
             "max_length": self.model.decoder.config.max_position_embeddings,
@@ -102,7 +102,7 @@ class Donut(BaseModel, ConfidenceMixin):
         chunk_size = generation_kwargs.get("num_return_sequences", 1)
         for i in range(0, len(results), chunk_size):
             chunk = results[i : i + chunk_size]
-            chunked_results.append(Result(data={"donut_result": chunk}))
+            chunked_results.append([Annotation(donut_result=chunk)])
 
         return chunked_results
 
