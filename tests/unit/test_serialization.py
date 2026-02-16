@@ -1,7 +1,7 @@
 import pytest
 
 from htrflow import serialization
-from htrflow.results import RecognizedText
+from htrflow.document import Text
 
 
 @pytest.fixture
@@ -37,7 +37,8 @@ def test_alto_segmented_thrice(demo_page_segmented_thrice, alto):
 def test_alto_escape_characters(demo_page_segmented_thrice, alto):
     node, *_ = demo_page_segmented_thrice.leaves()
     to_be_escaped = "\"'&<>"  # these characters may not appear in the xml
-    node.add_data(text_result=RecognizedText([to_be_escaped], [1]))
+    text = Text(to_be_escaped)
+    text.attach(node)
     doc = alto.serialize(demo_page_segmented_thrice)
     alto.validate(doc)
 

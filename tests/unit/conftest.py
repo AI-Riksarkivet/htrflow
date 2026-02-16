@@ -1,12 +1,10 @@
 import random
 from string import ascii_letters
 
-import cv2
-import numpy as np
 import pytest
 
-from htrflow.results import Result
-from htrflow.volume import volume
+from htrflow.document import Collection, Document, Region, Text
+from htrflow.utils.geometry import Bbox
 
 
 @pytest.fixture
@@ -16,65 +14,68 @@ def demo_image():
 
 @pytest.fixture
 def demo_page_unsegmented(demo_image):
-    node = volume.PageNode(demo_image)
-    result = dummy_text_recognition_model([node.image])
-    node.add_data(**result[0].data)
-    node.relabel()
-    return node
+    document = Document(demo_image)
+    result = dummy_text_recognition_model([document.image])
+    for text in result[0]:
+        text.attach(document)
+    return document
 
 
 @pytest.fixture
 def demo_page_segmented_once(demo_image):
-    node = volume.PageNode(demo_image)
-    results = dummy_segmentation_model(node.segments())
-    for result, leaf in zip(results, node.leaves()):
-        node.create_segments(result.segments)
-    results = dummy_text_recognition_model(node.segments())
-    for result, leaf in zip(results, node.leaves()):
-        leaf.add_data(**result.data)
-    node.relabel()
-    return node
+    document = Document(demo_image)
+    results = dummy_segmentation_model(document.segments())
+    for result, leaf in zip(results, document.leaves()):
+        for item in result:
+            item.attach(leaf)
+    results = dummy_text_recognition_model(document.segments())
+    for result, leaf in zip(results, document.leaves()):
+        for item in result:
+            item.attach(leaf)
+    return document
 
 
 @pytest.fixture
 def demo_page_segmented_twice(demo_image):
-    node = volume.PageNode(demo_image)
+    document = Document(demo_image)
     for _ in range(2):
-        results = dummy_segmentation_model(node.segments())
-        for result, leaf in zip(results, node.leaves()):
-            leaf.create_segments(result.segments)
-    results = dummy_text_recognition_model(node.segments())
-    for result, leaf in zip(results, node.leaves()):
-        leaf.add_data(**result.data)
-    node.relabel()
-    return node
+        results = dummy_segmentation_model(document.segments())
+        for result, leaf in zip(results, document.leaves()):
+            for item in result:
+                item.attach(leaf)
+    results = dummy_text_recognition_model(document.segments())
+    for result, leaf in zip(results, document.leaves()):
+        for item in result:
+            item.attach(leaf)
+    return document
 
 
 @pytest.fixture
 def demo_page_segmented_thrice(demo_image):
-    node = volume.PageNode(demo_image)
+    document = Document(demo_image)
     for _ in range(3):
-        results = dummy_segmentation_model(node.segments())
-        for result, leaf in zip(results, node.leaves()):
-            leaf.create_segments(result.segments)
-    results = dummy_text_recognition_model(node.segments())
-    for result, leaf in zip(results, node.leaves()):
-        leaf.add_data(**result.data)
-    node.relabel()
-    return node
+        results = dummy_segmentation_model(document.segments())
+        for result, leaf in zip(results, document.leaves()):
+            for item in result:
+                item.attach(leaf)
+    results = dummy_text_recognition_model(document.segments())
+    for result, leaf in zip(results, document.leaves()):
+        for item in result:
+            item.attach(leaf)
+    return document
 
 
 @pytest.fixture
 def demo_collection_unsegmented(demo_image):
     n_images = 5
-    vol = volume.Collection([demo_image] * n_images)
+    vol = Collection([demo_image] * n_images)
     return vol
 
 
 @pytest.fixture
 def demo_collection_segmented(demo_image):
     n_images = 5
-    vol = volume.Collection([demo_image] * n_images)
+    vol = Collection([demo_image] * n_images)
     result = dummy_segmentation_model(vol.segments())
     vol.update(result)
     return vol
@@ -83,7 +84,7 @@ def demo_collection_segmented(demo_image):
 @pytest.fixture
 def demo_collection_segmented_nested(demo_image):
     n_images = 5
-    vol = volume.Collection([demo_image] * n_images)
+    vol = Collection([demo_image] * n_images)
     result = dummy_segmentation_model(vol.segments())
     vol.update(result)
     result = dummy_segmentation_model(vol.segments())
@@ -94,7 +95,7 @@ def demo_collection_segmented_nested(demo_image):
 @pytest.fixture
 def demo_collection_segmented_nested_with_text(demo_image):
     n_images = 5
-    vol = volume.Collection([demo_image] * n_images)
+    vol = Collection([demo_image] * n_images)
     result = dummy_segmentation_model(vol.segments())
     vol.update(result)
     result = dummy_segmentation_model(vol.segments())
@@ -107,45 +108,35 @@ def demo_collection_segmented_nested_with_text(demo_image):
 @pytest.fixture
 def demo_collection_with_text(demo_image):
     n_images = 1
-    vol = volume.Collection([demo_image] * n_images)
+    vol = Collection([demo_image] * n_images)
     result = dummy_text_recognition_model(vol.segments())
     vol.update(result)
     return vol
 
 
 def dummy_segmentation(shape):
-    n_segments = 5
-    scores = [random.random() for _ in range(n_segments)]
-    labels = ["class_label"] * n_segments
-    return Result.segmentation_result(
-        shape,
-        {},
-        masks=[dummy_mask(shape) for _ in range(n_segments)],
-        scores=scores,
-        labels=labels,
-    )
+    width, height = shape
+    h = height // 10
+    regions = []
+    for x in range(5):
+        shape = Bbox(0, x * h, width, x * (h + 1)).polygon()
+        regions.append(Region(shape))
+    return regions
 
 
 def dummy_text_recognition():
     n_candidates = 3
-    return Result.text_recognition_result(
-        {},
-        texts=["".join(random.choices(ascii_letters, k=10)) for _ in range(n_candidates)],
-        scores=[random.random() for _ in range(n_candidates)],
-    )
+    texts = []
+    for _ in range(n_candidates):
+        words = ["".join(random.choices(ascii_letters, k=5)) for _ in range(5)]
+        text = " ".join(words)
+        texts.append(Text(text, random.random()))
+    return texts
 
 
-def dummy_mask(shape):
-    h, w = shape
-    mask = np.zeros(shape, np.uint8)
-    x, y = random.randrange(0, w), random.randrange(0, h)
-    cv2.ellipse(mask, (x, y), (w // 8, h // 8), 0, 0, 360, color=(255,), thickness=-1)
-    return mask
+def dummy_segmentation_model(images) -> list[list[Region]]:
+    return [dummy_segmentation(image.size) for image in images]
 
 
-def dummy_segmentation_model(images):
-    return [dummy_segmentation(image.size[::-1]) for image in images]
-
-
-def dummy_text_recognition_model(images):
+def dummy_text_recognition_model(images) -> list[list[Text]]:
     return [dummy_text_recognition() for _ in images]

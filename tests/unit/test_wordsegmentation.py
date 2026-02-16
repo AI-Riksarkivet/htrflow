@@ -1,6 +1,8 @@
 import pytest
 from PIL import Image
 
+from htrflow.document import Region
+
 
 pytest.importorskip("transformers", reason="Transformers dependencies not installed")
 
@@ -26,5 +28,5 @@ def test_wordsegmentation(model, image, expected_segmentation):
     image = Image.open(image)
     results = model([image])
     result = results[0]
-    segmentation = [bbox.xmin for bbox in result.bboxes]
+    segmentation = [region.polygon.xmin for region in result if isinstance(region, Region)]
     assert segmentation == pytest.approx(expected_segmentation, abs=100)
