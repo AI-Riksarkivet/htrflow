@@ -585,11 +585,17 @@ For the full text see https://creativecommons.org/licenses/by-sa/4.0/legalcode. 
 				<xsd:documentation>Correction Status. Indicates whether manual correction has been done or not. The correction status should be recorded at the highest level possible (Block, TextLine, String).</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
+		<!--
+		This attributeGroup causes problems when trying to validate the schema using the xmlschema
+		package. Since it it deprecated and HTRflow doesn't use it, it should be safe for our purposes
+		to comment it out.
+
 		<xsd:attributeGroup ref="xlink:simpleLink">
 			<xsd:annotation>
 				<xsd:documentation>Attribute group deprecated. Planned to be removed in future versions due to issues created on mixed validation and because in practice it is not used very often</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attributeGroup>
+		-->
 	</xsd:complexType>
 	<xsd:complexType name="SPType">
 		<xsd:annotation>
