@@ -2,21 +2,19 @@ import logging
 import math
 import os
 from dataclasses import dataclass
-from typing import Any, Callable, Generator, Literal
+from typing import Any, Generator, Literal
 
 from PIL import Image
 
+from htrflow.document import Collection
 from htrflow.models.base_model import BaseModel
 from htrflow.models.importer import all_models
 from htrflow.postprocess import metrics
 from htrflow.postprocess.reading_order import order_regions, top_down
 from htrflow.postprocess.word_segmentation import simple_word_segmentation
-from htrflow.results import Result
 from htrflow.serialization import get_serializer, save_collection
 from htrflow.utils.imgproc import binarize
 from htrflow.utils.layout import estimate_printspace, is_twopage
-from htrflow.volume.node import Node
-from htrflow.volume.volume import Collection
 
 
 logger = logging.getLogger(__name__)
@@ -244,11 +242,10 @@ class ReadingOrderMarginalia(PipelineStep):
 
             image = page.image
             printspace = estimate_printspace(image)
-            page.children = order_regions(page.children, printspace, self.is_twopage(image))
+            page.regions = order_regions(page.regions, printspace, self.is_twopage(image))
 
-            for region in page:
-                region.children = order_regions(region.children, printspace, is_twopage=False)
-        collection.relabel()
+            for region in page.regions:
+                region.regions = order_regions(region.regions, printspace, is_twopage=False)
         return collection
 
 
@@ -336,7 +333,7 @@ class Prune(PipelineStep):
     steps for examples of how to formulate `condition`.
     """
 
-    def __init__(self, condition: Callable[[Node], bool]):
+    def __init__(self, condition):
         """
         Arguments:
             condition: A function `f` such that `f(node) == True` if
@@ -444,8 +441,10 @@ class FilterRegionsBySize(Prune):
         max_width = max_width or math.inf
 
         super().__init__(
-            lambda node: node.is_leaf()
-            and not ((min_height < node.height < max_height) and (min_width < node.width < max_width))
+            lambda node: (
+                node.is_leaf()
+                and not ((min_height < node.height < max_height) and (min_width < node.width < max_width))
+            )
         )
 
 
