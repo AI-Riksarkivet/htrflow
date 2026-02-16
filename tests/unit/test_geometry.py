@@ -74,7 +74,7 @@ def test_bbox_center():
 
 def test_bbox_polygon_conversion():
     bbox = geometry.Bbox(10, 20, 30, 40)
-    assert bbox.polygon().bbox() == bbox
+    assert bbox.polygon().bbox == bbox
 
 
 def test_bbox_move():
