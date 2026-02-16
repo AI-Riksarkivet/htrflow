@@ -1,11 +1,11 @@
 from typing import Sequence
 
+from htrflow.document import Region
 from htrflow.utils.geometry import Bbox
 from htrflow.utils.layout import get_region_location
-from htrflow.volume.volume import ImageNode
 
 
-def order_regions(regions: Sequence[ImageNode], printspace: Bbox, is_twopage: bool = False):
+def order_regions(regions: list[Region], printspace: Bbox, is_twopage: bool = False):
     """Order regions according to their reading order
 
     This function estimates the reading order based on the following:
@@ -29,7 +29,7 @@ def order_regions(regions: Sequence[ImageNode], printspace: Bbox, is_twopage: bo
     Returns:
         The input regions in reading order.
     """
-    index = order_bboxes([region.bbox for region in regions], printspace, is_twopage)
+    index = order_bboxes([region.polygon.bbox for region in regions], printspace, is_twopage)
     return [regions[i] for i in index]
 
 
