@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15 http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15/pagecontent.xsd">
+    <Metadata>
+        <Creator>{{ metadata.creator }}</Creator>
+        <Created>{{ metadata.created }}</Created>
+        <LastChange>{{ metadata.created }}</LastChange>
+    </Metadata>
+    <Page imageFilename="{{ filename }}" imageWidth="{{ document.image.width }}" imageHeight="{{ document.image.height }}">
+        <ReadingOrder>
+            <OrderedGroup id="ro">
+            {%- for region in document.regions %}
+            {%- set region_index = loop.index0 %}
+                <OrderedGroupIndexed id="ro_region{{ region_index }}" index="{{ region_index }}">
+                {%- for line in region.regions %}
+                    <RegionRefIndexed regionRef="region{{ region_index }}_line{{ loop.index0 }}" index="{{ loop.index0 }}"/>
+                {%- endfor %}
+                </OrderedGroupIndexed>
+            {%- endfor %}
+            </OrderedGroup>
+        </ReadingOrder>
+    {%- for region in document.regions %}
+    {%- set region_index = loop.index0 %}
+    {%- set region_x = region.polygon.xmin %}
+    {%- set region_y = region.polygon.ymin %}
+        <TextRegion id="region{{ region_index }}">
+            <Coords points="{{ region.polygon }}" />
+        {%- for line in region.regions %}
+        {%- set line_index = loop.index0 %}
+        {%- set line_x = region_x + line.polygon.xmin %}
+        {%- set line_y = region_y + line.polygon.ymin %}
+            <TextLine id="region{{ region_index }}_line{{ line_index }}">
+                <Coords points="{{ line.polygon.move((region_x, region_y)) }}" />
+            {%- if line.regions %}
+                {%- for word in line.regions %}
+                <Word id="region{{ region_index }}_line{{ line_index }}_word{{ loop.index0 }}">
+                    <Coords points="{{ word.polygon.move((line_x, line_y)) }}" />
+                    {% if word.transcription[0].confidence %}<TextEquiv conf="{{ word.transcription[0].confidence }}">{% else %}<TextEquiv>{% endif %}
+                        <Unicode>{{ xmlescape(word.transcription[0].text ) }}</Unicode>
+                    </TextEquiv>
+                </Word>
+                {%- endfor %}
+            {%- else %}
+                {% if line.transcription[0].confidence %}<TextEquiv conf="{{ line.transcription[0].confidence }}">{% else %}<TextEquiv>{% endif %}
+                    <Unicode>{{ xmlescape(line.transcription[0].text) }}</Unicode>
+                </TextEquiv>
+            {%-endif %}
+            </TextLine>
+        {%- endfor %}
+        </TextRegion>
+    {%- endfor %}
+    </Page>
+</PcGts>

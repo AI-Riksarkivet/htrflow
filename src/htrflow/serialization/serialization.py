@@ -155,7 +155,7 @@ class PageXML(Serializer):
 
     extension = ".xml"
 
-    def __init__(self, template_dir=_TEMPLATES_DIR, template_name="page"):
+    def __init__(self, template_dir=_TEMPLATES_DIR, template_name="page2019"):
         """
         Arguments:
             template_dir: Name of template directory.
