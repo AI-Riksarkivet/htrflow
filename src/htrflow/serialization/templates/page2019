@@ -6,18 +6,22 @@
         <LastChange>{{ metadata.created }}</LastChange>
     </Metadata>
     <Page imageFilename="{{ filename }}" imageWidth="{{ document.image.width }}" imageHeight="{{ document.image.height }}">
+        {%- if document.regions %}
         <ReadingOrder>
             <OrderedGroup id="ro">
             {%- for region in document.regions %}
             {%- set region_index = loop.index0 %}
+                {%- if region.regions %}
                 <OrderedGroupIndexed id="ro_region{{ region_index }}" index="{{ region_index }}">
                 {%- for line in region.regions %}
                     <RegionRefIndexed regionRef="region{{ region_index }}_line{{ loop.index0 }}" index="{{ loop.index0 }}"/>
                 {%- endfor %}
                 </OrderedGroupIndexed>
+                {%- endif %}
             {%- endfor %}
             </OrderedGroup>
         </ReadingOrder>
+        {%- endif %}
     {%- for region in document.regions %}
     {%- set region_index = loop.index0 %}
     {%- set region_x = region.polygon.xmin %}
@@ -32,17 +36,21 @@
                 <Coords points="{{ line.polygon.move((region_x, region_y)) }}" />
             {%- if line.regions %}
                 {%- for word in line.regions %}
+                {%- if word.transcription %}
                 <Word id="region{{ region_index }}_line{{ line_index }}_word{{ loop.index0 }}">
                     <Coords points="{{ word.polygon.move((line_x, line_y)) }}" />
                     {% if word.transcription[0].confidence %}<TextEquiv conf="{{ word.transcription[0].confidence }}">{% else %}<TextEquiv>{% endif %}
                         <Unicode>{{ xmlescape(word.transcription[0].text ) }}</Unicode>
                     </TextEquiv>
                 </Word>
+                {%- endif %}
                 {%- endfor %}
             {%- else %}
+            {% if line.transcription %}
                 {% if line.transcription[0].confidence %}<TextEquiv conf="{{ line.transcription[0].confidence }}">{% else %}<TextEquiv>{% endif %}
                     <Unicode>{{ xmlescape(line.transcription[0].text) }}</Unicode>
                 </TextEquiv>
+            {%-endif %}
             {%-endif %}
             </TextLine>
         {%- endfor %}

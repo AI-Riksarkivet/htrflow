@@ -25,22 +25,27 @@
         </Processing>
         {%- endfor %}
     </Description>
+    {%- if document.regions %}
     <ReadingOrder>
         <OrderedGroup ID="ro">
         {%- for region in document.regions %}
             {%- set region_index = loop.index0 %}
+            {%- if region.regions %}
             <OrderedGroup ID="ro_block{{ region_index }}">
             {%- for line in region.regions %}
                 <ElementRef ID="ro_block{{ region_index }}_line{{ loop.index0 }}" REF="block{{ region_index }}_line{{ loop.index0 }}" />
             {%- endfor %}
             </OrderedGroup>
+            {%- endif %}
         {%- endfor %}
         </OrderedGroup>
     </ReadingOrder>
+    {%- endif %}
     <Layout>
         <Page WIDTH="{{ document.image.width }}" HEIGHT="{{ document.image.height }}" PHYSICAL_IMG_NR="0" ID="{{ filename }}">
             <PrintSpace>
                 {%- for region in document.regions %}
+                {%- if region.regions %}
                 {%- set region_index = loop.index0 %}
                 {%- set bbox = region.polygon.bbox %}
                 {%- set hpos = bbox.xmin %}
@@ -60,10 +65,11 @@
                             <Polygon POINTS="{{ line.polygon.move((hpos, vpos)) }}"/>
                         </Shape>
                         {%- endif %}
-                        <String CONTENT="{{ xmlescape(line.transcription[0].text) }}" />
+                        <String CONTENT="{{ xmlescape(line.transcription[0].text) if line.transcription else '' }}" />
                     </TextLine>
                     {%- endfor %}
                 </TextBlock>
+                {%- endif %}
                 {%- endfor %}
             </PrintSpace>
         </Page>
