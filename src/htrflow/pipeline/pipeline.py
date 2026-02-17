@@ -18,16 +18,12 @@ class Pipeline:
         """Init pipeline from config"""
         return Pipeline([init_step(step["step"], step.get("settings", {})) for step in config["steps"]])
 
-    def run(self, collection, start=0):
+    def run(self, collection):
         """Run pipeline on collection"""
-        for i, step in enumerate(self.steps[start:]):
-            step_name = f"{step} (step {start + i + 1} / {len(self.steps)})"
+        for i, step in enumerate(self.steps):
+            step_name = f"{step} (step {i + 1} / {len(self.steps)})"
             logger.info("Running step %s", step_name)
-            try:
-                collection = step.run(collection)
-            except Exception:
-                logger.exception("Pipeline failed on step %s", step_name)
-                raise
+            collection = step.run(collection)
 
         return collection
 
