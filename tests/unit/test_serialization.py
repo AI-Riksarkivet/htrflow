@@ -1,4 +1,3 @@
-import os
 import xml.etree.ElementTree as ET
 
 import pytest
@@ -116,7 +115,7 @@ def test_alto_correct_image_info(document: Document, alto_namespace: dict):
     height = int(doc.find(".//Page", alto_namespace).attrib.get("HEIGHT"))
     width = int(doc.find(".//Page", alto_namespace).attrib.get("WIDTH"))
 
-    assert filename == os.path.basename(document.image.filename)
+    assert filename == "A0068699_00021"
     assert height == document.image.height
     assert width == document.image.width
 

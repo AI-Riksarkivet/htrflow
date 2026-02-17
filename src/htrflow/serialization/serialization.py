@@ -106,7 +106,6 @@ class AltoXML(Serializer):
     def _serialize(self, document: Document, **metadata) -> str:
         return self.template.render(
             document=document,
-            filename=os.path.basename(document.image.filename),
             metadata=get_metadata(),
             processing_steps=metadata.pop("processing_steps", []),
             xmlescape=xmlescape,
@@ -166,7 +165,6 @@ class PageXML(Serializer):
     def _serialize(self, document: Document, **metadata):
         return self.template.render(
             document=document,
-            filename=os.path.basename(document.image.filename),
             metadata=get_metadata(),
             processing_steps=metadata.pop("processing_steps", []),
             xmlescape=xmlescape,
@@ -301,8 +299,7 @@ def save_collection(collection: list[Document], serializer: str | Serializer, de
         if doc is None:
             continue
 
-        label, _ = os.path.splitext(os.path.basename(document.image.filename))
-        filename = os.path.join(dest, label + serializer.extension)
+        filename = os.path.join(dest, document.image_name + serializer.extension)
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         with open(filename, "w") as f:
             f.write(doc)

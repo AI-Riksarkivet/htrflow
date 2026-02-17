@@ -81,13 +81,13 @@ class Region(_RegionAttachment):
 class Document(Region):
     def __init__(self, image_path):
         self._image_path = image_path
-        self.image_name = os.path.basename(image_path)
+        self.image_name, _ = os.path.splitext(os.path.basename(image_path))
         polygon = Bbox(0, 0, self.image.width, self.image.height).polygon()
         super().__init__(polygon)
 
     @property
     def image(self):
-        return Image.open(self._image_path)
+        return Image.open(self._image_path).convert("RGB")
 
     def segments(self):
         return ImageLoader(self)

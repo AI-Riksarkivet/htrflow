@@ -5,7 +5,7 @@
         <Created>{{ metadata.created }}</Created>
         <LastChange>{{ metadata.created }}</LastChange>
     </Metadata>
-    <Page imageFilename="{{ filename }}" imageWidth="{{ document.image.width }}" imageHeight="{{ document.image.height }}">
+    <Page imageFilename="{{ document.image_name }}" imageWidth="{{ document.image.width }}" imageHeight="{{ document.image.height }}">
         {%- if document.regions %}
         <ReadingOrder>
             <OrderedGroup id="ro">

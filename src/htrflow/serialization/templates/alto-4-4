@@ -3,7 +3,7 @@
     <Description>
         <MeasurementUnit>pixel</MeasurementUnit>
         <sourceImageInformation>
-            <fileName>{{ filename }}</fileName>
+            <fileName>{{ document.image_name }}</fileName>
         </sourceImageInformation>
         <Processing ID="general">
             <processingDateTime>{{ metadata.created }}</processingDateTime>
@@ -42,7 +42,7 @@
     </ReadingOrder>
     {%- endif %}
     <Layout>
-        <Page WIDTH="{{ document.image.width }}" HEIGHT="{{ document.image.height }}" PHYSICAL_IMG_NR="0" ID="{{ filename }}">
+        <Page WIDTH="{{ document.image.width }}" HEIGHT="{{ document.image.height }}" PHYSICAL_IMG_NR="0" ID="_{{ document.image_name }}">
             <PrintSpace>
                 {%- for region in document.regions %}
                 {%- if region.regions %}
