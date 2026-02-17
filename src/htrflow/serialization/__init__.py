@@ -5,5 +5,4 @@ from .serialization import (
     PlainText,
     Serializer,
     get_serializer,
-    save_collection,
 )

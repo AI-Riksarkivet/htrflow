@@ -54,6 +54,9 @@ class Serializer:
             self.validate(doc)
         return doc
 
+    def __str__(self):
+        return self.__class__.__name__
+
     def validate(self, doc: str) -> None:
         """Validate document"""
 
@@ -182,6 +185,9 @@ class PageXML(Serializer):
         """
         xmlschema.validate(doc, self.schema)
 
+    def __str__(self):
+        return f"PageXML(template={self.template.name})"
+
 
 class Json(Serializer):
     """
@@ -278,32 +284,6 @@ def get_serializer(serializer_name: str, **serializer_args) -> Serializer:
         raise ValueError(f"Format '{serializer_name}' is not among the supported formats: {', '.join(names)}")
 
     return serializer(**serializer_args)
-
-
-def save_collection(collection: list[Document], serializer: str | Serializer, dest: str, **metadata):
-    """Serialize and save collection
-
-    Arguments:
-        collection: Input collection
-        serializer: What serializer to use. Takes a Serializer instance
-            or the name of the serializer as a string.
-        dest: Output directory
-    """
-
-    if isinstance(serializer, str):
-        serializer = get_serializer(serializer)
-        logger.info("Using %s serializer with default settings", serializer.__class__.__name__)
-
-    for document in collection:
-        doc = serializer.serialize(document, **metadata)
-        if doc is None:
-            continue
-
-        filename = os.path.join(dest, document.image_name + serializer.extension)
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
-        with open(filename, "w") as f:
-            f.write(doc)
-        logger.info("Wrote document to %s", filename)
 
 
 def xmlescape(s: str) -> str:

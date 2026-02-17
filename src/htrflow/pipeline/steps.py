@@ -12,7 +12,7 @@ from htrflow.models.importer import all_models
 from htrflow.postprocess import metrics
 from htrflow.postprocess.reading_order import order_regions, top_down
 from htrflow.postprocess.word_segmentation import simple_word_segmentation
-from htrflow.serialization import get_serializer, save_collection
+from htrflow.serialization import get_serializer
 from htrflow.utils.imgproc import binarize
 from htrflow.utils.layout import estimate_printspace, is_twopage
 
@@ -204,9 +204,21 @@ class Export(PipelineStep):
         self.serializer = get_serializer(format, **serializer_kwargs)
         self.dest = dest
 
-    def run(self, collection):
+    def run(self, collection: Collection):
         metadata = self.parent_pipeline.metadata() if self.parent_pipeline else None
-        save_collection(collection, self.serializer, self.dest, processing_steps=metadata)
+        os.makedirs(self.dest, exist_ok=True)
+
+        for document in collection:
+            doc = self.serializer.serialize(document, processing_steps=metadata)
+            if doc is None:
+                logger.warning("Could not serialize document '%s' as %s")
+                continue
+
+            filename = os.path.join(self.dest, f"{document.image_name}{self.serializer.extension}")
+            with open(filename, "w") as f:
+                f.write(doc)
+            logger.info("Wrote %s file to %s", self.serializer, filename)
+
         return collection
 
 
