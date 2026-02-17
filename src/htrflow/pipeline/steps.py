@@ -569,16 +569,6 @@ def _create_collection_batches(paths: list[str], max_size: int | None) -> Genera
             yield Collection(paths[i : i + max_size])
 
 
-def join_collections(collections: list[Collection]) -> Collection:
-    """Create a single `Collection` from the given collections."""
-    label = os.path.commonprefix([col.label for col in collections])
-    base = collections[0]
-    for collection in collections[1:]:
-        base.pages.append(collection.pages)
-    base.label = label
-    return base
-
-
 def all_subclasses(cls):
     return set(cls.__subclasses__()).union([s for c in cls.__subclasses__() for s in all_subclasses(c)])
 

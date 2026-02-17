@@ -1,9 +1,6 @@
 import logging
-import os
-import shutil
 import socket
 import time
-from datetime import datetime
 from enum import Enum
 from typing import Iterable
 
@@ -58,8 +55,13 @@ def setup_pipeline_logging(logfile: str | None, loglevel: LogLevel):
     return logger
 
 
-@app.command("pipeline")
-def run_pipeline(
+@app.callback()
+def callback():
+    pass
+
+
+@app.command()
+def pipeline(
     pipeline: Annotated[str, typer.Argument(help="Path to a HTRflow pipeline YAML file")],
     inputs: Annotated[
         list[str] | None,
@@ -112,13 +114,9 @@ def run_pipeline(
     from htrflow.pipeline.pipeline import Pipeline
     from htrflow.pipeline.steps import Export, auto_import
 
-    if isinstance(pipeline, Pipeline):
-        pipe = pipeline
-        config = {}
-    else:
-        with open(pipeline, "r") as file:
-            config = yaml.safe_load(file)
-        pipe = Pipeline.from_config(config)
+    with open(pipeline, "r") as file:
+        config = yaml.safe_load(file)
+    pipe = Pipeline.from_config(config)
 
     if output or output_format:
         output = output or "outputs"
@@ -142,56 +140,6 @@ def run_pipeline(
         total_time,
         total_time / n_pages if n_pages > 0 else -1.0,
     )
-
-
-@app.command("evaluate")
-def run_evaluation(
-    gt: Annotated[
-        str,
-        typer.Argument(
-            help="Path to directory with ground truth files. Should have two subdirectories `images` and `xmls`."
-        ),
-    ],
-    candidates: Annotated[
-        list[str],
-        typer.Argument(help="Paths to pipelines or directories containing already generated Page XMLs."),
-    ],
-):
-    """
-    Evaluate HTR transcriptions against ground truth
-    """
-
-    from htrflow.evaluate import evaluate
-    from htrflow.pipeline.pipeline import Pipeline
-    from htrflow.pipeline.steps import Export
-
-    run_name = datetime.now().strftime("run_%Y%m%d_%H%M%S")
-    run_dir = os.path.join("evaluation", run_name)
-    os.makedirs(run_dir)
-
-    # inputs are pipelines -> run the pipelines before evaluation
-    if all(os.path.isfile(candidate) for candidate in candidates):
-        images = os.path.join(gt, "images")
-        pipelines = candidates
-        candidates = []
-        for i, pipe in enumerate(pipelines):
-            # Create a directory under `run_dir` to save pipeline results,
-            # logs and a copy of the pipeline yaml to.
-            pipeline_name = f"pipeline{i}_{os.path.splitext(os.path.basename(pipe))[0]}"
-            pipeline_dir = os.path.join(run_dir, pipeline_name)
-            os.mkdir(pipeline_dir)
-            shutil.copy(pipe, os.path.join(pipeline_dir, pipeline_name + ".yaml"))
-
-            with open(pipe, "r") as file:
-                pipeline = Pipeline.from_config(yaml.safe_load(file))
-            pipeline.steps.append(Export(run_dir, "page"))
-
-            # Run the pipeline
-            run_pipeline(pipeline, images, logfile=os.path.join(pipeline_dir, "htrflow.log"), label=pipeline_name)
-            candidates.append(os.path.join(run_dir, pipeline_name))
-
-    df = evaluate(gt, *candidates)
-    df.to_csv(os.path.join(run_dir, "evaluation_results.csv"))
 
 
 def get_inputs(inputs: list[str] | None, inputs_file: str | None) -> Iterable[str]:
