@@ -17,16 +17,11 @@ def all_models():
 
     models = [DiT, TrOCR, WordLevelTrOCR, YOLO, Donut]
 
-    teklia_models = []
-
     try:
         from htrflow.models.teklia.pylaia import PyLaia
 
-        teklia_models = [PyLaia]
-
-        models += teklia_models
-
+        models.append(PyLaia)
     except ModuleNotFoundError:
-        logger.exception(f"Could not import Teklia models: {teklia_models}.")
+        pass
 
     return models
