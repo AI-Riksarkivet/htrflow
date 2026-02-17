@@ -76,10 +76,6 @@ def pipeline(
         int | None,
         typer.Option(help="Write continuous output in batches of this size (number of images)."),
     ] = 1,
-    label: Annotated[
-        str | None,
-        typer.Option(help="Collection label"),
-    ] = None,
     output: Annotated[
         str | None,
         typer.Option(
@@ -127,8 +123,6 @@ def pipeline(
     collections = auto_import(inputs, max_size=batch_output)
     n_pages = 0
     for collection in collections:
-        if label:
-            collection.label = label
         collection = pipe.run(collection)
         n_pages += len(collection.pages)
     toc = time.time()
