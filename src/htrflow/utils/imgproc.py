@@ -48,7 +48,10 @@ def polygon_mask(image: Image, polygon: Polygon):
     Returns:
         A copy of `image` with everything outside `polygon` is masked.
     """
-    return mask(image, polygon2mask(polygon, image.size[::-1]))
+    bbox = polygon.bbox
+    image = image.crop(bbox)
+    polygon = polygon.move(-bbox.p1)
+    return mask(image, polygon2mask(polygon, (bbox.height, bbox.width)))
 
 
 def rescale(image: Image, ratio: float) -> Image:

@@ -8,6 +8,7 @@ from abc import ABC, abstractmethod
 from PIL import Image
 
 from htrflow.utils.geometry import Bbox, Polygon
+from htrflow.utils.imgproc import polygon_mask
 
 
 class _RegionAttachment(ABC):
@@ -117,10 +118,6 @@ class Collection:
                 node.attach(leaf)
 
 
-def apply(polygon: Polygon, image: Image):
-    return image.crop(polygon.bbox)
-
-
 class ImageLoader:
     def __init__(self, page):
         self.page = page
@@ -129,7 +126,7 @@ class ImageLoader:
         yield from self._image_loader(self.page)
 
     def _image_loader(self, node, base_image=None):
-        image = node.image if base_image is None else apply(node.polygon, base_image)
+        image = node.image if base_image is None else polygon_mask(base_image, node.polygon)
         if node.regions:
             for region in node.regions:
                 yield from self._image_loader(region, image)
