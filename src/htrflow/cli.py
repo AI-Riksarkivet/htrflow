@@ -72,10 +72,6 @@ def pipeline(
         typer.Option(help="Where to write logs to. If not provided, logs will be printed to the standard output."),
     ] = None,
     loglevel: Annotated[LogLevel, typer.Option(help="Loglevel", case_sensitive=False)] = LogLevel.info,
-    batch_output: Annotated[
-        int | None,
-        typer.Option(help="Write continuous output in batches of this size (number of images)."),
-    ] = 1,
     output: Annotated[
         str | None,
         typer.Option(
@@ -120,11 +116,10 @@ def pipeline(
         pipe.steps.append(Export(output, output_format))
 
     tic = time.time()
-    collections = auto_import(inputs, max_size=batch_output)
     n_pages = 0
-    for collection in collections:
-        collection = pipe.run(collection)
-        n_pages += len(collection.pages)
+    for document in auto_import(inputs):
+        pipe.run(document)
+        n_pages += 1
     toc = time.time()
 
     total_time = toc - tic

@@ -94,26 +94,7 @@ class Document(Region):
         return ImageLoader(self)
 
     def update(self, nodes):
-        leaves = [leaf for p in self.pages for leaf in p.leaves()]
-        for leaf, nodes in zip(leaves, nodes):
-            for node in nodes:
-                node.attach(leaf)
-
-
-class Collection:
-    def __init__(self, paths):
-        self.pages = [Document(path) for path in paths]
-
-    def __iter__(self):
-        return iter(self.pages)
-
-    def segments(self):
-        for page in self.pages:
-            yield from ImageLoader(page)
-
-    def update(self, nodes):
-        leaves = [leaf for p in self.pages for leaf in p.leaves()]
-        for leaf, nodes in zip(leaves, nodes):
+        for leaf, nodes in zip(self.leaves(), nodes):
             for node in nodes:
                 node.attach(leaf)
 

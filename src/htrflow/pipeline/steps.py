@@ -4,9 +4,9 @@ import os
 from dataclasses import dataclass
 from typing import Any, Generator, Literal
 
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 
-from htrflow.document import Collection
+from htrflow.document import Document
 from htrflow.models.base_model import BaseModel
 from htrflow.models.importer import all_models
 from htrflow.postprocess import metrics
@@ -41,19 +41,19 @@ class PipelineStep:
     def from_config(cls, config):
         return cls(**config)
 
-    def run(self, collection: Collection) -> Collection:
+    def run(self, document: Document) -> Document:
         """
         Run the pipeline step.
 
         Arguments:
-            collection: Input collection
+            document: Input document
 
         Returns:
-            A new collection, updated with the results of the pipeline step.
+            A new document, updated with the results of the pipeline step.
         """
 
     def __str__(self):
-        return f"{self.__class__.__name__}"
+        return self.__class__.__name__
 
 
 class Inference(PipelineStep):
@@ -61,7 +61,7 @@ class Inference(PipelineStep):
     Run model inference.
 
     This is a generic pipeline step for any type of model inference.
-    This step always runs the model on the images of the collection's
+    This step always runs the model on the images of the document's
     leaf nodes.
 
     Example YAML:
@@ -97,12 +97,12 @@ class Inference(PipelineStep):
         init_kwargs = config.pop("model_settings", {}) | config
         return cls(model, init_kwargs, generation_kwargs)
 
-    def run(self, collection):
+    def run(self, document: Document):
         if self.model is None:
             self._init_model()
-        result = self.model(collection.segments(), **self.generation_kwargs)
-        collection.update(result)
-        return collection
+        result = self.model(document.segments(), **self.generation_kwargs)
+        document.update(result)
+        return document
 
 
 class Segmentation(Inference):
@@ -161,17 +161,17 @@ class WordSegmentation(PipelineStep):
     ```
     """
 
-    def run(self, collection):
-        results = simple_word_segmentation(collection.active_leaves())
-        collection.update(results)
-        return collection
+    def run(self, document: Document):
+        results = simple_word_segmentation(document.leaves())
+        document.update(results)
+        return document
 
 
 class Export(PipelineStep):
     """
     Export results.
 
-    Exports the current state of the collection in the given format.
+    Exports the current state of the document in the given format.
     This step is typically the last step of a pipeline, however, it can
     be inserted at any pipeline stage. For example, you could put an
     `Export` step before a post processing step in order to save a copy
@@ -204,22 +204,21 @@ class Export(PipelineStep):
         self.serializer = get_serializer(format, **serializer_kwargs)
         self.dest = dest
 
-    def run(self, collection: Collection):
+    def run(self, document: Document):
         metadata = self.parent_pipeline.metadata() if self.parent_pipeline else None
         os.makedirs(self.dest, exist_ok=True)
 
-        for document in collection:
-            doc = self.serializer.serialize(document, processing_steps=metadata)
-            if doc is None:
-                logger.warning("Could not serialize document '%s' as %s")
-                continue
+        doc = self.serializer.serialize(document, processing_steps=metadata)
+        if doc is None:
+            logger.warning("Could not serialize document '%s' as %s", document.image_name, self.serializer)
+            return document
 
-            filename = os.path.join(self.dest, f"{document.image_name}{self.serializer.extension}")
-            with open(filename, "w") as f:
-                f.write(doc)
-            logger.info("Wrote %s file to %s", self.serializer, filename)
+        filename = os.path.join(self.dest, f"{document.image_name}{self.serializer.extension}")
+        with open(filename, "w") as f:
+            f.write(doc)
+        logger.info("Wrote %s file to %s", self.serializer, filename)
 
-        return collection
+        return document
 
 
 class ReadingOrderMarginalia(PipelineStep):
@@ -247,18 +246,17 @@ class ReadingOrderMarginalia(PipelineStep):
             return is_twopage(image)
         return self.two_page
 
-    def run(self, collection):
-        for page in collection:
-            if page.is_leaf():
-                continue
+    def run(self, document: Document):
+        if document.is_leaf():
+            return document
 
-            image = page.image
-            printspace = estimate_printspace(image)
-            page.regions = order_regions(page.regions, printspace, self.is_twopage(image))
+        image = document.image
+        printspace = estimate_printspace(image)
+        document.regions = order_regions(document.regions, printspace, self.is_twopage(image))
 
-            for region in page.regions:
-                region.regions = order_regions(region.regions, printspace, is_twopage=False)
-        return collection
+        for region in document.regions:
+            region.regions = order_regions(region.regions, printspace, is_twopage=False)
+        return document
 
 
 class OrderLines(PipelineStep):
@@ -273,21 +271,20 @@ class OrderLines(PipelineStep):
     ```
     """
 
-    def run(self, collection):
-        for page in collection:
-            for node in page.traverse():
-                if node.is_region():
-                    order = top_down([child.bbox for child in node])
-                    node.children = [node.children[i] for i in order]
-        return collection
+    def run(self, document: Document):
+        for node in document.traverse():
+            if node.regions:
+                order = top_down([region.polygon.bbox for region in node.regions])
+                node.regions = [node.regions[i] for i in order]
+        return document
 
 
 class ExportImages(PipelineStep):
     """
-    Export the collection's images.
+    Export the document's images.
 
     This step writes all existing images (regions, lines, etc.) in the
-    collection to disk. The exported images are the images that have
+    document to disk. The exported images are the images that have
     been passed to previous `Inference` steps and the images that would
     be passed to a following `Inference` step.
 
@@ -307,16 +304,14 @@ class ExportImages(PipelineStep):
         self.dest = dest
         os.makedirs(self.dest, exist_ok=True)
 
-    def run(self, collection):
-        for page in collection:
-            directory = os.path.join(self.dest, page.get("image_name"))
-            extension = page.get("image_path").split(".")[-1]
-            os.makedirs(directory, exist_ok=True)
-            for node in page.traverse():
-                if node.image is None:
-                    continue
-                node.image.save(os.path.join(directory, f"{node.label}.{extension}"))
-        return collection
+    def run(self, document: Document):
+        directory = os.path.join(self.dest, document.image_name)
+        os.makedirs(directory, exist_ok=True)
+        num = 1
+        for image in document.segments():
+            image.save(os.path.join(directory, f"image_{num:<02}.jpg"))
+            num += 1
+        return document
 
 
 class Break(PipelineStep):
@@ -329,7 +324,7 @@ class Break(PipelineStep):
     ```
     """
 
-    def run(self, collection):
+    def run(self, document):
         raise Exception
 
 
@@ -353,11 +348,14 @@ class Prune(PipelineStep):
         """
         self.condition = condition
 
-    def run(self, collection):
-        for page in collection:
-            page.prune(self.condition)
-        collection.relabel()
-        return collection
+    def run(self, document: Document):
+        for node in document.traverse():
+            keep = []
+            for i, region in enumerate(node.regions):
+                if not self.condition(region):
+                    keep.append(i)
+            node.regions = [node.regions[i] for i in keep]
+        return document
 
 
 class RemoveLowTextConfidenceLines(Prune):
@@ -377,7 +375,7 @@ class RemoveLowTextConfidenceLines(Prune):
         Arguments:
             threshold: Confidence score threshold.
         """
-        super().__init__(lambda node: node.is_line() and metrics.line_text_confidence(node) < threshold)
+        super().__init__(lambda region: metrics.text_confidence(region) < threshold)
 
 
 class RemoveLowTextConfidenceRegions(Prune):
@@ -397,7 +395,7 @@ class RemoveLowTextConfidenceRegions(Prune):
         Arguments:
             threshold: Confidence score threshold.
         """
-        super().__init__(lambda node: node.is_region() and metrics.average_text_confidence(node) < threshold)
+        super().__init__(lambda region: metrics.average_text_confidence(region) < threshold)
 
 
 class RemoveLowTextConfidencePages(Prune):
@@ -455,7 +453,9 @@ class FilterRegionsBySize(Prune):
         super().__init__(
             lambda node: (
                 node.is_leaf()
-                and not ((min_height < node.height < max_height) and (min_width < node.width < max_width))
+                and not (
+                    (min_height < node.polygon.height < max_height) and (min_width < node.polygon.width < max_width)
+                )
             )
         )
 
@@ -483,7 +483,9 @@ class FilterRegionsByShape(Prune):
             min_ratio: Minimum width-to-height ratio.
             max_ratio: Maximum width-to-height ratio.
         """
-        super().__init__(lambda node: node.is_leaf() and not (min_ratio < node.width / node.height < max_ratio))
+        super().__init__(
+            lambda node: node.is_leaf() and not (min_ratio < node.polygon.width / node.polygon.height < max_ratio)
+        )
 
 
 class ProcessImages(PipelineStep):
@@ -503,16 +505,13 @@ class ProcessImages(PipelineStep):
 
     output_directory: str
 
-    def run(self, collection):
-        for page in collection:
-            new_image = self.op(page.image)
-            _, image_name = os.path.split(page.path)
-            dest = os.path.join("processed_images", collection.label, self.output_directory)
-            os.makedirs(dest, exist_ok=True)
-            path = os.path.join(dest, image_name)
-            new_image.save(path)
-            page.path = path
-        return collection
+    def run(self, document: Document):
+        new_image = self.op(document.image)
+        dest = os.path.join(self.output_directory)
+        os.makedirs(dest, exist_ok=True)
+        path = os.path.join(dest, document.image_name + ".jpg")
+        new_image.save(path)
+        return Document(path)
 
     def op(self, image: Image) -> Image:
         """
@@ -531,7 +530,7 @@ class Binarization(ProcessImages):
     """
     Binarize images.
 
-    Runs image binarization on the collection's images. Saves the
+    Runs image binarization on the document's images. Saves the
     resulting images in a directory named `binarized`. All subsequent
     pipeline steps will use the binarized images.
 
@@ -547,18 +546,17 @@ class Binarization(ProcessImages):
         return binarize(image)
 
 
-def auto_import(source: list[str] | str, max_size: int | None = None) -> Generator[Collection, Any, Any]:
-    """Import collection(s) from `source`
+def auto_import(source: list[str] | str) -> Generator[Document, Any, Any]:
+    """Import document(s) from `source`
 
     Arguments:
         source: Import source as a single path or list of paths, where
             each path points to any of the following:
                 - a directory of images
                 - an image
-        max_size: The maximum number of pages in each new collection.
 
     Yields:
-        Collection instances created from the given source.
+        Document instances created from the given source.
     """
     paths = []
     for path in source:
@@ -569,16 +567,12 @@ def auto_import(source: list[str] | str, max_size: int | None = None) -> Generat
             continue
         paths.append(path)
 
-    logger.info("Importing %d input images with batch size %d", len(paths), max_size)
-    yield from _create_collection_batches(paths, max_size)
-
-
-def _create_collection_batches(paths: list[str], max_size: int | None) -> Generator[Collection, Any, Any]:
-    """Create and yield collection of at most `max_size` pages"""
-    if paths:
-        max_size = max_size or len(paths)
-        for i in range(0, len(paths), max_size):
-            yield Collection(paths[i : i + max_size])
+    for path in paths:
+        try:
+            yield Document(path)
+        except UnidentifiedImageError as e:
+            logger.warning(e)
+            continue
 
 
 def all_subclasses(cls):

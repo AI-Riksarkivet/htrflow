@@ -20,8 +20,6 @@ def run_pipeline_test(image_path, pipeline_path):
             "pipeline",
             pipeline_path,
             image_path,
-            "--batch-output",
-            "1",
             "--logfile",
             "tox-test.log",
         ],

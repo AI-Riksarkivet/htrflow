@@ -1,31 +1,28 @@
-from typing import TYPE_CHECKING
+from htrflow.document import Region
 
 
-if TYPE_CHECKING:
-    from htrflow.volume import volume
+def average_text_confidence(region: "Region") -> float:
+    """
+    Average text confidence value of `region` and its children
 
-
-def average_text_confidence(node: "volume.ImageNode") -> float:
-    """Average text confidence value of `node` and its children
-
-    Returns the average text confidence of all text lines attached
-    to `node` (at any depth). The input node may be a page or a region.
+    Returns the average text confidence of all texts attached to
+    `region`, at any depth.
 
     Arguments:
-        node: Input node.
+        region: Input region.
 
     Returns:
-        The node's average text confidence score, or 0.0 if it couldn't be
-        computed (e.g., if the node didn't contain any text lines).
+        The region's average text confidence score, or 0.0 if it couldn't be
+        computed (e.g., if the region didn't contain any text lines).
     """
-    nodes = node.traverse(lambda node: node.is_line())
-    if nodes:
-        return sum(line_text_confidence(node) for node in nodes) / len(nodes)
+    regions = list(region.traverse())
+    if regions:
+        return sum(text_confidence(region) for region in regions) / len(regions)
     return 0.0
 
 
-def line_text_confidence(node: "volume.SegmentNode") -> float:
-    """The text confidence score of `node`"""
-    if text_result := node.text_result:
-        return text_result.top_score()
+def text_confidence(region: "Region") -> float:
+    """The text confidence score of `region`"""
+    if region.transcription:
+        return max(region.transcription, key=lambda t: t.confidence or 0.0).confidence
     return 0.0
