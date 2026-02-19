@@ -18,14 +18,11 @@ class Pipeline:
         """Init pipeline from config"""
         return Pipeline([init_step(step["step"], step.get("settings", {})) for step in config["steps"]])
 
-    def run(self, collection):
-        """Run pipeline on collection"""
-        for i, step in enumerate(self.steps):
-            step_name = f"{step} (step {i + 1} / {len(self.steps)})"
-            logger.info("Running step %s", step_name)
-            collection = step.run(collection)
-
-        return collection
+    def run(self, document):
+        """Run pipeline on document"""
+        for step in self.steps:
+            document = step.run(document)
+        return document
 
     def metadata(self):
         return [step.metadata for step in self.steps if step.metadata]
