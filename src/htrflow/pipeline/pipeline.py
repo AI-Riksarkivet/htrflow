@@ -1,19 +1,22 @@
-from typing import Sequence
+import yaml
 
 from htrflow import progress
-from htrflow.pipeline.steps import PipelineStep, init_step
+from htrflow.pipeline.steps import PipelineConfig, PipelineStep, init_step
 
 
 class Pipeline:
-    def __init__(self, steps: Sequence[PipelineStep]):
-        self.steps = steps
-        for step in self.steps:
-            step.parent_pipeline = self
+    steps: list[PipelineStep]
 
-    @classmethod
-    def from_config(self, config: dict[str, str]):
-        """Init pipeline from config"""
-        return Pipeline([init_step(step["step"], step.get("settings", {})) for step in config["steps"]])
+    def __init__(self, path: str):
+
+        with open(path, "r") as file:
+            config = yaml.safe_load(file)
+
+        config = PipelineConfig(**config)
+        self.steps = []
+        for step in map(init_step, config.steps):
+            step.parent_pipeline = self  # TODO: solve metadata export in a better way than this
+            self.steps.append(step)
 
     def run(self, document):
         """Run pipeline on document"""

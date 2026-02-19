@@ -5,7 +5,6 @@ from enum import Enum
 from typing import Iterable
 
 import typer
-import yaml
 from typing_extensions import Annotated
 
 from htrflow import progress
@@ -103,9 +102,7 @@ def pipeline(
     from htrflow.pipeline.pipeline import Pipeline
     from htrflow.pipeline.steps import Export, auto_import
 
-    with open(pipeline, "r") as file:
-        config = yaml.safe_load(file)
-    pipe = Pipeline.from_config(config)
+    pipeline = Pipeline(pipeline)
 
     if not quiet:
         progress.enable()
@@ -113,12 +110,12 @@ def pipeline(
     if output or output_format:
         output = output or "outputs"
         output_format = output_format or "txt"
-        pipe.steps.append(Export(output, output_format))
+        pipeline.steps.append(Export(output, output_format))
 
     tic = time.time()
     n_pages = 0
     for document in auto_import(inputs):
-        pipe.run(document)
+        pipeline.run(document)
         n_pages += 1
     toc = time.time()
 

@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import Any, Generator, Literal
 
 from PIL import Image, UnidentifiedImageError
+from pydantic import BaseModel as PydanticBaseModel
 
 from htrflow import progress
 from htrflow.document import Document
@@ -25,6 +26,15 @@ logger = logging.getLogger(__name__)
 class StepMetadata:
     description: str
     settings: dict[str, str]
+
+
+class PipelineStepConfig(PydanticBaseModel):
+    step: str
+    settings: dict
+
+
+class PipelineConfig(PydanticBaseModel):
+    steps: list[PipelineStepConfig]
 
 
 class PipelineStep:
@@ -586,7 +596,7 @@ STEPS: dict[str, PipelineStep] = {cls_.__name__.lower(): cls_ for cls_ in all_su
 MODELS: dict[str, BaseModel] = {model.__name__.lower(): model for model in all_models()}
 
 
-def init_step(step_name: str, step_settings: dict[str, Any]) -> PipelineStep:
+def init_step(step: PipelineStepConfig) -> PipelineStep:
     """Initialize a pipeline step
 
     Arguments:
@@ -594,4 +604,4 @@ def init_step(step_name: str, step_settings: dict[str, Any]) -> PipelineStep:
         step_settings: A dictionary containing parameters for the step's
             __init__() method.
     """
-    return STEPS[step_name.lower()].from_config(step_settings)
+    return STEPS[step.step.lower()].from_config(step.settings)
