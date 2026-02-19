@@ -8,6 +8,8 @@ import typer
 import yaml
 from typing_extensions import Annotated
 
+from htrflow import progress
+
 
 app = typer.Typer(
     name="htrflow", add_completion=False, help="CLI inferface for htrflow", pretty_exceptions_enable=False
@@ -42,14 +44,11 @@ class HTRFLOWLoggingFormatter(logging.Formatter):
         super().__init__(fmt, datefmt)
 
 
-def setup_pipeline_logging(logfile: str | None, loglevel: LogLevel):
+def setup_pipeline_logging(logfile: str, loglevel: LogLevel):
     logging.getLogger("transformers").setLevel(logging.ERROR)
     logger = logging.getLogger()
     logger.setLevel(loglevel.value.upper())
-    if logfile is None:
-        handler = logging.StreamHandler()
-    else:
-        handler = logging.FileHandler(logfile, mode="w")
+    handler = logging.FileHandler(logfile, mode="w")
     handler.setFormatter(HTRFLOWLoggingFormatter())
     logger.addHandler(handler)
     return logger
@@ -67,10 +66,7 @@ def pipeline(
         list[str] | None,
         typer.Argument(help="Paths to input images. May be paths to directories of images or paths to single images."),
     ] = None,
-    logfile: Annotated[
-        str,
-        typer.Option(help="Where to write logs to. If not provided, logs will be printed to the standard output."),
-    ] = None,
+    logfile: Annotated[str, typer.Option(help="Logfile")] = "htrflow.log",
     loglevel: Annotated[LogLevel, typer.Option(help="Loglevel", case_sensitive=False)] = LogLevel.info,
     output: Annotated[
         str | None,
@@ -96,6 +92,7 @@ def pipeline(
             help="A text file containing newline-separated paths to input images. Requires INPUTS to be empty."
         ),
     ] = None,
+    quiet: Annotated[bool, typer.Option(help="Run in quiet mode")] = False,
 ):
     """Run a HTRflow pipeline"""
 
@@ -109,6 +106,9 @@ def pipeline(
     with open(pipeline, "r") as file:
         config = yaml.safe_load(file)
     pipe = Pipeline.from_config(config)
+
+    if not quiet:
+        progress.enable()
 
     if output or output_format:
         output = output or "outputs"

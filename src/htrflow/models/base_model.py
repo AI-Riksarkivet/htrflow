@@ -1,7 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
 from itertools import islice
-from typing import Any, Generator, Iterable, TypeVar
+from typing import Generator, Iterable, TypeVar
 
 import torch
 from PIL import Image
@@ -56,22 +56,13 @@ class BaseModel(ABC):
         self,
         images: list[Image],
         batch_size: int = 1,
-        tqdm_kwargs: dict[str, Any] | None = None,
         **kwargs,
     ):
         """Perform inference on images
 
-        Takes an arbitrary number of inputs and runs batched inference.
-        The inputs can be streamed from an iterator and don't need to
-        be simultaneously read into memory. Prints a progress bar using
-        `tqdm`. This is a template method which uses the model-specific
-        `_predict(...)`.
-
         Arguments:
             images: Input images
             batch_size: Inference batch size, defaults to 1
-            tqdm_kwargs: Optional keyword arguments to control the
-                progress bar.
             **kwargs: Optional keyword arguments that are forwarded to
                 the model specific prediction method `_predict(...)`.
         """

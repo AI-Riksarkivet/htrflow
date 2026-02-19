@@ -1,10 +1,7 @@
-import logging
 from typing import Sequence
 
+from htrflow import progress
 from htrflow.pipeline.steps import PipelineStep, init_step
-
-
-logger = logging.getLogger(__name__)
 
 
 class Pipeline:
@@ -21,7 +18,9 @@ class Pipeline:
     def run(self, document):
         """Run pipeline on document"""
         for step in self.steps:
+            progress.update(document, status=str(step))
             document = step.run(document)
+        progress.done(document)
         return document
 
     def metadata(self):

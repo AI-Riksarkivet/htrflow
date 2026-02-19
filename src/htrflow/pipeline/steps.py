@@ -6,6 +6,7 @@ from typing import Any, Generator, Literal
 
 from PIL import Image, UnidentifiedImageError
 
+from htrflow import progress
 from htrflow.document import Document
 from htrflow.models.base_model import BaseModel
 from htrflow.models.importer import all_models
@@ -217,7 +218,7 @@ class Export(PipelineStep):
         with open(filename, "w") as f:
             f.write(doc)
         logger.info("Wrote %s file to %s", self.serializer, filename)
-
+        progress.register_export(document, filename)
         return document
 
 
