@@ -1,6 +1,7 @@
 import logging
 import socket
 import time
+from concurrent.futures import ThreadPoolExecutor
 from enum import Enum
 from typing import Iterable
 
@@ -92,6 +93,7 @@ def pipeline(
         ),
     ] = None,
     quiet: Annotated[bool, typer.Option(help="Run in quiet mode")] = False,
+    workers: Annotated[int, typer.Option(help="Number of concurrent workers")] = 1,
 ):
     """Run a HTRflow pipeline"""
 
@@ -114,9 +116,11 @@ def pipeline(
 
     tic = time.time()
     n_pages = 0
-    for document in auto_import(inputs):
-        pipeline.run(document)
-        n_pages += 1
+
+    with ThreadPoolExecutor(workers) as executor:
+        for document in auto_import(inputs):
+            executor.submit(pipeline.run, document)
+            n_pages += 1
     toc = time.time()
 
     total_time = toc - tic
