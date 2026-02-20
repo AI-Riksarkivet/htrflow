@@ -11,8 +11,7 @@ from pydantic import BaseModel as PydanticBaseModel
 
 from htrflow import progress
 from htrflow.document import Document, ImageLoader
-from htrflow.models.base_model import BaseModel
-from htrflow.models.importer import all_models
+from htrflow.models import get_model_by_name
 from htrflow.pipeline.batched_queue import BatchedQueue
 from htrflow.postprocess import metrics
 from htrflow.postprocess.reading_order import order_regions, top_down
@@ -88,11 +87,9 @@ class Inference(PipelineStep):
     ```
     """
 
-    def __init__(self, model_class, model_kwargs, generation_kwargs):
-        self.model_class = model_class
-        self.model_kwargs = model_kwargs
+    def __init__(self, model, generation_kwargs):
         self.generation_kwargs = generation_kwargs
-        self.model = self.model_class(**self.model_kwargs)
+        self.model = model
         self.metadata = StepMetadata(str(self), self.model.metadata)
 
         batch_size = generation_kwargs.pop("batch_size", 1)
@@ -103,16 +100,11 @@ class Inference(PipelineStep):
     @classmethod
     def from_config(cls, config):
         name = config.pop("model").lower()
-        if name not in MODELS:
-            model_names = [model.__name__ for model in all_models()]
-            msg = f"Model {name} is not supported. The available models are: {', '.join(model_names)}."
-            logger.error(msg)
-            raise NotImplementedError(msg)
-
-        model = MODELS[name]
+        model = get_model_by_name(name)
         generation_kwargs = config.pop("generation_settings", {})
         init_kwargs = config.pop("model_settings", {}) | config
-        return cls(model, init_kwargs, generation_kwargs)
+        model = model(**init_kwargs)
+        return cls(model, generation_kwargs)
 
     def _process(self):
         while 1:
@@ -609,7 +601,6 @@ def all_subclasses(cls):
 # Mapping class name -> class
 # Ex. {segmentation: `steps.Segmentation`}
 STEPS: dict[str, PipelineStep] = {cls_.__name__.lower(): cls_ for cls_ in all_subclasses(PipelineStep)}
-MODELS: dict[str, BaseModel] = {model.__name__.lower(): model for model in all_models()}
 
 
 def init_step(step: PipelineStepConfig) -> PipelineStep:
