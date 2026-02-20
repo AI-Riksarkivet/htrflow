@@ -1,13 +1,7 @@
-import logging
 from abc import ABC, abstractmethod
-from typing import TypeVar
 
 import torch
 from PIL import Image
-
-
-logger = logging.getLogger(__name__)
-_T = TypeVar("_T")
 
 
 class BaseModel(ABC):
