@@ -1,7 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
-from itertools import islice
-from typing import Generator, Iterable, TypeVar
+from typing import TypeVar
 
 import torch
 from PIL import Image
@@ -52,28 +51,15 @@ class BaseModel(ABC):
             torch.backends.cudnn.allow_tf32 = allow_tf32
             torch.backends.cudnn.benchmark = allow_cudnn_benchmark
 
-    def predict(
-        self,
-        images: list[Image],
-        batch_size: int = 1,
-        **kwargs,
-    ):
+    def predict(self, images: list[Image], **kwargs):
         """Perform inference on images
 
         Arguments:
             images: Input images
-            batch_size: Inference batch size, defaults to 1
             **kwargs: Optional keyword arguments that are forwarded to
                 the model specific prediction method `_predict(...)`.
         """
-
-        batch_size = max(batch_size, 1)  # make sure batch size is at least 1
-        results = []
-        batches = _batch(images, batch_size)
-        for batch in batches:
-            result = self._predict(batch, **kwargs)
-            results.extend(result)
-        return results
+        return self._predict(images, **kwargs)
 
     @abstractmethod
     def _predict(self, images: list[Image], **kwargs):
@@ -82,11 +68,3 @@ class BaseModel(ABC):
     def __call__(self, images: list[Image], **kwargs):
         """Alias for BaseModel.predict(...)"""
         return self.predict(images, **kwargs)
-
-
-def _batch(iterable: Iterable[_T], batch_size: int) -> Generator[list[_T], None, None]:
-    """Yield fixed-size batches from `iterable`"""
-    # TODO: Replace this routine with itertools.batch in Python 3.12
-    it = iter(iterable)
-    while batch := list(islice(it, batch_size)):
-        yield batch

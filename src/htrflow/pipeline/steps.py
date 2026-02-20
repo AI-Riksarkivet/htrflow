@@ -1,14 +1,17 @@
 import logging
 import math
 import os
-from dataclasses import dataclass
+import queue
+import threading
+from concurrent.futures import Future, as_completed
+from dataclasses import dataclass, field
 from typing import Any, Generator, Literal
 
 from PIL import Image, UnidentifiedImageError
 from pydantic import BaseModel as PydanticBaseModel
 
 from htrflow import progress
-from htrflow.document import Document
+from htrflow.document import Document, ImageLoader
 from htrflow.models.base_model import BaseModel
 from htrflow.models.importer import all_models
 from htrflow.postprocess import metrics
@@ -20,6 +23,12 @@ from htrflow.utils.layout import estimate_printspace, is_twopage
 
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class InferenceQueueItem:
+    image: Image
+    future: Future = field(default_factory=lambda: Future())
 
 
 @dataclass
@@ -88,12 +97,14 @@ class Inference(PipelineStep):
     def __init__(self, model_class, model_kwargs, generation_kwargs):
         self.model_class = model_class
         self.model_kwargs = model_kwargs
+        self.batch_size = generation_kwargs.pop("batch_size", 1)
         self.generation_kwargs = generation_kwargs
-        self.model = None
-
-    def _init_model(self):
         self.model = self.model_class(**self.model_kwargs)
         self.metadata = StepMetadata(str(self), self.model.metadata)
+
+        self._queue = queue.Queue()
+        self._thread = threading.Thread(target=self._process, daemon=True)
+        self._thread.start()
 
     @classmethod
     def from_config(cls, config):
@@ -103,16 +114,42 @@ class Inference(PipelineStep):
             msg = f"Model {name} is not supported. The available models are: {', '.join(model_names)}."
             logger.error(msg)
             raise NotImplementedError(msg)
+
         model = MODELS[name]
         generation_kwargs = config.pop("generation_settings", {})
         init_kwargs = config.pop("model_settings", {}) | config
         return cls(model, init_kwargs, generation_kwargs)
 
+    def _process(self):
+        while 1:
+            batch = []
+            while len(batch) < self.batch_size:
+                try:
+                    item = self._queue.get(timeout=0.1)
+                    batch.append(item)
+                except queue.Empty:
+                    break
+
+            if not batch:
+                continue
+
+            outputs = self.model([item.image for item in batch], **self.generation_kwargs)
+            for output, item in zip(outputs, batch):
+                item.future.set_result(output)
+
+    def _put(self, image):
+        item = InferenceQueueItem(image)
+        self._queue.put(item)
+        return item.future
+
     def run(self, document: Document):
-        if self.model is None:
-            self._init_model()
-        result = self.model(document.segments(), **self.generation_kwargs)
-        document.update(result)
+        images = ImageLoader(document)
+        futures = {self._put(image): node for node, image in images}
+        for future in as_completed(futures):
+            node = futures[future]
+            results = future.result()
+            for result in results:
+                result.attach(node)
         return document
 
 

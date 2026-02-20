@@ -90,14 +90,6 @@ class Document(Region):
     def image(self):
         return Image.open(self._image_path).convert("RGB")
 
-    def segments(self):
-        return ImageLoader(self)
-
-    def update(self, nodes):
-        for leaf, nodes in zip(self.leaves(), nodes):
-            for node in nodes:
-                node.attach(leaf)
-
 
 class ImageLoader:
     def __init__(self, page):
@@ -112,7 +104,7 @@ class ImageLoader:
             for region in node.regions:
                 yield from self._image_loader(region, image)
         else:
-            yield image
+            yield node, image
 
 
 def traverse(region: Region):
