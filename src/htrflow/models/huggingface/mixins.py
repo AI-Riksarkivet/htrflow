@@ -3,7 +3,6 @@ from transformers import PreTrainedTokenizerBase, VisionEncoderDecoderModel
 
 
 class ConfidenceMixin:
-
     model: VisionEncoderDecoderModel
     processor: PreTrainedTokenizerBase
 

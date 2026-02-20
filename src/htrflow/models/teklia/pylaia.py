@@ -13,8 +13,8 @@ from laia.common.arguments import CommonArgs, DataArgs, DecodeArgs, TrainerArgs
 from laia.scripts.htr.decode_ctc import run as decode
 from PIL import Image
 
-from htrflow.models.base_model import BaseModel
 from htrflow.document import Text
+from htrflow.models.base_model import BaseModel
 
 
 logger = logging.getLogger(__name__)
