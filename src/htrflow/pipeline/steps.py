@@ -1,10 +1,9 @@
 import logging
 import math
 import os
-import queue
 import threading
-from concurrent.futures import Future, as_completed
-from dataclasses import dataclass, field
+from concurrent.futures import as_completed
+from dataclasses import dataclass
 from typing import Any, Generator, Literal
 
 from PIL import Image, UnidentifiedImageError
@@ -14,6 +13,7 @@ from htrflow import progress
 from htrflow.document import Document, ImageLoader
 from htrflow.models.base_model import BaseModel
 from htrflow.models.importer import all_models
+from htrflow.pipeline.batched_queue import BatchedQueue
 from htrflow.postprocess import metrics
 from htrflow.postprocess.reading_order import order_regions, top_down
 from htrflow.postprocess.word_segmentation import simple_word_segmentation
@@ -23,12 +23,6 @@ from htrflow.utils.layout import estimate_printspace, is_twopage
 
 
 logger = logging.getLogger(__name__)
-
-
-@dataclass
-class InferenceQueueItem:
-    image: Image
-    future: Future = field(default_factory=lambda: Future())
 
 
 @dataclass
@@ -97,12 +91,12 @@ class Inference(PipelineStep):
     def __init__(self, model_class, model_kwargs, generation_kwargs):
         self.model_class = model_class
         self.model_kwargs = model_kwargs
-        self.batch_size = generation_kwargs.pop("batch_size", 1)
         self.generation_kwargs = generation_kwargs
         self.model = self.model_class(**self.model_kwargs)
         self.metadata = StepMetadata(str(self), self.model.metadata)
 
-        self._queue = queue.Queue()
+        batch_size = generation_kwargs.pop("batch_size", 1)
+        self._queue = BatchedQueue(batch_size)
         self._thread = threading.Thread(target=self._process, daemon=True)
         self._thread.start()
 
@@ -122,29 +116,14 @@ class Inference(PipelineStep):
 
     def _process(self):
         while 1:
-            batch = []
-            while len(batch) < self.batch_size:
-                try:
-                    item = self._queue.get(timeout=0.1)
-                    batch.append(item)
-                except queue.Empty:
-                    break
-
-            if not batch:
-                continue
-
-            outputs = self.model([item.image for item in batch], **self.generation_kwargs)
+            batch = self._queue.get()
+            outputs = self.model([item.item for item in batch], **self.generation_kwargs)
             for output, item in zip(outputs, batch):
                 item.future.set_result(output)
 
-    def _put(self, image):
-        item = InferenceQueueItem(image)
-        self._queue.put(item)
-        return item.future
-
     def run(self, document: Document):
         images = ImageLoader(document)
-        futures = {self._put(image): node for node, image in images}
+        futures = {self._queue.put(image): node for node, image in images}
         for future in as_completed(futures):
             node = futures[future]
             results = future.result()
