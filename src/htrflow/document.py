@@ -105,7 +105,3 @@ class ImageLoader:
                 yield from self._image_loader(region, image)
         else:
             yield node, image
-
-
-def traverse(region: Region):
-    return [region] + [subregion for region in region.regions for subregion in region.traverse()]
