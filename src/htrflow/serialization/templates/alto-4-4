@@ -65,7 +65,7 @@
                             <Polygon POINTS="{{ line.polygon.move((hpos, vpos)) }}"/>
                         </Shape>
                         {%- endif %}
-                        <String CONTENT="{{ xmlescape(line.transcription[0].text) if line.transcription else '' }}" />
+                        <String CONTENT="{{ (line.transcription[0].text if line.transcription else '') | e }}" />
                     </TextLine>
                     {%- endfor %}
                 </TextBlock>

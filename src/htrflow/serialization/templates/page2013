@@ -40,7 +40,7 @@
                 <Word id="region{{ region_index }}_line{{ line_index }}_word{{ loop.index0 }}">
                     <Coords points="{{ word.polygon.move((line_x, line_y)) }}" />
                     {% if word.transcription[0].confidence %}<TextEquiv conf="{{ word.transcription[0].confidence }}">{% else %}<TextEquiv>{% endif %}
-                        <Unicode>{{ xmlescape(word.transcription[0].text ) }}</Unicode>
+                        <Unicode>{{ word.transcription[0].text | e }}</Unicode>
                     </TextEquiv>
                 </Word>
                 {%- endif %}
@@ -48,7 +48,7 @@
             {%- else %}
             {% if line.transcription %}
                 {% if line.transcription[0].confidence %}<TextEquiv conf="{{ line.transcription[0].confidence }}">{% else %}<TextEquiv>{% endif %}
-                    <Unicode>{{ xmlescape(line.transcription[0].text) }}</Unicode>
+                    <Unicode>{{ line.transcription[0].text | e }}</Unicode>
                 </TextEquiv>
             {%-endif %}
             {%-endif %}

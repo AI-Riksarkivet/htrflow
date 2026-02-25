@@ -111,7 +111,6 @@ class AltoXML(Serializer):
             document=document,
             metadata=get_metadata(),
             processing_steps=metadata.pop("processing_steps", []),
-            xmlescape=xmlescape,
         )
 
     def validate(self, doc: str) -> None:
@@ -170,7 +169,6 @@ class PageXML(Serializer):
             document=document,
             metadata=get_metadata(),
             processing_steps=metadata.pop("processing_steps", []),
-            xmlescape=xmlescape,
         )
 
     def validate(self, doc: str) -> None:
@@ -284,17 +282,3 @@ def get_serializer(serializer_name: str, **serializer_args) -> Serializer:
         raise ValueError(f"Format '{serializer_name}' is not among the supported formats: {', '.join(names)}")
 
     return serializer(**serializer_args)
-
-
-def xmlescape(s: str) -> str:
-    """Escape special characters in XML strings
-
-    Replaces the characters &, ", ', < and > with their corresponding
-    character entity references.
-    """
-    s = s.replace("&", "&amp;")
-    s = s.replace('"', "&quot;")
-    s = s.replace("'", "&apos;")
-    s = s.replace("<", "&lt;")
-    s = s.replace(">", "&gt;")
-    return s
