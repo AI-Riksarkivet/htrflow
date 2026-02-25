@@ -6,7 +6,7 @@
             <fileName>{{ document.image_name }}</fileName>
         </sourceImageInformation>
         <Processing ID="general">
-            <processingDateTime>{{ metadata.created }}</processingDateTime>
+            <processingDateTime>{{ timestamp }}</processingDateTime>
             <processingSoftware>
                 <softwareCreator>{{ metadata.creator }}</softwareCreator>
                 <softwareName>{{ metadata.software_name }}</softwareName>

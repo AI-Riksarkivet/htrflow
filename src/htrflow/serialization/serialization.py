@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 import xmlschema
 from jinja2 import Environment, FileSystemLoader
@@ -110,6 +110,7 @@ class AltoXML(Serializer):
         return self.template.render(
             document=document,
             metadata=get_metadata(),
+            timestamp=timestamp(),
             processing_steps=metadata.pop("processing_steps", []),
         )
 
@@ -168,6 +169,7 @@ class PageXML(Serializer):
         return self.template.render(
             document=document,
             metadata=get_metadata(),
+            timestamp=timestamp(),
             processing_steps=metadata.pop("processing_steps", []),
         )
 
@@ -255,15 +257,16 @@ def get_text(region: Region):
     return max(region.transcription, key=lambda t: t.confidence).text
 
 
-def get_metadata() -> dict:
-    timestamp = datetime.utcnow().isoformat()
+def timestamp():
+    return datetime.now(timezone.utc).isoformat()
 
+
+def get_metadata() -> dict:
     return {
         "creator": htrflow.meta["Name"],
         "software_name": htrflow.meta["Name"],
         "software_version": htrflow.meta["Version"],
         "application_description": htrflow.meta["Summary"],
-        "created": timestamp,
     }
 
 
