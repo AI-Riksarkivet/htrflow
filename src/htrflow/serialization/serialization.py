@@ -11,11 +11,11 @@ import json
 import logging
 import os
 from datetime import datetime, timezone
+from importlib import metadata
 
 import xmlschema
 from jinja2 import Environment, FileSystemLoader
 
-import htrflow
 from htrflow.document import Document, Region
 from htrflow.utils.geometry import Polygon
 
@@ -38,7 +38,7 @@ class Serializer:
 
     extension: str
 
-    def serialize(self, document: Document, validate: bool = False, **metadata) -> str | None:
+    def serialize(self, document: Document, validate: bool = False) -> str | None:
         """Serialize document
 
         Arguments:
@@ -49,7 +49,7 @@ class Serializer:
         Returns:
             A string if the serialization was succesful, else None
         """
-        doc = self._serialize(document, **metadata)
+        doc = self._serialize(document)
         if validate:
             self.validate(doc)
         return doc
@@ -60,7 +60,7 @@ class Serializer:
     def validate(self, doc: str) -> None:
         """Validate document"""
 
-    def _serialize(self, document: Document, **metadata) -> str | None:
+    def _serialize(self, document: Document) -> str | None:
         """Format-specific seralization method
 
         Arguments:
@@ -106,12 +106,11 @@ class AltoXML(Serializer):
         self.template = env.get_template(template_name)
         self.schema = os.path.join(_SCHEMA_DIR, template_name + ".xsd")
 
-    def _serialize(self, document: Document, **metadata) -> str:
+    def _serialize(self, document: Document) -> str:
         return self.template.render(
             document=document,
-            metadata=get_metadata(),
+            metadata=metadata.metadata("htrflow"),
             timestamp=timestamp(),
-            processing_steps=metadata.pop("processing_steps", []),
         )
 
     def validate(self, doc: str) -> None:
@@ -165,12 +164,11 @@ class PageXML(Serializer):
         self.template = env.get_template(template_name)
         self.schema = os.path.join(_SCHEMA_DIR, template_name + ".xsd")
 
-    def _serialize(self, document: Document, **metadata):
+    def _serialize(self, document: Document):
         return self.template.render(
             document=document,
-            metadata=get_metadata(),
+            metadata=metadata.metadata("htrflow"),
             timestamp=timestamp(),
-            processing_steps=metadata.pop("processing_steps", []),
         )
 
     def validate(self, doc: str) -> None:
@@ -217,7 +215,7 @@ class Json(Serializer):
         """
         self.kwargs = kwargs
 
-    def _serialize(self, document: Document, **metadata):
+    def _serialize(self, document: Document):
         def default(node):
             if isinstance(node, Polygon):
                 return str(node)
@@ -247,7 +245,7 @@ class PlainText(Serializer):
 
     extension = ".txt"
 
-    def _serialize(self, document: Document, **metadata) -> str:
+    def _serialize(self, document: Document) -> str:
         return get_text(document)
 
 
@@ -259,15 +257,6 @@ def get_text(region: Region):
 
 def timestamp():
     return datetime.now(timezone.utc).isoformat()
-
-
-def get_metadata() -> dict:
-    return {
-        "creator": htrflow.meta["Name"],
-        "software_name": htrflow.meta["Name"],
-        "software_version": htrflow.meta["Version"],
-        "application_description": htrflow.meta["Summary"],
-    }
 
 
 def get_serializer(serializer_name: str, **serializer_args) -> Serializer:

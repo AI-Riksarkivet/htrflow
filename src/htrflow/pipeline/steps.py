@@ -224,10 +224,9 @@ class Export(PipelineStep):
         self.dest = dest
 
     def run(self, document: Document):
-        metadata = self.parent_pipeline.metadata() if self.parent_pipeline else None
         os.makedirs(self.dest, exist_ok=True)
 
-        doc = self.serializer.serialize(document, processing_steps=metadata)
+        doc = self.serializer.serialize(document)
         if doc is None:
             logger.warning("Could not serialize document '%s' as %s", document.image_name, self.serializer)
             return document

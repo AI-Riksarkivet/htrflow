@@ -34,6 +34,3 @@ class Pipeline:
             document = step.run(document)
         progress.done(document)
         return document
-
-    def metadata(self):
-        return [step.metadata for step in self.steps if step.metadata]

@@ -8,22 +8,12 @@
         <Processing ID="general">
             <processingDateTime>{{ timestamp }}</processingDateTime>
             <processingSoftware>
-                <softwareCreator>{{ metadata.creator }}</softwareCreator>
-                <softwareName>{{ metadata.software_name }}</softwareName>
-                <softwareVersion>{{ metadata.software_version }}</softwareVersion>
-                <applicationDescription>{{ metadata.application_description }}</applicationDescription>
+                <softwareCreator>{{ metadata.get("Author-email") }}</softwareCreator>
+                <softwareName>{{ metadata.get("Name") }}</softwareName>
+                <softwareVersion>{{ metadata.get("Version") }}</softwareVersion>
+                <applicationDescription>{{ metadata.get("Summary") }}</applicationDescription>
             </processingSoftware>
         </Processing>
-        {%- for step in processing_steps %}
-        <Processing ID="step{{ loop.index }}">
-            <processingStepDescription>{{ step.description }}</processingStepDescription>
-            <processingStepSettings>
-                {%- for key, value in step.settings.items()|sort %}
-                {{ key }}: {{ value }}
-                {%- endfor %}
-            </processingStepSettings>
-        </Processing>
-        {%- endfor %}
     </Description>
     {%- if document.regions %}
     <ReadingOrder>
