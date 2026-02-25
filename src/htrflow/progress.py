@@ -4,15 +4,21 @@ Module for pretty-printing progress.
 
 import atexit
 from collections import defaultdict
+from typing import TYPE_CHECKING
 
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from htrflow.document import Document
 
 
+if TYPE_CHECKING:
+    from htrflow.pipeline.steps import PipelineStep
+
+
 # A mapping from `document` to task ID
 _tasks = {}
 _exports = defaultdict(list)
+_steps = defaultdict(list)
 
 # The progress singleton
 _progress = Progress(
@@ -33,6 +39,21 @@ def update(document: Document, *args, **kwargs):
     if document not in _tasks:
         _register(document)
     _progress.update(_tasks[document], *args, **kwargs)
+
+
+def step(document: Document, step: "PipelineStep"):
+    """
+    Register processing step for the given `document`.
+    """
+    update(document, status=str(step))
+    _steps[document].append(step)
+
+
+def get_steps(document: Document) -> list["PipelineStep"]:
+    """
+    Return a list of all steps registered for this document.
+    """
+    return _steps[document]
 
 
 def done(document: Document):

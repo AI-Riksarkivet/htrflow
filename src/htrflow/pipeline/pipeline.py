@@ -30,7 +30,7 @@ class Pipeline:
     def run(self, document):
         """Run pipeline on document"""
         for step in self.steps:
-            progress.update(document, status=str(step))
+            progress.step(document, step=step)
             document = step.run(document)
         progress.done(document)
         return document
