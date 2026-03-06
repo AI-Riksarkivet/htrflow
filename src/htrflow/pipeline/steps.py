@@ -87,7 +87,7 @@ class Inference(PipelineStep):
     ```
     """
 
-    def __init__(self, model, generation_kwargs):
+    def __init__(self, model, **generation_kwargs):
         self.generation_kwargs = generation_kwargs
         self.model = model
         self.metadata = StepMetadata(str(self), self.model.metadata)
@@ -104,7 +104,7 @@ class Inference(PipelineStep):
         generation_kwargs = config.pop("generation_settings", {})
         init_kwargs = config.pop("model_settings", {}) | config
         model = model(**init_kwargs)
-        return cls(model, generation_kwargs)
+        return cls(model, **generation_kwargs)
 
     def _process(self):
         while 1:
