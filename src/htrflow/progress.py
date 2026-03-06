@@ -5,7 +5,6 @@ Module for pretty-printing progress.
 import atexit
 from collections import defaultdict
 
-from rich import print
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from htrflow.document import Document
@@ -23,20 +22,8 @@ _progress = Progress(
 )
 
 
-_quiet = True
-
-
-def enable():
-    """
-    Enable progress logging
-
-    With progress logging enabled, HTRflow pretty-prints progress
-    updates to the terminal for a human to watch while they wait.
-    """
-    global _quiet
-    _progress.start()
-    _quiet = False
-    atexit.register(_progress.stop)
+_progress.start()
+atexit.register(_progress.stop)
 
 
 def update(document: Document, *args, **kwargs):
@@ -54,15 +41,13 @@ def done(document: Document):
 
     Disables its progress bar and prints a summary to the terminal.
     """
-    if _quiet:
-        return
-
     exports = _exports[document]
     if exports:
         msg = "Results exported to " + ", ".join(exports)
     else:
         msg = "No results exported."
-    print(f"{document.image_name}: Done! [dim]{msg}[/dim]")
+
+    _progress.print(f"{document.image_name}: Done! [dim]{msg}[/dim]")
     update(document, visible=False)
 
 

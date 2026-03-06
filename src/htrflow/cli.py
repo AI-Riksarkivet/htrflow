@@ -8,8 +8,6 @@ from typing import Iterable
 import typer
 from typing_extensions import Annotated
 
-from htrflow import progress
-
 
 app = typer.Typer(
     name="htrflow", add_completion=False, help="CLI inferface for htrflow", pretty_exceptions_enable=False
@@ -92,7 +90,6 @@ def pipeline(
             help="A text file containing newline-separated paths to input images. Requires INPUTS to be empty."
         ),
     ] = None,
-    quiet: Annotated[bool, typer.Option(help="Run in quiet mode")] = False,
     workers: Annotated[int, typer.Option(help="Number of concurrent workers")] = 1,
 ):
     """Run a HTRflow pipeline"""
@@ -105,9 +102,6 @@ def pipeline(
     from htrflow.pipeline.steps import Export, auto_import
 
     pipeline = Pipeline.from_config(pipeline)
-
-    if not quiet:
-        progress.enable()
 
     if output or output_format:
         output = output or "outputs"
