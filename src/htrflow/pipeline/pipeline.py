@@ -7,16 +7,25 @@ from htrflow.pipeline.steps import PipelineConfig, PipelineStep, init_step
 class Pipeline:
     steps: list[PipelineStep]
 
-    def __init__(self, path: str):
+    def __init__(self, steps: list[PipelineStep]):
+        self.steps = steps
+        for step in self.steps:
+            step.parent_pipeline = self  # TODO: solve metadata export in a better way than this
 
+    @classmethod
+    def from_config(cls, path: str) -> "Pipeline":
+        """
+        Create a pipeline from a YAML config file.
+
+        Arguments:
+            path: Path to YAML config.
+        """
         with open(path, "r") as file:
             config = yaml.safe_load(file)
 
         config = PipelineConfig(**config)
-        self.steps = []
-        for step in map(init_step, config.steps):
-            step.parent_pipeline = self  # TODO: solve metadata export in a better way than this
-            self.steps.append(step)
+        steps = list(map(init_step, config.steps))
+        return cls(steps)
 
     def run(self, document):
         """Run pipeline on document"""

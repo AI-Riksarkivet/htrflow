@@ -104,7 +104,7 @@ def pipeline(
     from htrflow.pipeline.pipeline import Pipeline
     from htrflow.pipeline.steps import Export, auto_import
 
-    pipeline = Pipeline(pipeline)
+    pipeline = Pipeline.from_config(pipeline)
 
     if not quiet:
         progress.enable()
