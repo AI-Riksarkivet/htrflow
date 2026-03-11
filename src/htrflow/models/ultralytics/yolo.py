@@ -113,5 +113,5 @@ def _simplify_polygons(polygons, approx_level):
                 approx_level,
             )
 
-        result.append(approx.squeeze())
+        result.append(approx.squeeze().astype(np.int32))
     return result
