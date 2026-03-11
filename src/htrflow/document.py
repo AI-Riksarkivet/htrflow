@@ -38,6 +38,7 @@ class Text(_RegionAttachment):
 
     def attach(self, region: "Region"):
         region.transcription.append(self)
+        region.transcription.sort(key=lambda transcription: transcription.confidence, reverse=True)
 
 
 class Annotation(_RegionAttachment):
