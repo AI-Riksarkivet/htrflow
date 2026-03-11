@@ -60,7 +60,16 @@
                             <Polygon POINTS="{{ line.polygon.move((hpos, vpos)) }}"/>
                         </Shape>
                         {%- endif %}
+                        {%- if line.regions -%}
+                        {%- for word in line.regions -%}
+                        {%- set hpos = bbox.xmin %}
+                        {%- set vpos = bbox.ymin %}
+                        {%- set bbox = word.polygon.bbox %}
+                        <String HEIGHT="{{ bbox.height }}" WIDTH="{{ bbox.width }}" HPOS="{{ hpos + bbox.xmin }}" VPOS="{{ vpos + bbox.ymin }}" CONTENT="{{ word.transcription[0].text }}" />
+                        {%- endfor %}
+                        {%- else %}
                         <String CONTENT="{{ (line.transcription[0].text if line.transcription else '') | e }}" />
+                        {%- endif %}
                     </TextLine>
                     {%- endfor %}
                 </TextBlock>
