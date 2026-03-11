@@ -5,8 +5,13 @@
         <sourceImageInformation>
             <fileName>{{ document.image_name }}</fileName>
         </sourceImageInformation>
-        <Processing ID="general">
+        <Processing ID="processing">
             <processingDateTime>{{ timestamp }}</processingDateTime>
+            {%- for step in steps %}
+            {%- if step.metadata %}
+            <processingStepDescription>{{ step.__class__.__name__ }}({% for key, value in step.metadata.settings.items() %}{{ key }}={{ value }}{% if not loop.last %}, {% endif %}{% endfor %})</processingStepDescription>
+            {%- endif %}
+            {%- endfor %}
             <processingSoftware>
                 <softwareCreator>{{ metadata.get("Author-email") }}</softwareCreator>
                 <softwareName>{{ metadata.get("Name") }}</softwareName>

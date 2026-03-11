@@ -9,8 +9,6 @@ class Pipeline:
 
     def __init__(self, steps: list[PipelineStep]):
         self.steps = steps
-        for step in self.steps:
-            step.parent_pipeline = self  # TODO: solve metadata export in a better way than this
 
     @classmethod
     def from_config(cls, path: str) -> "Pipeline":

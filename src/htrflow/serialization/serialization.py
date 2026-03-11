@@ -17,6 +17,7 @@ import xmlschema
 from jinja2 import Environment, FileSystemLoader
 
 from htrflow.document import Document, Region
+from htrflow.progress import get_steps
 from htrflow.utils.geometry import Polygon
 
 
@@ -108,9 +109,7 @@ class AltoXML(Serializer):
 
     def _serialize(self, document: Document) -> str:
         return self.template.render(
-            document=document,
-            metadata=metadata.metadata("htrflow"),
-            timestamp=timestamp(),
+            document=document, metadata=metadata.metadata("htrflow"), timestamp=timestamp(), steps=get_steps(document)
         )
 
     def validate(self, doc: str) -> None:
