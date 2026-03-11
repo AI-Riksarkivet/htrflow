@@ -27,30 +27,32 @@
     {%- set region_x = region.polygon.xmin %}
     {%- set region_y = region.polygon.ymin %}
         <TextRegion id="region{{ region_index }}">
-            <Coords points="{{ region.polygon }}" />
+            <Coords points="{{ region.polygon }}" {% if region.annotations.get('segmentation_confidence') %}conf="{{ region.annotations.get('segmentation_confidence') }}"{% endif %}/>
         {%- for line in region.regions %}
         {%- set line_index = loop.index0 %}
         {%- set line_x = region_x + line.polygon.xmin %}
         {%- set line_y = region_y + line.polygon.ymin %}
             <TextLine id="region{{ region_index }}_line{{ line_index }}">
-                <Coords points="{{ line.polygon.move((region_x, region_y)) }}" />
+                <Coords points="{{ line.polygon.move((region_x, region_y)) }}"  {% if line.annotations.get('segmentation_confidence') %}conf="{{ line.annotations.get('segmentation_confidence') }}"{% endif %}/>
             {%- if line.regions %}
                 {%- for word in line.regions %}
                 {%- if word.transcription %}
                 <Word id="region{{ region_index }}_line{{ line_index }}_word{{ loop.index0 }}">
                     <Coords points="{{ word.polygon.move((line_x, line_y)) }}" />
-                    {% if word.transcription[0].confidence %}<TextEquiv conf="{{ word.transcription[0].confidence }}">{% else %}<TextEquiv>{% endif %}
-                        <Unicode>{{ word.transcription[0].text | e }}</Unicode>
+                    {%- for transcription in word.transcription %}
+                    {% if transcription.confidence %}<TextEquiv conf="{{ transcription.confidence }}">{% else %}<TextEquiv>{% endif %}
+                        <Unicode>{{ transcription.text | e }}</Unicode>
                     </TextEquiv>
+                    {%- endfor %}
                 </Word>
                 {%- endif %}
                 {%- endfor %}
             {%- else %}
-            {% if line.transcription %}
-                {% if line.transcription[0].confidence %}<TextEquiv conf="{{ line.transcription[0].confidence }}">{% else %}<TextEquiv>{% endif %}
-                    <Unicode>{{ line.transcription[0].text | e }}</Unicode>
+            {%- for transcription in line.transcription %}
+                {% if transcription.confidence %}<TextEquiv conf="{{ transcription.confidence }}" index="{{ loop.index0 }}">{% else %}<TextEquiv>{% endif %}
+                    <Unicode>{{ transcription.text | e }}</Unicode>
                 </TextEquiv>
-            {%-endif %}
+            {%- endfor %}
             {%-endif %}
             </TextLine>
         {%- endfor %}
