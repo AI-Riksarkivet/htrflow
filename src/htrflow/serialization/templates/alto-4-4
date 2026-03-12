@@ -70,11 +70,11 @@
                         {%- if word.transcription %}
                         {%- set content = word.transcription[0].text %}
                         {%- if loop.last and content.endswith(('-', '¬')) and hyp_part2 %}
-                        <String HEIGHT="{{ bbox.height }}" WIDTH="{{ bbox.width }}" HPOS="{{ hpos + bbox.xmin }}" VPOS="{{ vpos + bbox.ymin }}" CONTENT="{{ content }}" SUBS_TYPE="HypPart1" SUBS_CONTENT="{{ content[:-1] }}{{ hyp_part2 }}" />
+                        <String ID="block{{ region_index }}_line{{ line_index }}_word{{ loop.index0 }}" HEIGHT="{{ bbox.height }}" WIDTH="{{ bbox.width }}" HPOS="{{ hpos + bbox.xmin }}" VPOS="{{ vpos + bbox.ymin }}" CONTENT="{{ content }}" SUBS_TYPE="HypPart1" SUBS_CONTENT="{{ content[:-1] }}{{ hyp_part2 }}" />
                         {%- elif loop.first and hyp_part1.endswith(('-', '¬')) %}
-                        <String HEIGHT="{{ bbox.height }}" WIDTH="{{ bbox.width }}" HPOS="{{ hpos + bbox.xmin }}" VPOS="{{ vpos + bbox.ymin }}" CONTENT="{{ content }}" SUBS_TYPE="HypPart2" SUBS_CONTENT="{{ hyp_part1[:-1] }}{{ content }}" />
+                        <String ID="block{{ region_index }}_line{{ line_index }}_word{{ loop.index0 }}" HEIGHT="{{ bbox.height }}" WIDTH="{{ bbox.width }}" HPOS="{{ hpos + bbox.xmin }}" VPOS="{{ vpos + bbox.ymin }}" CONTENT="{{ content }}" SUBS_TYPE="HypPart2" SUBS_CONTENT="{{ hyp_part1[:-1] }}{{ content }}" />
                         {%- else %}
-                        <String HEIGHT="{{ bbox.height }}" WIDTH="{{ bbox.width }}" HPOS="{{ hpos + bbox.xmin }}" VPOS="{{ vpos + bbox.ymin }}" CONTENT="{{ content }}" />
+                        <String ID="block{{ region_index }}_line{{ line_index }}_word{{ loop.index0 }}" HEIGHT="{{ bbox.height }}" WIDTH="{{ bbox.width }}" HPOS="{{ hpos + bbox.xmin }}" VPOS="{{ vpos + bbox.ymin }}" CONTENT="{{ content }}" />
                         {%- endif %}
                         {%- endif %}
                         {%- endfor %}
