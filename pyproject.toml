@@ -19,7 +19,7 @@ requires-python = ">=3.10,<3.14"
 dependencies = [
     "jinja2 >= 3.1.5",
     "numpy",
-    "opencv-python >=4.11.0.86",
+    "opencv-python-headless >=4.11.0.86",
     "tqdm >=4.66.2,<5",
     "xmlschema >=3.0.2,<4",
     "typer>=0.12.0",
