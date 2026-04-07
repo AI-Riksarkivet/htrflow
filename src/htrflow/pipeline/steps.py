@@ -32,7 +32,7 @@ class StepMetadata:
 
 class PipelineStepConfig(PydanticBaseModel):
     step: str
-    settings: dict
+    settings: dict | None = None
 
 
 class PipelineConfig(PydanticBaseModel):
@@ -610,4 +610,4 @@ def init_step(step: PipelineStepConfig) -> PipelineStep:
         step_settings: A dictionary containing parameters for the step's
             __init__() method.
     """
-    return STEPS[step.step.lower()].from_config(step.settings)
+    return STEPS[step.step.lower()].from_config(step.settings or {})

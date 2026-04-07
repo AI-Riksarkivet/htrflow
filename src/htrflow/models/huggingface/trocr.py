@@ -66,6 +66,21 @@ class TrOCR(BaseModel, ConfidenceMixin):
         self.decoding = model_kwargs.pop("decoding", None)
         self.model = VisionEncoderDecoderModel.from_pretrained(model, **model_kwargs)
         self.model.to(self.device)
+
+        # Workaround for transformers' TrOCRSinusoidalPositionalEmbedding: its
+        # get_embedding() always creates weights on CPU, and the checkpoint stores
+        # them as a meta tensor (no actual data). Both issues cause a device mismatch
+        # at inference time: position_ids are on CUDA but self.weights is on CPU/meta.
+        # Fix: recompute the sinusoidal weights from scratch and place them on the
+        # correct device. get_embedding() is pure math so no checkpoint data is needed.
+        if hasattr(self.model.decoder, "model") and hasattr(self.model.decoder.model, "decoder"):
+            embed_pos = getattr(self.model.decoder.model.decoder, "embed_positions", None)
+            if embed_pos is not None and hasattr(embed_pos, "weights"):
+                num_pos = embed_pos.weights.shape[0] if not embed_pos.weights.is_meta else 2048
+                embed_pos.weights = embed_pos.get_embedding(
+                    num_pos, embed_pos.embedding_dim, embed_pos.padding_idx
+                ).to(self.device)
+
         logger.info("Initialized TrOCR model from %s on device %s.", model, self.model.device)
 
         # Initialize processor
