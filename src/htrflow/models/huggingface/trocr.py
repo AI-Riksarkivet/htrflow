@@ -221,7 +221,7 @@ class WordLevelTrOCR(TrOCR):
         attentions = aggregate_attentions(outputs.cross_attentions)
 
         # Calculate the shape of the attention heatmap
-        image_shape = self.processor.feature_extractor.size
+        image_shape = self.processor.image_processor.size
         patch_size = self.model.config.encoder.patch_size
         heatmap_height = image_shape["height"] // patch_size
         heatmap_width = image_shape["width"] // patch_size
