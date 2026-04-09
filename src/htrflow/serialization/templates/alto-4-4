@@ -54,8 +54,8 @@
                     {%- for line in region.regions %}
                     {%- set line_index = loop.index0 %}
                     {%- set bbox = line.polygon.bbox %}
-                    {%- set hyp_part1 = loop.previtem.regions[-1].transcription[0].text if loop.previtem else '' | default('') %}
-                    {%- set hyp_part2 = loop.nextitem.regions[0].transcription[0].text if loop.nextitem else '' | default('') %}
+                    {%- set hyp_part1 = loop.previtem.regions[-1].transcription[0].text if (loop.previtem and loop.previtem.regions and loop.previtem.regions.transcription) else '' %}
+                    {%- set hyp_part2 = loop.nextitem.regions[0].transcription[0].text if (loop.nextitem and loop.nextitem.regions and loop.nextitem.regions.transcription) else '' %}
                     <TextLine ID="block{{ region_index }}_line{{ line_index }}"  HPOS="{{ hpos + bbox.xmin }}" VPOS="{{ vpos + bbox.ymin }}" HEIGHT="{{ bbox.height }}" WIDTH="{{ bbox.width }}">
                         {%- if line.polygon.points | length != 4 %}
                         <Shape>
