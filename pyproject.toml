@@ -41,8 +41,8 @@ Repository = "https://github.com/AI-Riksarkivet/htrflow"
 htrflow = "htrflow.cli:app"
 
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "pytest >=8.0.1",
     "pytest-cov >=4.1.0",
     "pytest-github-actions-annotate-failures >=0.2.0",
@@ -67,6 +67,9 @@ docs = [
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/htrflow"]
 
 [tool.hatch.metadata]
 allow-direct-references = true  
