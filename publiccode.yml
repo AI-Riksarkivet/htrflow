@@ -1,4 +1,4 @@
-publiccodeYmlVersion: "0.4"
+publiccodeYmlVersion: "0"
 name: HTRflow
 url: https://github.com/AI-Riksarkivet/htrflow
 softwareVersion: 0.2.4
@@ -52,6 +52,9 @@ legal:
   license: EUPL-1.2
 maintenance:
   type: internal
+  contacts:
+    - name: AI lab
+      email: ai@riksarkivet.se
 localisation:
   localisationReady: true
   availableLanguages:
