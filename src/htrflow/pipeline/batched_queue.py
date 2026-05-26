@@ -25,21 +25,33 @@ class BatchedQueue:
         [a] [b] => BatchedQueue(2) => [a, b]
     """
 
-    def __init__(self, batch_size):
+    def __init__(self, batch_size: int):
         """
+        Create a batched queue.
+
         Arguments:
             batch_size: Target batch size.
         """
 
         self.batch_size = batch_size
-
         self._queue = queue.Queue()
 
-    def get(self, block: bool = True, timeout: float | None = 0.1) -> list[ItemWithFuture]:
+    def get(self, timeout: float | None = 0.1) -> list[ItemWithFuture]:
+        """
+        Get a batch of items from the queue.
+
+        Arguments:
+            timeout: Maximum number of seconds to wait for a complete batch.
+
+        Returns:
+            A list of at most `self.batch_size` items; possibly fewer or
+            even zero items if no items were received within the given
+            timeout.
+        """
         batch = []
         while len(batch) < self.batch_size:
             try:
-                item = self._queue.get(block=block, timeout=timeout)
+                item = self._queue.get(timeout=timeout)
                 batch.append(item)
             except queue.Empty:
                 if batch:
@@ -47,7 +59,13 @@ class BatchedQueue:
                     break
         return batch
 
-    def put(self, item, block: bool = True, timeout: float | None = None):
+    def put(self, item):
+        """
+        Put a single item in the queue.
+
+        Arguments:
+            item: Item to put in queue.
+        """
         item = ItemWithFuture(item)
-        self._queue.put(item, block, timeout)
+        self._queue.put(item)
         return item.future
