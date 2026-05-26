@@ -1,6 +1,5 @@
 import logging
 import queue
-import threading
 from concurrent.futures import Future
 
 
@@ -23,41 +22,29 @@ class BatchedQueue:
         [a] [b] => BatchedQueue(2) => [a, b]
     """
 
-    def __init__(self, batch_size, patience=0.1):
+    def __init__(self, batch_size):
         """
         Arguments:
             batch_size: Target batch size.
-            patience: Time to wait for an incoming item before releasing
-                an imcomplete batch.
         """
 
         self.batch_size = batch_size
-        self.patience = patience
 
-        self._in = queue.Queue()
-        self._out = queue.Queue()
-        self._thread = threading.Thread(target=self._process, daemon=True)
-        self._thread.start()
+        self._queue = queue.Queue()
 
-    def _process(self):
-        while 1:
-            batch = []
-            while len(batch) < self.batch_size:
-                try:
-                    item = self._in.get(timeout=self.patience)
-                    batch.append(item)
-                except queue.Empty:
-                    if batch:
-                        logging.debug("Releasing an incomplete batch (size %d)", len(batch))
-                        break
-                    continue
-
-            self._out.put(batch)
-
-    def get(self, block: bool = True, timeout: float | None = None) -> list[ItemWithFuture]:
-        return self._out.get(block, timeout)
+    def get(self, block: bool = True, timeout: float | None = 0.1) -> list[ItemWithFuture]:
+        batch = []
+        while len(batch) < self.batch_size:
+            try:
+                item = self._queue.get(block=block, timeout=timeout)
+                batch.append(item)
+            except queue.Empty:
+                if batch:
+                    logging.debug("Releasing an incomplete batch (size %d of %d)", len(batch), self.batch_size)
+                    break
+        return batch
 
     def put(self, item, block: bool = True, timeout: float | None = None):
         item = ItemWithFuture(item)
-        self._in.put(item, block, timeout)
+        self._queue.put(item, block, timeout)
         return item.future
