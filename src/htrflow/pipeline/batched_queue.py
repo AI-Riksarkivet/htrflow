@@ -3,6 +3,9 @@ import queue
 from concurrent.futures import Future
 
 
+logger = logging.getLogger(__name__)
+
+
 class ItemWithFuture:
     """
     Wrapper class that gives an arbitrary item a Future.
@@ -40,7 +43,7 @@ class BatchedQueue:
                 batch.append(item)
             except queue.Empty:
                 if batch:
-                    logging.debug("Releasing an incomplete batch (size %d of %d)", len(batch), self.batch_size)
+                    logger.debug("Releasing an incomplete batch (size %d of %d)", len(batch), self.batch_size)
                     break
         return batch
 
