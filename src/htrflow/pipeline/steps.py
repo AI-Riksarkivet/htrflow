@@ -326,7 +326,7 @@ class ExportImages(PipelineStep):
         directory = os.path.join(self.dest, document.image_name)
         os.makedirs(directory, exist_ok=True)
         num = 1
-        for image in document.segments():
+        for _, image in ImageLoader(document):
             image.save(os.path.join(directory, f"image_{num:<02}.jpg"))
             num += 1
         return document
