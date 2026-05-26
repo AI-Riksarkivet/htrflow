@@ -179,6 +179,15 @@ class WordLevelTrOCR(TrOCR):
     ```
     """
 
+    def __init__(self, **kwargs):
+
+        # We use the regular TrOCR but need to override the attention implementation.
+        # Not all attention backends support `output_attentions` in model.generate,
+        # which this model class bases its word segmentation on.
+        model_kwargs = kwargs.get("model_kwargs", {})
+        kwargs["model_kwargs"] = model_kwargs | {"attn_implementation": "eager"}
+        super().__init__(**kwargs)
+
     def _predict(self, images: list[Image], **generation_kwargs) -> list[list[Text]]:
         config_overrides = {
             "output_scores": True,
@@ -240,7 +249,7 @@ class WordLevelTrOCR(TrOCR):
         results = []
 
         for i, sequence in enumerate(outputs.sequences):
-            tokens = self.processor.batch_decode(sequence)
+            tokens = list(map(self.processor.tokenizer.decode, sequence))
 
             # Deriving the words from the line (and not by joining the tokens) is a
             # work-around in order to decode special characters correctly.

@@ -20,7 +20,7 @@ testdata = [
 
 @pytest.fixture(scope="module")
 def model():
-    return WordLevelTrOCR("Riksarkivet/trocr-base-handwritten-hist-swe-2")
+    return WordLevelTrOCR(model="Riksarkivet/trocr-base-handwritten-hist-swe-2")
 
 
 @pytest.mark.parametrize("image,expected_segmentation", testdata)
