@@ -34,29 +34,28 @@ class BatchedQueue:
         """
 
         self.batch_size = batch_size
-        self._queue = queue.Queue()
+        self._queue: queue.Queue[ItemWithFuture] = queue.Queue()
 
     def get(self, timeout: float | None = 0.1) -> list[ItemWithFuture]:
         """
         Get a batch of items from the queue.
 
         Arguments:
-            timeout: Maximum number of seconds to wait for a complete batch.
+            timeout: Maximum number of seconds to wait for a completing a batch.
 
         Returns:
             A list of at most `self.batch_size` items; possibly fewer or
             even zero items if no items were received within the given
             timeout.
         """
-        batch = []
+        batch: list[ItemWithFuture] = []
         while len(batch) < self.batch_size:
             try:
                 item = self._queue.get(timeout=timeout)
                 batch.append(item)
             except queue.Empty:
-                if batch:
-                    logger.debug("Releasing an incomplete batch (size %d of %d)", len(batch), self.batch_size)
-                    break
+                logger.debug("Releasing an incomplete batch (size %d of %d)", len(batch), self.batch_size)
+                break
         return batch
 
     def put(self, item):
