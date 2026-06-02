@@ -76,6 +76,5 @@ def test_align_words_to_tokens(tokenizer: Tokenizer, template: str):
         shorter_word_1 = tokenizer.decode(token_ids[span.start + 1 : span.end], skip_special_tokens=True)
         assert shorter_word_1.strip() != expected_word
 
-        if span.end is not None and span.end > 0:
-            shorter_word_2 = tokenizer.decode(token_ids[span.start : span.end - 1], skip_special_tokens=True)
-            assert shorter_word_2.strip() != expected_word
+        shorter_word_2 = tokenizer.decode(token_ids[span.start : span.end - 1], skip_special_tokens=True)
+        assert shorter_word_2.strip() != expected_word

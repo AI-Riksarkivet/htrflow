@@ -71,12 +71,15 @@ def align_words_to_tokens(token_ids: list[int], tokenizer: PreTrainedTokenizerBa
         A list of TokenSpans that map each word of the decoded token sequence
         to the indices to its corresponding tokens. Special tokens are ignored.
     """
+
     decoded_text = tokenizer.decode(token_ids, skip_special_tokens=True)
     alignment = align_chars_to_tokens(token_ids, tokenizer)
 
     words = []
     for match in re.finditer(r"\S+", decoded_text):
         start = alignment[match.start()].start
-        end = alignment[match.end()].start if match.end() < len(alignment) else None
-        words.append(TokenSpan(start, end))
+        end = alignment[match.end() - 1].end
+
+        if tokenizer.decode(token_ids[start:end], skip_special_tokens=True):
+            words.append(TokenSpan(start, end))
     return words
