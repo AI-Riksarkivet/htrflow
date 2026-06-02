@@ -9,6 +9,17 @@ from htrflow.utils import token_alignment
 Tokenizer: TypeAlias = ByT5Tokenizer | RobertaTokenizer
 
 
+templates = [
+    "some completely normal words",
+    "somé wôrds with chärachters þat míght span several tökens",
+    " some words with leading and trailing whitespace ",
+    "  ",  # a whitespace-only string
+    "aSingleWord",
+    "some numbers 12345 and punctuation :,.?;",
+    "some {unk_token}words sprinkled {unk_token} with spe{unk_token}cial tokens {unk_token}",
+]
+
+
 @pytest.fixture(scope="module")
 def byt5_tokenizer():
     return ByT5Tokenizer()
@@ -24,18 +35,7 @@ def tokenizer(request) -> Tokenizer:
     return request.getfixturevalue(request.param)
 
 
-@pytest.mark.parametrize(
-    "template",
-    [
-        "some completely normal words",
-        "somé wôrds with chärachters þat míght span several tökens",
-        " some words with leading and trailing whitespace ",
-        "  ",  # a whitespace-only string
-        "aSingleWord",
-        "some numbers 12345 and punctuation :,.?;",
-        "some {unk_token}words sprinkled {unk_token} with spe{unk_token}cial tokens {unk_token}",
-    ],
-)
+@pytest.mark.parametrize("template", templates)
 def test_align_chars_to_tokens(tokenizer: Tokenizer, template: str):
     """
     Tests `align_chars_to_tokens` on a bunch of cases.
@@ -53,18 +53,7 @@ def test_align_chars_to_tokens(tokenizer: Tokenizer, template: str):
         assert character in text_chunk
 
 
-@pytest.mark.parametrize(
-    "template",
-    [
-        "some completely normal words",
-        "somé wôrds with chärachters þat míght span several tökens",
-        " some words with leading and trailing whitespace ",
-        "  ",  # a whitespace-only string
-        "aSingleWord",
-        "some numbers 12345 and punctuation -:,.?;",
-        "some {unk_token}words sprinkled {unk_token} with spe{unk_token}cial tokens {unk_token}",
-    ],
-)
+@pytest.mark.parametrize("template", templates)
 def test_align_words_to_tokens(tokenizer: Tokenizer, template: str):
     """
     Tests `align_words_to_tokens` on a bunch of cases.
@@ -77,7 +66,6 @@ def test_align_words_to_tokens(tokenizer: Tokenizer, template: str):
     assert len(word_spans) == len(expected_words)
 
     for span, expected_word in zip(word_spans, expected_words):
-
         # The computed span should correspond to the expected word...
         word = tokenizer.decode(token_ids[span.start : span.end], skip_special_tokens=True)
         assert word.strip() == expected_word
