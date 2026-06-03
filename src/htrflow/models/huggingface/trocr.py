@@ -1,7 +1,10 @@
 import logging
 from typing import Any
 
+import cv2
+import numpy as np
 import torch
+import torch.nn.functional as F
 from PIL import Image
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 
@@ -10,6 +13,7 @@ from htrflow.models.base_model import BaseModel
 from htrflow.models.download import get_model_info
 from htrflow.models.huggingface.mixins import ConfidenceMixin
 from htrflow.utils.geometry import Bbox
+from htrflow.utils.token_alignment import align_words_to_tokens
 
 
 logger = logging.getLogger(__name__)
@@ -226,147 +230,123 @@ class WordLevelTrOCR(TrOCR):
                 max_new_tokens,
             )
 
-        # Shape `(n_output_tokens, batch_size, n_image_patches + 1)`
-        attentions = aggregate_attentions(outputs.cross_attentions)
+        return self._postprocess(outputs, images)
 
-        # Calculate the shape of the attention heatmap
-        image_shape = self.processor.image_processor.size
-        patch_size = self.model.config.encoder.patch_size
-        heatmap_height = image_shape["height"] // patch_size
-        heatmap_width = image_shape["width"] // patch_size
+    def _postprocess(self, outputs, images):
 
-        # Create heatmaps by discarding the extra token (the first token) and reshaping the last
-        # dimension to match the original image shape.
-        heatmaps = torch.reshape(attentions[:, :, 1:], (n_tokens, -1, heatmap_height, heatmap_width))
-
-        lines = self.processor.batch_decode(
-            outputs.sequences,
-            skip_special_tokens=True,
-            cleanup_tokenization_spaces=False,
-        )
-        line_scores = self.compute_sequence_confidence_score(outputs)
-        special_tokens = {*self.processor.tokenizer.special_tokens_map.values()}
+        heatmaps = self._create_attention_heatmaps(outputs)
         results = []
-
-        for i, sequence in enumerate(outputs.sequences):
-            tokens = list(map(self.processor.tokenizer.decode, sequence))
-
-            # Deriving the words from the line (and not by joining the tokens) is a
-            # work-around in order to decode special characters correctly.
-            words = [word if len(word) else " " for word in lines[i].split(" ")]
-
-            width, height = images[i].size
-            spaces = attention_based_wordseg(tokens, heatmaps[:, i, :, :], special_tokens, width)
-            word_boundaries = list(zip(spaces, spaces[1:]))
-            line = Text(text=lines[i], confidence=line_scores[i])
-            if len(word_boundaries) != len(words) or any(start >= end_ for start, end_ in word_boundaries):
-                logger.warning("Word segmentation failed on line with detected text: %s", lines[i])
-                results.append([line])
+        for image, token_ids, heatmap in zip(images, outputs.sequences, heatmaps, strict=True):
+            token_ids = token_ids[1:]
+            word_spans = align_words_to_tokens(token_ids, self.processor.tokenizer)
+            if not word_spans:
+                results.append([])
                 continue
 
-            words = [
-                Region(Bbox(start, 0, end, height).polygon(), transcription=[Text(text=word)])
-                for (start, end), word in zip(word_boundaries, words)
-            ]
-            results.append([line] + words)
+            result = []
+            for span in word_spans:
+                word = self.processor.decode(token_ids[span.start : span.end], skip_special_tokens=True)
+                if not word:
+                    continue
 
+                word_attention = heatmap[span.start : span.end].amax(axis=0)
+                bbox = estimate_bbox_from_attention_heatmap(word_attention, image.size[::-1])
+
+                if bbox is None:
+                    # TODO
+                    continue
+
+                region = Region(
+                    polygon=bbox.polygon(),
+                    transcription=[Text(text=word)],
+                )
+
+                result.append(region)
+
+            text = self.processor.tokenizer.decode(token_ids, skip_special_tokens=True)
+            line = Text(text=text)
+
+            results.append([line] + result)
         return results
 
+    def _create_attention_heatmaps(self, outputs) -> torch.Tensor:
+        """
+        Create attention heatmaps from the given outputs.
 
-def attention_based_wordseg(
-    tokens: list[str],
-    heatmaps: torch.Tensor,
-    skip_tokens: list[str] | None = None,
-    image_width: int = 1,
-) -> list[float]:
+        Returns a tensor of size (N, S, H, W) where N is the batch size, S is
+        the output sequence length and H and W are the height and width (in
+        image patches) of the attention heatmap.
+        """
+
+        # outputs.cross_attentions is a list of attention scores with one entry
+        # for each decoding step. We use the last step, which includes
+        # information about the entire sequence.
+        cross_attentions = torch.stack(outputs.cross_attentions[-1])
+
+        # We want a single attention score for each pair of input tokens (image
+        # patches) and output tokens, so we aggregate the 2nd and 0th
+        # dimensions, which correspond to the attention heads and layers.
+        attentions = cross_attentions.mean(axis=2).mean(axis=0)
+
+        attentions = attentions * (attentions >= torch.amax(attentions, axis=1, keepdims=True))
+
+        # Discard the CLS token attention
+        attentions = attentions[:, :, 1:]
+
+        # Unflatten the last dimension (image patches) into 2d
+        image_height = self.processor.image_processor.size.height
+        image_width = self.processor.image_processor.size.width
+        patch_size = self.model.encoder.config.patch_size
+        heatmap_height = image_height // patch_size
+        heatmap_width = image_width // patch_size
+
+        heatmaps = attentions.reshape(*attentions.shape[:2], heatmap_height, heatmap_width)
+        return heatmaps
+
+
+def estimate_bbox_from_attention_heatmap(
+    heatmap: torch.Tensor,
+    image_size: tuple[int, int],
+    threshold: float = 0.25,
+    ksize: tuple[int, int] = (15, 15),
+) -> Bbox | None:
     """
-    Estimate word segmentation based on attention scores
+    Estimate a bounding box around the "hottest" part of the given heatmap
 
     Arguments:
-        tokens: list of N tokens
-        heatmaps: tensor of attention weights for each token, shape (N, img_height, img_width)
-        skip_tokens: list of tokens to not include in word attention scores
-        image_width: the width of the original image
-
-    Returns:
-        An estimated word segmenation as a list of x-coordinates of the estimated spaces,
-        including 0 and `image_width`.
+        heatmap: An attention heatmap.
+        image_size: Size of input image as a (height, width) tuple.
+        threshold: Parameter that controls the size of the bounding box. Should
+            be within (0, 1). A higher threshold yields larger bounding boxes.
+        ksize: Kernel size for gaussian smoothing. A larger kernel means larger
+            bounding boxes.
     """
 
-    tokens = tokens[1:]  # Skip the first special token
-    n_tokens = len(tokens)
-    heatmaps = heatmaps[:n_tokens]
-    if skip_tokens is None:
-        skip_tokens = []
+    # Step 1: Resize the attention heatmap
+    height = 12  # We use a fixed small height for all heatmaps
+    img_height, img_width = image_size
+    img_aspect_ratio = img_height / img_width
+    width = max(4, int(height / img_aspect_ratio))
+    size = height, width
+    heatmap = F.interpolate(heatmap.unsqueeze(0).unsqueeze(0), size)
+    heatmap = heatmap.squeeze(dim=0).squeeze(dim=0).cpu().numpy()
 
-    # Sum along the columns to get attention scores along the x axis
-    xaxis_attention_scores = heatmaps.sum(axis=1)  #  (N, img_width)
+    # Smoothen the heatmap before estimating the bounding box
+    smooth_heatmap = cv2.GaussianBlur(heatmap, ksize, 0)
+    smooth_heatmap = smooth_heatmap / smooth_heatmap.max()
 
-    # Denoise attention scores by only keeping the high attention scores
-    xaxis_attention_scores -= xaxis_attention_scores.mean(axis=0)
-    xaxis_attention_scores[xaxis_attention_scores < 0] = 0
+    # Estimate a bounding box around the main area
+    _, thresh = cv2.threshold((smooth_heatmap * 255).astype(np.uint8), int(threshold * 255), 255, 0)
+    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    if not contours:
+        return None
+    contour = max(contours, key=cv2.contourArea)
+    x, y, w, h = cv2.boundingRect(contour)
 
-    # Token indices of spaces / word boundaries
-    spaces = [i for i, token in enumerate(tokens) if token.startswith(" ") and len(token) > 1]
+    # Rescale bounding box to original coordinate system
+    xmin = x * img_width / width
+    ymin = y * img_height / height
+    xmax = xmin + w * img_width / width
+    ymax = ymin + h * img_height / height
 
-    # Create word attention scores by doing a weighted sum over the token attention scores
-    word_attention_scores = []
-    for word_start, word_end in zip([0] + spaces, spaces + [n_tokens]):
-        token_weights = [0 if token in skip_tokens else len(token) for token in tokens[word_start:word_end]]
-        token_weights = torch.tensor(token_weights).reshape(-1, 1).to(heatmaps.device)
-        word_attention_scores.append((token_weights * xaxis_attention_scores[word_start:word_end]).sum(axis=0))
-    word_attention_scores = torch.stack(word_attention_scores)  # (n_words, img_width)
-
-    # Normalize word attention scores such that each score is in (0, 1]
-    normalized_word_attention_scores = torch.div(word_attention_scores.T, word_attention_scores.max(axis=1).values).T
-
-    intersections = [0] + _find_intersections(normalized_word_attention_scores) + [1]
-    return [x * image_width for x in intersections]
-
-
-def aggregate_attentions(cross_attention: tuple[tuple[torch.Tensor]]) -> torch.Tensor:
-    """
-    Combine cross_attention output to one attention tensor per token
-
-    The `cross_attentions` outputted by `model.generate(output_attentions=True)`
-    is a tuple (one per each token) of tuples (one per each layer) of attention
-    matrices (tensors of shape (batch_size, num_heads, generated_length,
-    input_sequence_length)).
-
-    This function aggregates all this information into a tensor of shape
-    (num_tokens, input_sequence_length), by for each token:
-        1. Summing the attention weights of all layers
-        2. Taking the mean attention weights of all attention heads
-    This method of aggregation is a result of quite limited trial and error -
-    it seems to work fine for the task, but there are most certainly other,
-    possibly better, methods.
-
-    Args:
-        cross_attention: Cross attention weights as outputted by
-            `model.generate(output_attentions=True)`
-
-    Returns:
-        A tensor of shape (num_tokens, input_sequence_length) with aggregated
-        attention weights for each token.
-    """
-    aggregated = []
-    for token_attention in cross_attention:
-        aggregated.append(torch.stack(token_attention).mean(axis=2).sum(axis=0)[:, -1, :])
-    return torch.stack(aggregated)
-
-
-def _find_intersections(columns):
-    argmaxs = columns.argmax(axis=1)
-    result = []
-    for i, lo in enumerate(argmaxs[:-1]):
-        cols1 = columns[i]
-        cols2 = columns[i + 1]
-
-        hi = argmaxs[i + 1] + 1
-        intersections = torch.argwhere(cols1[lo:hi] <= cols2[lo:hi])
-        if len(intersections):
-            intersection = intersections[0][0]
-        else:
-            intersection = int((lo + hi) / 2)
-        result.append(int(intersection + lo))
-    return [x / columns.shape[1] for x in result]
+    return Bbox(xmin, ymin, xmax, ymax)
