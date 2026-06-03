@@ -59,11 +59,15 @@ class Region(_RegionAttachment):
         self,
         polygon: Polygon,
         regions: list["Region"] | None = None,
-        transcription: list[Text] | None = None,
+        transcription: Text | list[Text] | None = None,
         **annotations,
     ):
         self.polygon = polygon
         self.regions = regions or []
+
+        if transcription and not isinstance(transcription, list):
+            transcription = [transcription]
+
         self.transcription = transcription or []
         self.annotations = annotations
 
