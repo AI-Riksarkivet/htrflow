@@ -237,7 +237,7 @@ class WordLevelTrOCR(TrOCR):
         heatmaps = self._create_attention_heatmaps(outputs)
         results = []
         for image, token_ids, heatmap in zip(images, outputs.sequences, heatmaps, strict=True):
-            token_ids = token_ids[1:]
+            token_ids = token_ids[1:]  # Discard the BOS token
             word_spans = align_words_to_tokens(token_ids, self.processor.tokenizer)
             if not word_spans:
                 results.append([])
@@ -251,16 +251,10 @@ class WordLevelTrOCR(TrOCR):
 
                 word_attention = heatmap[span.start : span.end].amax(axis=0)
                 bbox = estimate_bbox_from_attention_heatmap(word_attention, image.size[::-1])
-
                 if bbox is None:
-                    # TODO
                     continue
 
-                region = Region(
-                    polygon=bbox.polygon(),
-                    transcription=[Text(text=word)],
-                )
-
+                region = Region(polygon=bbox.polygon(), transcription=[Text(text=word)])
                 result.append(region)
 
             text = self.processor.tokenizer.decode(token_ids, skip_special_tokens=True)
@@ -288,10 +282,13 @@ class WordLevelTrOCR(TrOCR):
         # dimensions, which correspond to the attention heads and layers.
         attentions = cross_attentions.mean(axis=2).mean(axis=0)
 
-        attentions = attentions * (attentions >= torch.amax(attentions, axis=1, keepdims=True))
-
         # Discard the CLS token attention
         attentions = attentions[:, :, 1:]
+
+        # Cleanup attention scores: Keep only the most "attentive" token
+        # for each patch (i.e. the token with the highest attention
+        # score).
+        attentions = attentions * (attentions >= torch.amax(attentions, axis=1, keepdims=True))
 
         # Unflatten the last dimension (image patches) into 2d
         image_height = self.processor.image_processor.size.height
@@ -299,8 +296,8 @@ class WordLevelTrOCR(TrOCR):
         patch_size = self.model.encoder.config.patch_size
         heatmap_height = image_height // patch_size
         heatmap_width = image_width // patch_size
-
         heatmaps = attentions.reshape(*attentions.shape[:2], heatmap_height, heatmap_width)
+
         return heatmaps
 
 
@@ -322,8 +319,9 @@ def estimate_bbox_from_attention_heatmap(
             bounding boxes.
     """
 
-    # Step 1: Resize the attention heatmap
-    height = 12  # We use a fixed small height for all heatmaps
+    # Resize the attention heatmap to the original aspect ratio with a
+    # fixed small height.
+    height = 12
     img_height, img_width = image_size
     img_aspect_ratio = img_height / img_width
     width = max(4, int(height / img_aspect_ratio))
