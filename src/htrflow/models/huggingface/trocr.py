@@ -331,6 +331,8 @@ def estimate_bbox_from_attention_heatmap(
 
     # Smoothen the heatmap before estimating the bounding box
     smooth_heatmap = cv2.GaussianBlur(heatmap, ksize, 0)
+    if smooth_heatmap.max() == 0:
+        return None
     smooth_heatmap = smooth_heatmap / smooth_heatmap.max()
 
     # Estimate a bounding box around the main area
