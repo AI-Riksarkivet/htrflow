@@ -184,7 +184,6 @@ class WordLevelTrOCR(TrOCR):
     """
 
     def __init__(self, **kwargs):
-
         # We use the regular TrOCR but need to override the attention implementation.
         # Not all attention backends support `output_attentions` in model.generate,
         # which this model class bases its word segmentation on.
@@ -233,7 +232,6 @@ class WordLevelTrOCR(TrOCR):
         return self._postprocess(outputs, images)
 
     def _postprocess(self, outputs, images):
-
         heatmaps = self._create_attention_heatmaps(outputs)
         results = []
         for image, token_ids, heatmap in zip(images, outputs.sequences, heatmaps, strict=True):
@@ -246,6 +244,7 @@ class WordLevelTrOCR(TrOCR):
             result = []
             for span in word_spans:
                 word = self.processor.decode(token_ids[span.start : span.end], skip_special_tokens=True)
+                word = word.strip()
                 if not word:
                     continue
 
@@ -291,8 +290,8 @@ class WordLevelTrOCR(TrOCR):
         attentions = attentions * (attentions >= torch.amax(attentions, axis=1, keepdims=True))
 
         # Unflatten the last dimension (image patches) into 2d
-        image_height = self.processor.image_processor.size.height
-        image_width = self.processor.image_processor.size.width
+        image_height = self.processor.image_processor.size["height"]
+        image_width = self.processor.image_processor.size["width"]
         patch_size = self.model.encoder.config.patch_size
         heatmap_height = image_height // patch_size
         heatmap_width = image_width // patch_size

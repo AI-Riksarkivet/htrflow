@@ -52,6 +52,10 @@ def test_wordsegmentation(model, image, expected_midpoints):
         assert bbox.xmin <= x <= bbox.xmax
         assert bbox.ymin <= y <= bbox.ymax
 
+    # Check that words don't contain whitespace
+    for word in words:
+        assert not any(ch.isspace() for ch in word.transcription[0].text)
+
 
 def test_estimate_bbox_from_empty_attention_heatmap():
     """
