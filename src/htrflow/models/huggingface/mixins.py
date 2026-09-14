@@ -41,9 +41,23 @@ class ConfidenceMixin:
         result = []
         for sequence, scores in zip(outputs.sequences, transition_scores):
             prompt_end_index = len(sequence) - len(scores)
-            tokens = self.processor.batch_decode(sequence, skip_special_tokens=True)
-            pairs = zip(tokens[prompt_end_index:], scores)
-            result.append([pair for pair in pairs if pair[0]])
+            generated_token_ids = sequence[prompt_end_index:]
+
+            tokens = [
+                self.processor.tokenizer.decode(
+                    [int(token_id)], 
+                    skip_special_tokens=True
+                    )
+                for token_id in generated_token_ids
+            ]
+            pairs = zip(tokens, scores)
+            result.append(
+                [
+                    (token, float(score))
+                    for token, score in pairs
+                    if token
+                ]
+        )
         return result
 
     def _compute_transition_scores(self, outputs):

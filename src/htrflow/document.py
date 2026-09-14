@@ -31,10 +31,12 @@ class Text(_RegionAttachment):
 
     text: str
     confidence: float | None
+    token_scores: list[tuple[str, float]]
 
-    def __init__(self, text: str, confidence: float | None = None):
+    def __init__(self, text: str, confidence: float | None = None, token_scores: list[tuple[str, float]] | None = None):
         self.text = text
         self.confidence = confidence
+        self.token_scores = token_scores or []
 
     def attach(self, region: "Region"):
         region.transcription.append(self)

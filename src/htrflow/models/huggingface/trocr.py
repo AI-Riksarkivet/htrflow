@@ -133,6 +133,7 @@ class TrOCR(BaseModel, ConfidenceMixin):
 
             texts = self.processor.batch_decode(model_outputs.sequences, skip_special_tokens=True)
             scores = self.compute_sequence_confidence_score(model_outputs)
+            token_scores = self.compute_confidence_per_token(model_outputs)
 
         # Assemble and return a list of Result objects from the prediction outputs.
         # `texts` and `scores` are flattened lists so we need to iterate over them in steps.
@@ -155,7 +156,19 @@ class TrOCR(BaseModel, ConfidenceMixin):
         for i in range(0, len(texts), step):
             texts_chunk = texts[i : i + step]
             scores_chunk = scores[i : i + step]
-            result = [Text(text=text, confidence=score) for text, score in zip(texts_chunk, scores_chunk)]
+            token_scores_chunk = token_scores[i : i + step]
+            result = [
+                Text(
+                    text=text, 
+                    confidence=score, 
+                    token_scores=per_token_scores
+                    ) 
+                    for text, score, per_token_scores in zip(
+                        texts_chunk, 
+                        scores_chunk,
+                        token_scores_chunk
+                    )
+                ]
             results.append(result)
         return results
 
@@ -233,8 +246,13 @@ class WordLevelTrOCR(TrOCR):
 
     def _postprocess(self, outputs, images):
         heatmaps = self._create_attention_heatmaps(outputs)
+
+        line_scores = self.compute_sequence_confidence_score(outputs)
+        token_scores = self.compute_confidence_per_token(outputs)
+
         results = []
-        for image, token_ids, heatmap in zip(images, outputs.sequences, heatmaps, strict=True):
+
+        for image, token_ids, heatmap, line_score, line_token_scores in zip(images, outputs.sequences, heatmaps, line_scores, token_scores, strict=True):
             token_ids = token_ids[1:]  # Discard the BOS token
             word_spans = align_words_to_tokens(token_ids, self.processor.tokenizer)
             if not word_spans:
@@ -256,8 +274,13 @@ class WordLevelTrOCR(TrOCR):
                 region = Region(polygon=bbox.polygon(), transcription=[Text(text=word)])
                 result.append(region)
 
+            
             text = self.processor.tokenizer.decode(token_ids, skip_special_tokens=True)
-            line = Text(text=text)
+            line = Text(
+                text=text,
+                confidence=float(line_score),
+                token_scores=line_token_scores
+                )
 
             results.append([line] + result)
         return results
