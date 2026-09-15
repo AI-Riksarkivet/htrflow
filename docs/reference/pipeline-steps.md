@@ -68,6 +68,11 @@ This page lists HTRflow's built-in pipeline steps.
     options:
         heading_level: 3
 
+## Kraken
+::: models.kraken.step.KrakenTextRecognition
+    options:
+        heading_level: 3
+
 ## Misc
 ::: pipeline.steps.Break
     options:
