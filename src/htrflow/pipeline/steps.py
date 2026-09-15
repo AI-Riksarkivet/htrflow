@@ -656,6 +656,14 @@ def auto_import(source: list[str] | str) -> Generator[Document, Any, Any]:
             continue
 
 
+# Optional steps. Importing these registers them as `PipelineStep` subclasses,
+# which is what populates `STEPS` below. Each guards its own dependency.
+try:
+    from htrflow.models.kraken.step import KrakenTextRecognition  # noqa: F401
+except ModuleNotFoundError:
+    pass
+
+
 def all_subclasses(cls):
     return set(cls.__subclasses__()).union([s for c in cls.__subclasses__() for s in all_subclasses(c)])
 

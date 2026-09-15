@@ -30,4 +30,11 @@ def available_models():
     except ModuleNotFoundError:
         pass
 
+    try:
+        from htrflow.models.kraken import KrakenRecognition, KrakenSegmentation
+
+        models.extend([KrakenSegmentation, KrakenRecognition])
+    except ModuleNotFoundError:
+        pass
+
     return models
