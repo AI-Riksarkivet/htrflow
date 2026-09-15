@@ -8,6 +8,7 @@ from typing import Any, Generator, Literal
 
 from PIL import Image, UnidentifiedImageError
 from pydantic import BaseModel as PydanticBaseModel
+from quality_prediction.inference import XGBoostQualityPredictor
 
 from htrflow import progress
 from htrflow.document import Document, ImageLoader
@@ -184,6 +185,69 @@ class WordSegmentation(PipelineStep):
     def run(self, document: Document):
         results = simple_word_segmentation(document.leaves())
         document.update(results)
+        return document
+
+class QualityPrediction(PipelineStep):
+    """Predict page quality with a trained XGBoost model."""
+
+    DEFAULT_FEATURE_GROUPS = (
+        "segmentation",
+        "layout",
+        "htr_confidence",
+        "text",
+    )
+
+    def __init__(
+        self,
+        model: str,
+        target: str = "target_bow_f1",
+        feature_groups=None,
+        feature_names=None,
+    ):
+        
+        if feature_groups is None:
+            feature_groups = self.DEFAULT_FEATURE_GROUPS
+
+        if not feature_groups:
+            raise ValueError(
+                "feature_groups must contain at least one feature group"
+            )
+
+        self.target = target
+        self.feature_groups = tuple(feature_groups)
+
+        self.predictor = XGBoostQualityPredictor(
+            model=model,
+            feature_groups=self.feature_groups,
+            feature_names=feature_names,
+        )
+
+        self.metadata = StepMetadata(
+            str(self),
+            {
+                "model": model,
+                "target": target,
+                "feature_groups": list(self.feature_groups),
+            },
+        )
+
+    def run(self, document: Document) -> Document:
+        prediction = float(
+            self.predictor.predict(document)
+        )
+
+        predictions = document.annotations.setdefault(
+            "quality_prediction",
+            {},
+        )
+        predictions[self.target] = prediction
+
+        if self.target == "target_bow_f1":
+            document.annotations["page_confidence"] = min(
+                1.0,
+                max(0.0, prediction),
+            )
+
         return document
 
 

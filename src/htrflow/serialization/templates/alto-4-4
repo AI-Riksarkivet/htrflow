@@ -36,8 +36,8 @@
         </OrderedGroup>
     </ReadingOrder>
     {%- endif %}
-    <Layout>
-        <Page WIDTH="{{ document.image.width }}" HEIGHT="{{ document.image.height }}" PHYSICAL_IMG_NR="0" ID="_{{ document.image_name }}">
+   <Layout>
+        <Page WIDTH="{{ document.image.width }}" HEIGHT="{{ document.image.height }}" PHYSICAL_IMG_NR="0" ID="_{{ document.image_name }}"{% if document.annotations.get("page_confidence") is not none %} PC="{{ document.annotations.get("page_confidence") }}"{% endif %}>
             <PrintSpace>
                 {%- for region in document.regions %}
                 {%- if region.regions %}
