@@ -1,0 +1,46 @@
+# Kraken segmentation + recognition.
+#
+# Kraken returns regions and lines from a single pass, already in reading
+# order, so this pipeline needs neither a second segmentation step nor a
+# reading-order step. Adding `ReadingOrderMarginalia` or `OrderLines` here
+# would re-sort the lines and throw away the ordering kraken established.
+#
+# `model:` accepts a local path, an htrmopo DOI (e.g. 10.5281/zenodo.21788409),
+# or a Hugging Face repo ID. Omit it for the segmentation model bundled with
+# kraken.
+steps:
+
+# Baseline segmentation: regions and lines in one pass
+- step: Segmentation
+  settings:
+    model: KrakenSegmentation
+    model_settings:
+      model: my-segmentation-model.mlmodel
+    generation_settings:
+      text_direction: horizontal-lr
+      # Clean up the fragmented lines fine-tuned handwriting models produce
+      postprocess: true
+      postprocess_settings:
+        min_len_frac: 0.12   # drop baselines shorter than this x page median
+        merge_gap: 1.5       # max gap to bridge when merging, in line heights
+        dy_tol: 0.6          # max vertical mismatch at the junction
+        clip_to_region: true # keep the last line from running into blank space
+
+# Text recognition: kraken extracts and straightens its own line images,
+# so this is `KrakenTextRecognition`, not the generic `TextRecognition`.
+- step: KrakenTextRecognition
+  settings:
+    model: KrakenRecognition
+    model_settings:
+      model: my-recognition-model.safetensors
+    generation_settings:
+      batch_size: 8
+
+- step: Export
+  settings:
+    dest: outputs/alto
+    format: alto
+- step: Export
+  settings:
+    dest: outputs/page
+    format: page

@@ -54,6 +54,9 @@ dev = [
 ]
 
 [project.optional-dependencies]
+kraken = [
+    "kraken >=7.1,<8",
+]
 docs = [
     "mike >=2.1.1",
     "mkdocs-jupyter >=0.24.6",
@@ -80,7 +83,8 @@ addopts = "-v --cov htrflow --cov-report term-missing --no-cov-on-fail"
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "gpu: marks tests as gpu (deselect with '-m \"not gpu\"')",
-    "teklia: marks tests as teklia (deselect with '-m \"not teklia\"')"
+    "teklia: marks tests as teklia (deselect with '-m \"not teklia\"')",
+    "kraken: marks tests as kraken (deselect with '-m \"not kraken\"')"
 ]
 pythonpath = "src"
 testpaths = ["tests/unit", "tests/integration"]

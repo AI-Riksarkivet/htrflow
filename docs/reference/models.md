@@ -15,10 +15,16 @@
 ::: models.teklia.pylaia.PyLaia
     options:
         heading_level: 3
+::: models.kraken.recognition.KrakenRecognition
+    options:
+        heading_level: 3
 
 
 ## Segmentation models
 ::: models.ultralytics.yolo.YOLO
+    options:
+        heading_level: 3
+::: models.kraken.segmentation.KrakenSegmentation
     options:
         heading_level: 3
 
