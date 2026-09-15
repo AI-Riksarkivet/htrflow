@@ -30,6 +30,7 @@ dependencies = [
     "huggingface-hub[cli] >=0.28.1",
     "ultralytics >=8.3.74",
     "pydantic>=2.10.6",
+    "quality-prediction[modeling]>=0.1.1"
 ]
 
 [project.urls]

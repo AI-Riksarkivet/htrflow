@@ -188,7 +188,7 @@ class WordSegmentation(PipelineStep):
         return document
 
 class QualityPrediction(PipelineStep):
-    """Predict page quality with a trained XGBoost model."""
+    """Predict page-level bag-of-words F1 quality."""
 
     DEFAULT_FEATURE_GROUPS = (
         "segmentation",
@@ -200,11 +200,14 @@ class QualityPrediction(PipelineStep):
     def __init__(
         self,
         model: str,
-        target: str = "target_bow_f1",
+        bin_config: str,
         feature_groups=None,
         feature_names=None,
     ):
-        
+        from quality_prediction.inference import (
+            XGBoostQualityPredictor,
+        )
+
         if feature_groups is None:
             feature_groups = self.DEFAULT_FEATURE_GROUPS
 
@@ -213,21 +216,26 @@ class QualityPrediction(PipelineStep):
                 "feature_groups must contain at least one feature group"
             )
 
-        self.target = target
+        self.target = "target_bow_f1"
         self.feature_groups = tuple(feature_groups)
+        self.bin_config = bin_config
 
         self.predictor = XGBoostQualityPredictor(
             model=model,
             feature_groups=self.feature_groups,
             feature_names=feature_names,
+            bin_config=bin_config,
         )
 
         self.metadata = StepMetadata(
             str(self),
             {
                 "model": model,
-                "target": target,
-                "feature_groups": list(self.feature_groups),
+                "bin_config": bin_config,
+                "target": self.target,
+                "feature_groups": list(
+                    self.feature_groups
+                ),
             },
         )
 
@@ -236,17 +244,15 @@ class QualityPrediction(PipelineStep):
             self.predictor.predict(document)
         )
 
-        predictions = document.annotations.setdefault(
+        document.annotations.setdefault(
             "quality_prediction",
             {},
-        )
-        predictions[self.target] = prediction
+        )[self.target] = prediction
 
-        if self.target == "target_bow_f1":
-            document.annotations["page_confidence"] = min(
-                1.0,
-                max(0.0, prediction),
-            )
+        document.annotations["page_confidence"] = min(
+            1.0,
+            max(0.0, prediction),
+        )
 
         return document
 
