@@ -77,16 +77,17 @@ class YOLO(BaseModel):
             if output.boxes is None:
                 results.append([])
 
-            shapes = map(Bbox, output.boxes.xyxy.int().tolist())
             scores = output.boxes.conf.tolist()
             labels = [output.names[label] for label in output.boxes.cls.tolist()]
 
-            if output.masks is not None:
-                shapes = map(Polygon, _simplify_polygons(output.masks.xy, polygon_approx_level))
+            if output.masks is None:
+                polygons = [Bbox(*bbox).polygon() for bbox in output.boxes.xyxy.int().tolist()]
+            else:
+                polygons = map(Polygon, _simplify_polygons(output.masks.xy, polygon_approx_level))
 
             result = [
-                Region(shape, segmentation_confidence=score, segmentation_label=label)
-                for shape, score, label in zip(shapes, scores, labels)
+                Region(polygon, segmentation_confidence=score, segmentation_label=label)
+                for polygon, score, label in zip(polygons, scores, labels)
             ]
             results.append(result)
         return results
