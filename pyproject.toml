@@ -27,7 +27,7 @@ dependencies = [
     "jiwer >=4.0",
     "transformers >=4.47",
     "torch >= 2.6",
-    "huggingface-hub[cli] >=0.28.1",
+    "huggingface-hub >=0.28.1",
     "ultralytics >=8.3.74",
     "pydantic>=2.10.6",
 ]
