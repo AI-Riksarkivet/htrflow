@@ -44,20 +44,11 @@ class ConfidenceMixin:
             generated_token_ids = sequence[prompt_end_index:]
 
             tokens = [
-                self.processor.tokenizer.decode(
-                    [int(token_id)], 
-                    skip_special_tokens=True
-                    )
+                self.processor.tokenizer.decode([int(token_id)], skip_special_tokens=True)
                 for token_id in generated_token_ids
             ]
             pairs = zip(tokens, scores)
-            result.append(
-                [
-                    (token, float(score))
-                    for token, score in pairs
-                    if token
-                ]
-        )
+            result.append([(token, float(score)) for token, score in pairs if token])
         return result
 
     def _compute_transition_scores(self, outputs):

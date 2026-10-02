@@ -218,7 +218,7 @@ class Json(Serializer):
         def default(node):
             if isinstance(node, Polygon):
                 return str(node)
-            
+
             if isinstance(node, Text):
                 transcription = {
                     "text": node.text,

@@ -187,6 +187,7 @@ class WordSegmentation(PipelineStep):
         document.update(results)
         return document
 
+
 class QualityPrediction(PipelineStep):
     """Predict page-level bag-of-words F1 quality."""
 
@@ -204,17 +205,12 @@ class QualityPrediction(PipelineStep):
         feature_groups=None,
         feature_names=None,
     ):
-        from quality_prediction.inference import (
-            XGBoostQualityPredictor,
-        )
 
         if feature_groups is None:
             feature_groups = self.DEFAULT_FEATURE_GROUPS
 
         if not feature_groups:
-            raise ValueError(
-                "feature_groups must contain at least one feature group"
-            )
+            raise ValueError("feature_groups must contain at least one feature group")
 
         self.target = "target_bow_f1"
         self.feature_groups = tuple(feature_groups)
@@ -233,16 +229,12 @@ class QualityPrediction(PipelineStep):
                 "model": model,
                 "bin_config": bin_config,
                 "target": self.target,
-                "feature_groups": list(
-                    self.feature_groups
-                ),
+                "feature_groups": list(self.feature_groups),
             },
         )
 
     def run(self, document: Document) -> Document:
-        prediction = float(
-            self.predictor.predict(document)
-        )
+        prediction = float(self.predictor.predict(document))
 
         document.annotations.setdefault(
             "quality_prediction",

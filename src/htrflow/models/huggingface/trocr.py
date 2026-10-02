@@ -158,17 +158,9 @@ class TrOCR(BaseModel, ConfidenceMixin):
             scores_chunk = scores[i : i + step]
             token_scores_chunk = token_scores[i : i + step]
             result = [
-                Text(
-                    text=text, 
-                    confidence=score, 
-                    token_scores=per_token_scores
-                    ) 
-                    for text, score, per_token_scores in zip(
-                        texts_chunk, 
-                        scores_chunk,
-                        token_scores_chunk
-                    )
-                ]
+                Text(text=text, confidence=score, token_scores=per_token_scores)
+                for text, score, per_token_scores in zip(texts_chunk, scores_chunk, token_scores_chunk)
+            ]
             results.append(result)
         return results
 
@@ -252,7 +244,9 @@ class WordLevelTrOCR(TrOCR):
 
         results = []
 
-        for image, token_ids, heatmap, line_score, line_token_scores in zip(images, outputs.sequences, heatmaps, line_scores, token_scores, strict=True):
+        for image, token_ids, heatmap, line_score, line_token_scores in zip(
+            images, outputs.sequences, heatmaps, line_scores, token_scores, strict=True
+        ):
             token_ids = token_ids[1:]  # Discard the BOS token
             word_spans = align_words_to_tokens(token_ids, self.processor.tokenizer)
             if not word_spans:
@@ -274,13 +268,8 @@ class WordLevelTrOCR(TrOCR):
                 region = Region(polygon=bbox.polygon(), transcription=[Text(text=word)])
                 result.append(region)
 
-            
             text = self.processor.tokenizer.decode(token_ids, skip_special_tokens=True)
-            line = Text(
-                text=text,
-                confidence=float(line_score),
-                token_scores=line_token_scores
-                )
+            line = Text(text=text, confidence=float(line_score), token_scores=line_token_scores)
 
             results.append([line] + result)
         return results
