@@ -3,6 +3,7 @@ import logging
 import cv2
 import numpy as np
 from ultralytics import YOLO as UltralyticsYOLO
+from ultralytics.engine.results import Results
 
 from htrflow.document import Region
 from htrflow.models.base_model import BaseModel
@@ -71,46 +72,53 @@ class YOLO(BaseModel):
             **kwargs: Keyword arguments forwarded to the inner YOLO model instance.
         """
         outputs = self.model(images, stream=True, verbose=False, **kwargs)
+        return [_postprocess(output, polygon_approx_level) for output in outputs]
 
-        results = []
-        for output in outputs:
-            if output.boxes is None:
-                results.append([])
 
-            scores = output.boxes.conf.tolist()
-            labels = [output.names[label] for label in output.boxes.cls.tolist()]
+def _postprocess(output: Results, polygon_approx_level: float) -> list[Region]:
+    """
+    Convert YOLO output to a list of `Region`
+    """
 
-            if output.masks is None:
-                polygons = [Bbox(*bbox).polygon() for bbox in output.boxes.xyxy.int().tolist()]
+    if output.boxes is None:
+        return []
+
+    # Get polygons of detections: Use the mask's polygon if available, fall
+    # back to the bounding box elsewise.
+    boxes = [Bbox(*bbox).polygon() for bbox in output.boxes.xyxy.int().tolist()]
+    if output.masks is None:
+        polygons = boxes
+    else:
+        polygons = []
+        for bbox, polygon in zip(boxes, output.masks.xy):
+            polygon = _simplify_polygon(polygon, polygon_approx_level)
+            if len(polygon) > 3:
+                polygon = Polygon(polygon)
             else:
-                polygons = map(Polygon, _simplify_polygons(output.masks.xy, polygon_approx_level))
+                polygon = bbox
+            polygons.append(polygon)
 
-            result = [
-                Region(polygon, segmentation_confidence=score, segmentation_label=label)
-                for polygon, score, label in zip(polygons, scores, labels) if len(polygon) > 3
-            ]
-            results.append(result)
-        return results
+    scores = output.boxes.conf.tolist()
+    labels = [output.names.get(label, None) for label in output.boxes.cls.tolist()]
+
+    return [
+        Region(polygon, segmentation_confidence=score, segmentation_label=label)
+        for polygon, score, label in zip(polygons, scores, labels)
+    ]
 
 
-def _simplify_polygons(polygons, approx_level):
-    result = []
+def _simplify_polygon(polygon, approx_level):
+    perimeter = cv2.arcLength(polygon, True)
+    approx = cv2.approxPolyDP(polygon, approx_level * perimeter, True)
+    if approx is None:
+        return []
 
-    for polygon in polygons:
-        if len(polygon) < 4:
-            result.append(polygon)
-            continue
-
-        perimeter = cv2.arcLength(polygon, True)
-        approx = cv2.approxPolyDP(polygon, approx_level * perimeter, True)
-        if len(approx) < 4:
-            logger.warning(
-                "A %d-point polygon was approximated to %d points with `approx_level`=%f. Consider using a lower"
-                " `approx_level`.",
-                len(polygon),
-                len(approx),
-                approx_level,
-            )
-
-        result.append(approx.squeeze().astype(np.int32))
-    return result
+    if len(approx) < 4:
+        logger.warning(
+            "A %d-point polygon was approximated to %d points with"
+            "`approx_level`=%f. Consider using a lower `approx_level`.",
+            len(polygon),
+            len(approx),
+            approx_level,
+        )
+    return approx.squeeze().astype(np.int32)
