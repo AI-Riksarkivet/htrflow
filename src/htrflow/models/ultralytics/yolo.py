@@ -87,7 +87,7 @@ class YOLO(BaseModel):
 
             result = [
                 Region(polygon, segmentation_confidence=score, segmentation_label=label)
-                for polygon, score, label in zip(polygons, scores, labels)
+                for polygon, score, label in zip(polygons, scores, labels) if len(polygon) > 3
             ]
             results.append(result)
         return results
@@ -97,10 +97,8 @@ def _simplify_polygons(polygons, approx_level):
     result = []
 
     for polygon in polygons:
-        # Ensure polygons are at least four points by replacing bad
-        # polygons with None to use the bounding box instead.
         if len(polygon) < 4:
-            result.append(None)
+            result.append(polygon)
             continue
 
         perimeter = cv2.arcLength(polygon, True)
