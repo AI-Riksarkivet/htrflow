@@ -40,10 +40,14 @@ def dummy_results():
 @pytest.mark.parametrize("_", range(10))
 def test_postprocess(_):
     """
-    Sanity check: Randomized results should be postprocessed without raising
-    any exceptions.
+    Postprocess sanity check.
     """
-    _postprocess(dummy_results(), 0.01)
+    results = dummy_results()
+    regions = _postprocess(results, 0.01)
+
+    assert len(results) == len(regions)
+    for bbox, region in zip(results.boxes.xyxy.tolist(), regions):
+        assert bbox == pytest.approx(region.polygon.bbox.xyxy, abs=1)
 
 
 def test_postprocess_prioritize_masks():
