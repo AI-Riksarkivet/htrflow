@@ -109,9 +109,17 @@ class Inference(PipelineStep):
     def _process(self):
         while 1:
             batch = self._queue.get()
-            outputs = self.model([item.item for item in batch], **self.generation_kwargs)
-            for output, item in zip(outputs, batch):
-                item.future.set_result(output)
+            try:
+                outputs = list(self.model([item.item for item in batch], **self.generation_kwargs))
+                if len(outputs) != len(batch):
+                    raise ValueError(f"Model returned {len(outputs)} outputs for a batch of {len(batch)} inputs")
+                for output, item in zip(outputs, batch):
+                    if not item.future.done():
+                        item.future.set_result(output)
+            except Exception as exception:
+                for item in batch:
+                    if not item.future.done():
+                        item.future.set_exception(exception)
 
     def run(self, document: Document):
         images = ImageLoader(document)
