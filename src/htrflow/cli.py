@@ -1,7 +1,7 @@
 import logging
 import socket
 import time
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from enum import Enum
 from typing import Iterable
 
@@ -112,9 +112,13 @@ def pipeline(
     n_pages = 0
 
     with ThreadPoolExecutor(workers) as executor:
+        futures = []
         for document in auto_import(inputs):
-            executor.submit(pipeline.run, document)
+            futures.append(executor.submit(pipeline.run, document))
             n_pages += 1
+
+        for future in as_completed(futures):
+            future.result()
     toc = time.time()
 
     total_time = toc - tic
