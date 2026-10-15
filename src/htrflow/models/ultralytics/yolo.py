@@ -5,7 +5,7 @@ import numpy as np
 from ultralytics import YOLO as UltralyticsYOLO
 from ultralytics.engine.results import Results
 
-from htrflow.document import Region
+from htrflow.document import NoRegionsDetected, Region
 from htrflow.models.base_model import BaseModel
 from htrflow.models.download import commit_hash_from_path, load_ultralytics
 from htrflow.utils.geometry import Bbox, Polygon
@@ -59,7 +59,9 @@ class YOLO(BaseModel):
 
         self.metadata.update({"model": model, "model_version": commit_hash_from_path(model_file)})
 
-    def _predict(self, images: list[np.ndarray], polygon_approx_level: float = 0.005, **kwargs) -> list[list[Region]]:
+    def _predict(
+        self, images: list[np.ndarray], polygon_approx_level: float = 0.005, **kwargs
+    ) -> list[list[Region | NoRegionsDetected]]:
         """
         Run inference.
 
@@ -72,7 +74,7 @@ class YOLO(BaseModel):
             **kwargs: Keyword arguments forwarded to the inner YOLO model instance.
         """
         outputs = self.model(images, stream=True, verbose=False, **kwargs)
-        return [_postprocess(output, polygon_approx_level) for output in outputs]
+        return [_postprocess(output, polygon_approx_level) or [NoRegionsDetected()] for output in outputs]
 
 
 def _postprocess(output: Results, polygon_approx_level: float) -> list[Region]:

@@ -54,10 +54,15 @@ class Annotation(_RegionAttachment):
 
 
 class Region(_RegionAttachment):
+    """
+    A document region.
+    """
+
     annotations: dict
     regions: list["Region"]
     polygon: Polygon
     transcription: list[Text]
+    is_active: bool
 
     def __init__(
         self,
@@ -74,6 +79,7 @@ class Region(_RegionAttachment):
 
         self.transcription = transcription or []
         self.annotations = annotations
+        self.is_active = True
 
     def attach(self, region: "Region"):
         region.regions.append(self)
@@ -86,6 +92,23 @@ class Region(_RegionAttachment):
 
     def is_leaf(self) -> bool:
         return not self.regions
+
+
+class InactiveRegion(_RegionAttachment):
+    """
+    A RegionAttachment that marks the Region it attaches to as inactive.
+    """
+
+    def attach(self, region: Region):
+        region.is_active = False
+
+
+class NoRegionsDetected(InactiveRegion):
+    """
+    Alias for `InactiveRegion`.
+    """
+
+    pass
 
 
 class Document(Region):
@@ -101,8 +124,9 @@ class Document(Region):
 
 
 class ImageLoader:
-    def __init__(self, page):
+    def __init__(self, page, ignore_inactive=True):
         self.page = page
+        self.ignore_inactive = ignore_inactive
 
     def __iter__(self):
         yield from self._image_loader(self.page)
@@ -112,5 +136,5 @@ class ImageLoader:
         if node.regions:
             for region in node.regions:
                 yield from self._image_loader(region, image)
-        else:
+        elif node.is_active or not self.ignore_inactive:
             yield node, image
