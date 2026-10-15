@@ -40,6 +40,16 @@ def document():
     return document
 
 
+@pytest.fixture
+def document_wordlevel(document: Document):
+    for line in document.leaves():
+        text = line.transcription[0].text
+        for word in text.split():
+            Region(Bbox(0, 0, 1, 1).polygon(), transcription=Text(word, 0.5)).attach(line)
+        line.transcription = []
+    return document
+
+
 @pytest.mark.parametrize(
     "serializer",
     [AltoXML(), PageXML(template_name="page2013"), PageXML(template_name="page2019")],
@@ -47,6 +57,16 @@ def document():
 )
 def test_xml_validates(document, serializer: Serializer):
     doc = serializer.serialize(document)
+    serializer.validate(doc)
+
+
+@pytest.mark.parametrize(
+    "serializer",
+    [AltoXML(), PageXML(template_name="page2013"), PageXML(template_name="page2019")],
+    ids=["alto", "page2013", "page2019"],
+)
+def test_xml_wordlevel_validates(document_wordlevel, serializer: Serializer):
+    doc = serializer.serialize(document_wordlevel)
     serializer.validate(doc)
 
 
@@ -89,9 +109,10 @@ def test_xml_special_characters(document: Document, serializer: Serializer):
     [AltoXML(), PageXML(template_name="page2013"), PageXML(template_name="page2019")],
     ids=["alto", "page2013", "page2019"],
 )
-def test_xml_no_content(document: Document, serializer: Serializer):
-    document.regions = []
-    doc = serializer.serialize(document)
+def test_xml_special_characters_wordlevel(document_wordlevel: Document, serializer: Serializer):
+    a_very_special_string = "åäöÅÄÖ&<>'" + '"'
+    document_wordlevel.regions[0].regions[0].regions[0].transcription[0].text = a_very_special_string
+    doc = serializer.serialize(document_wordlevel)
     serializer.validate(doc)
 
 
@@ -100,8 +121,8 @@ def test_xml_no_content(document: Document, serializer: Serializer):
     [AltoXML(), PageXML(template_name="page2013"), PageXML(template_name="page2019")],
     ids=["alto", "page2013", "page2019"],
 )
-def test_xml_word_level(document: Document, serializer: Serializer):
-    document.regions = [Region(Bbox(0, 0, 1000, 1000).polygon(), regions=document.regions)]
+def test_xml_no_content(document: Document, serializer: Serializer):
+    document.regions = []
     doc = serializer.serialize(document)
     serializer.validate(doc)
 
