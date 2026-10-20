@@ -167,12 +167,12 @@ def get_region_location(printspace: Bbox, region: Bbox) -> RegionLocation:
     overlap = printspace.intersection(region)
     if overlap is not None and region.area > 0 and (overlap.area / region.area) > 0.5:
         return RegionLocation.PRINTSPACE
-    if region.xmax >= printspace.xmax:
-        return RegionLocation.MARGIN_RIGHT
-    if region.xmin <= printspace.xmin:
-        return RegionLocation.MARGIN_LEFT
     if region.ymin <= printspace.ymin:
         return RegionLocation.MARGIN_TOP
     if region.ymax >= printspace.ymax:
         return RegionLocation.MARGIN_BOTTOM
+    if region.xmax >= printspace.xmax:
+        return RegionLocation.MARGIN_RIGHT
+    if region.xmin <= printspace.xmin:
+        return RegionLocation.MARGIN_LEFT
     return RegionLocation.PRINTSPACE
