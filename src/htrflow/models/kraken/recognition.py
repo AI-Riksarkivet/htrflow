@@ -3,15 +3,33 @@ HTRflow adapter of kraken's text recognizers.
 """
 
 import logging
+from contextlib import contextmanager
 from typing import Any
 
 from PIL import Image
 
 from htrflow.models.base_model import BaseModel
-from htrflow.models.kraken.resolve import resolve_kraken_model
+from htrflow.models.kraken.resolve import resolve_kraken_model, wrong_task_message
 
 
 logger = logging.getLogger(__name__)
+
+# How torch device types map onto kraken's Lightning accelerators.
+_ACCELERATORS = {"cuda": "gpu", "mps": "mps"}
+
+
+def lightning_settings(device, settings: dict[str, Any]) -> dict[str, Any]:
+    """
+    Fill in kraken's Lightning `accelerator` and `device` from a torch device.
+
+    kraken configures inference through a Lightning `Fabric`, which takes an
+    accelerator plus device indices rather than a torch device. Values already
+    in `settings`, for example from the YAML, win.
+    """
+    settings = dict(settings)
+    settings.setdefault("accelerator", _ACCELERATORS.get(device.type, "cpu"))
+    settings.setdefault("device", [device.index] if device.index is not None else 1)
+    return settings
 
 
 class KrakenRecognition(BaseModel):
@@ -34,14 +52,11 @@ class KrakenRecognition(BaseModel):
       settings:
         model: KrakenRecognition
         model_settings:
-          model: validation/model/ppocrv6-medium.safetensors
+          model: path/to/recognition-model.safetensors
           device: cuda
-        generation_settings:
-          batch_size: 8
     ```
 
-    `model` accepts a local path, an htrmopo DOI such as
-    `10.5281/zenodo.21788409`, or a Hugging Face repo ID.
+    `model` accepts a local path, an htrmopo DOI, or a Hugging Face repo ID.
     """
 
     def __init__(self, model: str, revision: str | None = None, **kwargs):
@@ -57,11 +72,18 @@ class KrakenRecognition(BaseModel):
         from kraken.tasks import RecognitionTaskModel
 
         model_path, model_version = resolve_kraken_model(model, revision)
-        self.model = RecognitionTaskModel.load_model(model_path)
+        try:
+            self.model = RecognitionTaskModel.load_model(model_path)
+        except ValueError as e:
+            raise ValueError(wrong_task_message(model_path, model, "recognition")) from e
 
         logger.info(
             "Initialized kraken recognition model '%s' (%s, seg_type=%s) from %s on device %s",
-            model, type(self.model.net).__name__, self.model.seg_type, model_path, self.device,
+            model,
+            type(self.model.net).__name__,
+            self.model.seg_type,
+            model_path,
+            self.device,
         )
         self.metadata.update(
             {
@@ -79,13 +101,19 @@ class KrakenRecognition(BaseModel):
             "`KrakenTextRecognition` step instead of `TextRecognition`."
         )
 
-    def recognize(self, image: Image.Image, segmentation, **config_kwargs):
+    def recognize(self, image: Image.Image, segmentation, pad_to_width: int | None = None, **config_kwargs):
         """
         Transcribe every line of `segmentation` on `image`.
 
         Arguments:
             image: The full page image.
             segmentation: A `kraken.containers.Segmentation` covering it.
+            pad_to_width: Pad every batch with blank space to at least this
+                width, in pixels of the scaled line images the network sees.
+                kraken pads a batch only to its widest line, but a model
+                trained on lines padded to a fixed width is more accurate when
+                inference pads the same way. kraken's PP-OCRv6 trainer pads to
+                2,560 by default. Off unless set.
             **config_kwargs: Forwarded to kraken's
                 `RecognitionInferenceConfig`, for example `batch_size`,
                 `temperature` or `padding`.
@@ -96,20 +124,61 @@ class KrakenRecognition(BaseModel):
         from kraken.configs import RecognitionInferenceConfig
 
         config = RecognitionInferenceConfig(**self._inference_settings(config_kwargs))
-        return list(self.model.predict(image, segmentation, config))
+        with _batches_padded_to(self.model.net, pad_to_width):
+            return list(self.model.predict(image, segmentation, config))
 
     def _inference_settings(self, config_kwargs: dict[str, Any]) -> dict[str, Any]:
         """
         Translate HTRflow's torch device into kraken's Lightning settings.
 
-        `num_line_workers` defaults to 0 rather than kraken's 2: the worker
-        pool forks, which deadlocks on some CUDA setups, and line extraction
-        is not the bottleneck for page-at-a-time inference. Raise it in the
-        YAML if your machine is happy with it.
+        Two defaults differ from kraken's own.
+
+        `batch_size` is 32 rather than 1. kraken pads every batch to its widest
+        line, so a batch of one is never padded at all, and recognizers trained
+        on padded lines lose accuracy on it. Measured on 199 out-of-domain
+        lines with a PP-OCRv6 recognizer, a batch of one scored 6.65% CER
+        against 5.97% for batches of 32. Batching is also simply faster.
+
+        `num_line_workers` is 0 rather than kraken's 2: the worker pool forks,
+        which deadlocks on some CUDA setups, and line extraction is not the
+        bottleneck for page-at-a-time inference.
+
+        Both can be overridden from `generation_settings` in the YAML.
         """
-        settings = {"num_line_workers": 0} | dict(config_kwargs)
-        if "accelerator" not in settings:
-            settings["accelerator"] = "gpu" if self.device.type == "cuda" else "cpu"
-        if "device" not in settings:
-            settings["device"] = [self.device.index] if self.device.index is not None else 1
-        return settings
+        return lightning_settings(self.device, {"num_line_workers": 0, "batch_size": 32} | dict(config_kwargs))
+
+
+@contextmanager
+def _batches_padded_to(net, width: int | None):
+    """
+    Make kraken pad every batch to at least `width` while the block runs.
+
+    kraken pads a batch to its widest line, then hands it to the network
+    through `_rec_predict(seqs, seq_lens)`. Padding further at that point
+    reproduces fixed-width training: the padding is zeros like kraken's own,
+    and `seq_lens` keeps every line's true width.
+    """
+    if not width:
+        yield
+        return
+
+    original = getattr(net, "_rec_predict", None)
+    if original is None:
+        raise ValueError(f"pad_to_width is not supported for {type(net).__name__} models.")
+
+    import torch.nn.functional as F
+
+    def padded(seqs, seq_lens):
+        if seqs.shape[-1] < width:
+            seqs = F.pad(seqs, (0, width - seqs.shape[-1]))
+        return original(seqs, seq_lens)
+
+    patched_before = "_rec_predict" in vars(net)
+    net._rec_predict = padded
+    try:
+        yield
+    finally:
+        if patched_before:
+            net._rec_predict = original
+        else:
+            del net._rec_predict

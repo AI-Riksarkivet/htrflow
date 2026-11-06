@@ -6,19 +6,17 @@ material, none of which needs retraining to fix:
 
     1. spurious short "interlinear" baselines on single characters or
        ascenders  -> drop baselines far shorter than the page median
-    2. a line detected as two fragments split mid-word
-       ("witnesmaen" -> "w" + "itnesmaen")  -> merge near-collinear,
-       horizontally adjacent fragments
+    2. a line detected as two fragments split mid-word, so that one word
+       becomes a one-character fragment plus the remainder  -> merge
+       near-collinear, horizontally adjacent fragments
     3. polygons that no longer follow the corrected baselines
        -> re-polygonize with `calculate_polygonal_environment`
 
 The order matters: merge before dropping, so that a real line split into a
 tiny fragment is rejoined before any length test can discard it.
 
-This is a port of `postprocess_segmentation.py` from the Old Swedish HTR
-project, operating directly on `kraken.containers.Segmentation` instead of
-round-tripping through PAGE XML. Truly undetected ink cannot be recovered
-here -- only the three cases above.
+Only the three cases above are recoverable. Ink the segmenter missed entirely
+cannot be recovered after the fact.
 """
 
 import logging
@@ -132,9 +130,13 @@ def postprocess_segmentation(
     repolygonize: bool = True,
     clip_to_region: bool = False,
     restore_reading_order: bool = True,
+    topline: bool | None = False,
 ):
     """
     Merge fragmented baselines, drop spurious short ones, re-polygonize.
+
+    The heuristics assume horizontal lines, so vertical text is passed
+    through unchanged.
 
     Arguments:
         segmentation: A baseline-type segmentation, as returned by
@@ -159,6 +161,10 @@ def postprocess_segmentation(
         restore_reading_order: Whether to re-sort lines afterwards. Merging
             changes the line list, so without this the merged lines end up
             out of reading order.
+        topline: Where the segmentation model puts its baselines, as kraken
+            defines it for re-polygonization: False for baselines under the
+            letters (the usual case), True for hanging baselines along their
+            tops, None for centerlines.
 
     Returns:
         A new `Segmentation`. The input is not modified.
@@ -170,6 +176,13 @@ def postprocess_segmentation(
         logger.warning(
             "Segmentation post-processing expects baseline segmentation, got '%s'. Skipping.",
             segmentation.type,
+        )
+        return segmentation
+
+    if segmentation.text_direction.startswith("vertical"):
+        logger.warning(
+            "Segmentation post-processing assumes horizontal lines, got '%s'. Skipping.",
+            segmentation.text_direction,
         )
         return segmentation
 
@@ -193,9 +206,7 @@ def postprocess_segmentation(
     merged: list[tuple[list, list[int]]] = []
     for indices in groups.values():
         if len(indices) > 1:
-            local = merge_fragments(
-                [lines[i].baseline for i in indices], line_height, merge_gap, dy_tol, max_overlap
-            )
+            local = merge_fragments([lines[i].baseline for i in indices], line_height, merge_gap, dy_tol, max_overlap)
             merged.extend((bl, [indices[k] for k in sources]) for bl, sources in local)
         else:
             merged.append((lines[indices[0]].baseline, indices))
@@ -214,7 +225,7 @@ def postprocess_segmentation(
     if repolygonize:
         try:
             polygons = calculate_polygonal_environment(
-                image.convert("L"), baselines, scale=(scale, 0), topline=False
+                image.convert("L"), baselines, scale=(scale, 0), topline=topline
             )
         except Exception as e:
             logger.warning("Re-polygonization failed (%s); keeping original polygons.", e)
@@ -233,7 +244,7 @@ def postprocess_segmentation(
             # fall back to a padded box around the baseline.
             polygon = parent.boundary if len(sources) == 1 and parent.boundary else None
         if polygon is None:
-            polygon = _box_around(baseline, line_height)
+            polygon = _box_around(baseline, line_height, image.size)
 
         new_lines.append(
             BaselineLine(
@@ -255,7 +266,10 @@ def postprocess_segmentation(
 
     logger.info(
         "Segmentation post-processing: %d -> %d lines (merged %d, dropped %d)",
-        n_before, len(new_lines), n_merged_away, n_dropped,
+        n_before,
+        len(new_lines),
+        n_merged_away,
+        n_dropped,
     )
     return replace(segmentation, lines=new_lines)
 
@@ -308,16 +322,25 @@ def _clip_to_regions(polygons, baselines, segmentation):
     return clipped
 
 
-def _box_around(baseline, line_height: float) -> list[tuple[int, int]]:
-    """A padded rectangle around a baseline, used when polygonization fails."""
+def _box_around(baseline, line_height: float, size: tuple[int, int]) -> list[tuple[int, int]]:
+    """
+    A padded rectangle around a baseline, used when polygonization fails.
+
+    Clamped to the image of the given `(width, height)`: near the edge of the
+    page the padding would otherwise reach outside it, which kraken refuses to
+    extract and PAGE XML cannot express.
+    """
+    width, height = size
     xs = [point[0] for point in baseline]
     ys = [point[1] for point in baseline]
     pad = int(line_height * 0.6)
+    x0, x1 = max(min(xs), 0), min(max(xs), width - 1)
+    y0, y1 = max(min(ys) - pad, 0), min(max(ys) + pad, height - 1)
     return [
-        (min(xs), min(ys) - pad),
-        (max(xs), min(ys) - pad),
-        (max(xs), max(ys) + pad),
-        (min(xs), max(ys) + pad),
+        (x0, y0),
+        (x1, y0),
+        (x1, y1),
+        (x0, y1),
     ]
 
 
