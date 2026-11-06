@@ -57,8 +57,9 @@ class KrakenTextRecognition(PipelineStep):
         """
         Arguments:
             model: An initialized `KrakenRecognition`.
-            **generation_kwargs: Forwarded to kraken's
-                `RecognitionInferenceConfig`.
+            **generation_kwargs: Passed to `KrakenRecognition.recognize` on
+                every page: `pad_to_width`, plus any setting kraken's
+                `RecognitionInferenceConfig` accepts.
         """
         self.model = model
         self.generation_kwargs = generation_kwargs
@@ -119,10 +120,13 @@ def _collect_lines(document: Document, size: tuple[int, int]):
     Describe every line to recognize in page coordinates.
 
     The lines are the active leaves of the tree, which are the nodes
-    `ImageLoader` hands the generic `TextRecognition` step. Their points are
-    clamped to the image: kraken refuses a line with any point outside it,
-    and HTRflow's boxes end one pixel past the last column and row. kraken
-    then returns an empty transcription rather than an error.
+    `ImageLoader` hands the generic `TextRecognition` step.
+
+    Every point is moved inside the image if it lies outside. kraken cannot
+    extract a line with a point outside the image, and gives an empty
+    transcription for it instead of an error. HTRflow's boxes end one pixel
+    past the last column and row, so without this, any line touching the
+    edge of the page would silently come back empty.
 
     Arguments:
         document: The document to read the lines from.
@@ -145,8 +149,9 @@ def _collect_lines(document: Document, size: tuple[int, int]):
         baseline = node.annotations.get("baseline")
 
         if not baseline or len(baseline) < 2:
-            # Not a kraken segmentation. Synthesise a baseline from the
-            # bounding box so the line can still be recognized.
+            # The line did not come from kraken's segmenter, so it has no
+            # baseline. Synthesise one from the bounding box so that kraken
+            # can still recognize the line.
             bbox = Polygon(boundary).bbox
             baseline = BBoxLine(id="_", bbox=bbox.xyxy).to_baseline().baseline
 
@@ -160,12 +165,19 @@ def _active_leaves(node: Region, origin: Point):
     """
     Yield every active leaf under `node`, with the page position of its frame.
 
-    HTRflow stores each polygon relative to its parent's bounding box, so the
-    offsets of all ancestors have to be added up to get back to the page.
+    HTRflow stores each polygon relative to the top-left corner of its
+    parent's bounding box, so the offsets of all ancestors have to be added
+    up to get back to page coordinates.
 
     Arguments:
         node: Where to start, normally the document.
-        origin: The page position of the frame `node`'s own polygon is in.
+        origin: The page coordinates of the point `node`'s polygon is
+            relative to, that is, the top-left corner of its parent's
+            bounding box. `Point(0, 0)` for the document.
+
+    Yields:
+        `(leaf, origin)` pairs, where `origin` is the page coordinates of the
+        point the leaf's polygon is relative to.
     """
     if node.regions:
         inner = node.polygon.bbox.p1 + origin
@@ -204,7 +216,8 @@ def _token_scores(record) -> list[tuple[str, float]]:
     recognizers report per token.
 
     Left empty when kraken's characters and confidences do not pair up one to
-    one, which happens when a codec label decodes to several code points.
+    one. That happens when one of the model's output labels stands for more
+    than one character, since kraken reports one confidence per label.
     """
     confidences = getattr(record, "confidences", None) or []
     if len(record.prediction) != len(confidences):

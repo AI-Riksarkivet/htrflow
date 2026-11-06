@@ -21,9 +21,9 @@ steps:
       # Clean up the fragmented lines fine-tuned handwriting models produce
       postprocess: true
       postprocess_settings:
-        min_len_frac: 0.12   # drop baselines shorter than this x page median
-        merge_gap: 1.5       # max gap to bridge when merging, in line heights
-        dy_tol: 0.6          # max vertical mismatch at the junction
+        min_len_frac: 0.12   # drop baselines shorter than 0.12 x the page's median baseline
+        merge_gap: 1.5       # max gap between two fragments to merge, in line heights
+        dy_tol: 0.6          # max height difference where they meet, in line heights
         # clip_to_region: true would stop the last line on a page running on
         # into blank space, but cuts real ink where a region is tighter than
         # its lines, so it is left off here.
@@ -32,6 +32,9 @@ steps:
 # so this is `KrakenTextRecognition`, not the generic `TextRecognition`.
 # Lines are recognized in batches of 32. If memory runs short, lower that
 # with `generation_settings: {batch_size: 8}` under `settings`.
+# For a model trained on lines padded to a fixed width, such as a PP-OCRv6
+# model from kraken's trainer (2,560 pixels by default), add
+# `generation_settings: {pad_to_width: 2560}` to match its training.
 - step: KrakenTextRecognition
   settings:
     model: KrakenRecognition

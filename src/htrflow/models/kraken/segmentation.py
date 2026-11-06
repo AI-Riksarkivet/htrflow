@@ -33,7 +33,7 @@ class KrakenSegmentation(BaseModel):
 
     Each line carries its baseline in `Region.annotations`, which is what
     `KrakenTextRecognition` uses to hand kraken back a segmentation it can
-    extract dewarped line images from.
+    extract straightened line images from.
 
     Example usage with the `Segmentation` step:
     ```yaml

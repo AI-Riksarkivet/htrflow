@@ -115,14 +115,15 @@ parameter can be set from the YAML:
     generation_settings:
       postprocess: true
       postprocess_settings:
-        min_len_frac: 0.12     # drop baselines shorter than this x page median
-        merge_gap: 1.5         # max gap to bridge when merging, in line heights
-        dy_tol: 0.6            # max vertical mismatch at a merge junction
-        max_overlap: 0.3       # max x-overlap of two fragments before rejecting
-        scale: 1800            # working scale for re-polygonization, in pixels
-        repolygonize: true     # re-derive polygons from the merged baselines
+        min_len_frac: 0.12     # drop baselines shorter than 0.12 x the page's median baseline
+        merge_gap: 1.5         # max gap between two fragments to merge, in line heights
+        dy_tol: 0.6            # max height difference where they meet, in line heights
+        max_overlap: 0.3       # max horizontal overlap, as a share of the shorter fragment
+        scale: 1800            # height the page is resized to while deriving polygons
+        repolygonize: true     # derive new polygons from the corrected baselines
         clip_to_region: false  # trim line polygons to their region
-        restore_reading_order: true
+        restore_reading_order: true  # re-sort the lines after merging
+        topline: false         # baselines under the letters; true if along their tops, null for centerlines
 ```
 
 `clip_to_region` is worth knowing about: the last line on a page has nothing

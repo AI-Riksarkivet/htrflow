@@ -22,9 +22,9 @@ def lightning_settings(device, settings: dict[str, Any]) -> dict[str, Any]:
     """
     Fill in kraken's Lightning `accelerator` and `device` from a torch device.
 
-    kraken configures inference through a Lightning `Fabric`, which takes an
-    accelerator plus device indices rather than a torch device. Values already
-    in `settings`, for example from the YAML, win.
+    kraken runs inference through Lightning, which takes an accelerator name
+    plus a list of device indices (or a device count) rather than a torch
+    device. Values already in `settings`, for example from the YAML, are kept.
     """
     settings = dict(settings)
     settings.setdefault("accelerator", _ACCELERATORS.get(device.type, "cpu"))
@@ -129,7 +129,8 @@ class KrakenRecognition(BaseModel):
 
     def _inference_settings(self, config_kwargs: dict[str, Any]) -> dict[str, Any]:
         """
-        Translate HTRflow's torch device into kraken's Lightning settings.
+        Combine HTRflow's defaults, the YAML's `generation_settings` and the
+        model's device into settings for kraken's `RecognitionInferenceConfig`.
 
         Two defaults differ from kraken's own.
 
@@ -157,6 +158,12 @@ def _batches_padded_to(net, width: int | None):
     through `_rec_predict(seqs, seq_lens)`. Padding further at that point
     reproduces fixed-width training: the padding is zeros like kraken's own,
     and `seq_lens` keeps every line's true width.
+
+    `_rec_predict` is private to kraken, so this is the one place the
+    wrapper depends on kraken's internals. It is replaced on this one
+    network object only, and restored afterwards. If a kraken release
+    removes it, `pad_to_width` raises an error rather than quietly doing
+    nothing.
     """
     if not width:
         yield
@@ -173,6 +180,9 @@ def _batches_padded_to(net, width: int | None):
             seqs = F.pad(seqs, (0, width - seqs.shape[-1]))
         return original(seqs, seq_lens)
 
+    # Normally `_rec_predict` comes from the network's class, and deleting
+    # our override afterwards makes the class method visible again. If the
+    # object already had its own `_rec_predict`, put that back instead.
     patched_before = "_rec_predict" in vars(net)
     net._rec_predict = padded
     try:
