@@ -1,10 +1,10 @@
 """
 Model resolution for kraken models.
 
-kraken distributes its models through the htrmopo/Zenodo repository rather
-than the Hugging Face hub, so `models.download` only covers part of the
-problem. This module accepts the four things that can reasonably appear in a
-YAML `model:` field:
+HTRflow's `models.download` only knows the Hugging Face Hub, but kraken
+models are usually published in the htrmopo repository on Zenodo. This
+module accepts the four things that can reasonably appear in a YAML
+`model:` field:
 
     model: null                              # kraken's bundled blla.mlmodel
     model: path/to/my-model.mlmodel          # a local file or directory

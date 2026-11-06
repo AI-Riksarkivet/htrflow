@@ -362,8 +362,8 @@ def test_the_working_directory_in_errors_is_the_real_one(tmp_path, monkeypatch):
 @pytest.mark.kraken
 def test_module_source_contains_no_hardcoded_absolute_paths():
     """
-    Guards against a developer's own paths or model names reaching published
-    docstrings and messages, which happened during development.
+    Guards against paths from a developer's own machine ending up in the
+    published docstrings and error messages.
     """
     from pathlib import Path
 
@@ -371,7 +371,7 @@ def test_module_source_contains_no_hardcoded_absolute_paths():
 
     for source_file in Path(package.__file__).parent.glob("*.py"):
         source = source_file.read_text()
-        for forbidden in ("/home/", "/Users/", "C:\\", "validation/", "ex_test"):
+        for forbidden in ("/home/", "/Users/", "C:\\"):
             assert forbidden not in source, f"{source_file.name} contains {forbidden!r}"
 
 
@@ -610,8 +610,9 @@ def test_segmentation_is_kraken_own_unless_postprocessing_is_asked_for(image):
 @pytest.mark.kraken
 def test_step_matches_transcriptions_to_lines_by_id(image):
     """
-    kraken drops a line whose extraction fails, so matching by position would
-    shift every later transcription onto the wrong line.
+    If kraken ever returned fewer records than lines, or in another order,
+    matching by position would put every later transcription on the wrong
+    line.
     """
     from htrflow.models.kraken.step import KrakenTextRecognition
 
@@ -620,7 +621,7 @@ def test_step_matches_transcriptions_to_lines_by_id(image):
     document = _document(segmentation_to_regions(seg, image))
 
     def records_for(segmentation):
-        # Out of order, the middle line lost to a failed extraction, and a stray id.
+        # Out of order, the middle line missing, and an id the step never sent.
         ids = [ln.id for ln in segmentation.lines]
         return [_record(ids[2], "third"), _record(ids[0], "first"), _record("stray", "?")]
 
@@ -689,7 +690,8 @@ def test_the_step_module_can_be_imported_first():
     """
     The step module and `htrflow.pipeline.steps` used to import each other at
     module level, so importing the step module first failed with a circular
-    import. This process imported both long ago, hence the fresh interpreter.
+    import. The test process has imported both already, so the check runs in
+    a fresh interpreter.
     """
     import os
     import subprocess

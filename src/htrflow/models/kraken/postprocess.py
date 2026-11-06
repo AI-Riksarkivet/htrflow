@@ -1,22 +1,24 @@
 """
 Clean up kraken baseline segmentation output.
 
-Fine-tuned baseline segmenters tend to fail in three ways on handwritten
-material, none of which needs retraining to fix:
+Fine-tuned baseline segmenters tend to make two mistakes on handwritten
+material that can be fixed after the fact, without retraining:
 
-    1. spurious short "interlinear" baselines on single characters or
-       ascenders  -> drop baselines far shorter than the page median
-    2. a line detected as two fragments split mid-word, so that one word
-       becomes a one-character fragment plus the remainder  -> merge
-       near-collinear, horizontally adjacent fragments
-    3. polygons that no longer follow the corrected baselines
-       -> re-polygonize with `calculate_polygonal_environment`
+    1. One line is found as two fragments, split mid-word, so that a word
+       becomes a one-letter fragment plus the rest.
+       Fix: join fragments that sit side by side at the same height.
+    2. Short spurious baselines are found on single letters or ascenders,
+       between the real lines.
+       Fix: drop baselines far shorter than the page's median baseline.
 
-The order matters: merge before dropping, so that a real line split into a
-tiny fragment is rejoined before any length test can discard it.
+Both fixes change the baselines, so the line polygons kraken derived from
+the old ones no longer fit. They are therefore derived again from the
+corrected baselines, with kraken's `calculate_polygonal_environment`.
 
-Only the three cases above are recoverable. Ink the segmenter missed entirely
-cannot be recovered after the fact.
+Joining comes before dropping, so that a real line split into a tiny
+fragment is rejoined before the length test can discard it.
+
+Text the segmenter missed entirely cannot be recovered this way.
 """
 
 import logging
@@ -49,11 +51,13 @@ def merge_fragments(
     """
     Greedily join baseline fragments belonging to the same physical line.
 
-    Two fragments merge when they sit side by side (small x-gap, little
-    x-overlap) and are vertically aligned at the junction (small dy).
-    Stacked separate lines overlap heavily in x and are never merged; a true
-    interlinear sits a full line above, so its dy is about one line height
-    and it is never merged either.
+    Two fragments merge when they sit side by side (a small horizontal gap,
+    little horizontal overlap) and the end of the left one is at about the
+    height of the start of the right one. Separate lines stacked on top of
+    each other overlap heavily horizontally, so they are never merged. A
+    genuine insertion written between two lines sits about a line height
+    higher, so it is not merged either. The closest pair is merged first,
+    and merging repeats until no pair qualifies.
 
     Arguments:
         baselines: Baselines to consider, as lists of (x, y) points.
@@ -70,9 +74,8 @@ def merge_fragments(
         baselines come back with a single index, so callers can carry over
         tags and region membership from the original line records.
     """
-    # Each candidate carries the indices it was built from, so identity
-    # survives merging -- the original script worked on bare point lists and
-    # lost it.
+    # Each candidate carries the indices of the input baselines it was built
+    # from, so the caller can tell which original lines ended up where.
     candidates = [(sorted(bl, key=lambda p: p[0]), [i]) for i, bl in enumerate(baselines)]
 
     while True:
@@ -89,6 +92,8 @@ def merge_fragments(
 
                 if overlap / min(left_width, right_width) >= max_overlap:
                     continue
+                # A gap of up to `max_gap`, or a slight overlap of up to 0.3
+                # line heights.
                 if not (-0.3 * line_height <= gap <= max_gap * line_height):
                     continue
                 if abs(left[-1][1] - right[0][1]) >= dy_tol * line_height:
@@ -114,8 +119,8 @@ def _line_height(lines) -> float:
             heights.append(max(ys) - min(ys))
     if heights:
         return median(heights)
-    # No polygons to measure: fall back to the same 8%-of-length heuristic
-    # the original script used.
+    # No polygons to measure: estimate the height as 8% of the median
+    # baseline length instead.
     return median(baseline_length(line.baseline) for line in lines) * 0.08
 
 
@@ -143,15 +148,17 @@ def postprocess_segmentation(
             `KrakenSegmentation`.
         image: The page image the segmentation was computed on. Needed to
             re-derive the line polygons.
-        min_len_frac: Drop baselines shorter than this fraction of the page
-            median baseline length. Kills spurious interlinears.
+        min_len_frac: Drop baselines shorter than this fraction of the
+            page's median baseline length. Removes short spurious
+            baselines found between the real lines.
         merge_gap: Maximum horizontal gap to bridge when merging fragments,
             in line heights.
-        dy_tol: Maximum vertical mismatch at the junction when merging, in
-            line heights.
-        max_overlap: Maximum x-overlap between two fragments, as a share of
-            the shorter one, before the pair is rejected.
-        scale: Working scale in pixels for re-polygonization.
+        dy_tol: Maximum difference in height where two fragments meet for
+            them to be merged, in line heights.
+        max_overlap: Maximum horizontal overlap between two fragments, as a
+            share of the shorter one, for them to be merged.
+        scale: Height in pixels that the page is resized to while the line
+            polygons are derived. Lower is faster.
         repolygonize: Whether to re-derive line polygons from the cleaned
             baselines. Turn off to keep the original polygons, which will
             not follow merged baselines.
@@ -279,9 +286,10 @@ def _clip_to_regions(polygons, baselines, segmentation):
     Trim line polygons to the region they belong to.
 
     kraken derives a line's polygon from the image alone, so the last line on
-    a page -- which has nothing below it to bound against -- tends to run on
-    into blank parchment. Passing the region as `suppl_obj` does not prevent
-    this; only an explicit intersection does.
+    a page, which has no line below it to stop against, tends to run on into
+    blank space. Passing the region to kraken's polygonizer as an extra
+    boundary (`suppl_obj`) does not prevent this; only cutting the polygon
+    down to the region does.
 
     Off by default, because it cuts real ink whenever a region is drawn
     tighter than its lines.

@@ -657,11 +657,11 @@ def auto_import(source: list[str] | str) -> Generator[Document, Any, Any]:
             continue
 
 
-# Steps that need an optional dependency, as class name -> (module, extra).
-# Their modules subclass `PipelineStep` and so import this module in turn,
-# which makes importing them from here at module level circular: it fails
-# whenever one of them is imported first. `get_step_class` imports them the
-# first time a pipeline asks for them instead.
+# Steps that need an optional dependency, as class name -> (module, pip extra).
+# They cannot be imported at the top of this module: their modules import this
+# one (for `PipelineStep`), so the import would be circular and fail whenever
+# one of them was imported first. `get_step_class` imports them the first time
+# a pipeline asks for them instead.
 OPTIONAL_STEPS = {
     "KrakenTextRecognition": ("htrflow.models.kraken.step", "kraken"),
 }
