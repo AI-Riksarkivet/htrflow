@@ -159,11 +159,14 @@ def _batches_padded_to(net, width: int | None):
     reproduces fixed-width training: the padding is zeros like kraken's own,
     and `seq_lens` keeps every line's true width.
 
-    `_rec_predict` is private to kraken, so this is the one place the
-    wrapper depends on kraken's internals. It is replaced on this one
-    network object only, and restored afterwards. If a kraken release
-    removes it, `pad_to_width` raises an error rather than quietly doing
-    nothing.
+    `_rec_predict` ships with kraken, but its leading underscore marks it as
+    internal: kraken does not promise to keep it unchanged between releases.
+    This is the one place the wrapper relies on such a method. It is
+    replaced on this one network object only, and restored afterwards. If a
+    kraken release removes it, `pad_to_width` raises an error. A unit test
+    runs this against kraken's real recognition code, so a release that
+    changes how batches reach the network fails the tests instead of quietly
+    disabling the padding.
     """
     if not width:
         yield
