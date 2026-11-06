@@ -775,6 +775,55 @@ def test_pad_to_width_pads_every_batch_while_recognizing():
 
 
 @pytest.mark.kraken
+def test_pad_to_width_reaches_kraken_s_real_network(tmp_path):
+    """
+    `pad_to_width` works through `_rec_predict`, a method internal to kraken
+    that a kraken release could change without notice. The test above uses a
+    stand-in, so this one runs kraken's real loading and recognition code on
+    a real PP-OCRv6 network, untrained so that nothing has to be downloaded.
+    If a kraken release stops the padding from reaching the network, this
+    test fails rather than users' transcriptions quietly getting worse.
+    """
+    import torch
+    from kraken.lib.ppocr.model import PPOCRv6Model
+    from kraken.models.writers import write_safetensors
+    from PIL import Image
+
+    from htrflow.models.kraken.recognition import KrakenRecognition
+
+    path = tmp_path / "untrained.safetensors"
+    write_safetensors([PPOCRv6Model(variant="tiny", num_classes=3, codec={"a": [1], "b": [2]})], path)
+    model = KrakenRecognition(str(path), device="cpu")
+
+    # Lines with ink in them: kraken never sends a blank line to the network.
+    page = Image.open(DEMO_IMAGE)
+    lines = segmentation([line("long", 300), line("short", 500, x1=500)])
+
+    # Record the width of every image batch any layer receives. The widest is
+    # the batch kraken hands the network.
+    widths = []
+
+    def record_width(module, args):
+        if args and isinstance(args[0], torch.Tensor) and args[0].ndim == 4:
+            widths.append(args[0].shape[-1])
+
+    hook = torch.nn.modules.module.register_module_forward_pre_hook(record_width)
+    try:
+        unpadded = model.recognize(page, lines)
+        widest_unpadded = max(widths)
+        widths.clear()
+        padded = model.recognize(page, lines, pad_to_width=2560)
+        widest_padded = max(widths)
+    finally:
+        hook.remove()
+
+    assert widest_unpadded < 2560  # by default, only as wide as the widest line
+    assert widest_padded == 2560
+    assert len(unpadded) == len(padded) == 2
+    assert "_rec_predict" not in vars(model.model.net)  # the model is left as it was
+
+
+@pytest.mark.kraken
 @pytest.mark.parametrize(
     "device,expected",
     [
