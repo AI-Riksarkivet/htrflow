@@ -26,6 +26,110 @@ Link to the documentation for PyLaia from Teklia:
 
 - [PyLaia](https://atr.pages.teklia.com/pylaia/get_started/)
 
+## Kraken Models
+
+[Kraken](https://kraken.re) is supported for both segmentation and text
+recognition. Install the optional dependency:
+
+```bash
+pip install htrflow[kraken]
+```
+
+Kraken differs from HTRflow's other segmenters in two ways that affect how you
+write a pipeline:
+
+1. **It finds regions and lines in a single pass** and assigns each line to its
+   region, so one `Segmentation` step produces the complete region/line tree.
+   You do not need the two-stage region-then-lines setup that YOLO requires.
+2. **It returns lines already in reading order.** Do *not* add
+   `ReadingOrderMarginalia` or `OrderLines` after it — both would re-sort the
+   lines and discard Kraken's ordering.
+
+Text recognition uses its own step, `KrakenTextRecognition`, rather than the
+generic `TextRecognition`. Kraken recognizers are trained on line images that
+Kraken extracts itself from the page, straightening curved lines against their
+baselines; the step hands Kraken the whole page so that this still happens.
+Passing pre-cropped line images instead costs accuracy on curved writing.
+
+```yaml
+steps:
+- step: Segmentation
+  settings:
+    model: KrakenSegmentation
+    model_settings:
+      model: my-segmentation-model.mlmodel
+    generation_settings:
+      postprocess: true
+
+- step: KrakenTextRecognition
+  settings:
+    model: KrakenRecognition
+    model_settings:
+      model: my-recognition-model.safetensors
+```
+
+Lines are recognized in batches of 32 by default. Kraken pads every line in a
+batch to the width of the widest one, and recognizers trained on padded lines
+are more accurate that way than one line at a time, so keep batches large
+unless memory runs short. To change it, set `batch_size` under
+`generation_settings`.
+
+Some recognizers are trained on lines padded to a fixed width: Kraken's
+PP-OCRv6 trainer pads every line to 2,560 pixels, for example. At inference,
+Kraken pads a batch only to its widest line, so such a model sees less padding
+than it was trained with. Set `pad_to_width` to the training width to match it:
+
+```yaml
+    generation_settings:
+      pad_to_width: 2560
+```
+
+The width is in pixels of the scaled line images the network sees. Measured
+with three PP-OCRv6 models on 503 handwritten lines, it lowered the character
+error rate by 0.16 to 0.35 points and reproduced the models' own evaluation.
+Padding every batch to full width costs some speed.
+
+### Specifying models
+
+The `model` setting accepts four forms:
+
+| Value | Resolves to |
+| --- | --- |
+| `my-model.mlmodel` | a local `.mlmodel` or `.safetensors` file, or a directory containing one |
+| `10.5281/zenodo.21788409` | a model from the [htrmopo](https://htrmopo.inria.fr) repository, by DOI |
+| `Owner/repo` | a Hugging Face repo containing a Kraken model file |
+| omitted | the `blla` segmentation model bundled with Kraken (segmentation only) |
+
+Both `.mlmodel` and `.safetensors` weights work, including older models trained
+with Kraken 5.
+
+### Segmentation post-processing
+
+Fine-tuned baseline segmenters tend to split single lines into fragments and to
+emit short spurious baselines on ascenders. `postprocess` merges the fragments,
+drops the spurious lines, and re-derives the line polygons. It is off by
+default, so that you get Kraken's own output unless you ask for it. Every
+parameter can be set from the YAML:
+
+```yaml
+    generation_settings:
+      postprocess: true
+      postprocess_settings:
+        min_len_frac: 0.12     # drop baselines shorter than this x page median
+        merge_gap: 1.5         # max gap to bridge when merging, in line heights
+        dy_tol: 0.6            # max vertical mismatch at a merge junction
+        max_overlap: 0.3       # max x-overlap of two fragments before rejecting
+        scale: 1800            # working scale for re-polygonization, in pixels
+        repolygonize: true     # re-derive polygons from the merged baselines
+        clip_to_region: false  # trim line polygons to their region
+        restore_reading_order: true
+```
+
+`clip_to_region` is worth knowing about: the last line on a page has nothing
+below it to bound its polygon, so Kraken tends to extend it into empty space,
+which hands the recognizer mostly background. Clipping fixes that, but cuts
+real ink wherever a region is drawn tighter than its lines.
+
 ## Custom Models
 
 If your model (or framework) is not supported, you can implement a custom model in HTRflow. Below is a basic example:

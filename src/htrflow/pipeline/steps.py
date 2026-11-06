@@ -1,3 +1,4 @@
+import importlib
 import logging
 import math
 import os
@@ -656,12 +657,14 @@ def auto_import(source: list[str] | str) -> Generator[Document, Any, Any]:
             continue
 
 
-# Optional steps. Importing these registers them as `PipelineStep` subclasses,
-# which is what populates `STEPS` below. Each guards its own dependency.
-try:
-    from htrflow.models.kraken.step import KrakenTextRecognition  # noqa: F401
-except ModuleNotFoundError:
-    pass
+# Steps that need an optional dependency, as class name -> (module, extra).
+# Their modules subclass `PipelineStep` and so import this module in turn,
+# which makes importing them from here at module level circular: it fails
+# whenever one of them is imported first. `get_step_class` imports them the
+# first time a pipeline asks for them instead.
+OPTIONAL_STEPS = {
+    "KrakenTextRecognition": ("htrflow.models.kraken.step", "kraken"),
+}
 
 
 def all_subclasses(cls):
@@ -673,6 +676,31 @@ def all_subclasses(cls):
 STEPS: dict[str, PipelineStep] = {cls_.__name__.lower(): cls_ for cls_ in all_subclasses(PipelineStep)}
 
 
+def get_step_class(name: str) -> type[PipelineStep]:
+    """Look up a pipeline step class, importing it first if it is optional
+
+    Arguments:
+        name: The name of the pipeline step class. Not case sensitive.
+
+    Raises:
+        KeyError: If there is no step with that name.
+        ModuleNotFoundError: If the step needs an optional dependency that
+            is not installed.
+    """
+    key = name.lower()
+    if key not in STEPS:
+        for class_name, (module, extra) in OPTIONAL_STEPS.items():
+            if class_name.lower() == key:
+                try:
+                    STEPS[key] = getattr(importlib.import_module(module), class_name)
+                except ModuleNotFoundError as e:
+                    raise ModuleNotFoundError(
+                        f"The pipeline step {class_name} needs an optional dependency that is not "
+                        f"installed ({e}). Install it with `pip install htrflow[{extra}]`."
+                    ) from e
+    return STEPS[key]
+
+
 def init_step(step: PipelineStepConfig) -> PipelineStep:
     """Initialize a pipeline step
 
@@ -681,4 +709,4 @@ def init_step(step: PipelineStepConfig) -> PipelineStep:
         step_settings: A dictionary containing parameters for the step's
             __init__() method.
     """
-    return STEPS[step.step.lower()].from_config(step.settings or {})
+    return get_step_class(step.step).from_config(step.settings or {})

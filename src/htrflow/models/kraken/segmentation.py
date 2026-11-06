@@ -7,10 +7,11 @@ from typing import Any
 
 from PIL import Image
 
-from htrflow.document import Region
+from htrflow.document import NoRegionsDetected, Region
 from htrflow.models.base_model import BaseModel
 from htrflow.models.kraken.postprocess import postprocess_segmentation
-from htrflow.models.kraken.resolve import resolve_kraken_model
+from htrflow.models.kraken.recognition import lightning_settings
+from htrflow.models.kraken.resolve import resolve_kraken_model, wrong_task_message
 from htrflow.utils.geometry import Polygon
 
 
@@ -40,7 +41,7 @@ class KrakenSegmentation(BaseModel):
       settings:
         model: KrakenSegmentation
         model_settings:
-          model: validation/model/kraken_seg_model.mlmodel
+          model: path/to/segmentation-model.mlmodel
           device: cuda
         generation_settings:
           text_direction: horizontal-lr
@@ -69,29 +70,39 @@ class KrakenSegmentation(BaseModel):
         from kraken.tasks import SegmentationTaskModel
 
         model_path, model_version = resolve_kraken_model(model, revision)
-        self.model = SegmentationTaskModel.load_model(model_path)
+        try:
+            self.model = SegmentationTaskModel.load_model(model_path)
+        except ValueError as e:
+            raise ValueError(wrong_task_message(model_path, model, "segmentation")) from e
 
         logger.info(
             "Initialized kraken segmentation model '%s' from %s on device %s",
-            model, model_path, self.device,
+            model,
+            model_path,
+            self.device,
         )
         self.metadata.update({"model": model or "blla", "model_version": model_version})
 
     def _predict(
         self,
         images: list[Image.Image],
-        postprocess: bool = True,
+        postprocess: bool = False,
         postprocess_settings: dict[str, Any] | None = None,
         **config_kwargs,
-    ) -> list[list[Region]]:
+    ) -> list[list[Region | NoRegionsDetected]]:
         """
         Run kraken segmentation and convert the result to HTRflow regions.
+
+        A page without any lines is marked inactive instead, as the YOLO
+        segmenter does, so that later steps do not read the blank page as a
+        single line.
 
         Arguments:
             images: Input images.
             postprocess: Whether to run `postprocess.postprocess_segmentation`
-                on kraken's output. Recommended for fine-tuned handwriting
-                models, which tend to fragment lines.
+                on kraken's output. Off by default, so that the output is
+                kraken's own. Recommended for fine-tuned handwriting models,
+                which tend to fragment lines.
             postprocess_settings: Keyword arguments for
                 `postprocess.postprocess_segmentation`.
             **config_kwargs: Forwarded to kraken's
@@ -106,26 +117,13 @@ class KrakenSegmentation(BaseModel):
         for image in images:
             segmentation = self.model.predict(image, config)
             if postprocess:
-                segmentation = postprocess_segmentation(
-                    segmentation, image, **(postprocess_settings or {})
-                )
-            results.append(segmentation_to_regions(segmentation, image))
+                segmentation = postprocess_segmentation(segmentation, image, **(postprocess_settings or {}))
+            results.append(segmentation_to_regions(segmentation, image) or [NoRegionsDetected()])
         return results
 
     def _device_settings(self, config_kwargs: dict[str, Any]) -> dict[str, Any]:
-        """
-        Translate HTRflow's torch device into kraken's Lightning settings.
-
-        kraken configures inference through a Lightning `Fabric`, which takes
-        an accelerator plus device indices rather than a torch device. Any
-        explicit `accelerator` or `device` in the YAML wins.
-        """
-        settings = dict(config_kwargs)
-        if "accelerator" not in settings:
-            settings["accelerator"] = "gpu" if self.device.type == "cuda" else "cpu"
-        if "device" not in settings:
-            settings["device"] = [self.device.index] if self.device.index is not None else 1
-        return settings
+        """Translate HTRflow's torch device into kraken's Lightning settings."""
+        return lightning_settings(self.device, config_kwargs)
 
 
 def segmentation_to_regions(segmentation, image: Image.Image) -> list[Region]:
@@ -149,11 +147,7 @@ def segmentation_to_regions(segmentation, image: Image.Image) -> list[Region]:
     Returns:
         Top-level regions in reading order, each holding its lines.
     """
-    regions_by_id = {
-        region.id: region
-        for regions in (segmentation.regions or {}).values()
-        for region in regions
-    }
+    regions_by_id = {region.id: region for regions in (segmentation.regions or {}).values() for region in regions}
 
     # Order regions by the first line that belongs to them, so region order
     # follows the reading order kraken established for the lines.
@@ -164,8 +158,7 @@ def segmentation_to_regions(segmentation, image: Image.Image) -> list[Region]:
                 order.append(region_id)
 
     groups = [
-        (regions_by_id[region_id].boundary,
-         [ln for ln in segmentation.lines if region_id in (ln.regions or [])])
+        (regions_by_id[region_id].boundary, [ln for ln in segmentation.lines if region_id in (ln.regions or [])])
         for region_id in order
     ]
 

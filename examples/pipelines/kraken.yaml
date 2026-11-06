@@ -24,17 +24,19 @@ steps:
         min_len_frac: 0.12   # drop baselines shorter than this x page median
         merge_gap: 1.5       # max gap to bridge when merging, in line heights
         dy_tol: 0.6          # max vertical mismatch at the junction
-        clip_to_region: true # keep the last line from running into blank space
+        # clip_to_region: true would stop the last line on a page running on
+        # into blank space, but cuts real ink where a region is tighter than
+        # its lines, so it is left off here.
 
 # Text recognition: kraken extracts and straightens its own line images,
 # so this is `KrakenTextRecognition`, not the generic `TextRecognition`.
+# Lines are recognized in batches of 32. If memory runs short, lower that
+# with `generation_settings: {batch_size: 8}` under `settings`.
 - step: KrakenTextRecognition
   settings:
     model: KrakenRecognition
     model_settings:
       model: my-recognition-model.safetensors
-    generation_settings:
-      batch_size: 8
 
 - step: Export
   settings:
