@@ -19,6 +19,6 @@ runs:
       shell: bash
 
     - name: Install project dependencies
-      run: uv sync --all-extras --dev
+      run: uv sync --all-extras --dev --python ${{ inputs.python-version }}
 
       shell: bash
