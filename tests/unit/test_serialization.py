@@ -171,3 +171,36 @@ def test_alto_nested_coordinates_wordlevel(document_wordlevel: Document, alto_na
             for j, word in enumerate(line.findall("./String", alto_namespace)):
                 assert hpos + i + j == int(word.attrib.get("HPOS"))
                 assert vpos + i + j == int(word.attrib.get("VPOS"))
+
+
+def test_alto_hyphenation(document_wordlevel: Document, alto_namespace: dict):
+    serializer = AltoXML()
+
+    # Add hyphens to last word of each line
+    hyphens = "-¬="
+    words = []
+    for region in document_wordlevel.regions:
+        part1 = None
+        part2 = None
+        for i, line in enumerate(region.regions):
+            part2 = line.regions[0].transcription[0].text
+            if part1 is not None:
+                words.append((part1, part2))
+            word = line.regions[-1].transcription[0].text
+            part1 = word
+            line.regions[-1].transcription[0].text = word + hyphens[i % len(hyphens)]
+    words = ["".join(word) for word in words]
+
+    # Serialize doc
+    doc = serializer.serialize(document_wordlevel)
+    doc = ET.fromstring(doc)
+
+    # Check 1:1 relationship between words and SUBS_CONTENT on strings
+    # tagged with HypPart1.
+    hyppart1 = doc.findall(".//String[@SUBS_TYPE = 'HypPart1']", alto_namespace)
+    assert set(s.attrib.get("SUBS_CONTENT") for s in hyppart1) == set(words)
+
+    # Check 1:1 relationship between words and SUBS_CONTENT on strings
+    # tagged with HypPart2.
+    hyppart2 = doc.findall(".//String[@SUBS_TYPE = 'HypPart2']", alto_namespace)
+    assert set(s.attrib.get("SUBS_CONTENT") for s in hyppart2) == set(words)
