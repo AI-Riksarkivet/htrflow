@@ -44,8 +44,8 @@ def document():
 def document_wordlevel(document: Document):
     for line in document.leaves():
         text = line.transcription[0].text
-        for word in text.split():
-            Region(Bbox(0, 0, 1, 1).polygon(), transcription=Text(word, 0.5)).attach(line)
+        for i, word in enumerate(text.split()):
+            Region(Bbox(i, i, i + 1, i + 1).polygon(), transcription=Text(word, 0.5)).attach(line)
         line.transcription = []
     return document
 
@@ -153,3 +153,21 @@ def test_alto_nested_coordinates(document: Document, alto_namespace: dict):
         for i, line in enumerate(block.findall("./TextLine", alto_namespace)):
             assert hpos + i == int(line.attrib.get("HPOS"))
             assert vpos + i == int(line.attrib.get("VPOS"))
+
+
+def test_alto_nested_coordinates_wordlevel(document_wordlevel: Document, alto_namespace: dict):
+    serializer = AltoXML()
+    doc = serializer.serialize(document_wordlevel)
+    doc = ET.fromstring(doc)
+
+    for block in doc.findall(".//TextBlock", alto_namespace):
+        hpos = int(block.attrib.get("HPOS"))
+        vpos = int(block.attrib.get("VPOS"))
+
+        for i, line in enumerate(block.findall("./TextLine", alto_namespace)):
+            assert hpos + i == int(line.attrib.get("HPOS"))
+            assert vpos + i == int(line.attrib.get("VPOS"))
+
+            for j, word in enumerate(line.findall("./String", alto_namespace)):
+                assert hpos + i + j == int(word.attrib.get("HPOS"))
+                assert vpos + i + j == int(word.attrib.get("VPOS"))
