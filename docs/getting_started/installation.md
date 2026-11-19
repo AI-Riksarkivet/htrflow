@@ -61,6 +61,8 @@ Requirements:
 - With GPU: CUDA >=11.8 (required due to PyTorch 2.0, can still run on CPU)
 
 ```sh
+git clone git@github.com:AI-Riksarkivet/htrflow.git
+cd htrflow
 uv venv #or uv venv --python 3.10
 ```
 
@@ -72,8 +74,11 @@ Clone this repository and run:
 ```sh
 uv sync
 ```
-This will install the HTRflow package in a virtual environment.
+This will install the HTRflow package in a virtual environment. 
 
+```sh
+uv run htrflow pipeline pipeline.yaml image9.jpg
+```
 
 ## Docker 
 
@@ -93,13 +98,21 @@ This guide explains how to run HTRflow using Docker Compose, ensuring a consiste
 ### Docker compose configuration
 
 The `docker-compose.yml` file defines the services, configurations, and volume mappings needed to run HTRflow.
+Pipline configuration file `pipeline.yaml` is placed in "examples/pipelines" and defines the steps and what formats to export to. 
+Images to convert are placed under "examples/images/pages" and can be taken from e.g. [examples](https://github.com/AI-Riksarkivet/htrflow/tree/main/docs/examples)
+
+```sh
+docker-compose pull
+# Create directories
+# Download example files 
+docker-compose up
+```
+
 
 ```yaml title="docker-compose.yml"
-version: "3.8"
-
 services:
   htrflow:
-    image: docker/htrflow.dockerfile
+    image: airiksarkivet/htrflow:latest
     deploy:
       resources:
         reservations:
@@ -112,7 +125,7 @@ services:
       [
         "/bin/sh",
         "-c",
-        "htrflow pipeline pipeline/demo.yaml input --logfile logs/htrflow/htrflow.log",
+        "htrflow pipeline pipeline/pipeline.yaml input --logfile logs/htrflow/htrflow.log",
       ]
 
     volumes:
@@ -161,7 +174,9 @@ This command creates:
 Use Docker Compose to build the image and start the container:
 
 ```sh
-docker-compose up --build
+git clone git@github.com:AI-Riksarkivet/htrflow.git
+cd htrflow
+docker-compose -f docker/docker-compose.yml build
 ```
 
 - **`--build`**: Forces a rebuild of the Docker image.
@@ -172,7 +187,7 @@ docker-compose up --build
 To stop the Docker container and remove resources:
 
 ```sh
-docker-compose down --rmi all
+docker-compose -f docker/docker-compose.yml down --rmi all
 ```
 
 - **`--rmi all`**: Removes all images used by services.
